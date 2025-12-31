@@ -41,11 +41,18 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout vurvey-web-manager (for codebase analysis)
+      - name: Checkout vurvey-web-manager (for frontend codebase analysis)
         uses: actions/checkout@v4
         with:
           repository: batterii/vurvey-web-manager
           path: vurvey-web-manager
+          token: ${{ secrets.VURVEY_REPO_TOKEN }}
+
+      - name: Checkout vurvey-api (for backend codebase analysis)
+        uses: actions/checkout@v4
+        with:
+          repository: batterii/vurvey-api
+          path: vurvey-api
           token: ${{ secrets.VURVEY_REPO_TOKEN }}
 
       - name: Setup Node.js

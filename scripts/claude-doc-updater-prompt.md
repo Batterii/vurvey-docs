@@ -28,7 +28,9 @@ You are an autonomous documentation maintenance agent for the Vurvey platform. Y
 
 ## Phase 1: Documentation Analysis & Fixes
 
-For each documentation file in `docs/guide/`, compare against `vurvey-web-manager/src/`:
+For each documentation file in `docs/guide/`, compare against:
+- **Frontend**: `vurvey-web-manager/src/`
+- **Backend**: `vurvey-api/src/`
 
 ### Classification Rules
 
@@ -95,10 +97,16 @@ When documentation is correct but code has a bug, create a structured bug report
 - UI element missing that should exist
 - Behavior doesn't match documented workflow
 - Error handling differs from documentation
+- GraphQL schema doesn't match documented API
+- Backend validation differs from documented constraints
+
+**Target Repo Selection:**
+- `vurvey-web-manager` - Frontend bugs (React, UI, components)
+- `vurvey-api` - Backend bugs (GraphQL, models, services, validation)
 
 ---
 
-## Phase 2: Verification Areas
+## Phase 2: Frontend Verification Areas
 
 ### Area 1: Agents (`docs/guide/agents.md`)
 
@@ -168,6 +176,48 @@ When documentation is correct but code has a bug, create a structured bug report
 - Chat modes match implementation
 - Agent selector behavior
 - Data source options
+
+---
+
+## Phase 3: Backend API Verification Areas
+
+### Area 7: GraphQL API (`docs/guide/api.md` if exists)
+
+**Compare against:**
+- `vurvey-api/src/graphql/schema/` - SDL definitions
+- `vurvey-api/src/graphql/resolvers/` - Resolver implementations
+
+**Verify:**
+- Documented queries exist in schema
+- Documented mutations exist and have correct input types
+- Field types match documentation
+- Nullable/required fields match
+
+### Area 8: Data Models
+
+**Compare against:**
+- `vurvey-api/src/models/ai-persona.ts` - Agent/Persona model
+- `vurvey-api/src/models/ai-orchestration.ts` - Workflow model
+- `vurvey-api/src/models/survey.ts` - Campaign model
+- `vurvey-api/src/models/training-set.ts` - Dataset model
+
+**Verify:**
+- Documented fields exist in models
+- Field constraints (min/max length, patterns) match documentation
+- Default values match documentation
+- Required vs optional fields match
+
+### Area 9: Business Logic & Validation
+
+**Compare against:**
+- `vurvey-api/src/services/` - Service layer
+- `vurvey-api/src/api/` - API implementations
+
+**Verify:**
+- Documented workflows match actual implementation flow
+- Validation rules match documentation
+- Error messages match documented error cases
+- Rate limits or quotas match documentation
 
 ---
 
