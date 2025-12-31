@@ -1,149 +1,184 @@
 # People
 
-The People section manages your audiences, populations, and participant data for targeted research.
+The People section manages your audiences, populations, and participant data for targeted research. This section is accessed via the **Audience** navigation item in the sidebar.
 
 ## Overview
 
 ![People Section](/screenshots/people/01-people-main.png)
 
-The People section is organized into four sub-sections accessible via tabs.
+The People section provides a CRM-style interface for managing your research participants and AI-generated populations.
 
 ## Navigation Tabs
 
 | Tab | Purpose |
 |-----|---------|
-| **Populations** | Manage synthetic and real audience groups |
-| **Humans** | Individual real participant records |
-| **Lists & Segments** | Organize people into reusable segments |
-| **Properties** | Define custom attributes for profiles |
+| **Populations** | Manage synthetic and real audience groups used by AI agents |
+| **Contacts** | Individual participant records and response history |
+| **Lists** | Organize people into reusable segments for targeting |
+| **Properties** | Define and manage custom attributes for profiles |
 
 ## Populations
 
 ![Populations](/screenshots/people/02-populations.png)
 
-Populations are groups that agents can represent or analyze during research.
+Populations are groups that AI agents can represent or analyze during research conversations.
 
 ### Key Features
-- View all active audience groups
-- Search by population name
-- Sort by "Most Recently Updated"
-- Paginate through large lists
+- View all active audience groups in a grid layout
+- Search populations by name
+- Sort by "Most Recently Updated" or other criteria
+- Create new populations with demographic criteria
 
 ### Population Types
 
 | Type | Description |
 |------|-------------|
-| **Synthetic** | AI-generated representative samples |
-| **Real** | Based on actual participant data |
-| **Hybrid** | Combination of synthetic and real data |
+| **Synthetic** | AI-generated representative samples based on demographic parameters |
+| **Real** | Based on actual participant data from your contacts |
+| **Hybrid** | Combination of synthetic profiles augmented with real data |
 
 ### Creating Populations
-1. Click **+ Create Population**
-2. Define demographic criteria
-3. Set size and distribution
-4. Configure sampling parameters
 
-## Humans
+1. Click **+ Create Population** button
+2. Define demographic criteria (age, gender, location, etc.)
+3. Set population size and distribution parameters
+4. Configure sampling rules
+5. Save and activate the population
 
-![Humans](/screenshots/people/03-humans.png)
+### Population Details
 
-Manage individual participant profiles and their response history.
+Click any population card to view:
+- Population overview and statistics
+- Member breakdown by demographics
+- Usage history (which agents or campaigns used this population)
+- Edit or archive options
+
+## Contacts
+
+![Contacts](/screenshots/people/03-contacts.png)
+
+The Contacts tab manages individual participant profiles and their interaction history with your research campaigns.
 
 ### Features
-- Import participant data from CSV/Excel
-- View complete response history
-- Segment by demographics
-- Track participation status
+- Import participant data from CSV or Excel files
+- View complete response history per contact
+- Filter and segment by demographics or custom properties
+- Track participation status and engagement
 
-### Data Management
-- **Import** - Bulk upload participant records
-- **Export** - Download participant data
-- **Merge** - Combine duplicate records
-- **Archive** - Preserve inactive participants
+### Contact Actions
 
-## Lists & Segments
+| Action | Description |
+|--------|-------------|
+| **Import** | Bulk upload participant records from spreadsheets |
+| **Export** | Download contact data for external analysis |
+| **Merge** | Combine duplicate records into single profiles |
+| **Archive** | Preserve inactive contacts without deleting |
+
+### Contact Profile
+
+Each contact profile includes:
+- Basic information (name, email, demographics)
+- Custom property values
+- Campaign participation history
+- Response transcripts and videos
+- Segment memberships
+
+## Lists
 
 ![Lists & Segments](/screenshots/people/04-lists-segments.png)
 
-Create reusable audience definitions for campaigns and workflows.
+Lists allow you to create reusable audience definitions for campaigns and workflows.
 
-### Creating Segments
+### Creating Lists
 
 1. **Define criteria**
-   - Demographic filters
-   - Behavioral attributes
-   - Response history
+   - Demographic filters (age range, location, etc.)
+   - Behavioral attributes (past participation, response quality)
+   - Custom property values
 
-2. **Save segment**
-   - Name and describe
-   - Make reusable
-   - Share with team
+2. **Save the list**
+   - Provide a descriptive name
+   - Add notes about the list's purpose
+   - Choose sharing settings
 
 3. **Apply to campaigns**
-   - Target specific audiences
-   - Ensure representative samples
+   - Select lists when configuring campaign targeting
+   - Combine multiple lists for complex targeting
+   - Use exclusion lists to avoid certain participants
 
-### Segment Types
+### List Types
 
 | Type | Use Case |
 |------|----------|
-| **Static** | Fixed list of participants |
-| **Dynamic** | Auto-updates based on criteria |
-| **Exclusion** | People to exclude from research |
+| **Static** | Fixed list of specific contacts - membership doesn't change |
+| **Dynamic** | Auto-updates based on criteria - membership changes as contacts change |
+| **Exclusion** | People to exclude from research (e.g., internal staff, duplicate participants) |
 
 ## Properties
 
 ![Properties](/screenshots/people/05-properties.png)
 
-Define and manage custom attributes for people profiles.
+Properties define the custom attributes you can track for each contact in your system.
 
 ### Built-in Properties
+
+These default properties are available for all contacts:
 - Name
 - Email
 - Age
 - Gender
 - Location
+- Created Date
+- Last Activity
 
 ### Custom Properties
+
 Create fields specific to your research needs:
 
-| Property Type | Example |
-|---------------|---------|
-| **Text** | Occupation, interests |
-| **Number** | Income level, score |
-| **Date** | Signup date, last response |
-| **Select** | Category membership |
-| **Multi-select** | Multiple tags |
+| Property Type | Example Use Cases |
+|---------------|-------------------|
+| **Text** | Occupation, favorite brand, open-ended preferences |
+| **Number** | Income level, satisfaction score, household size |
+| **Date** | Signup date, last survey completion, birthday |
+| **Single Select** | Membership tier, customer segment, preferred contact method |
+| **Multi-select** | Product categories of interest, communication preferences |
+| **Boolean** | Has purchased, opted into marketing, verified email |
 
 ### Managing Properties
-1. Click **+ Add Property**
-2. Set name and type
-3. Configure validation rules
-4. Map to survey fields
+
+1. Click **+ Add Property** button
+2. Set property name and select type
+3. Configure validation rules (required, min/max values, etc.)
+4. Optionally map to survey question fields for auto-population
+5. Save the property
 
 ::: warning Property Changes
-Modifying properties may affect existing segments and campaign targeting. Test changes in staging first.
+Modifying or deleting properties may affect existing segments, campaign targeting rules, and workflow automations. Review dependencies before making changes.
 :::
 
 ## Best Practices
 
 ### Data Quality
-- Validate imports before processing
-- Deduplicate records regularly
-- Keep properties consistent
+- Validate imported data before processing
+- Deduplicate records regularly using the merge feature
+- Keep property definitions consistent across your organization
+- Archive rather than delete to preserve history
 
-### Privacy
-- Follow data protection regulations
-- Anonymize when appropriate
-- Secure sensitive information
+### Privacy & Compliance
+- Follow data protection regulations (GDPR, CCPA, etc.)
+- Use anonymization for sensitive research
+- Implement appropriate access controls
+- Document data retention policies
 
 ### Organization
-- Use clear naming conventions
-- Document segment criteria
-- Archive outdated populations
+- Use clear, descriptive names for populations and lists
+- Document segment criteria in list descriptions
+- Review and archive outdated populations quarterly
+- Standardize property names and values
 
 ## Next Steps
 
 - [Create a campaign targeting specific populations](/guide/campaigns)
-- [Use populations in workflows](/guide/workflows)
-- [Connect participant data to datasets](/guide/datasets)
+- [Use populations with AI agents in chat](/guide/home)
+- [Automate audience workflows](/guide/workflows)
+- [Upload data to datasets for AI analysis](/guide/datasets)

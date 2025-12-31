@@ -45,7 +45,7 @@ export default defineConfig({
           items: [
             { text: 'Home (Chat)', link: '/guide/home' },
             { text: 'Agents', link: '/guide/agents' },
-            { text: 'People', link: '/guide/people' },
+            { text: 'People (Audience)', link: '/guide/people' },
             { text: 'Campaigns', link: '/guide/campaigns' },
             { text: 'Datasets', link: '/guide/datasets' },
             { text: 'Workflow (Beta)', link: '/guide/workflows' },
