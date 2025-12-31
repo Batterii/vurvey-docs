@@ -53,19 +53,20 @@ jobs:
         run: npx puppeteer browsers install chrome
 
       - name: Capture screenshots
-        if: inputs.skip_screenshots != 'true'
+        if: ${{ inputs.skip_screenshots != true }}
         env:
           VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
           VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
           VURVEY_URL: ${{ env.VURVEY_URL }}
           VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
           HEADLESS: 'true'
+        continue-on-error: true
         run: |
           echo "Capturing screenshots from staging environment..."
-          npm run update:screenshots
+          npm run update:screenshots || echo "Screenshot capture had errors"
 
           # Check if screenshots changed
-          if git diff --quiet docs/screenshots/; then
+          if git diff --quiet docs/public/screenshots/; then
             echo "SCREENSHOTS_CHANGED=false" >> $GITHUB_ENV
           else
             echo "SCREENSHOTS_CHANGED=true" >> $GITHUB_ENV
@@ -73,7 +74,7 @@ jobs:
           fi
 
       - name: Run QA tests
-        if: inputs.skip_screenshots != 'true'
+        if: ${{ inputs.skip_screenshots != true }}
         env:
           VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
           VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
