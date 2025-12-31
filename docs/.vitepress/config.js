@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Vurvey Documentation',
   description: 'User onboarding and feature documentation for Vurvey - AI Powered by People',
-  base: '/vurvey-docs/',
+  base: '/vurvey-docs/',  // GitHub Pages path: batterii.github.io/vurvey-docs/
 
   head: [
     ['link', { rel: 'icon', href: '/vurvey-docs/favicon.ico' }],
@@ -61,7 +61,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/anthropics/vurvey-docs' }
+      { icon: 'github', link: 'https://github.com/Batterii/vurvey-docs' }
     ],
 
     footer: {
@@ -74,7 +74,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/anthropics/vurvey-docs/edit/main/docs/:path',
+      pattern: 'https://github.com/Batterii/vurvey-docs/edit/main/docs/:path',
       text: 'Edit this page on GitHub'
     },
 

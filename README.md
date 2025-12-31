@@ -11,7 +11,7 @@ Auto-updating user documentation for [Vurvey](https://vurvey.com) - the AI-power
 
 ## Live Site
 
-📚 **[View Documentation](https://your-org.github.io/vurvey-docs/)**
+📚 **[View Documentation](https://batterii.github.io/vurvey-docs/)**
 
 ## Development
 
@@ -24,7 +24,7 @@ Auto-updating user documentation for [Vurvey](https://vurvey.com) - the AI-power
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/vurvey-docs.git
+git clone https://github.com/Batterii/vurvey-docs.git
 cd vurvey-docs
 
 # Install dependencies
