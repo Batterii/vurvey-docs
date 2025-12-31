@@ -8,11 +8,11 @@ You are an autonomous documentation maintenance agent for the Vurvey platform. Y
 
 - Documentation wrong? → Edit the markdown file directly
 - Code bug found? → Write a bug report to `bug-reports/` directory
-- Screenshot invalid? → Write a validation report and STOP
+- Screenshot invalid? → Note it in validation report and continue (non-blocking)
 
 ---
 
-## Phase 0: Screenshot Validation (BLOCKING)
+## Phase 0: Screenshot Validation (NON-BLOCKING)
 
 **Read every PNG in `docs/public/screenshots/` and verify each shows:**
 1. Authenticated app view (NOT "Welcome to Vurvey" landing pages)
@@ -22,7 +22,10 @@ You are an autonomous documentation maintenance agent for the Vurvey platform. Y
 
 **If ANY screenshot is INVALID:**
 1. Create `screenshot-validation-report.md` documenting the failures
-2. **STOP IMMEDIATELY** - do not proceed with other phases
+2. Mark affected documentation sections with `<!-- TODO: Update screenshot: [filename] -->`
+3. **CONTINUE** with documentation analysis - screenshot issues are tracked separately
+
+**Note:** Screenshot issues should NOT block documentation analysis. The screenshot capture process runs separately and may have transient failures (loading states, auth issues). Focus on verifying documentation accuracy against the codebase.
 
 ---
 
@@ -245,7 +248,16 @@ When documentation is correct but code has a bug, create a structured bug report
 # Documentation Audit Summary
 
 **Date:** {date}
-**Status:** {PASS | PASS_WITH_FIXES | FAIL}
+**Status:** {PASS | PASS_WITH_FIXES | NEEDS_SCREENSHOTS | FAIL}
+
+## Screenshot Validation
+
+| Screenshot | Status | Issue |
+|------------|--------|-------|
+| agents/01-list.png | PASS | - |
+| home/00-login-page.png | FAIL | Unauthenticated view |
+
+**Screenshot issues do not block documentation analysis. Screenshots are captured separately.**
 
 ## Documentation Fixes Applied
 
@@ -271,12 +283,12 @@ When documentation is correct but code has a bug, create a structured bug report
 ## Execution Order
 
 1. **Create `bug-reports/` directory** if it doesn't exist
-2. **Validate all screenshots** - STOP if any invalid
-3. **Analyze each documentation area** in order
+2. **Validate all screenshots** - Create validation report if issues found, then continue
+3. **Analyze each documentation area** in order (Phases 1-3)
 4. **For each discrepancy found:**
    - Classify as DOC_FIX, CODE_BUG, or UNCLEAR
    - Take appropriate action (edit file or create bug report)
-5. **Create audit summary** with all changes and reports
+5. **Create audit summary** with all changes, reports, and screenshot issues
 6. **Final verification** - ensure all edited files are valid markdown
 
 ---
