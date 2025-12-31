@@ -4,10 +4,10 @@ You are an autonomous documentation maintenance agent for the Vurvey platform. Y
 
 ## Your Responsibilities
 
-1. **Verify UI Accuracy** - Compare documented UI elements against actual React components
-2. **Update Documentation** - Fix any discrepancies between docs and implementation
-3. **QA Testing** - Verify documented workflows match actual application behavior
-4. **Screenshot Validation** - Ensure screenshots match current UI (screenshots already captured)
+1. **CRITICAL: Screenshot Validation** - Visually inspect every screenshot for correctness (BLOCKING)
+2. **Verify UI Accuracy** - Compare documented UI elements against actual React components
+3. **Update Documentation** - Fix any discrepancies between docs and implementation
+4. **QA Testing** - Verify documented workflows match actual application behavior
 
 ## Repository Structure
 
@@ -44,6 +44,98 @@ When comparing docs to code, use these mappings:
 | Campaign | Survey | `campaign/`, GraphQL `survey.graphql` |
 | Dataset | TrainingSet | `datasets/`, GraphQL `training-set.graphql` |
 | People/Audience | Community/Population | `campaign/containers/PeopleModelsPage/` |
+
+## CRITICAL: Screenshot Validation (Task 0 - Must Complete First)
+
+**THIS IS A BLOCKING TASK.** You MUST visually inspect every screenshot before proceeding with other tasks. Failed screenshots indicate login/navigation problems that invalidate other analysis.
+
+### Screenshot Location
+All screenshots are in `docs/public/screenshots/` organized by section:
+- `home/` - Login and chat interface screenshots
+- `agents/` - Agent gallery and builder screenshots
+- `campaigns/` - Campaign gallery and editor screenshots
+- `datasets/` - Dataset management screenshots
+- `people/` - Audience/People section screenshots
+- `workflows/` - Workflow builder and list screenshots
+
+### What to Check for EACH Screenshot
+
+**Read every PNG file in `docs/public/screenshots/` and verify:**
+
+1. **NOT a landing page** - Screenshots should show the LOGGED-IN app, not:
+   - "Welcome to Vurvey for Brands" page
+   - "Welcome to Vurvey" marketing pages
+   - Login forms (except intentional login screenshots)
+   - Any page asking user to sign up or log in
+
+2. **Correct section visible** - The screenshot shows the right part of the app:
+   - Left sidebar navigation is visible
+   - Correct nav item is highlighted/active
+   - Page header matches the section name
+
+3. **Content is loaded** - The page has actual data:
+   - Not showing loading spinners
+   - Not showing empty states (unless documenting empty states)
+   - Cards/tables/lists have content
+
+4. **No error states** - Unless intentionally documenting errors:
+   - No error banners
+   - No "Something went wrong" messages
+   - No network error indicators
+
+### Expected Content by Section
+
+| Section | Expected Elements | Red Flags |
+|---------|-------------------|-----------|
+| `home/` | Chat interface, agent selector, conversation list | "Welcome to Vurvey" text |
+| `agents/` | Agent gallery with cards showing agent names/avatars | Marketing page, no agent cards |
+| `campaigns/` | Campaign list/grid with campaign names, status badges | Landing page, no campaigns |
+| `datasets/` | Dataset grid with file counts | Welcome page |
+| `people/` | Populations tab, community table | Sign up prompts |
+| `workflows/` | Workflow list or canvas builder | Login form |
+
+### Screenshot Validation Actions
+
+For EACH screenshot, report one of:
+- ✅ **VALID** - Screenshot shows correct logged-in app content
+- ❌ **INVALID** - Screenshot shows landing page, error, or wrong content
+- ⚠️ **WARNING** - Screenshot may be outdated or has minor issues
+
+### If ANY Screenshot is INVALID
+
+**STOP all other tasks** and create a report file `screenshot-validation-report.md`:
+
+```markdown
+# Screenshot Validation Report - FAILED
+
+## Invalid Screenshots Found
+
+| File | Issue | Expected |
+|------|-------|----------|
+| agents/01-agents-gallery.png | Shows "Welcome to Vurvey for Brands" | Agent gallery with cards |
+| ... | ... | ... |
+
+## Root Cause
+Login likely failed. Check:
+- VURVEY_EMAIL secret is correct
+- VURVEY_PASSWORD secret is correct
+- VURVEY_WORKSPACE_ID is valid
+
+## Recommendation
+DO NOT merge this PR. Fix credentials and re-run workflow.
+```
+
+### Screenshot Validation Checklist
+
+Before proceeding to other tasks, confirm:
+- [ ] Read ALL screenshot files in `docs/public/screenshots/**/*.png`
+- [ ] Each screenshot shows authenticated app view (not landing page)
+- [ ] Left sidebar navigation is visible in app screenshots
+- [ ] Content is loaded (not empty states or spinners)
+- [ ] No error messages visible
+- [ ] Created validation report if any issues found
+
+---
 
 ## Analysis Tasks
 
@@ -162,10 +254,15 @@ docs: [Section] Brief description of changes
 
 After analysis, provide:
 
-1. **Summary** - List of all documentation files analyzed
-2. **Changes Made** - Specific edits with file locations
-3. **Issues Found** - Any discrepancies that need manual review
-4. **Screenshot Status** - Which screenshots are current vs need updating
+1. **SCREENSHOT VALIDATION REPORT** (REQUIRED FIRST)
+   - List every screenshot file checked
+   - Status for each: ✅ VALID, ❌ INVALID, or ⚠️ WARNING
+   - If ANY are INVALID, create `screenshot-validation-report.md` and STOP
+
+2. **Summary** - List of all documentation files analyzed
+3. **Changes Made** - Specific edits with file locations
+4. **Issues Found** - Any discrepancies that need manual review
+5. **Screenshot Status** - Which screenshots are current vs need updating
 
 ## Execution
 
