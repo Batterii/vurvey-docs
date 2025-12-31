@@ -42,6 +42,14 @@ const results = {
   endTime: null,
 };
 
+// Failure screenshots directory
+const failureScreenshotsDir = path.join(__dirname, '..', 'qa-failure-screenshots');
+
+// Current test context for screenshots
+let currentPage = null;
+let currentRoute = null;
+let currentSection = null;
+
 // Helper functions
 function log(message, type = 'info') {
   const timestamp = new Date().toISOString();
@@ -54,15 +62,67 @@ function log(message, type = 'info') {
   console.log(`${timestamp} ${prefix} ${message}`);
 }
 
-function recordTest(name, passed, details = '') {
-  const result = { name, details, timestamp: new Date().toISOString() };
+async function recordTest(name, passed, details = '', selector = null) {
+  const result = {
+    name,
+    details,
+    timestamp: new Date().toISOString(),
+    section: currentSection,
+    route: currentRoute,
+    selector: selector,
+  };
+
   if (passed) {
     results.passed.push(result);
     log(`${name}: ${details || 'OK'}`, 'pass');
   } else {
+    // Capture failure screenshot
+    let screenshotPath = null;
+    if (currentPage) {
+      try {
+        await fs.mkdir(failureScreenshotsDir, { recursive: true });
+        const safeName = name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+        const timestamp = Date.now();
+        screenshotPath = path.join(failureScreenshotsDir, `${safeName}-${timestamp}.png`);
+        await currentPage.screenshot({ path: screenshotPath, fullPage: true });
+        log(`  Screenshot saved: ${screenshotPath}`, 'info');
+      } catch (e) {
+        log(`  Could not capture screenshot: ${e.message}`, 'warn');
+      }
+    }
+
+    // Build reproduction steps
+    const reproSteps = buildReproductionSteps(name, selector);
+
+    result.screenshot = screenshotPath;
+    result.reproductionSteps = reproSteps;
     results.failed.push(result);
     log(`${name}: ${details || 'FAILED'}`, 'fail');
   }
+}
+
+function buildReproductionSteps(testName, selector) {
+  const steps = [
+    `1. Navigate to ${config.baseUrl}`,
+    `2. Log in with test credentials`,
+  ];
+
+  if (currentRoute) {
+    steps.push(`3. Navigate to route: ${currentRoute}`);
+  }
+
+  if (selector) {
+    steps.push(`4. Look for element matching: ${selector}`);
+  }
+
+  steps.push(`5. Expected: Element should be present and visible`);
+  steps.push(`6. Actual: Element was not found or not visible`);
+  steps.push('');
+  steps.push(`Test: ${testName}`);
+  steps.push(`Section: ${currentSection || 'Unknown'}`);
+  steps.push(`Route: ${currentRoute || 'Unknown'}`);
+
+  return steps;
 }
 
 function recordWarning(name, details) {
@@ -100,76 +160,75 @@ async function getTextContent(page, selector) {
 
 // Test Suite Classes
 class TestSuite {
-  constructor(page, workspaceId) {
+  constructor(page, workspaceId, sectionName) {
     this.page = page;
     this.workspaceId = workspaceId;
+    this.sectionName = sectionName;
+    currentPage = page;
+    currentSection = sectionName;
   }
 
   async navigate(route) {
+    currentRoute = route;
     const url = `${config.baseUrl}/${this.workspaceId}${route}`;
     await this.page.goto(url, { waitUntil: 'networkidle2' });
     await waitForNetworkIdle(this.page);
+  }
+
+  async testElement(testName, selector, timeout = 3000) {
+    const exists = await elementExists(this.page, selector, timeout);
+    await recordTest(testName, exists, exists ? 'Found' : 'Not found', selector);
+    return exists;
   }
 }
 
 // Home/Chat Tests
 class HomeChatTests extends TestSuite {
+  constructor(page, workspaceId) {
+    super(page, workspaceId, 'Home/Chat');
+  }
+
   async runAll() {
     log('Running Home/Chat Tests...', 'info');
     await this.navigate('/');
 
-    // Test 1: Chat input exists
-    const chatInputExists = await elementExists(this.page, '[data-testid="chat-input"], textarea, input[placeholder*="message" i]');
-    recordTest('Home: Chat input present', chatInputExists);
-
-    // Test 2: Agent selector exists
-    const agentSelectorExists = await elementExists(this.page, '[data-testid="agent-selector"], [class*="agent" i][class*="select" i], [class*="persona" i]');
-    recordTest('Home: Agent selector present', agentSelectorExists);
-
-    // Test 3: Mode toggles exist (Chat, My Data, Web)
-    const modeTogglesExist = await elementExists(this.page, '[data-testid="mode-toggle"], [class*="mode" i], button');
-    recordTest('Home: Mode toggles present', modeTogglesExist);
-
-    // Test 4: Conversation sidebar exists
-    const sidebarExists = await elementExists(this.page, '[class*="sidebar" i], [class*="conversation" i][class*="list" i], nav');
-    recordTest('Home: Conversation sidebar present', sidebarExists);
-
-    // Test 5: New conversation button
-    const newConvoButton = await elementExists(this.page, 'button[aria-label*="new" i], [class*="new"][class*="conversation" i], button');
-    recordTest('Home: New conversation button present', newConvoButton);
+    await this.testElement('Home: Chat input present',
+      '[data-testid="chat-input"], textarea, input[placeholder*="message" i]');
+    await this.testElement('Home: Agent selector present',
+      '[data-testid="agent-selector"], [class*="agent" i][class*="select" i], [class*="persona" i]');
+    await this.testElement('Home: Mode toggles present',
+      '[data-testid="mode-toggle"], [class*="mode" i], button');
+    await this.testElement('Home: Conversation sidebar present',
+      '[class*="sidebar" i], [class*="conversation" i][class*="list" i], nav');
+    await this.testElement('Home: New conversation button present',
+      'button[aria-label*="new" i], [class*="new"][class*="conversation" i], button');
   }
 }
 
 // Agent Tests
 class AgentTests extends TestSuite {
+  constructor(page, workspaceId) {
+    super(page, workspaceId, 'Agents');
+  }
+
   async runAll() {
     log('Running Agent Tests...', 'info');
     await this.navigate('/agents');
 
-    // Test 1: Agent gallery/grid present
-    const agentGridExists = await elementExists(this.page, '[class*="grid" i], [class*="gallery" i], [class*="card" i]');
-    recordTest('Agents: Gallery grid present', agentGridExists);
+    await this.testElement('Agents: Gallery grid present',
+      '[class*="grid" i], [class*="gallery" i], [class*="card" i]');
+    await this.testElement('Agents: Create button present', 'button');
+    await this.testElement('Agents: Search input present',
+      'input[type="search"], input[placeholder*="search" i], [class*="search" i] input');
+    await this.testElement('Agents: Filter/sort controls present',
+      '[class*="filter" i], [class*="sort" i], select');
 
-    // Test 2: Create agent button
-    const createButtonExists = await elementExists(this.page, 'button');
-    recordTest('Agents: Create button present', createButtonExists);
-
-    // Test 3: Search functionality
-    const searchExists = await elementExists(this.page, 'input[type="search"], input[placeholder*="search" i], [class*="search" i] input');
-    recordTest('Agents: Search input present', searchExists);
-
-    // Test 4: Filter/sort controls
-    const filterExists = await elementExists(this.page, '[class*="filter" i], [class*="sort" i], select');
-    recordTest('Agents: Filter/sort controls present', filterExists);
-
-    // Test 5: Agent cards have expected elements
     const hasAgentCards = await elementExists(this.page, '[class*="card" i], [class*="agent" i][class*="item" i]');
     if (hasAgentCards) {
-      const cardHasAvatar = await elementExists(this.page, '[class*="avatar" i], img[class*="agent" i]');
-      recordTest('Agents: Card avatars present', cardHasAvatar);
-
-      const cardHasMenu = await elementExists(this.page, '[class*="menu" i], [class*="dropdown" i], button[aria-label*="more" i]');
-      recordTest('Agents: Card menus present', cardHasMenu);
+      await this.testElement('Agents: Card avatars present',
+        '[class*="avatar" i], img[class*="agent" i]');
+      await this.testElement('Agents: Card menus present',
+        '[class*="menu" i], [class*="dropdown" i], button[aria-label*="more" i]');
     } else {
       recordWarning('Agents: No agent cards found', 'May be empty workspace');
     }
@@ -178,123 +237,107 @@ class AgentTests extends TestSuite {
 
 // People/Audience Tests
 class PeopleTests extends TestSuite {
+  constructor(page, workspaceId) {
+    super(page, workspaceId, 'People/Audience');
+  }
+
   async runAll() {
     log('Running People/Audience Tests...', 'info');
     await this.navigate('/audience');
 
-    // Test 1: Navigation tabs exist
-    const tabsExist = await elementExists(this.page, '[role="tablist"], [class*="tab" i], nav button');
-    recordTest('People: Navigation tabs present', tabsExist);
+    await this.testElement('People: Navigation tabs present',
+      '[role="tablist"], [class*="tab" i], nav button');
+    await this.testElement('People: Populations view present',
+      '[class*="population" i], [class*="grid" i], [class*="card" i]');
 
-    // Test 2: Populations tab (default view)
-    const populationsView = await elementExists(this.page, '[class*="population" i], [class*="grid" i], [class*="card" i]');
-    recordTest('People: Populations view present', populationsView);
-
-    // Test 3: Navigate to Humans tab
     await this.navigate('/audience/community');
     await waitForNetworkIdle(this.page);
+    await this.testElement('People: Humans table present',
+      'table, [class*="table" i], [role="grid"]');
 
-    const humansTable = await elementExists(this.page, 'table, [class*="table" i], [role="grid"]');
-    recordTest('People: Humans table present', humansTable);
-
-    // Test 4: Navigate to Lists & Segments
     await this.navigate('/audience/segments');
     await waitForNetworkIdle(this.page);
+    await this.testElement('People: Segments view present',
+      '[class*="segment" i], [class*="list" i], table');
 
-    const segmentsView = await elementExists(this.page, '[class*="segment" i], [class*="list" i], table');
-    recordTest('People: Segments view present', segmentsView);
-
-    // Test 5: Navigate to Properties
     await this.navigate('/audience/properties');
     await waitForNetworkIdle(this.page);
-
-    const propertiesView = await elementExists(this.page, '[class*="propert" i], table, [class*="list" i]');
-    recordTest('People: Properties view present', propertiesView);
+    await this.testElement('People: Properties view present',
+      '[class*="propert" i], table, [class*="list" i]');
   }
 }
 
 // Campaign Tests
 class CampaignTests extends TestSuite {
+  constructor(page, workspaceId) {
+    super(page, workspaceId, 'Campaigns');
+  }
+
   async runAll() {
     log('Running Campaign Tests...', 'info');
     await this.navigate('/campaigns');
 
-    // Test 1: Campaign grid/list present
-    const campaignGridExists = await elementExists(this.page, '[class*="grid" i], [class*="card" i], [class*="campaign" i]');
-    recordTest('Campaigns: Campaign grid present', campaignGridExists);
+    await this.testElement('Campaigns: Campaign grid present',
+      '[class*="grid" i], [class*="card" i], [class*="campaign" i]');
+    await this.testElement('Campaigns: Create button present', 'button');
+    await this.testElement('Campaigns: Navigation tabs present',
+      '[role="tablist"], [class*="tab" i]');
+    await this.testElement('Campaigns: Filter controls present',
+      '[class*="filter" i], select, [class*="sort" i]');
 
-    // Test 2: Create campaign button
-    const createExists = await elementExists(this.page, 'button');
-    recordTest('Campaigns: Create button present', createExists);
-
-    // Test 3: Navigation tabs (All, Templates, Usage, Magic Reels)
-    const tabsExist = await elementExists(this.page, '[role="tablist"], [class*="tab" i]');
-    recordTest('Campaigns: Navigation tabs present', tabsExist);
-
-    // Test 4: Filter and sort controls
-    const filtersExist = await elementExists(this.page, '[class*="filter" i], select, [class*="sort" i]');
-    recordTest('Campaigns: Filter controls present', filtersExist);
-
-    // Test 5: Campaign cards have status badges
     const hasCards = await elementExists(this.page, '[class*="card" i]');
     if (hasCards) {
-      const statusBadge = await elementExists(this.page, '[class*="badge" i], [class*="status" i], [class*="chip" i]');
-      recordTest('Campaigns: Status badges present', statusBadge);
+      await this.testElement('Campaigns: Status badges present',
+        '[class*="badge" i], [class*="status" i], [class*="chip" i]');
     }
   }
 }
 
 // Dataset Tests
 class DatasetTests extends TestSuite {
+  constructor(page, workspaceId) {
+    super(page, workspaceId, 'Datasets');
+  }
+
   async runAll() {
     log('Running Dataset Tests...', 'info');
     await this.navigate('/datasets');
 
-    // Test 1: Dataset grid present
-    const datasetGridExists = await elementExists(this.page, '[class*="grid" i], [class*="card" i], [class*="dataset" i]');
-    recordTest('Datasets: Grid present', datasetGridExists);
+    await this.testElement('Datasets: Grid present',
+      '[class*="grid" i], [class*="card" i], [class*="dataset" i]');
+    await this.testElement('Datasets: Create button present', 'button');
+    await this.testElement('Datasets: Search input present',
+      'input[type="search"], input[placeholder*="search" i]');
 
-    // Test 2: Create dataset button
-    const createExists = await elementExists(this.page, 'button');
-    recordTest('Datasets: Create button present', createExists);
-
-    // Test 3: Search functionality
-    const searchExists = await elementExists(this.page, 'input[type="search"], input[placeholder*="search" i]');
-    recordTest('Datasets: Search input present', searchExists);
-
-    // Test 4: Dataset cards show file count
     const hasCards = await elementExists(this.page, '[class*="card" i]');
     if (hasCards) {
-      const fileCount = await elementExists(this.page, '[class*="file" i], [class*="count" i]');
-      recordTest('Datasets: File count shown', fileCount);
+      await this.testElement('Datasets: File count shown',
+        '[class*="file" i], [class*="count" i]');
     }
   }
 }
 
 // Workflow Tests
 class WorkflowTests extends TestSuite {
+  constructor(page, workspaceId) {
+    super(page, workspaceId, 'Workflows');
+  }
+
   async runAll() {
     log('Running Workflow Tests...', 'info');
     await this.navigate('/workflow');
 
-    // Test 1: Workflow navigation tabs
-    const tabsExist = await elementExists(this.page, '[role="tablist"], [class*="tab" i]');
-    recordTest('Workflows: Navigation tabs present', tabsExist);
+    await this.testElement('Workflows: Navigation tabs present',
+      '[role="tablist"], [class*="tab" i]');
 
-    // Test 2: Navigate to Flows
     await this.navigate('/workflow/flows');
     await waitForNetworkIdle(this.page);
 
-    const flowsGrid = await elementExists(this.page, '[class*="grid" i], [class*="card" i], [class*="flow" i]');
-    recordTest('Workflows: Flows grid present', flowsGrid);
-
-    // Test 3: Create workflow button
-    const createExists = await elementExists(this.page, 'button');
-    recordTest('Workflows: Create button present', createExists);
-
-    // Test 4: Search and sort controls
-    const controlsExist = await elementExists(this.page, 'input[type="search"], select, [class*="sort" i]');
-    recordTest('Workflows: Search/sort controls present', controlsExist);
+    await this.testElement('Workflows: Flows grid present',
+      '[class*="grid" i], [class*="card" i], [class*="flow" i]');
+    await this.testElement('Workflows: Create button present', 'button');
+    await this.testElement('Workflows: Search/sort controls present',
+      'input[type="search"], select, [class*="sort" i]');
   }
 }
 
@@ -344,6 +387,7 @@ async function generateReport() {
       warnings: results.warnings.length,
       duration: `${duration.toFixed(2)}s`,
       timestamp: results.startTime.toISOString(),
+      baseUrl: config.baseUrl,
     },
     passed: results.passed,
     failed: results.failed,
@@ -353,6 +397,45 @@ async function generateReport() {
   // Save JSON report
   const reportPath = path.join(__dirname, '..', 'qa-report.json');
   await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
+
+  // Generate markdown report for failures with reproduction steps
+  if (results.failed.length > 0) {
+    const mdReportPath = path.join(__dirname, '..', 'qa-failure-report.md');
+    let mdContent = `# QA Test Failure Report\n\n`;
+    mdContent += `**Generated**: ${results.startTime.toISOString()}\n`;
+    mdContent += `**Target URL**: ${config.baseUrl}\n`;
+    mdContent += `**Duration**: ${duration.toFixed(2)}s\n\n`;
+    mdContent += `## Summary\n\n`;
+    mdContent += `- **Passed**: ${results.passed.length}\n`;
+    mdContent += `- **Failed**: ${results.failed.length}\n`;
+    mdContent += `- **Warnings**: ${results.warnings.length}\n\n`;
+    mdContent += `## Failed Tests\n\n`;
+
+    for (const failure of results.failed) {
+      mdContent += `### ${failure.name}\n\n`;
+      mdContent += `**Section**: ${failure.section || 'Unknown'}\n`;
+      mdContent += `**Route**: ${failure.route || 'Unknown'}\n`;
+      mdContent += `**Selector**: \`${failure.selector || 'N/A'}\`\n`;
+      mdContent += `**Time**: ${failure.timestamp}\n\n`;
+
+      if (failure.screenshot) {
+        const relPath = path.relative(path.join(__dirname, '..'), failure.screenshot);
+        mdContent += `**Screenshot**: \`${relPath}\`\n\n`;
+      }
+
+      if (failure.reproductionSteps && failure.reproductionSteps.length > 0) {
+        mdContent += `**Reproduction Steps**:\n\n`;
+        for (const step of failure.reproductionSteps) {
+          mdContent += `${step}\n`;
+        }
+        mdContent += `\n`;
+      }
+      mdContent += `---\n\n`;
+    }
+
+    await fs.writeFile(mdReportPath, mdContent);
+    console.log(`\nFailure report saved to: ${mdReportPath}`);
+  }
 
   // Print summary
   console.log('\n' + '='.repeat(60));
@@ -367,7 +450,12 @@ async function generateReport() {
 
   if (results.failed.length > 0) {
     console.log('\nFailed Tests:');
-    results.failed.forEach(f => console.log(`  - ${f.name}: ${f.details}`));
+    for (const f of results.failed) {
+      console.log(`  - ${f.name}: ${f.details}`);
+      if (f.screenshot) {
+        console.log(`    Screenshot: ${f.screenshot}`);
+      }
+    }
   }
 
   if (results.warnings.length > 0) {

@@ -158,6 +158,9 @@ jobs:
             /tmp/claude-output.md
             /tmp/claude-log.txt
             qa-report.json
+            qa-failure-report.md
+            qa-failure-screenshots/
+            screenshot-validation-report.md
           retention-days: 7
 
   notify-on-failure:

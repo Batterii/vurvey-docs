@@ -32,3 +32,8 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
+
+# QA test artifacts
+qa-failure-screenshots/
+qa-failure-report.md
+screenshot-validation-report.md
