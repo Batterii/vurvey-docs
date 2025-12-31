@@ -30,11 +30,11 @@ The left sidebar provides quick access to all sections:
 
 | Task | Location |
 |------|----------|
-| Create an agent | Agents > + Create Agent |
-| Upload files | Datasets > + Create Dataset |
-| Build audience | Audience > Populations > + Create Population |
+| Create an agent | Agents > + Create Agent (6-step builder) |
+| Upload files | Datasets > Create Dataset > Add files |
+| Build audience | Audience > Populations |
 | Launch survey | Campaigns > + Create Campaign |
-| Automate tasks | Workflow > + Create Workflow |
+| Automate tasks | Workflow > Create new workflow |
 
 ### Finding Information
 
@@ -44,7 +44,7 @@ The left sidebar provides quick access to all sections:
 | Find campaigns | Campaigns page > Search field |
 | Locate datasets | Datasets page > Search field |
 | View past chats | Home > Conversations sidebar > View all |
-| Search contacts | Audience > Contacts > Search |
+| Search contacts | Audience > Humans > Search |
 
 ## Chat Modes
 
@@ -58,12 +58,23 @@ Modes can be combined for comprehensive analysis.
 
 ## People Section Tabs
 
-| Tab | Purpose |
-|-----|---------|
-| **Populations** | Synthetic and real audience groups for agents |
-| **Humans** | Individual participant records |
-| **Lists & Segments** | Reusable audience segments |
-| **Properties** | Custom contact attributes |
+| Tab | Route | Purpose |
+|-----|-------|---------|
+| **Populations** | /audience | Synthetic and real audience groups |
+| **Humans** | /audience/community | Individual participant records |
+| **Lists & Segments** | /audience/segments | Reusable audience segments |
+| **Properties** | /audience/properties | Custom contact attributes |
+
+## Agent Builder Steps
+
+| Step | Name | Purpose |
+|------|------|---------|
+| 1 | **Objective** | Choose agent type and define mission |
+| 2 | **Facets** | Select personality traits |
+| 3 | **Instructions** | Add knowledge, tools, datasets |
+| 4 | **Identity** | Set name, bio, voice |
+| 5 | **Appearance** | Upload/generate avatar |
+| 6 | **Review** | Test and activate |
 
 ## Campaign Status Guide
 
@@ -72,33 +83,41 @@ Modes can be combined for comprehensive analysis.
 | **Draft** | In development, not live | Edit, Preview, Launch |
 | **Open** | Actively collecting responses | Monitor, Pause, Close |
 | **Closed** | Collection complete | View Results, Export, Archive |
+| **Blocked** | Temporarily paused | Review, Resume, Close |
+| **Archived** | Inactive but preserved | View Results, Unarchive |
+
+## Dataset File Status
+
+| Status | Meaning |
+|--------|---------|
+| **Uploaded** | Received, waiting for processing |
+| **Processing** | AI is analyzing the file |
+| **Success** | Ready for use in conversations |
+| **Failed** | Processing error (retry available) |
 
 ## Workflow Status Guide
 
 | Status | Meaning |
 |--------|---------|
-| **Pending** | Scheduled, waiting to run |
+| **Building** | In development mode |
 | **Running** | Currently executing |
 | **Completed** | Finished successfully |
 | **Failed** | Error occurred |
-| **Paused** | Waiting for input |
+| **Cancelled** | Manually stopped |
 
 ## File Format Support
 
 ### Documents
-PDF, DOCX, TXT, MD, RTF
+PDF, DOCX, TXT, MD, CSV, JSON
 
-### Spreadsheets
-XLSX, CSV, XLS
+### Presentations
+PPTX, XLSX
 
 ### Media
-MP4, MP3, WAV, MOV, AVI
+MP4, MOV, MP3, WAV
 
 ### Images
-PNG, JPG, GIF, SVG
-
-### Data
-JSON, XML
+PNG, JPG, GIF
 
 ## Agent Types
 
@@ -109,6 +128,16 @@ JSON, XML
 | **Expert** | Domain-specific analysis |
 | **Analyst** | Data interpretation and insights |
 
+## Permission Levels
+
+Used across Agents, Campaigns, Datasets, and Workflows:
+
+| Permission | Allows |
+|------------|--------|
+| **Edit** | Modify configuration and content |
+| **Delete** | Remove the resource |
+| **Manage** | Share and modify permissions |
+
 ## Keyboard Shortcuts
 
 | Action | Shortcut |
@@ -117,14 +146,14 @@ JSON, XML
 | New line in chat | `Shift + Enter` |
 | New conversation | Click `+` button |
 
-## Workflow Triggers
+## Workflow Node Types
 
-| Trigger | Description |
-|---------|-------------|
-| **Manual** | Click to run on-demand |
-| **Scheduled** | Time-based (daily, weekly, custom cron) |
-| **Event** | Triggered by actions (campaign complete, data upload) |
-| **Webhook** | External system triggers via HTTP |
+| Node | Purpose |
+|------|---------|
+| **Variables** | Define input parameters |
+| **Sources** | Select data sources |
+| **Agent Task** | AI agent step with prompt |
+| **Output** | Final results summary |
 
 ## Troubleshooting
 
@@ -136,10 +165,10 @@ JSON, XML
 5. Check if selected agent is available
 
 ### File Upload Failed
-1. Verify file size is within limits
-2. Confirm format is supported
+1. Verify file format is supported
+2. Check file size limits
 3. Try re-uploading the file
-4. Split large files into smaller chunks
+4. Split large files if needed
 5. Check available storage quota
 
 ### Campaign Not Launching
@@ -149,12 +178,19 @@ JSON, XML
 4. Preview campaign before launching
 5. Review any validation errors
 
+### Dataset Processing Stuck
+1. Check the status badge
+2. Wait for automatic polling (30 seconds)
+3. Refresh the page
+4. Retry failed files
+5. Contact support if extended
+
 ### Workflow Not Running
-1. Check trigger configuration
-2. Verify all steps are properly connected
-3. Confirm agents referenced are available
-4. Review error logs from previous runs
-5. Test with manual trigger first
+1. Check workflow has no validation errors
+2. Ensure no unsaved changes exist
+3. Verify agents are assigned
+4. Review schedule configuration
+5. Test with manual run first
 
 ## Getting Help
 
@@ -176,6 +212,8 @@ JSON, XML
 | **Magic Summary** | AI-generated data summary |
 | **Magic Reels** | AI-compiled video highlights |
 | **Workspace** | Isolated environment for a team or project |
+| **Training Set** | Backend term for Dataset |
+| **AI Orchestration** | Backend term for Workflow |
 
 ## URL Structure
 
@@ -184,9 +222,11 @@ All pages in Vurvey use workspace-scoped URLs:
 ```
 https://app.vurvey.com/{workspaceId}/agents
 https://app.vurvey.com/{workspaceId}/audience
+https://app.vurvey.com/{workspaceId}/audience/community
 https://app.vurvey.com/{workspaceId}/campaigns
 https://app.vurvey.com/{workspaceId}/datasets
 https://app.vurvey.com/{workspaceId}/workflow
+https://app.vurvey.com/{workspaceId}/workflow/flows
 ```
 
 The Home (chat) page is at the workspace root: `/{workspaceId}/`
@@ -212,16 +252,16 @@ The Home (chat) page is at the workspace root: `/{workspaceId}/`
 - Close campaigns promptly when done
 
 ### For Datasets
-- Organize with descriptive names
-- Use labels for categorization
-- Keep content current
-- Remove outdated files
+- Use clear, descriptive names
+- Apply consistent labels
+- Ensure files are processed before use
+- Retry failed files promptly
 
 ### For Workflows
 - Start simple, add complexity gradually
-- Test with sample data first
-- Monitor initial runs closely
-- Document what each step does
+- Test with manual runs first
+- Monitor initial executions closely
+- Use email notifications for important workflows
 
 ---
 

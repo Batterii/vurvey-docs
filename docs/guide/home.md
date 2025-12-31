@@ -8,90 +8,158 @@ The Home page is your primary workspace for interacting with Vurvey's AI capabil
 
 The chat interface provides a unified way to query AI agents, attach data sources, and control how the AI reasons about your research questions.
 
-## Chat Canvas
+## Page Layout
 
-The central area of the Home page is the Chat Canvas - a flexible workspace where conversations with AI agents take place.
+When you first arrive at Home, you'll see a welcome message: "Hi [Your Name]! What might we create today?" This is the **HOME layout**. Once you start a conversation, the page transitions to the **CHAT layout** showing your conversation history.
 
-### Chat Input
+## Chat Input Area
 
-At the bottom of the canvas, you'll find the chat input area with the prompt **"Ask anything..."**
+At the bottom of the screen, you'll find the chat input area where you compose messages.
 
-Features:
-- Natural language queries - ask questions in plain English
-- Multi-line input support (`Shift + Enter` for new lines)
-- File attachments via the attachment button or drag-and-drop
-- Voice input option for spoken queries
+### Text Input
 
-### Message Display
+- Type your question or prompt in the text area
+- Use `@` to mention specific agents in your message
+- Use `/` to access tool groups and specialized capabilities
+- Paste images directly into the input for visual analysis
 
-Conversations display as a flowing chat with:
-- Your messages (user bubbles) on one side
-- AI agent responses with streaming text
-- Rich content including formatted text, code blocks, and data visualizations
-- Source citations when the AI references your datasets
+### Input Controls
+
+| Control | Location | Purpose |
+|---------|----------|---------|
+| **Upload** | Left of input | Attach documents or images |
+| **Sources** | Above input | View selected data sources |
+| **Tool Badge** | Above input | Shows active tool group |
+| **Send** | Right of input | Submit your message |
+
+### File Attachments
+
+Click the upload button to attach files to your message:
+- **Documents**: PDF, DOCX, TXT, MD, CSV, JSON, PPTX, XLSX
+- **Images**: PNG, JPG, GIF (for visual analysis)
+- **Videos**: MP4, MOV (for video analysis)
+- **Audio**: MP3, WAV (if enabled)
+
+Files are uploaded and processed before your message is sent.
 
 ## Agent Selection
 
-### Agent Picker
+### Choosing an Agent
 
-Click the **Agent** dropdown to choose which AI persona will respond to your queries.
+Click the agent selector at the top of the input area to choose which AI persona responds to your queries. Each agent is configured with:
 
-Each agent is configured with different:
-- **Specializations** - areas of expertise (e.g., consumer insights, data analysis)
-- **Personality traits** - communication style and tone
-- **Knowledge bases** - connected datasets and training data
-- **Instructions** - behavioral guidelines and response formatting
+- **Personality** - Communication style and tone
+- **Expertise** - Domain knowledge and specializations
+- **Instructions** - Behavioral guidelines
+- **Knowledge** - Connected datasets
 
-### Switching Agents
+### Agent Mentions
 
-You can switch agents mid-conversation to get different perspectives on the same topic. The new agent will have access to the conversation history.
+Type `@` followed by an agent's name to mention them in your message. This allows you to invoke specific agents mid-conversation without switching your primary agent.
 
-## Mode Controls
+## Chat Modes
 
 Three mode toggles control how the AI processes your request:
 
-| Mode | Description |
-|------|-------------|
-| **Chat** | General reasoning and conversation using the AI's base knowledge |
-| **My Data** | References your connected datasets and uploaded files |
-| **Web** | Searches and reasons over live web content |
+| Mode | Icon | Description |
+|------|------|-------------|
+| **Chat** | Default | General reasoning using the AI's base knowledge |
+| **My Data** | Data icon | References your connected datasets and uploaded files |
+| **Web** | Globe icon | Searches and reasons over live web content |
 
-::: tip Choosing the Right Mode
-- Use **Chat** for general questions, brainstorming, and creative tasks
-- Use **My Data** when you want insights from your uploaded research data
-- Use **Web** for current events, competitive research, or external information
+::: tip Combining Modes
+Modes can be combined for comprehensive analysis. For example, enable both **My Data** and **Web** to compare your research findings with external sources.
 :::
 
-You can combine modes - for example, use both **My Data** and **Web** to compare your research findings with external sources.
+### Mode Behavior
+
+- **Chat mode only**: Agent uses its trained knowledge and conversation context
+- **My Data mode**: Agent searches and cites your selected datasets
+- **Web mode**: Agent searches the internet for current information
+- **Combined modes**: Agent synthesizes information from multiple sources
 
 ## Sources Panel
 
-Click **Sources** to control which datasets or documents are available to the agent during the conversation.
+When in My Data mode, the Sources section shows which data is available to the agent.
 
-### Source Selection
-- Select specific datasets from your library
-- Filter sources by type (documents, spreadsheets, videos)
-- Search across available sources
-- View source metadata (file count, last updated)
+### Source Types
 
-### Source Context
-When sources are selected, the AI will:
-- Reference relevant content from those files
-- Cite specific documents in responses
-- Limit answers to information contained in selected sources (when appropriate)
+| Source Type | Icon | Description |
+|-------------|------|-------------|
+| **Campaigns** | Megaphone | Survey responses and data |
+| **Questions** | Question mark | Individual survey questions |
+| **Training Sets** | Folder | Datasets you've uploaded |
+| **Files** | Document | Individual documents |
+| **Videos** | Video | Video content |
+| **Audio** | Equalizer | Audio files |
 
-## Tools Panel
+### Managing Sources
 
-Click **Tools** to enable specialized capabilities:
+- Click the sources chip to view currently selected sources
+- Use the source selection modal to add or remove sources
+- Select "All campaigns" or "All datasets" for comprehensive analysis
+- Remove individual sources by clicking the X on their chip
 
-### Available Tools
+## Tool Groups
+
+Use `/` in the chat input to access specialized tool groups. These provide enhanced capabilities beyond standard chat.
+
+### Available Tool Groups
+
+Tool groups vary by workspace configuration but commonly include:
+- **Web Search** - Search the internet for information
+- **Image Generation** - Create images from descriptions
 - **Data Analysis** - Statistical analysis and visualization
-- **Export** - Generate reports, summaries, and data exports
-- **Calculations** - Mathematical and quantitative operations
-- **Search** - Deep search across your datasets
-- **Generate** - Create content, summaries, or structured outputs
+- **Content Creation** - Generate structured content
 
-Tools are automatically invoked by the AI when relevant to your query.
+### Tool Pausing
+
+In certain modes, some tools are automatically paused:
+- **Chat mode**: All tools paused by default
+- **My Data mode**: Web-based tools paused
+- A "PAUSED" badge appears on tool groups that won't be used
+
+## Message Display
+
+### User Messages (Input Bubbles)
+
+Your messages appear with:
+- Your avatar
+- Message text (rendered as markdown)
+- Attached documents in a grid preview
+- Uploaded images in a gallery
+
+### AI Responses (Response Bubbles)
+
+Agent responses include:
+- Agent avatar and name
+- Response content (markdown with syntax highlighting)
+- Timeline of reasoning (if available)
+- Grounding sources when data is cited
+- Tool invocations when tools were used
+
+### Grounding & Citations
+
+When the agent references your data, you'll see:
+- **Answer grounding** - Factual sources used
+- **Dataset grounding** - Which datasets were queried
+- **Web grounding** - External sources cited
+
+Click the citations toggle to show or hide source references inline.
+
+### Response Actions
+
+Each AI response has action buttons below it:
+
+| Action | Icon | Purpose |
+|--------|------|---------|
+| **Like** | Thumbs up | Mark as helpful response |
+| **Dislike** | Thumbs down | Mark as unhelpful |
+| **Copy** | Document | Copy response to clipboard |
+| **Citations** | Quote | Toggle source citations |
+| **Audio** | Speaker | Play response as audio (if available) |
+| **More** | Lightning | Additional actions (Generate Campaign, Create Agent) |
+| **Delete** | Trash | Remove message and response |
 
 ## Conversation Sidebar
 
@@ -100,60 +168,76 @@ Tools are automatically invoked by the AI when relevant to your query.
 The left panel manages your conversation history.
 
 ### Conversations List
+
 - Listed by title (auto-generated or custom)
 - Sorted by most recent activity
 - Click any conversation to continue where you left off
 - Conversations are automatically saved
 
 ### Creating New Chats
+
 - Click **+** next to "Conversations" header
 - Starts a fresh conversation with your selected agent
 - Previous conversation context is not carried over
 
 ### Managing Conversations
-- **Rename** - Click the title to edit
-- **Delete** - Remove conversations you no longer need
-- **Search** - Find past conversations by content
-- **Filter** - Filter by date range or agent used
+
+Right-click or use the menu on any conversation to:
+- **Rename** - Edit the conversation title
+- **Copy** - Duplicate conversation history
+- **Export** - Download conversation to file
+- **Delete** - Remove the conversation
 
 ### View All
+
 Click "View all" to access the complete conversation history with advanced filtering and search options.
 
-## User Profile
+## Prompt Showcase
 
-Located at the bottom left of the sidebar:
+On the home screen (before starting a conversation), you may see example prompts to help you get started. These cover common use cases like:
 
-- **Your name and email** - Account identifier
-- **Workspace indicator** - Current workspace name (e.g., "Batterii")
-- **Refresh** - Sync latest data
-- **Settings** - Access account and workspace settings
-- **Logout** - Sign out of Vurvey
+- Twitter/X trend analysis
+- Instagram inspiration
+- YouTube video analysis
+- Web search queries
+- URL summarization
+- SEO audits
+- Image generation
 
-## Workspace Selector
+Click any example to start a conversation with that prompt.
 
-If you have access to multiple workspaces, click the workspace name at the top of the sidebar to switch between them.
+## Error Handling
+
+If something goes wrong during a conversation:
+- An error banner appears at the top of the chat
+- Click **Retry** to attempt the operation again
+- Click **Dismiss** to clear the error and continue
 
 ## Tips for Effective Chat
 
 ### Query Formulation
+
 1. **Be specific** - Provide context about what you're looking for
 2. **Include constraints** - Mention relevant criteria or limitations
 3. **Ask follow-ups** - Refine results with iterative questions
 
 ### Mode Selection
+
 - Start with **Chat** mode for exploratory questions
 - Switch to **My Data** when you need insights from specific files
-- Add **Web** mode for external context
+- Add **Web** mode for external context and current information
 
 ### Agent Selection
+
 - Use specialized agents for domain-specific questions
 - Try different agents to get varied perspectives
-- Check agent descriptions to understand their focus
+- Mention agents with `@` to get multiple viewpoints
 
 ### Source Management
+
 - Select relevant sources before asking data-related questions
 - Keep source selection focused to get more targeted answers
-- Use source search to quickly find specific documents
+- Use "All datasets" when you're unsure which data is relevant
 
 ## Keyboard Shortcuts
 
@@ -162,7 +246,6 @@ If you have access to multiple workspaces, click the workspace name at the top o
 | Send message | `Enter` |
 | New line | `Shift + Enter` |
 | New conversation | Click `+` button |
-| Focus chat input | Click input area |
 
 ## Next Steps
 

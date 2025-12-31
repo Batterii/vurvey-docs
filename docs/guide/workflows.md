@@ -10,261 +10,369 @@ The Workflow section enables automation of multi-step research processes by comb
 
 ![Workflows Main](/screenshots/workflows/01-workflows-main.png)
 
-Workflows (also called "AI Orchestrations" in the system) allow you to create automated research pipelines that execute tasks in sequence, with conditional logic, and on schedules.
+Workflows (also called "AI Orchestrations" in the system) allow you to create automated research pipelines that execute tasks in sequence with AI agents processing data sources.
 
 ## Navigation Tabs
 
 | Tab | Purpose |
 |-----|---------|
-| **Workflows** | View and manage your automation workflows |
-| **Upcoming Runs** | See scheduled workflow executions (Beta) |
-| **Templates** | Browse pre-built workflow templates (Beta) |
-| **Conversations** | View logs and outputs from workflow runs |
+| **Flows** | View and manage your automation workflows |
+| **Upcoming Runs** | See scheduled workflow executions |
+| **Conversations** | View past workflow conversations and outputs |
 
 ## Workflow Gallery
 
-The main view displays your workflows in a card-based layout:
+The main Flows view displays your workflows in a card-based grid layout.
 
 ### Workflow Card Information
-- **Name** - Workflow identifier
-- **Description** - What the workflow accomplishes
-- **Agents** - AI personas assigned to the workflow
-- **Status** - Active, draft, or archived
-- **Last Run** - Most recent execution timestamp
-- **Quick Actions** - Run, edit, or view details
 
-### Filtering & Sorting
-- Search workflows by name or description
-- Filter by status (Active, Draft, Archived)
-- Sort by name, last run, or creation date
+Each workflow card displays:
+
+- **Name** - Workflow title (displayed as subheader)
+- **Creator** - "by [First Name Last Name]" showing who created it
+- **Description** - Brief description of what the workflow does
+- **Assigned Agents** - Avatar list showing up to 7 agents
+  - Displays "+N more" if more than 7 agents assigned
+  - Shows "No agents assigned yet" if empty
+
+### Workflow Card Actions
+
+Click the three-dot menu on any workflow card to access:
+
+| Action | Description |
+|--------|-------------|
+| **Share** | Manage who can access this workflow |
+| **Copy** | Duplicate the workflow |
+| **Edit** | Open the workflow builder |
+| **View** | Read-only access (when lacking edit permission) |
+| **Delete** | Remove the workflow (shows warning if scheduled) |
+
+::: warning Scheduled Workflows
+When deleting a workflow with an active schedule, you'll see a warning message. The schedule will also be removed.
+:::
+
+### Search and Sort
+
+Use the controls above the card grid:
+
+- **Search** - Filter workflows by name
+- **Sort By** - Order by most recently updated (default)
 
 ## Creating Workflows
 
-Click **+ Create Workflow** to build a new automation:
+Click **Create new workflow** to start building.
 
-### Starting Options
+### Workflow Form Fields
 
-1. **Blank Canvas** - Build from scratch using the visual builder
-2. **Guided Setup** - Step-by-step wizard for common patterns
-3. **From Template** - Start from a pre-built template
+When creating or editing a workflow:
 
-### Workflow Components
-
-| Component | Purpose |
-|-----------|---------|
-| **Trigger** | What initiates the workflow (schedule, event, manual) |
-| **Steps** | Individual tasks the workflow executes |
-| **Conditions** | Branching logic based on data or results |
-| **Outputs** | Where results are stored or sent |
-
-### Step Types
-
-| Type | Description |
-|------|-------------|
-| **Agent Task** | Assign a prompt or question to an AI agent |
-| **Data Processing** | Transform, filter, or analyze data |
-| **Campaign Action** | Launch surveys, check responses, close campaigns |
-| **Integration** | Connect to external systems via webhooks or APIs |
-| **Notification** | Send emails, Slack messages, or other alerts |
-| **Wait** | Pause execution for a specified time |
-| **Human Review** | Pause for manual approval before continuing |
+| Field | Description |
+|-------|-------------|
+| **Name** | Workflow identifier |
+| **Description** | What the workflow accomplishes |
+| **Input Parameters** | Variables that can be passed at runtime |
+| **Instructions** | Global guidance for all agents |
+| **Output Type** | Format for workflow results |
 
 ## Workflow Builder
 
 ### Visual Canvas
 
-The workflow builder provides a visual drag-and-drop interface:
+The workflow builder uses a React Flow-based canvas for visual editing:
 
-- **Node palette** - Available step types to add
-- **Canvas area** - Arrange and connect workflow steps
-- **Connection lines** - Show data flow between steps
-- **Configuration panel** - Settings for selected step
+![Workflow Builder](/screenshots/workflows/02-workflow-builder.png)
 
-### Step Configuration
+**Canvas Features:**
+- **Dotted background** - Visual grid for alignment
+- **Zoom controls** - Fit view, zoom in/out (0.1x to 2x)
+- **Mini map** - Overview of entire workflow
+- **Pan and drag** - Navigate around the canvas
 
-For each step, configure:
+### Node Types
 
-1. **Step name** - Descriptive identifier
-2. **Input mapping** - What data flows into this step
-3. **Parameters** - Step-specific settings
-4. **Agent selection** - Which AI persona to use (for agent tasks)
-5. **Success criteria** - What constitutes completion
-6. **Error handling** - What to do if the step fails
-7. **Output mapping** - Where results go next
+The canvas contains different node types representing workflow components:
 
-### Example Workflow
+#### Variables Node
+Define input parameters for your workflow:
+- Variable names and default values
+- Referenced in agent prompts using `{{variableName}}` syntax
 
-```
-[Trigger: Daily at 9:00 AM]
-         |
-         v
-[Step 1: Query new campaign responses from last 24 hours]
-         |
-         v
-[Step 2: Send responses to Analysis Agent for summarization]
-         |
-         v
-[Condition: Are there significant findings?]
-        / \
-       /   \
-    Yes     No
-     |       |
-     v       v
-[Step 3: Generate    [Log: Archive
- detailed report]    summary only]
-     |
-     v
-[Step 4: Send report to team via email]
-```
+#### Sources Node
+Select data sources for the workflow:
 
-## Triggers
+| Source Type | Icon | Description |
+|-------------|------|-------------|
+| **Campaigns** | Megaphone | Survey response data |
+| **Questions** | Question bubble | Individual survey questions |
+| **Training Sets** | Folder | Dataset collections |
+| **Files** | Document | Individual documents |
+| **Videos** | Video | Video content |
+| **Audio** | Equalizer | Audio files |
 
-### Manual
-- Click the **Run** button to execute on-demand
-- Useful for testing and one-off executions
-- Can pass parameters at runtime
+Click **Add Sources** to open the source selection modal.
 
-### Scheduled
-- **Cron-based timing** - Precise scheduling (e.g., "0 9 * * MON-FRI")
-- **Preset intervals** - Daily, weekly, monthly options
-- **Custom intervals** - Every N hours/days
-- **Timezone aware** - Schedule in your local timezone
+#### Agent Task Node
+Individual AI agent steps in the workflow:
 
-### Event-Based
-- **Campaign completion** - When a survey reaches target responses
-- **Data upload** - When new files are added to a dataset
-- **Webhook** - External systems can trigger via HTTP
-- **API call** - Programmatic triggering from your applications
+| Element | Description |
+|---------|-------------|
+| **Agent Avatar** | Visual identifier for the agent |
+| **Agent Name** | Name of the assigned persona |
+| **Task Prompt** | Instructions for this agent step |
+| **Order Index** | Position in execution sequence |
+| **Model Selector** | AI model for this step |
+| **Smart Prompt** | Toggle for enhanced prompting |
+
+::: tip Smart Prompt
+Enable Smart Prompt to let the system enhance your prompts with context and best practices.
+:::
+
+#### Add Agent Button
+Click **Add Agent** to open the agent selection modal and add new agents to your workflow.
+
+#### Output Node
+Final results summary:
+- Report status indicator
+- Generate Report button
+- Report preview when available
+
+### Flow Connections
+
+Nodes are connected by animated edges showing data flow:
+- Lines animate during workflow execution
+- Visual feedback for active processing
+
+## Top Bar Controls
+
+The workflow page header provides key actions:
+
+### Navigation
+- **Back Arrow** - Return to workflows list
+- **Workflow Name** - Displayed as page title
+
+### Tab Navigation
+| Tab | Description |
+|-----|-------------|
+| **Build** | Edit workflow structure |
+| **Running** | View live execution (appears when running) |
+| **History** | View past executions |
+
+### Action Buttons
+
+| Button | Description |
+|--------|-------------|
+| **Edit** | Modify workflow metadata |
+| **Save** | Persist changes (disabled when no changes) |
+| **Run** | Execute the workflow |
+| **Cancel** | Stop running workflow (appears during execution) |
+| **Share** | Open permissions modal |
+| **Schedule** | Configure recurring execution |
+
+## Scheduling Workflows
+
+Click **Schedule** to set up automatic execution:
+
+### Schedule Configuration
+
+| Setting | Options |
+|---------|---------|
+| **Frequency** | Hourly, Daily, Weekly |
+| **Time** | Hour and minute selection (12-hour format) |
+| **Days** | Day selection (for weekly schedules) |
+
+### Email Notifications
+
+Configure who receives execution notifications:
+- Toggle email notifications on/off
+- Add notification recipients
+- Manage recipient list
+
+### Schedule Preview
+
+The modal displays:
+- Human-readable schedule description (powered by cronstrue)
+- Next scheduled execution time
+- Schedule summary
+
+### Schedule Actions
+
+| Action | Description |
+|--------|-------------|
+| **Create Schedule** | Set up new schedule |
+| **Update Schedule** | Modify existing schedule |
+| **Delete Schedule** | Remove schedule |
 
 ## Upcoming Runs
 
 ![Upcoming Runs](/screenshots/workflows/03-upcoming-runs.png)
 
-View and manage scheduled workflow executions:
+View and manage all scheduled workflow executions.
 
-| Column | Information |
-|--------|-------------|
-| **Scheduled** | When the workflow will run |
-| **Workflow** | Which workflow is scheduled |
-| **Trigger** | What initiated the schedule |
-| **Status** | Pending, Running, Completed, Failed |
-| **Actions** | Cancel, Reschedule, View details |
+### Page Layout
 
-### Managing Scheduled Runs
-- **View queue** - See all pending executions
-- **Cancel** - Stop a scheduled run before it starts
-- **Reschedule** - Change the execution time
-- **Force run** - Execute immediately regardless of schedule
+- **Header**: "Upcoming Scheduled Runs" title with description
+- **Search**: Filter by workflow name
+- **Date Groups**: Runs organized by execution date
 
-## Workflow Templates
+### Date Headers
 
-![Workflow Templates](/screenshots/workflows/04-workflow-templates.png)
+Runs are grouped under date headers:
+- "Today, [Month] [Day]"
+- "Tomorrow, [Month] [Day]"
+- "[Month] [Day]" for future dates
 
-Pre-built automation patterns to accelerate workflow creation:
+### Run Information
 
-### Common Templates
+Each scheduled run displays:
+- Workflow name
+- Scheduled execution time
+- Execution status
+- Last executed time (if currently running)
 
-| Template | Purpose |
-|----------|---------|
-| **Daily Digest** | Summarize new responses and activity |
-| **Campaign Monitor** | Track completion rates and quality |
-| **Report Generator** | Produce weekly analysis reports |
-| **Data Processor** | Transform and validate incoming data |
-| **Alert System** | Notify team of important findings |
-| **Competitive Watch** | Monitor web sources for competitor activity |
+### Empty States
 
-### Using Templates
-1. Browse the template library
-2. Click a template to preview its structure
-3. Click **Use Template** to create a copy
-4. Customize steps, agents, and parameters
-5. Configure triggers and save
+- **Loading**: Spinner while fetching data
+- **No Runs**: Message when no runs are scheduled
 
-## Conversations Log
+## Conversations
 
 ![Workflow Conversations](/screenshots/workflows/05-workflow-conversations.png)
 
-Central log of all workflow-generated outputs and conversations:
+Central log of all workflow-generated outputs and conversations.
 
-### Features
-- **Search** - Find by content or workflow name
-- **Filter** - By workflow, date range, or status
-- **Sort** - By date or workflow
-- **Export** - Download conversation logs
+### Conversations Grid
 
-### Conversation Details
-Each entry shows:
-- Full execution history with timestamps
-- Step-by-step results and outputs
-- Agent responses and reasoning
-- Any errors or warnings encountered
-- Final outputs and deliverables
+Conversations appear as cards showing:
 
-## Monitoring Workflows
+- **Created Date** - Timestamp ("X days ago" format)
+- **Conversation Name** - Title of the conversation
+- **Creator** - Who initiated the conversation
+- **Content Preview** - Markdown-rendered preview
+- **Artifacts** - Generated images and media thumbnails
 
-### Execution Status
+### Conversation Actions
 
-| Status | Meaning |
-|--------|---------|
-| **Pending** | Waiting to start (scheduled or queued) |
-| **Running** | Currently executing steps |
-| **Completed** | Finished successfully |
-| **Failed** | Error occurred during execution |
-| **Paused** | Waiting for human review or input |
-| **Cancelled** | Manually stopped before completion |
+Click the three-dot menu on any conversation:
 
-### Performance Metrics
-- **Execution time** - How long the workflow took
-- **Success rate** - Percentage of successful runs
-- **Error frequency** - Common failure points
-- **Credit usage** - AI credits consumed per run
+| Action | Description |
+|--------|-------------|
+| **Rename** | Edit conversation title |
+| **Copy** | Copy conversation history |
+| **Export** | Download to file |
+| **Delete** | Remove conversation |
 
-## Error Handling
+### Search and Sort
 
-### Built-in Options
+- **Search** - Find conversations by name
+- **Sort By** - Order by date or other criteria
 
-| Strategy | Description |
-|----------|-------------|
-| **Retry** | Attempt the step again (configurable count) |
-| **Skip** | Continue workflow without this step's output |
-| **Abort** | Stop the entire workflow |
-| **Fallback** | Execute an alternative step |
-| **Notify** | Send alert and continue or pause |
+### Creating Conversations
 
-### Best Practices
-- Set appropriate retry counts for flaky operations
-- Define fallback paths for critical steps
-- Enable notifications for failures
-- Review error patterns regularly
-- Test error scenarios before production use
+Click **Create new** to start a fresh conversation from the workflows section.
+
+## Execution States
+
+### Agent Processing States
+
+During workflow execution, each agent shows a processing state:
+
+| State | Description |
+|-------|-------------|
+| **Idle** | Waiting to process |
+| **Processing** | Currently executing (animated) |
+| **Success** | Completed successfully |
+| **Error** | Failed during execution |
+
+### Workflow Status
+
+| Status | Description |
+|--------|-------------|
+| **Building** | In development mode |
+| **Running** | Currently executing |
+| **Completed** | Finished all steps |
+| **Failed** | Error during execution |
+| **Cancelled** | Manually stopped |
+
+## Permissions
+
+Workflows support role-based access control:
+
+| Permission | Allows |
+|------------|--------|
+| **View** | Read-only access to workflow |
+| **Edit** | Modify workflow structure and settings |
+| **Delete** | Remove the workflow |
+| **Manage** | Share workflow and modify permissions |
+
+### Sharing Workflows
+
+1. Click **Share** in the top bar or card menu
+2. Configure workspace-wide or individual access
+3. Assign permission levels
+4. Save changes
+
+## Outputs Page
+
+::: info Coming Soon
+The Outputs feature combines all custom data, agents, and flows into shareable deliverables.
+:::
+
+Currently displays a placeholder with:
+- Description of upcoming functionality
+- "Outputs combine all of your custom data, agents, and flows into a shareable (and talkable) deliverable."
 
 ## Best Practices
 
-::: tip Workflow Design
+### Workflow Design
+
 - **Start simple** - Get basic flow working before adding complexity
 - **Test thoroughly** - Use test data before processing real data
 - **Monitor actively** - Watch the first few runs closely
-- **Document clearly** - Add descriptions to steps and workflows
-:::
+- **Document clearly** - Add descriptions to workflows and use clear agent prompts
 
-### Performance
-- Minimize step count where possible
-- Use parallel execution for independent steps
-- Set reasonable timeouts for each step
-- Archive completed run logs to save space
+### Agent Configuration
 
-### Maintenance
-- Review workflows quarterly for relevance
-- Update agent configurations when models improve
-- Remove or archive unused workflows
-- Keep templates current with best practices
+- Assign appropriate agents for each task type
+- Use Smart Prompt for enhanced results
+- Set clear, specific task prompts
+- Order agents logically in the execution sequence
 
-## Current Limitations (Beta)
+### Scheduling
 
-- Maximum 20 steps per workflow
-- Limited integration options (expanding)
-- Some advanced scheduling features unavailable
-- Performance monitoring dashboard in development
+- Start with manual runs to verify workflow works
+- Use appropriate frequencies to avoid overwhelming data sources
+- Set up email notifications for important workflows
+- Review scheduled runs regularly
+
+### Data Sources
+
+- Select only necessary sources to improve performance
+- Ensure sources have current, processed data
+- Test with smaller datasets first
+- Monitor source availability
+
+## Troubleshooting
+
+### Workflow Won't Save
+
+1. Check for validation errors in agent tasks
+2. Ensure all required fields are filled
+3. Verify you have edit permission
+4. Try refreshing the page
+
+### Execution Fails
+
+1. Review error messages in the running tab
+2. Check individual agent task outputs
+3. Verify data sources are available and processed
+4. Retry failed steps if appropriate
+
+### Schedule Not Running
+
+1. Verify schedule is configured correctly
+2. Check workflow has no validation errors
+3. Ensure workflow doesn't have unsaved changes
+4. Review upcoming runs page for status
 
 ## Next Steps
 
