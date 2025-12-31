@@ -97,11 +97,13 @@ jobs:
         run: |
           echo "Running Claude Code analysis..."
 
-          # Read the prompt and pipe to Claude Code
-          cat scripts/claude-doc-updater-prompt.md | claude \
+          # Read the prompt file and pass via -p flag for non-interactive mode
+          PROMPT_CONTENT=$(cat scripts/claude-doc-updater-prompt.md)
+
+          claude -p "$PROMPT_CONTENT" \
             --dangerously-skip-permissions \
-            --print \
             --max-turns 50 \
+            --output-format json \
             2>&1 | tee /tmp/claude-log.txt || true
 
           echo "Claude Code analysis complete"
