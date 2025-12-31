@@ -19,7 +19,7 @@ on:
 
 env:
   NODE_VERSION: '22'
-  VURVEY_URL: 'https://staging.vurvey.com'
+  VURVEY_URL: 'https://staging.vurvey.dev'
 
 jobs:
   sync-documentation:
