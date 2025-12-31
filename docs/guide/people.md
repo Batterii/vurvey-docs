@@ -14,10 +14,10 @@ The page header contains navigation buttons to switch between different views:
 
 | Tab | Icon | Purpose |
 |-----|------|---------|
-| **Populations** | Sparkle | View AI-generated audience patterns and demographic distributions |
+| **Populations** | Sparkle Stars | View AI-generated audience patterns and demographic distributions |
 | **Humans** | Users | Manage individual contacts and participants |
-| **Lists & Segments** | Segments | Organize people into static lists or dynamic rule-based segments |
-| **Properties** | Tag | Define custom attributes for contact profiles |
+| **Lists & Segments** | User List Segments | Organize people into static lists or dynamic rule-based segments |
+| **Properties** | Label Tag | Define custom attributes for contact profiles |
 
 ::: tip Enterprise Feature
 Some workspaces may have a **Molds** tab for creating reusable persona templates. This is an enterprise feature.
@@ -58,13 +58,9 @@ The default view shows visualization dashboards including:
 
 Switch to table view using the table icon to see a paginated list of all personas in the population. Click any row to open the persona detail modal.
 
-### Population Types
-
-| Type | Description |
-|------|-------------|
-| **Synthetic** | AI-generated representative samples based on demographic parameters |
-| **Real** | Based on actual participant data from your contacts |
-| **Hybrid** | Combination of synthetic profiles augmented with real data |
+::: info Population Classification
+The system uses AI-generated personas (referred to as "AI Personas") to represent different demographic segments. All populations contain AI-generated personas that can be used in research campaigns and conversations.
+:::
 
 ## Humans
 
@@ -183,7 +179,7 @@ Segments automatically update as contact properties change.
 
 | Column | Description |
 |--------|-------------|
-| **Name** | Segment name (click to edit) |
+| **Name** | Segment name (click to view contacts) |
 | **Creators** | Number of matching contacts |
 | **Created** | Creation date |
 | **Options** | Edit, Copy, Delete |
