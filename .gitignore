@@ -38,5 +38,8 @@ qa-failure-screenshots/
 qa-failure-report.md
 screenshot-validation-report.md
 
+# Bug reports (dispatched to other repos)
+bug-reports/
+
 # Checked out repos for analysis
 vurvey-web-manager/

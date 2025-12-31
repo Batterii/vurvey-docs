@@ -16,6 +16,11 @@ on:
         required: false
         default: 'false'
         type: boolean
+      skip_bug_dispatch:
+        description: 'Skip dispatching bug reports to other repos'
+        required: false
+        default: 'false'
+        type: boolean
 
 env:
   NODE_VERSION: '22'
@@ -24,7 +29,10 @@ env:
 jobs:
   sync-documentation:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    outputs:
+      has_bug_reports: ${{ steps.check_bugs.outputs.has_bugs }}
+      bug_reports: ${{ steps.check_bugs.outputs.bug_reports }}
 
     steps:
       - name: Checkout documentation repo
@@ -91,6 +99,9 @@ jobs:
           npm install -g @anthropic-ai/claude-code
           echo "Claude Code CLI installed"
 
+      - name: Create bug-reports directory
+        run: mkdir -p bug-reports
+
       - name: Run documentation analysis and updates
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -102,11 +113,35 @@ jobs:
 
           claude -p "$PROMPT_CONTENT" \
             --dangerously-skip-permissions \
-            --max-turns 50 \
+            --max-turns 75 \
             --output-format json \
             2>&1 | tee /tmp/claude-log.txt || true
 
           echo "Claude Code analysis complete"
+
+      - name: Check for bug reports
+        id: check_bugs
+        run: |
+          if [ -d "bug-reports" ] && [ "$(ls -A bug-reports/*.json 2>/dev/null)" ]; then
+            echo "has_bugs=true" >> $GITHUB_OUTPUT
+
+            # Collect bug reports into a JSON array
+            BUG_REPORTS=$(ls bug-reports/*.json | while read file; do
+              cat "$file"
+            done | jq -s '.')
+
+            # Escape for GitHub Actions output
+            echo "bug_reports<<EOF" >> $GITHUB_OUTPUT
+            echo "$BUG_REPORTS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            echo "Found $(ls bug-reports/*.json | wc -l) bug report(s)"
+            ls -la bug-reports/
+          else
+            echo "has_bugs=false" >> $GITHUB_OUTPUT
+            echo "bug_reports=[]" >> $GITHUB_OUTPUT
+            echo "No bug reports found"
+          fi
 
       - name: Check for documentation changes
         id: check_changes
@@ -135,12 +170,15 @@ jobs:
 
             ### Changes Included
             - Updated screenshots (if applicable)
-            - Documentation accuracy improvements
-            - UI element verification
+            - Documentation accuracy improvements based on codebase analysis
+            - Fixed discrepancies between docs and implementation
+
+            ### Bug Reports Generated
+            ${{ steps.check_bugs.outputs.has_bugs == 'true' && 'Code bugs were detected and dispatched to target repositories for fixing.' || 'No code bugs detected.' }}
 
             ### Verification Checklist
-            - [ ] Screenshots are accurate
-            - [ ] Documentation matches current UI
+            - [ ] Documentation changes are accurate
+            - [ ] Screenshots match current UI
             - [ ] All links work correctly
             - [ ] No broken formatting
 
@@ -159,7 +197,9 @@ jobs:
           cp qa-report.json /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-report.json"
           cp qa-failure-report.md /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-failure-report.md"
           cp screenshot-validation-report.md /tmp/qa-artifacts/ 2>/dev/null || echo "No screenshot-validation-report.md"
+          cp DOCUMENTATION_AUDIT_SUMMARY.md /tmp/qa-artifacts/ 2>/dev/null || echo "No DOCUMENTATION_AUDIT_SUMMARY.md"
           cp -r qa-failure-screenshots /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-failure-screenshots"
+          cp -r bug-reports /tmp/qa-artifacts/ 2>/dev/null || echo "No bug-reports"
           cp /tmp/claude-log.txt /tmp/qa-artifacts/ 2>/dev/null || echo "No claude-log.txt"
           ls -la /tmp/qa-artifacts/
 
@@ -171,11 +211,87 @@ jobs:
           path: /tmp/qa-artifacts/
           retention-days: 7
 
-  notify-on-failure:
+  # Dispatch bug reports to vurvey-web-manager
+  dispatch-frontend-bugs:
     needs: sync-documentation
+    if: needs.sync-documentation.outputs.has_bug_reports == 'true' && inputs.skip_bug_dispatch != true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Filter frontend bug reports
+        id: filter_bugs
+        run: |
+          FRONTEND_BUGS=$(echo '${{ needs.sync-documentation.outputs.bug_reports }}' | jq '[.[] | select(.target_repo == "vurvey-web-manager")]')
+          BUG_COUNT=$(echo "$FRONTEND_BUGS" | jq 'length')
+
+          if [ "$BUG_COUNT" -gt "0" ]; then
+            echo "has_frontend_bugs=true" >> $GITHUB_OUTPUT
+            echo "frontend_bugs<<EOF" >> $GITHUB_OUTPUT
+            echo "$FRONTEND_BUGS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "Found $BUG_COUNT frontend bug report(s)"
+          else
+            echo "has_frontend_bugs=false" >> $GITHUB_OUTPUT
+            echo "No frontend bugs to dispatch"
+          fi
+
+      - name: Dispatch to vurvey-web-manager
+        if: steps.filter_bugs.outputs.has_frontend_bugs == 'true'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.VURVEY_REPO_TOKEN }}
+          repository: batterii/vurvey-web-manager
+          event-type: bug-fix-request
+          client-payload: |
+            {
+              "source": "vurvey-docs-site",
+              "workflow_run_id": "${{ github.run_id }}",
+              "bug_reports": ${{ steps.filter_bugs.outputs.frontend_bugs }}
+            }
+
+  # Dispatch bug reports to vurvey-api
+  dispatch-backend-bugs:
+    needs: sync-documentation
+    if: needs.sync-documentation.outputs.has_bug_reports == 'true' && inputs.skip_bug_dispatch != true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Filter backend bug reports
+        id: filter_bugs
+        run: |
+          BACKEND_BUGS=$(echo '${{ needs.sync-documentation.outputs.bug_reports }}' | jq '[.[] | select(.target_repo == "vurvey-api")]')
+          BUG_COUNT=$(echo "$BACKEND_BUGS" | jq 'length')
+
+          if [ "$BUG_COUNT" -gt "0" ]; then
+            echo "has_backend_bugs=true" >> $GITHUB_OUTPUT
+            echo "backend_bugs<<EOF" >> $GITHUB_OUTPUT
+            echo "$BACKEND_BUGS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "Found $BUG_COUNT backend bug report(s)"
+          else
+            echo "has_backend_bugs=false" >> $GITHUB_OUTPUT
+            echo "No backend bugs to dispatch"
+          fi
+
+      - name: Dispatch to vurvey-api
+        if: steps.filter_bugs.outputs.has_backend_bugs == 'true'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.VURVEY_REPO_TOKEN }}
+          repository: batterii/vurvey-api
+          event-type: bug-fix-request
+          client-payload: |
+            {
+              "source": "vurvey-docs-site",
+              "workflow_run_id": "${{ github.run_id }}",
+              "bug_reports": ${{ steps.filter_bugs.outputs.backend_bugs }}
+            }
+
+  notify-on-failure:
+    needs: [sync-documentation, dispatch-frontend-bugs, dispatch-backend-bugs]
     if: failure()
     runs-on: ubuntu-latest
     steps:
       - name: Send failure notification
         run: |
-          echo "Documentation sync failed. Check the workflow logs for details."
+          echo "Documentation sync or bug dispatch failed. Check the workflow logs for details."
