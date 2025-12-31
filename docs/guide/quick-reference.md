@@ -61,8 +61,8 @@ Modes can be combined for comprehensive analysis.
 | Tab | Purpose |
 |-----|---------|
 | **Populations** | Synthetic and real audience groups for agents |
-| **Contacts** | Individual participant records |
-| **Lists** | Reusable audience segments |
+| **Humans** | Individual participant records |
+| **Lists & Segments** | Reusable audience segments |
 | **Properties** | Custom contact attributes |
 
 ## Campaign Status Guide

@@ -332,6 +332,37 @@ async function captureHome(page) {
   await delay(4000);
   await waitForNetworkIdle(page);
 
+  // Check for error state before capturing
+  const hasError = await page.evaluate(() => {
+    const pageText = document.body?.innerText || '';
+    return pageText.includes('Something went wrong') ||
+           pageText.includes('Error') && pageText.includes('error');
+  });
+
+  if (hasError) {
+    console.log('  ⚠ Home page shows error state - trying to find a working conversation...');
+
+    // Try clicking on a conversation from the sidebar to get a working view
+    const conversationClicked = await page.evaluate(() => {
+      // Look for conversation items in sidebar
+      const items = document.querySelectorAll('[class*="conversation"], [class*="chat-item"], [data-testid*="conversation"]');
+      for (const item of items) {
+        if (item.click) {
+          item.click();
+          return true;
+        }
+      }
+      return false;
+    });
+
+    if (conversationClicked) {
+      console.log('  ✓ Clicked on a conversation');
+      await delay(3000);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+    }
+  }
+
   // Wait for chat interface elements
   await waitForContent(page, [
     '[data-testid="chat-input"]',
@@ -414,10 +445,10 @@ async function capturePeople(page) {
 
   await takeScreenshot(page, '01-people-main', 'people');
 
-  // Sub-pages - actual routes from code analysis
+  // Sub-pages - actual routes from vurvey-web-manager code analysis
   const subPages = [
     { path: '/audience/populations', name: '02-populations' },
-    { path: '/audience/contacts', name: '03-contacts' },  // Changed from /humans
+    { path: '/audience/community', name: '03-humans' },  // "Humans" tab uses /community route
     { path: '/audience/lists', name: '04-lists-segments' },
     { path: '/audience/properties', name: '05-properties' }
   ];

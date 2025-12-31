@@ -13,8 +13,8 @@ The People section provides a CRM-style interface for managing your research par
 | Tab | Purpose |
 |-----|---------|
 | **Populations** | Manage synthetic and real audience groups used by AI agents |
-| **Contacts** | Individual participant records and response history |
-| **Lists** | Organize people into reusable segments for targeting |
+| **Humans** | Individual participant records and response history |
+| **Lists & Segments** | Organize people into reusable segments for targeting |
 | **Properties** | Define and manage custom attributes for profiles |
 
 ## Populations
@@ -53,11 +53,11 @@ Click any population card to view:
 - Usage history (which agents or campaigns used this population)
 - Edit or archive options
 
-## Contacts
+## Humans
 
-![Contacts](/screenshots/people/03-contacts.png)
+![Humans](/screenshots/people/03-humans.png)
 
-The Contacts tab manages individual participant profiles and their interaction history with your research campaigns.
+The Humans tab manages individual participant profiles and their interaction history with your research campaigns.
 
 ### Features
 - Import participant data from CSV or Excel files
@@ -83,11 +83,11 @@ Each contact profile includes:
 - Response transcripts and videos
 - Segment memberships
 
-## Lists
+## Lists & Segments
 
 ![Lists & Segments](/screenshots/people/04-lists-segments.png)
 
-Lists allow you to create reusable audience definitions for campaigns and workflows.
+Lists and Segments allow you to create reusable audience definitions for campaigns and workflows.
 
 ### Creating Lists
 
