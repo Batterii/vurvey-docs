@@ -29,6 +29,7 @@ const CONFIG = {
     email: process.env.VURVEY_EMAIL || 'jroell+test@batterii.com',
     password: process.env.VURVEY_PASSWORD || 'youAre42!'
   },
+  fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || null,
   screenshotsDir: path.join(__dirname, '..', 'docs', 'public', 'screenshots'),
   viewport: { width: 1920, height: 1080 },
   headless: process.env.HEADLESS !== 'false',
@@ -632,8 +633,11 @@ async function main() {
       if (pathMatch) {
         workspaceId = pathMatch[1];
         console.log(`  ✓ Found workspace ID: ${workspaceId}`);
+      } else if (CONFIG.fallbackWorkspaceId) {
+        workspaceId = CONFIG.fallbackWorkspaceId;
+        console.log(`  ✓ Using fallback workspace ID: ${workspaceId}`);
       } else {
-        throw new Error('Could not determine workspace ID. Screenshots cannot be captured.');
+        throw new Error('Could not determine workspace ID. Set VURVEY_WORKSPACE_ID env var as fallback.');
       }
     }
 

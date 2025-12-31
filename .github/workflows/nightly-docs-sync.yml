@@ -58,6 +58,7 @@ jobs:
           VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
           VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
           VURVEY_URL: ${{ env.VURVEY_URL }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
           HEADLESS: 'true'
         run: |
           echo "Capturing screenshots from staging environment..."
@@ -77,6 +78,7 @@ jobs:
           VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
           VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
           VURVEY_URL: ${{ env.VURVEY_URL }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
           HEADLESS: 'true'
         run: |
           echo "Running QA test suite..."
