@@ -124,6 +124,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    # Must use always() since build uses always() - ensures deploy runs when build succeeds
+    if: always() && needs.build.result == 'success'
 
     steps:
       - name: Deploy to GitHub Pages
