@@ -8,7 +8,10 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "update:screenshots": "node scripts/capture-screenshots.js",
-    "update:all": "npm run update:screenshots && npm run docs:build"
+    "update:all": "npm run update:screenshots && npm run docs:build",
+    "test:qa": "node scripts/qa-test-suite.js",
+    "test:qa:headed": "HEADLESS=false node scripts/qa-test-suite.js",
+    "sync:nightly": "npm run update:screenshots && npm run test:qa"
   },
   "repository": {
     "type": "git",
