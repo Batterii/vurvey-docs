@@ -37,3 +37,6 @@ coverage/
 qa-failure-screenshots/
 qa-failure-report.md
 screenshot-validation-report.md
+
+# Checked out repos for analysis
+vurvey-web-manager/
