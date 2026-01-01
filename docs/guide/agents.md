@@ -44,8 +44,8 @@ Agents are categorized by their primary function:
 |------|----------|
 | **Assistant** | General-purpose help, Q&A, broad research tasks |
 | **Consumer Persona** | Simulating consumer perspectives and feedback |
-| **Expert** | Domain-specific analysis requiring specialized knowledge |
-| **Analyst** | Data interpretation, insights generation, reporting |
+| **Product** | Product-specific expertise and analysis |
+| **Visual Generator** | Creating visual content and imagery |
 
 ## Agent Card Actions
 

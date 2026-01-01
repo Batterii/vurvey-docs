@@ -4,7 +4,7 @@ Campaigns are video-powered surveys that collect research data, test concepts, a
 
 ## Overview
 
-![Campaigns Dashboard](/screenshots/campaigns/01-campaigns-dashboard.png)
+![Campaigns Dashboard](/screenshots/campaigns/01-campaigns-gallery.png)
 
 The Campaigns section provides a dashboard to create, manage, and analyze your research surveys with integrated templates, usage tracking, and AI-powered video highlights.
 
@@ -24,8 +24,6 @@ The Campaigns page has four main tabs:
 The default view displays your campaigns in a card grid layout.
 
 ### Campaign Cards
-
-![Campaign Card](/screenshots/campaigns/02-campaign-card.png)
 
 Each campaign displays as a card showing:
 
@@ -97,9 +95,10 @@ Use the controls above the card grid:
 - Most Recently Updated / Oldest Updated
 - Newest Opened / Oldest Opened
 - Most Recently Closed / Oldest Closed
-- Question Count (Low/High)
-- Response Count (Low/High)
-- Video Minutes (Low/High)
+- Lowest Question Count / Highest Question Count
+- Lowest Responses Count / Highest Responses Count
+- Lowest Highlight Count / Highest Highlight Count
+- Lowest Video Minutes / Highest Video Minutes
 
 ### Creating Campaigns
 
@@ -115,7 +114,7 @@ After creation, you'll be taken to the campaign editor to configure questions an
 
 ## Templates
 
-![Templates Page](/screenshots/campaigns/03-campaign-templates.png)
+![Templates Page](/screenshots/campaigns/03-templates.png)
 
 Browse pre-built campaign templates organized by category.
 
@@ -137,9 +136,9 @@ Each template shows:
 
 - **Headline** - Template name
 - **Description** - What the template is for
-- **Question Count** - Number of pre-built questions
-- **Reward Amount** - Suggested incentive
-- **Estimated Time** - Expected completion time
+- **Question Count** - Number of pre-built questions (with question icon)
+- **Reward Amount** - Suggested incentive (with star icon, if specified)
+- **Estimated Time** - Expected completion time in minutes (with clock icon, if specified)
 
 ### Using Templates
 
@@ -151,7 +150,7 @@ Each template shows:
 
 ## Usage
 
-![Usage Page](/screenshots/campaigns/04-campaign-usage.png)
+![Usage Page](/screenshots/campaigns/04-usage.png)
 
 View workspace analytics and credit consumption.
 
@@ -191,11 +190,11 @@ View all your magic reels in a sortable table:
 
 | Status | Meaning |
 |--------|---------|
-| **Published** | Ready to view and share |
-| **Draft** | Not yet published |
-| **Processing** | AI is generating the reel |
-| **Failed** | Generation encountered an error |
-| **Unpublished Changes** | Has edits since last publish |
+| **Published** | Reel's video has been successfully created and is ready to view |
+| **Draft** | Reel has not yet been published |
+| **Processing** | Reel is published and waiting for video creation job |
+| **Failed** | Video creation job has encountered an error |
+| **Unpublished Changes** | Reel has been published but has unpublished updates |
 
 ### Creating Reels
 

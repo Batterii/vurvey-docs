@@ -12,12 +12,15 @@ The Workflow section enables automation of multi-step research processes by comb
 
 Workflows (also called "AI Orchestrations" in the system) allow you to create automated research pipelines that execute tasks in sequence with AI agents processing data sources.
 
-## Navigation Tabs
+## Navigation Options
 
-| Tab | Purpose |
+The Workflow section includes several pages accessible via the left sidebar:
+
+| Page | Purpose |
 |-----|---------|
-| **Flows** | View and manage your automation workflows |
-| **Upcoming Runs** | See scheduled workflow executions |
+| **Workflows** | View and manage your automation workflows |
+| **Upcoming Runs** | See scheduled workflow executions (when scheduling feature is enabled) |
+| **Templates** | Manage workflow templates (when templates feature is enabled) |
 | **Conversations** | View past workflow conversations and outputs |
 
 ## Workflow Gallery
@@ -119,22 +122,25 @@ Individual AI agent steps in the workflow:
 | **Agent Avatar** | Visual identifier for the agent |
 | **Agent Name** | Name of the assigned persona |
 | **Task Prompt** | Instructions for this agent step |
-| **Order Index** | Position in execution sequence |
-| **Model Selector** | AI model for this step |
-| **Smart Prompt** | Toggle for enhanced prompting |
+| **Order** | Position in execution sequence (numeric input) |
+| **Tools Toggle** | Enable/disable Smart Prompt tools for this step |
 
-::: tip Smart Prompt
-Enable Smart Prompt to let the system enhance your prompts with context and best practices.
+::: tip Tools (Smart Prompt)
+Enable Tools to let agents use smart prompt capabilities with access to additional context and functionality. When disabled, agents will only use sources added directly to the workflow.
 :::
 
 #### Add Agent Button
 Click **Add Agent** to open the agent selection modal and add new agents to your workflow.
 
-#### Output Node
+#### Flow Output Node
 Final results summary:
 - Report status indicator
 - Generate Report button
 - Report preview when available
+
+::: info Node Variants
+During workflow execution and in history view, additional node variants appear that show agent outputs and execution status inline with the agent task cards.
+:::
 
 ### Flow Connections
 
@@ -154,19 +160,19 @@ The workflow page header provides key actions:
 | Tab | Description |
 |-----|-------------|
 | **Build** | Edit workflow structure |
-| **Running** | View live execution (appears when running) |
-| **History** | View past executions |
+| **Run** | View live execution (only active during execution) |
+| **View** | View past executions (disabled if no history exists) |
 
 ### Action Buttons
 
 | Button | Description |
 |--------|-------------|
-| **Edit** | Modify workflow metadata |
-| **Save** | Persist changes (disabled when no changes) |
-| **Run** | Execute the workflow |
-| **Cancel** | Stop running workflow (appears during execution) |
-| **Share** | Open permissions modal |
-| **Schedule** | Configure recurring execution |
+| **Edit** | Modify workflow metadata (pencil icon next to workflow name) |
+| **Save** | Persist changes (appears when workflow has unsaved changes) |
+| **Run Workflow** | Execute the workflow (AI-styled button) |
+| **Cancel** | Stop running workflow (red danger button, appears during execution) |
+| **Share** | Open permissions modal (when enabled) |
+| **Schedule** | Configure recurring execution (when scheduling feature is enabled) |
 
 ## Scheduling Workflows
 
@@ -278,20 +284,25 @@ During workflow execution, each agent shows a processing state:
 
 | State | Description |
 |-------|-------------|
-| **Idle** | Waiting to process |
-| **Processing** | Currently executing (animated) |
-| **Success** | Completed successfully |
+| **Processing** | Currently executing (animated indicator shown) |
+| **Completing** | Finalizing task execution |
+| **Completed** | Successfully finished execution |
 | **Error** | Failed during execution |
+| **Cancelled** | Task was cancelled |
+
+::: tip Visual Indicators
+Agent task cards show visual feedback during execution with animated borders when in the "processing" state and completion indicators when finished.
+:::
 
 ### Workflow Status
 
 | Status | Description |
 |--------|-------------|
-| **Building** | In development mode |
-| **Running** | Currently executing |
-| **Completed** | Finished all steps |
-| **Failed** | Error during execution |
-| **Cancelled** | Manually stopped |
+| **In Progress** | Currently executing |
+| **Completed** | Finished all steps successfully |
+| **Failed** | Error occurred during execution |
+| **Cancelled** | Manually stopped by user |
+| **Paused** | Temporarily suspended |
 
 ## Permissions
 

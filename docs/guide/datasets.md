@@ -17,7 +17,7 @@ Datasets are displayed as cards in a responsive grid showing:
 - **Dataset Name** - The dataset title (alias)
 - **Description** - Brief description of contents
 - **Creator** - "by [Name]" showing who created it
-- **File Count** - Total files (includes documents, videos, and audio)
+- **File Count** - Total files (includes images, documents, videos, and audio)
 - **Add Files Button** - Quick upload access (if you have edit permission)
 
 ### Searching and Filtering
@@ -75,7 +75,7 @@ When files are present, a stats grid shows:
 
 | Metric | Description |
 |--------|-------------|
-| **Total Files** | All files and videos in dataset |
+| **Total Files** | All files, images, videos, and audio in dataset |
 | **Processed** | Successfully processed files |
 | **Processing** | Files currently being analyzed |
 | **Failed** | Files that failed processing |
@@ -108,10 +108,11 @@ Click **Add Files** to reveal the upload dropdown:
 
 | Category | Formats |
 |----------|---------|
-| **Documents** | PDF, DOCX, TXT, MD, CSV, JSON |
+| **Images** | JPG, JPEG, PNG, GIF, WEBP |
+| **Documents** | PDF, DOC, DOCX, TXT, CSV, JSON |
 | **Presentations** | PPTX, XLSX |
-| **Video** | MP4, MOV, and other video formats |
-| **Audio** | MP3, WAV (if enabled for your workspace) |
+| **Video** | MP4, AVI, MOV |
+| **Audio** | MP3, WAV, OGG, AAC, M4A, WEBM, FLAC (if enabled for your workspace) |
 | **Text** | All text/* MIME types |
 
 ### Upload Process
