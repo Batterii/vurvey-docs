@@ -54,8 +54,6 @@ Agents are categorized by their primary function:
 | **Consumer Persona** | Simulating consumer perspectives and feedback | "Sarah, 34, eco-conscious mom" for product testing |
 | **Product** | Product-specific expertise and analysis | Product specialist, feature explainer, use case generator |
 | **Visual Generator** | Creating visual content and imagery | Concept visualizer, mood board creator, design ideation |
-| **Expert** | Domain-specific analysis requiring specialized knowledge | CPG industry analyst, UX researcher, brand strategist |
-| **Analyst** | Data interpretation, insights generation, reporting | Survey data analyst, trend spotter, competitive intel |
 
 ### Choosing the Right Agent Type
 
@@ -84,18 +82,6 @@ Agents are categorized by their primary function:
 - Generating imagery for presentations
 - Building mood boards or design inspiration
 - Visualizing abstract ideas
-
-**Use Expert when:**
-- You need domain-specific knowledge
-- Analysis requires specialized terminology
-- You want authoritative insights in a field
-- The topic has professional standards or practices
-
-**Use Analyst when:**
-- Processing survey or research data
-- Identifying patterns and trends
-- Creating summaries and reports
-- Synthesizing information from multiple sources
 :::
 
 ## Agent Card Actions
