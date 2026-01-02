@@ -41,10 +41,9 @@ Agents are grouped into collapsible sections by type:
 | Section | Icon | Description |
 |---------|------|-------------|
 | **Trending** | Fire | Popular agents across the workspace |
-| **Research** | Search | Research-focused personas |
-| **Analysis** | Chart | Data analysis specialists |
+| **Assistant** | Chat | General-purpose helpers |
 | **Consumer Persona** | User | Simulated consumer perspectives |
-| **Expert** | Graduate | Domain specialists |
+| **Product** | Box | Product-specific expertise |
 | **Visual Generator** | Image | Image and visual content creators |
 | **Custom** | Star | User-created categories |
 
@@ -61,7 +60,7 @@ Use the filter bar at the top to find specific agents:
 | Filter | Type | Options | Purpose |
 |--------|------|---------|---------|
 | **Sort** | Dropdown | Newest, Oldest | Order agents by creation date |
-| **Type** | Multi-select | Research, Analysis, Consumer, Expert, etc. | Filter by agent category |
+| **Type** | Multi-select | Assistant, Consumer Persona, Product, Visual Generator | Filter by agent category |
 | **Model** | Multi-select | GPT, Gemini, Claude, Stable Diffusion, Imagen, DALL-E | Filter by underlying AI model |
 | **Status** | Dropdown | Active, Inactive | Show published or draft agents |
 | **Search** | Text input | Free text (500ms debounce) | Find agents by name |
@@ -76,12 +75,10 @@ Agents are categorized by their primary function. Choosing the right type helps 
 
 | Type | Icon | Best For | Example Use Cases |
 |------|------|----------|-------------------|
-| **Assistant** | Chat | General-purpose help, Q&A, broad research tasks | Research coordinator, project helper, brainstorming partner |
+| **Assistant** | Chat | General-purpose help, Q&A, broad research tasks | Research coordinator, project helper, brainstorming partner, data analyst, industry expert |
 | **Consumer Persona** | User | Simulating consumer perspectives and feedback | "Sarah, 34, eco-conscious mom" for product testing |
 | **Product** | Box | Product-specific expertise and analysis | Product specialist, feature explainer, use case generator |
 | **Visual Generator** | Image | Creating visual content and imagery | Concept visualizer, mood board creator, design ideation |
-| **Expert** | Graduate | Domain-specific analysis requiring specialized knowledge | CPG industry analyst, UX researcher, brand strategist |
-| **Analyst** | Chart | Data interpretation, insights generation, reporting | Survey data analyst, trend spotter, competitive intel |
 
 ### Choosing the Right Agent Type
 
@@ -93,6 +90,10 @@ Agents are categorized by their primary function. Choosing the right type helps 
 - You want a conversational research partner
 - You're brainstorming or exploring ideas
 - You need a moderator for multi-agent conversations
+- Processing survey or research data
+- Identifying patterns and trends in datasets
+- You need domain-specific knowledge or expertise
+- Creating summaries and reports
 
 **Use Consumer Persona when:**
 - Testing how a specific demographic might respond
@@ -114,20 +115,6 @@ Agents are categorized by their primary function. Choosing the right type helps 
 - Building mood boards or design inspiration
 - Visualizing abstract ideas
 - Producing marketing creative concepts
-
-**Use Expert when:**
-- You need domain-specific knowledge
-- Analysis requires specialized terminology
-- You want authoritative insights in a field
-- The topic has professional standards or practices
-- Multiple stakeholder perspectives are needed
-
-**Use Analyst when:**
-- Processing survey or research data
-- Identifying patterns and trends
-- Creating summaries and reports
-- Synthesizing information from multiple sources
-- Generating data-driven recommendations
 :::
 
 ## Agent Card Actions
@@ -324,7 +311,7 @@ Communication Style:
 - Values authenticity over polish
 ```
 
-**For an Industry Expert:**
+**For an Industry Assistant (Expert Role):**
 ```
 Professional Background:
 - Experience Level: 15+ years in CPG
@@ -756,7 +743,7 @@ If you need additional access to an agent:
 **Scenario:** Your team needs to stay current on industry trends and competitor moves.
 
 **Solution:**
-1. Create an Analyst-type agent specialized in your industry
+1. Create an Assistant-type agent specialized in your industry
 2. Upload relevant research reports, articles, and competitive intel to datasets
 3. Configure the agent to identify trends, summarize findings, and flag important developments
 4. Use the agent for weekly briefings or ad-hoc questions
@@ -790,7 +777,7 @@ Industry Intelligence Dataset
 **Scenario:** You want to understand how different stakeholders perceive a brand.
 
 **Solution:**
-1. Create Expert agents for different viewpoints:
+1. Create Assistant agents for different viewpoints:
    - Brand strategist
    - Consumer psychologist
    - Retail buyer
@@ -817,7 +804,7 @@ Industry Intelligence Dataset
 **Scenario:** You have thousands of open-ended survey responses to analyze.
 
 **Solution:**
-1. Create an Analyst agent specialized in qualitative coding
+1. Create an Assistant agent specialized in qualitative coding
 2. Upload survey responses as a dataset
 3. Define coding categories in the agent's instructions
 4. Use workflows to automate batch processing
@@ -887,7 +874,7 @@ OUTPUT FORMAT:
 
 | Strategy | Implementation |
 |----------|----------------|
-| **Descriptive names** | Include role and specialty: "CPG Analyst - Beauty Sector" |
+| **Descriptive names** | Include role and specialty: "CPG Assistant - Beauty Sector" |
 | **Consistent types** | Use appropriate types for filtering |
 | **Archive unused** | Deactivate rather than delete |
 | **Document purpose** | Include use cases in biography |
@@ -897,11 +884,11 @@ OUTPUT FORMAT:
 
 | Scenario | Agent Choice |
 |----------|--------------|
-| Domain-specific questions | Specialized Expert agent |
+| Domain-specific questions | Specialized Assistant agent with expertise |
 | Multiple perspectives | Use `@` mention to invoke several agents |
 | Consumer feedback | Consumer Persona matching target demo |
 | Visual content | Visual Generator agent |
-| Data analysis | Analyst agent with relevant datasets |
+| Data analysis | Assistant agent with relevant datasets |
 
 ### Advanced Agent Techniques
 
@@ -909,9 +896,9 @@ OUTPUT FORMAT:
 
 **Chaining Agents:**
 Use one agent's output as input for another in a workflow:
-1. Research agent gathers and summarizes information
-2. Analyst agent processes and identifies patterns
-3. Writer agent creates the final deliverable
+1. Research Assistant agent gathers and summarizes information
+2. Data Assistant agent processes and identifies patterns
+3. Writer Assistant agent creates the final deliverable
 
 **Agent Teams:**
 Create complementary agents that work together:
@@ -1087,7 +1074,7 @@ A: Review agents quarterly, or whenever:
 **Q: What's the best way to organize a large number of agents?**
 
 A: Use consistent naming conventions:
-- Include role/type: "Analyst - CPG - Beauty"
+- Include role/type: "Assistant - CPG - Beauty"
 - Include version if iterating: "Consumer Persona v2"
 - Use types appropriately for filtering
 - Deactivate outdated versions
