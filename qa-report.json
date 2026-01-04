@@ -1,18 +1,18 @@
 {
   "summary": {
-    "totalTests": 27,
-    "passed": 27,
-    "failed": 0,
-    "warnings": 0,
-    "duration": "205.39s",
-    "timestamp": "2026-01-01T05:51:07.634Z",
+    "totalTests": 26,
+    "passed": 25,
+    "failed": 1,
+    "warnings": 1,
+    "duration": "196.75s",
+    "timestamp": "2026-01-04T03:46:03.271Z",
     "baseUrl": "https://staging.vurvey.dev"
   },
   "passed": [
     {
       "name": "Home: Chat input present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:52:21.305Z",
+      "timestamp": "2026-01-04T03:47:15.527Z",
       "section": "Home/Chat",
       "route": "/",
       "selector": "[data-testid=\"chat-input\"], textarea, input[placeholder*=\"message\" i]"
@@ -20,7 +20,7 @@
     {
       "name": "Home: Agent selector present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:52:21.618Z",
+      "timestamp": "2026-01-04T03:47:15.869Z",
       "section": "Home/Chat",
       "route": "/",
       "selector": "[data-testid=\"agent-selector\"], [class*=\"agent\" i][class*=\"select\" i], [class*=\"persona\" i]"
@@ -28,7 +28,7 @@
     {
       "name": "Home: Mode toggles present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:52:21.930Z",
+      "timestamp": "2026-01-04T03:47:16.223Z",
       "section": "Home/Chat",
       "route": "/",
       "selector": "[data-testid=\"mode-toggle\"], [class*=\"mode\" i], button"
@@ -36,7 +36,7 @@
     {
       "name": "Home: Conversation sidebar present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:52:22.246Z",
+      "timestamp": "2026-01-04T03:47:16.570Z",
       "section": "Home/Chat",
       "route": "/",
       "selector": "[class*=\"sidebar\" i], [class*=\"conversations\" i], button[aria-label*=\"conversation\" i], h2, h3, span"
@@ -44,23 +44,15 @@
     {
       "name": "Home: New conversation button present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:52:22.561Z",
+      "timestamp": "2026-01-04T03:47:16.972Z",
       "section": "Home/Chat",
       "route": "/",
       "selector": "button[aria-label*=\"new\" i], [class*=\"new\"][class*=\"conversation\" i], button"
     },
     {
-      "name": "Agents: Gallery grid present",
-      "details": "Found",
-      "timestamp": "2026-01-01T05:52:41.223Z",
-      "section": "Agents",
-      "route": "/agents",
-      "selector": "[data-testid=\"agent-card\"], [class*=\"agent\"][class*=\"card\" i], [class*=\"persona\"][class*=\"card\" i], [class*=\"card\" i]"
-    },
-    {
       "name": "Agents: Create button present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:52:41.539Z",
+      "timestamp": "2026-01-04T03:47:29.350Z",
       "section": "Agents",
       "route": "/agents",
       "selector": "button"
@@ -68,7 +60,7 @@
     {
       "name": "Agents: Search input present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:52:41.854Z",
+      "timestamp": "2026-01-04T03:47:29.657Z",
       "section": "Agents",
       "route": "/agents",
       "selector": "input[type=\"search\"], input[placeholder*=\"search\" i], [class*=\"search\" i] input"
@@ -76,31 +68,15 @@
     {
       "name": "Agents: Filter/sort controls present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:52:42.170Z",
+      "timestamp": "2026-01-04T03:47:29.964Z",
       "section": "Agents",
       "route": "/agents",
       "selector": "[class*=\"filter\" i], [class*=\"sort\" i], select"
     },
     {
-      "name": "Agents: Card avatars present",
-      "details": "Found",
-      "timestamp": "2026-01-01T05:52:42.800Z",
-      "section": "Agents",
-      "route": "/agents",
-      "selector": "[class*=\"avatar\" i], img[class*=\"agent\" i]"
-    },
-    {
-      "name": "Agents: Card menus present",
-      "details": "Found",
-      "timestamp": "2026-01-01T05:52:43.116Z",
-      "section": "Agents",
-      "route": "/agents",
-      "selector": "[class*=\"menu\" i], [class*=\"dropdown\" i], button[aria-label*=\"more\" i]"
-    },
-    {
       "name": "People: Navigation tabs present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:52:50.958Z",
+      "timestamp": "2026-01-04T03:47:41.977Z",
       "section": "People/Audience",
       "route": "/audience",
       "selector": "element with nav text"
@@ -108,7 +84,7 @@
     {
       "name": "People: Populations view present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:52:51.535Z",
+      "timestamp": "2026-01-04T03:47:43.227Z",
       "section": "People/Audience",
       "route": "/audience",
       "selector": "[class*=\"population\" i], [class*=\"grid\" i], [class*=\"card\" i]"
@@ -116,7 +92,7 @@
     {
       "name": "People: Humans table present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:53:18.159Z",
+      "timestamp": "2026-01-04T03:48:00.776Z",
       "section": "People/Audience",
       "route": "/audience/community",
       "selector": "table, [class*=\"table\" i], [role=\"grid\"], [class*=\"row\" i], input[placeholder*=\"search\" i]"
@@ -124,7 +100,7 @@
     {
       "name": "People: Segments view present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:53:31.530Z",
+      "timestamp": "2026-01-04T03:48:15.300Z",
       "section": "People/Audience",
       "route": "/audience/segments",
       "selector": "[class*=\"segment\" i], [class*=\"list\" i], table"
@@ -132,7 +108,7 @@
     {
       "name": "People: Properties view present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:53:47.680Z",
+      "timestamp": "2026-01-04T03:48:32.980Z",
       "section": "People/Audience",
       "route": "/audience/properties",
       "selector": "[class*=\"propert\" i], table, [class*=\"list\" i]"
@@ -140,7 +116,7 @@
     {
       "name": "Campaigns: Page content present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:53:55.516Z",
+      "timestamp": "2026-01-04T03:48:41.840Z",
       "section": "Campaigns",
       "route": "/campaigns",
       "selector": "grid or title"
@@ -148,7 +124,7 @@
     {
       "name": "Campaigns: Create button present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:53:56.092Z",
+      "timestamp": "2026-01-04T03:48:42.477Z",
       "section": "Campaigns",
       "route": "/campaigns",
       "selector": "button"
@@ -156,7 +132,7 @@
     {
       "name": "Campaigns: Navigation tabs present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:53:56.145Z",
+      "timestamp": "2026-01-04T03:48:42.528Z",
       "section": "Campaigns",
       "route": "/campaigns",
       "selector": "nav tabs or buttons"
@@ -164,15 +140,23 @@
     {
       "name": "Campaigns: Filter controls present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:53:56.458Z",
+      "timestamp": "2026-01-04T03:48:42.832Z",
       "section": "Campaigns",
       "route": "/campaigns",
       "selector": "[class*=\"filter\" i], select, [class*=\"sort\" i]"
     },
     {
+      "name": "Campaigns: Status badges present",
+      "details": "Found",
+      "timestamp": "2026-01-04T03:48:43.442Z",
+      "section": "Campaigns",
+      "route": "/campaigns",
+      "selector": "[class*=\"badge\" i], [class*=\"status\" i], [class*=\"chip\" i]"
+    },
+    {
       "name": "Datasets: Page content present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:54:07.302Z",
+      "timestamp": "2026-01-04T03:48:52.305Z",
       "section": "Datasets",
       "route": "/datasets",
       "selector": "page loaded"
@@ -180,7 +164,7 @@
     {
       "name": "Datasets: Create button present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:54:07.880Z",
+      "timestamp": "2026-01-04T03:48:52.866Z",
       "section": "Datasets",
       "route": "/datasets",
       "selector": "button"
@@ -188,7 +172,7 @@
     {
       "name": "Datasets: Search input present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:54:08.193Z",
+      "timestamp": "2026-01-04T03:48:53.172Z",
       "section": "Datasets",
       "route": "/datasets",
       "selector": "input[type=\"search\"], input[placeholder*=\"search\" i]"
@@ -196,7 +180,7 @@
     {
       "name": "Workflows: Navigation tabs present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:54:19.033Z",
+      "timestamp": "2026-01-04T03:49:05.029Z",
       "section": "Workflows",
       "route": "/workflow",
       "selector": "nav tabs or page title"
@@ -204,7 +188,7 @@
     {
       "name": "Workflows: Flows grid present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:54:32.395Z",
+      "timestamp": "2026-01-04T03:49:19.406Z",
       "section": "Workflows",
       "route": "/workflow/flows",
       "selector": "[class*=\"grid\" i], [class*=\"card\" i], [class*=\"flow\" i]"
@@ -212,7 +196,7 @@
     {
       "name": "Workflows: Create button present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:54:32.708Z",
+      "timestamp": "2026-01-04T03:49:19.711Z",
       "section": "Workflows",
       "route": "/workflow/flows",
       "selector": "button"
@@ -220,12 +204,40 @@
     {
       "name": "Workflows: Search/sort controls present",
       "details": "Found",
-      "timestamp": "2026-01-01T05:54:33.022Z",
+      "timestamp": "2026-01-04T03:49:20.018Z",
       "section": "Workflows",
       "route": "/workflow/flows",
       "selector": "input[type=\"search\"], select, [class*=\"sort\" i]"
     }
   ],
-  "failed": [],
-  "warnings": []
+  "failed": [
+    {
+      "name": "Agents: Gallery grid present",
+      "details": "Not found",
+      "timestamp": "2026-01-04T03:47:28.827Z",
+      "section": "Agents",
+      "route": "/agents",
+      "selector": "[data-testid=\"agent-card\"], [class*=\"agent\"][class*=\"card\" i], [class*=\"persona\"][class*=\"card\" i], [class*=\"card\" i]",
+      "screenshot": "/home/runner/work/vurvey-docs/vurvey-docs/qa-failure-screenshots/agents--gallery-grid-present-1767498448828.png",
+      "reproductionSteps": [
+        "1. Navigate to https://staging.vurvey.dev",
+        "2. Log in with test credentials",
+        "3. Navigate to route: /agents",
+        "4. Look for element matching: [data-testid=\"agent-card\"], [class*=\"agent\"][class*=\"card\" i], [class*=\"persona\"][class*=\"card\" i], [class*=\"card\" i]",
+        "5. Expected: Element should be present and visible",
+        "6. Actual: Element was not found or not visible",
+        "",
+        "Test: Agents: Gallery grid present",
+        "Section: Agents",
+        "Route: /agents"
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "name": "Agents: No agent cards found",
+      "details": "May be empty workspace",
+      "timestamp": "2026-01-04T03:47:32.965Z"
+    }
+  ]
 }
