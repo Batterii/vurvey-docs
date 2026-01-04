@@ -38,14 +38,13 @@ Agents are displayed as visual 1:1 aspect ratio cards with a maximum width of 26
 
 Agents are grouped into collapsible sections by type:
 
-| Section | Icon | Description |
-|---------|------|-------------|
-| **Trending** | Fire | Popular agents across the workspace |
-| **Assistant** | Chat | General-purpose helpers |
-| **Consumer Persona** | User | Simulated consumer perspectives |
-| **Product** | Box | Product-specific expertise |
-| **Visual Generator** | Image | Image and visual content creators |
-| **Custom** | Star | User-created categories |
+| Section | Description |
+|---------|-------------|
+| **Trending** | Popular agents across the workspace (marked with 🔥) |
+| **Assistant** | General-purpose helpers |
+| **Consumer Persona** | Simulated consumer perspectives |
+| **Product** | Product-specific expertise |
+| **Visual Generator** | Image and visual content creators |
 
 **Section Controls:**
 - **Show all** - Expand to see all agents in the section
