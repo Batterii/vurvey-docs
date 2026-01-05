@@ -36,15 +36,19 @@ Agents are displayed as visual 1:1 aspect ratio cards with a maximum width of 26
 
 ### Section Organization
 
-Agents are grouped into collapsible sections by type:
+Agents are grouped into collapsible sections for organization:
 
 | Section | Description |
 |---------|-------------|
-| **Trending** | Popular agents across the workspace (marked with 🔥) |
-| **Assistant** | General-purpose helpers |
-| **Consumer Persona** | Simulated consumer perspectives |
-| **Product** | Product-specific expertise |
-| **Visual Generator** | Image and visual content creators |
+| **Trending** | Dynamic section showing popular Vurvey-created agents from the last 30 days (marked with 🔥) |
+| **Assistant** | General-purpose helper agents |
+| **Consumer Persona** | Simulated consumer perspective agents |
+| **Product** | Product-specific expertise agents |
+| **Visual Generator** | Image and visual content creator agents |
+
+::: tip Agent Type vs. Display Section
+"Trending" is a display section, not an agent type. The four agent types you can create are: **Assistant**, **Consumer Persona**, **Product**, and **Visual Generator**. The Trending section dynamically shows Vurvey-created agents regardless of their type.
+:::
 
 **Section Controls:**
 - **Show all** - Expand to see all agents in the section
@@ -197,7 +201,7 @@ The builder guides you through six sequential steps to create a complete, well-c
 |------|------|------|---------|------------|
 | 1 | **Objective** | Flag | Define agent type and mission | Type, Mold, Core Mission |
 | 2 | **Facets** | Interests | Configure personality traits | Trait selectors, Background |
-| 3 | **Instructions** | Tune | Add knowledge and rules | Model, Tools, Datasets, Knowledge, Rules |
+| 3 | **Optional Settings** | Tune | Add knowledge and rules | Model, Tools, Datasets, Knowledge, Rules |
 | 4 | **Identity** | Badge | Set name and biography | Name, Biography, Voice |
 | 5 | **Appearance** | Face | Create visual identity | Avatar, Physical Description |
 | 6 | **Review** | Checklist | Final review and activation | Summary, Benchmark, Activate |
@@ -339,7 +343,7 @@ Communication Style:
 
 ---
 
-### Step 3: Instructions (Optional Settings)
+### Step 3: Optional Settings
 
 ![Agent Builder Instructions](/screenshots/agents/07-builder-instructions.png)
 
