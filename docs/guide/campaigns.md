@@ -37,11 +37,11 @@ A colored badge in the top-left indicates the campaign status:
 
 | Status | Color | Description | Typical Use |
 |--------|-------|-------------|-------------|
-| **Draft** | Gray | In development, not collecting responses | Building and testing |
-| **Open** | Green | Actively collecting responses | Live research |
-| **Closed** | Blue | Collection complete | Analysis phase |
-| **Blocked** | Orange | Temporarily paused | Investigating issues |
-| **Archived** | Purple | Inactive but preserved | Long-term storage |
+| **Draft** | Cyan | In development, not collecting responses | Building and testing |
+| **Open** | Lime Green | Actively collecting responses | Live research |
+| **Closed** | Red | Collection complete | Analysis phase |
+| **Blocked** | Teal | Temporarily paused | Investigating issues |
+| **Archived** | Teal | Inactive but preserved | Long-term storage |
 
 ::: tip Pro Tip: Status Best Practices
 - Keep campaigns in **Draft** until fully tested with Preview mode
@@ -75,7 +75,7 @@ Click the three-dot menu on any campaign card to access:
 
 | Action | Icon | Condition | Description |
 |--------|------|-----------|-------------|
-| **Start Conversation** | Sparkle | Has responses | Open AI chat with campaign data |
+| **Start Conversation** | Sparkle | Status is Open/Closed AND has responses | Open AI chat with campaign data |
 | **Share** | Share | Has MANAGE permission | Manage who can access this campaign |
 | **Preview** | Expand | Always | Open campaign editor |
 | **Copy** | Documents | Has EDIT permission | Duplicate the campaign |
