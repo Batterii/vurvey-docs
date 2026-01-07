@@ -168,7 +168,7 @@ Click **Add Files** to reveal the upload dropdown:
 | Category | Formats |
 |----------|---------|
 | **Images** | JPG, JPEG, PNG, GIF, WEBP |
-| **Documents** | PDF, DOC, DOCX, TXT, MD, CSV, JSON |
+| **Documents** | PDF, DOC, DOCX, TXT, CSV, JSON |
 | **Presentations** | PPTX, XLSX |
 | **Video** | MP4, AVI, MOV, and other video/* types |
 | **Audio** | MP3, WAV, OGG, AAC, M4A, WEBM, FLAC (if enabled for your workspace) |
@@ -610,6 +610,7 @@ Ensure uploaded data complies with your organization's data policies and relevan
 1. Verify file format is supported (check supported types table)
 2. Check file size limits:
    - Images: 10MB
+   - Audio: 25MB
    - Videos: 100MB
    - Documents: 50MB
 3. Try re-uploading the file
