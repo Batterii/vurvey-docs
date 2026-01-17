@@ -201,7 +201,7 @@ The builder guides you through six sequential steps to create a complete, well-c
 |------|------|------|---------|------------|
 | 1 | **Objective** | Flag | Define agent type and mission | Type, Mold, Core Mission |
 | 2 | **Facets** | Interests | Configure personality traits | Trait selectors, Background |
-| 3 | **Optional Settings** | Tune | Add knowledge and rules | Model, Tools, Datasets, Knowledge, Rules |
+| 3 | **Instructions** | Tune | Add knowledge and rules | Model, Tools, Datasets, Knowledge, Rules |
 | 4 | **Identity** | Badge | Set name and biography | Name, Biography, Voice |
 | 5 | **Appearance** | Face | Create visual identity | Avatar, Physical Description |
 | 6 | **Review** | Checklist | Final review and activation | Summary, Benchmark, Activate |
@@ -343,7 +343,7 @@ Communication Style:
 
 ---
 
-### Step 3: Optional Settings
+### Step 3: Instructions
 
 ![Agent Builder Instructions](/screenshots/agents/07-builder-instructions.png)
 
