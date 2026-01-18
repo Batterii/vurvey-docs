@@ -201,7 +201,7 @@ The builder guides you through six sequential steps to create a complete, well-c
 |------|------|------|---------|------------|
 | 1 | **Objective** | Flag | Define agent type and mission | Type, Mold, Core Mission |
 | 2 | **Facets** | Interests | Configure personality traits | Trait selectors, Background |
-| 3 | **Optional Settings** | Tune | Add knowledge and rules | Model, Tools, Datasets, Knowledge, Rules |
+| 3 | **Instructions** | Tune | Add knowledge and rules | Model, Tools, Datasets, Knowledge, Rules |
 | 4 | **Identity** | Badge | Set name and biography | Name, Biography, Voice |
 | 5 | **Appearance** | Face | Create visual identity | Avatar, Physical Description |
 | 6 | **Review** | Checklist | Final review and activation | Summary, Benchmark, Activate |
@@ -343,7 +343,7 @@ Communication Style:
 
 ---
 
-### Step 3: Optional Settings
+### Step 3: Instructions
 
 ![Agent Builder Instructions](/screenshots/agents/07-builder-instructions.png)
 
@@ -991,7 +991,7 @@ Use multiple agents in a single chat:
 **Symptoms:** Agent doesn't reference information you know is in connected datasets.
 
 **Solutions:**
-1. **Verify connection** - Check Step 3 in builder
+1. **Verify connection** - Check Step 3 (Instructions) in builder
 2. **Check processing** - Ensure dataset files are "Success" status
 3. **Improve labeling** - Add labels to help agent find content
 4. **Explicit instruction** - Add "Always check connected datasets first"
@@ -1048,7 +1048,7 @@ A: Agents you created remain in the workspace. Transfer ownership to a teammate 
 
 **Q: Can agents access the internet?**
 
-A: By default, agents work with connected datasets only. Enable the Web Search tool in Step 3 to allow internet access.
+A: By default, agents work with connected datasets only. Enable the Web Search tool in Step 3 (Instructions) to allow internet access.
 
 **Q: How do I share an agent with someone outside my workspace?**
 
@@ -1056,7 +1056,7 @@ A: Currently, agents can only be shared within a workspace. For external sharing
 
 **Q: Can I create agents that generate images?**
 
-A: Yes, select the "Visual Generator" agent type and enable image generation tools in Step 3.
+A: Yes, select the "Visual Generator" agent type and enable image generation tools in Step 3 (Instructions).
 
 **Q: How do I test an agent without publishing it?**
 

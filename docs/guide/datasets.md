@@ -168,11 +168,11 @@ Click **Add Files** to reveal the upload dropdown:
 | Category | Formats |
 |----------|---------|
 | **Images** | JPG, JPEG, PNG, GIF, WEBP |
-| **Documents** | PDF, DOC, DOCX, TXT, CSV, JSON |
-| **Presentations** | PPTX, XLSX |
-| **Video** | MP4, AVI, MOV, and other video/* types |
+| **Documents** | PDF, DOC, DOCX, TXT, JSON |
+| **Spreadsheets** | XLS, XLSX, CSV |
+| **Presentations** | PPTX |
+| **Video** | MP4, AVI, MOV (including QuickTime and other video/* types) |
 | **Audio** | MP3, WAV, OGG, AAC, M4A, WEBM, FLAC (if enabled for your workspace) |
-| **Text** | All text/* MIME types |
 
 ::: tip Pro Tip: File Format Selection
 - **PDFs** work best for formatted documents with layouts
