@@ -235,8 +235,8 @@ The workflow page header provides key actions:
 | Tab | Description |
 |-----|-------------|
 | **Build** | Edit workflow structure |
-| **Running** | View live execution (only active during execution) |
-| **History** | View past executions (disabled if no history exists) |
+| **Run** | View live execution (only active during execution) |
+| **View** | View past executions (disabled if no history exists) |
 
 ### Action Buttons
 
@@ -253,7 +253,7 @@ The workflow page header provides key actions:
 
 - **Save** - Disabled when no changes or invalid workflow
 - **Run** - Disabled when invalid or already running; text changes to "Running..."
-- **Schedule** - Hidden when: dirty changes, running, invalid, or on history/running tabs
+- **Schedule** - Hidden when: dirty changes, running, invalid, or on View/Run tabs
 
 ## Scheduling Workflows
 
@@ -672,7 +672,7 @@ For workflows requiring specific capabilities:
 If issues persist:
 1. **Document the workflow ID** and specific error messages
 2. **Take screenshots** of the workflow canvas and error states
-3. **Check the History tab** for past execution details
+3. **Check the View tab** for past execution details
 4. **Contact support** via the Help menu
 
 ## Frequently Asked Questions
@@ -686,7 +686,7 @@ A: There's no hard limit, but we recommend 3-7 agents for optimal performance. M
 A: Yes, you can select multiple campaigns as sources. The workflow will process data from all selected campaigns.
 
 **Q: What happens if a workflow fails mid-execution?**
-A: The workflow stops at the failed step. You can view the error in the History tab and retry from the failed step after fixing the issue.
+A: The workflow stops at the failed step. You can view the error in the View tab and retry from the failed step after fixing the issue.
 
 **Q: Can I edit a workflow while it's running?**
 A: No, you must cancel the running execution first or wait for it to complete before editing.
@@ -707,7 +707,7 @@ A: Workflow costs depend on the AI model used, number of agents, and amount of d
 A: Currently, you need to delete and recreate schedules. Consider reducing frequency instead of deleting.
 
 **Q: Why is my workflow taking so long?**
-A: Processing time depends on data volume and number of agents. Large datasets or many agents increase time. Check individual agent progress in the Running tab.
+A: Processing time depends on data volume and number of agents. Large datasets or many agents increase time. Check individual agent progress in the Run tab.
 
 **Q: Can agents in a workflow access previous agent outputs?**
 A: Yes, each agent can reference outputs from agents that executed before it in the sequence.
@@ -719,7 +719,7 @@ A: Smart Prompt gives agents access to additional tools and capabilities. Regula
 A: Yes, use Input Parameters. Create variable sets for different configurations and switch between them at runtime.
 
 **Q: How do I know which agent is currently executing?**
-A: The Running tab shows real-time progress with animated indicators on the currently executing agent task card.
+A: The Run tab shows real-time progress with animated indicators on the currently executing agent task card.
 :::
 
 ## Test IDs Reference
