@@ -611,9 +611,12 @@ Ensure uploaded data complies with your organization's data policies and relevan
 1. Verify file format is supported (check supported types table)
 2. Check file size limits:
    - Images: 10MB
+   - Text files (TXT, JSON): 10MB
    - Audio: 25MB
+   - Spreadsheets (XLS, XLSX, CSV): 25MB
+   - Documents (PDF, DOC, DOCX): 50MB
+   - Presentations (PPTX): 50MB
    - Videos: 100MB
-   - Documents: 50MB
 3. Try re-uploading the file
 4. Split large files if needed
 5. Check network connection stability
