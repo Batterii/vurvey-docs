@@ -195,20 +195,22 @@ Click **+ Create Agent** in the top right corner to launch the Agent Builder.
 
 ### Agent Builder Overview
 
-The builder guides you through six sequential steps to create a complete, well-configured agent:
+The builder guides you through several sequential steps to create a complete, well-configured agent:
 
 | Step | Name | Icon | Purpose | Key Fields |
 |------|------|------|---------|------------|
-| 1 | **Objective** | Flag | Define agent type and mission | Type, Mold, Core Mission |
-| 2 | **Facets** | Interests | Configure personality traits | Trait selectors, Background |
-| 3 | **Instructions** | Tune | Add knowledge and rules | Model, Tools, Datasets, Knowledge, Rules |
-| 4 | **Identity** | Badge | Set name and biography | Name, Biography, Voice |
-| 5 | **Appearance** | Face | Create visual identity | Avatar, Physical Description |
-| 6 | **Review** | Checklist | Final review and activation | Summary, Benchmark, Activate |
+| 1 | **Type Selection** | Grid | Choose agent category | Assistant, Consumer Persona, Product, Visual Generator |
+| 2 | **Mold Selection** | Template | Choose starting template (optional) | Pre-configured templates for quick start |
+| 3 | **Objective** | Flag | Define core mission | Core Mission statement |
+| 4 | **Facets** | Interests | Configure personality traits | Trait selectors, Background |
+| 5 | **Instructions** | Tune | Add knowledge and rules | Model, Tools, Datasets, Knowledge, Rules |
+| 6 | **Identity** | Badge | Set name and biography | Name, Biography, Voice |
+| 7 | **Appearance** | Face | Create visual identity | Avatar, Physical Description |
+| 8 | **Review** | Checklist | Final review and activation | Summary, Benchmark, Activate |
 
 ### Builder Navigation
 
-The builder displays a progress stepper showing your journey through all six steps:
+The builder displays a progress stepper showing your journey through all steps:
 
 **Step States:**
 - **Locked** - Cannot access until previous steps complete
@@ -230,7 +232,35 @@ The builder displays a progress stepper showing your journey through all six ste
 
 ---
 
-### Step 1: Objective
+### Step 1: Type Selection
+
+Choose the primary category for your agent. This determines the agent's intended use case and helps organize your agent library.
+
+**Available Types:**
+
+| Type | Best For |
+|------|----------|
+| **Assistant** | General-purpose help, Q&A, research tasks |
+| **Consumer Persona** | Simulating consumer perspectives and feedback |
+| **Product** | Product-specific expertise and analysis |
+| **Visual Generator** | Creating visual content and imagery |
+
+---
+
+### Step 2: Mold Selection
+
+Choose an optional template to start from. Molds provide pre-configured settings for common use cases.
+
+**Agent Mold Benefits:**
+- Pre-configured facets for common personas
+- Default instruction sets
+- Consistent quality across similar agents
+- Faster creation for standard use cases
+- Can be skipped to start from scratch
+
+---
+
+### Step 3: Objective
 
 ![Agent Builder Objective](/screenshots/agents/05-builder-objective.png)
 
@@ -240,15 +270,7 @@ Define what your agent will do and establish its foundation.
 
 | Field | Description | Required |
 |-------|-------------|----------|
-| **Agent Type** | Select category (Research, Analysis, Consumer Persona, etc.) | Yes |
-| **Agent Mold** | Choose a template to start from (provides default facets and instructions) | No |
 | **Core Mission** | Free-text description of the agent's primary purpose | Yes |
-
-**Agent Mold Benefits:**
-- Pre-configured facets for common personas
-- Default instruction sets
-- Consistent quality across similar agents
-- Faster creation for standard use cases
 
 ::: tip Writing Effective Core Missions
 A good core mission is specific, actionable, and bounded. Compare:
@@ -265,7 +287,7 @@ The strong version gives the agent:
 
 ---
 
-### Step 2: Facets
+### Step 4: Facets
 
 ![Agent Builder Facets](/screenshots/agents/06-builder-facets.png)
 
@@ -343,7 +365,7 @@ Communication Style:
 
 ---
 
-### Step 3: Instructions
+### Step 5: Instructions
 
 ![Agent Builder Instructions](/screenshots/agents/07-builder-instructions.png)
 
@@ -440,7 +462,7 @@ Rules are constraints the agent must follow. They're different from instructions
 
 ---
 
-### Step 4: Identity
+### Step 6: Identity
 
 ![Agent Builder Identity](/screenshots/agents/08-builder-identity.png)
 
@@ -502,7 +524,7 @@ A compelling biography includes five key elements:
 
 ---
 
-### Step 5: Appearance
+### Step 7: Appearance
 
 ![Agent Builder Appearance](/screenshots/agents/09-builder-appearance.png)
 
@@ -552,7 +574,7 @@ Better than: "A person in business clothes"
 
 ---
 
-### Step 6: Review
+### Step 8: Review
 
 ![Agent Builder Review](/screenshots/agents/10-builder-review.png)
 
