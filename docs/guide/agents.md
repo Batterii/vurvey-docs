@@ -199,14 +199,16 @@ The builder guides you through several sequential steps to create a complete, we
 
 | Step | Name | Icon | Purpose | Key Fields |
 |------|------|------|---------|------------|
-| 1 | **Type Selection** | Grid | Choose agent category | Assistant, Consumer Persona, Product, Visual Generator |
-| 2 | **Mold Selection** | Template | Choose starting template (optional) | Pre-configured templates for quick start |
-| 3 | **Objective** | Flag | Define core mission | Core Mission statement |
-| 4 | **Facets** | Interests | Configure personality traits | Trait selectors, Background |
-| 5 | **Instructions** | Tune | Add knowledge and rules | Model, Tools, Datasets, Knowledge, Rules |
-| 6 | **Identity** | Badge | Set name and biography | Name, Biography, Voice |
-| 7 | **Appearance** | Face | Create visual identity | Avatar, Physical Description |
-| 8 | **Review** | Checklist | Final review and activation | Summary, Benchmark, Activate |
+| 1 | **Objective** | Flag | Choose agent type and define core mission | Type selection, Core Mission statement |
+| 2 | **Facets** | Interests | Configure personality traits | Trait selectors, Background, Mold selection (optional) |
+| 3 | **Instructions** | Tune | Add knowledge and rules | Model, Tools, Datasets, Knowledge, Rules |
+| 4 | **Identity** | Badge | Set name and biography | Name, Biography, Voice |
+| 5 | **Appearance** | Face | Create visual identity | Avatar, Physical Description |
+| 6 | **Review** | Checklist | Final review and activation | Summary, Benchmark, Activate |
+
+::: tip Agent Type and Mold Selection
+Agent type selection and mold (template) selection are integrated into the first two steps rather than being separate steps. You choose your agent type at the beginning of the Objective step, and optionally select a mold template in the Facets step.
+:::
 
 ### Builder Navigation
 
@@ -232,44 +234,17 @@ The builder displays a progress stepper showing your journey through all steps:
 
 ---
 
-### Step 1: Type Selection
-
-Choose the primary category for your agent. This determines the agent's intended use case and helps organize your agent library.
-
-**Available Types:**
-
-| Type | Best For |
-|------|----------|
-| **Assistant** | General-purpose help, Q&A, research tasks |
-| **Consumer Persona** | Simulating consumer perspectives and feedback |
-| **Product** | Product-specific expertise and analysis |
-| **Visual Generator** | Creating visual content and imagery |
-
----
-
-### Step 2: Mold Selection
-
-Choose an optional template to start from. Molds provide pre-configured settings for common use cases.
-
-**Agent Mold Benefits:**
-- Pre-configured facets for common personas
-- Default instruction sets
-- Consistent quality across similar agents
-- Faster creation for standard use cases
-- Can be skipped to start from scratch
-
----
-
-### Step 3: Objective
+### Step 1: Objective
 
 ![Agent Builder Objective](/screenshots/agents/05-builder-objective.png)
 
-Define what your agent will do and establish its foundation.
+Choose your agent type and define what your agent will do.
 
 **Fields:**
 
 | Field | Description | Required |
 |-------|-------------|----------|
+| **Agent Type** | Choose from Assistant, Consumer Persona, Product, or Visual Generator | Yes |
 | **Core Mission** | Free-text description of the agent's primary purpose | Yes |
 
 ::: tip Writing Effective Core Missions
@@ -287,11 +262,11 @@ The strong version gives the agent:
 
 ---
 
-### Step 4: Facets
+### Step 2: Facets
 
 ![Agent Builder Facets](/screenshots/agents/06-builder-facets.png)
 
-Configure the personality characteristics that define how the agent thinks, communicates, and behaves.
+Configure the personality characteristics that define how the agent thinks, communicates, and behaves. You can optionally select a pre-configured mold (template) to start with common persona configurations.
 
 **Facet Types:**
 
@@ -365,7 +340,7 @@ Communication Style:
 
 ---
 
-### Step 5: Instructions
+### Step 3: Instructions
 
 ![Agent Builder Instructions](/screenshots/agents/07-builder-instructions.png)
 
@@ -380,6 +355,10 @@ Provide guidance, knowledge, and resources that shape how the agent operates.
 | **Datasets** | Connect knowledge sources | Provides domain expertise |
 | **Knowledge** | Add custom information text | Quick facts and context |
 | **Rules** | Define constraints and guidelines | Prevents unwanted behaviors |
+
+::: tip Finding This Step
+This step is labeled as "Optional Settings" in the builder navigation but is referred to as "Instructions" in the documentation for clarity.
+:::
 
 #### Choosing the Right AI Model
 
@@ -462,7 +441,7 @@ Rules are constraints the agent must follow. They're different from instructions
 
 ---
 
-### Step 6: Identity
+### Step 4: Identity
 
 ![Agent Builder Identity](/screenshots/agents/08-builder-identity.png)
 
@@ -524,7 +503,7 @@ A compelling biography includes five key elements:
 
 ---
 
-### Step 7: Appearance
+### Step 5: Appearance
 
 ![Agent Builder Appearance](/screenshots/agents/09-builder-appearance.png)
 
@@ -574,7 +553,7 @@ Better than: "A person in business clothes"
 
 ---
 
-### Step 8: Review
+### Step 6: Review
 
 ![Agent Builder Review](/screenshots/agents/10-builder-review.png)
 
@@ -1013,7 +992,7 @@ Use multiple agents in a single chat:
 **Symptoms:** Agent doesn't reference information you know is in connected datasets.
 
 **Solutions:**
-1. **Verify connection** - Check Step 3 in builder
+1. **Verify connection** - Check the Instructions step in builder
 2. **Check processing** - Ensure dataset files are "Success" status
 3. **Improve labeling** - Add labels to help agent find content
 4. **Explicit instruction** - Add "Always check connected datasets first"
@@ -1082,7 +1061,7 @@ A: Yes, select the "Visual Generator" agent type and enable image generation too
 
 **Q: How do I test an agent without publishing it?**
 
-A: Use the Benchmark feature in Step 6 (Review) to test agents before activation. You can also save as draft and test in the drawer.
+A: Use the Benchmark feature in the Review step to test agents before activation. You can also save as draft and test in the drawer.
 
 **Q: Can agents work together in a conversation?**
 
