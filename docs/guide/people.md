@@ -30,9 +30,9 @@ The People section contains five main tabs, each accessible via the navigation b
 |-----|------|---------|-------|
 | **Populations** | Sparkle Stars | View AI-generated audience patterns and demographic distributions | `/people/populations` |
 | **Humans** | Users | Manage individual contacts and participants | `/people/community` |
+| **Molds** | AI Chip | Design reusable persona templates (Enterprise only) | `/people/molds` |
 | **Lists & Segments** | User List | Organize people into static lists or dynamic rule-based segments | `/people/lists` |
 | **Properties** | Label Tag | Define custom attributes for contact profiles | `/people/properties` |
-| **Molds** | AI Chip | Design reusable persona templates (Enterprise only) | `/people/molds` |
 
 ::: info Enterprise Feature
 The **Molds** tab is only visible to enterprise workspace managers and support users. It enables creating reusable persona templates for consistent AI population generation.
