@@ -7,12 +7,6 @@ on:
 
   # Allow manual trigger
   workflow_dispatch:
-    inputs:
-      skip_screenshots:
-        description: 'Skip screenshot capture (faster build)'
-        required: false
-        default: 'false'
-        type: boolean
 
   # Also run on push to main (for immediate deploys)
   push:
@@ -38,7 +32,7 @@ jobs:
   update-screenshots:
     runs-on: ubuntu-latest
     # Skip screenshots on push events (only update on schedule or manual)
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.skip_screenshots != 'true')
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout repository
@@ -87,11 +81,57 @@ jobs:
           Updated at ${TIMESTAMP}"
           git push
 
-  build:
+  qa:
     runs-on: ubuntu-latest
     needs: [update-screenshots]
+    # Only run QA on schedule/manual (not on push-to-main deploys).
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Puppeteer browser
+        run: npx puppeteer browsers install chrome
+
+      - name: Run QA tests (deep)
+        env:
+          VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
+          VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
+          VURVEY_URL: https://staging.vurvey.dev
+          HEADLESS: 'true'
+          QA_DEEP: 'true'
+        run: npm run test:qa -- --deep
+        continue-on-error: true
+
+      - name: Upload QA artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-artifacts
+          path: |
+            qa-output/
+            qa-failure-screenshots/
+          retention-days: 7
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [update-screenshots, qa]
     # Run build even if update-screenshots was skipped
-    if: always() && (needs.update-screenshots.result == 'success' || needs.update-screenshots.result == 'skipped')
+    if: always() && (needs.update-screenshots.result == 'success' || needs.update-screenshots.result == 'skipped') && (needs.qa.result == 'success' || needs.qa.result == 'skipped')
 
     steps:
       - name: Checkout repository

@@ -25,6 +25,7 @@ import fs from "fs/promises";
 import path from "path";
 import {fileURLToPath} from "url";
 import {buildReproSteps as buildReproStepsCore, parseCliArgs, safeName} from "./lib/qa-utils.js";
+import {discoverWorkspaceRoutes} from "./lib/qa-discovery.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(__dirname, "..");
@@ -47,6 +48,9 @@ const config = {
   viewportKey: typeof args.viewport === "string" ? args.viewport : null,
   timeoutMs: Number(process.env.QA_TIMEOUT_MS || "30000"),
   routeRetries: Number(process.env.QA_ROUTE_RETRIES || "3"),
+  deep: Boolean(args.deep) || process.env.QA_DEEP === "true",
+  webManagerDir: process.env.QA_WEB_MANAGER_DIR || null,
+  apiDir: process.env.QA_API_DIR || null,
 };
 
 const outDir = path.join(repoRoot, "qa-output");
@@ -71,6 +75,7 @@ const results = {
     quick: config.quick,
     strict: config.strict,
     viewport: config.viewportKey || "default",
+    deep: config.deep,
   },
   runtime: {
     consoleErrors: [],
@@ -1044,6 +1049,47 @@ async function testSectionEntryPoints(page, workspaceId) {
   }
 }
 
+async function testDiscoveredRoutes(page, workspaceId) {
+  if (!config.deep) return;
+  if (!config.webManagerDir) return;
+
+  currentSection = "Deep Smoke";
+
+  const {routes, scannedFiles} = await discoverWorkspaceRoutes({webManagerDir: config.webManagerDir});
+  results.meta.discoveredRoutes = {count: routes.length, scannedFiles};
+
+  if (routes.length === 0) {
+    recordWarning("Deep Smoke: Route discovery", `No routes discovered (scannedFiles=${scannedFiles})`);
+    return;
+  }
+
+  // Treat as additive checks; avoid making the suite extremely flaky.
+  for (const r of routes) {
+    const nav = await gotoWorkspaceRoute(page, workspaceId, r);
+    if (!nav.ok) {
+      await recordTest(`Deep Smoke: Route loads (${r})`, false, nav.error, {selector: `route:${r}`});
+      continue;
+    }
+
+    // Generic "page looks loaded" heuristics.
+    const ok = await elementExists(
+      page,
+      [
+        "main",
+        "h1, h2",
+        "button",
+        "a[href]",
+        "table",
+        "[role='table']",
+        "[role='grid']",
+        "[role='dialog']",
+      ].join(", "),
+      8000,
+    );
+    await recordTest(`Deep Smoke: UI present (${r})`, ok, ok ? "OK" : "Missing expected UI", {selector: `route:${r}`});
+  }
+}
+
 function attachRuntimeWatchers(page) {
   page.on("console", (msg) => {
     if (msg.type() === "error") {
@@ -1096,6 +1142,7 @@ async function generateReport() {
     failed: results.failed,
     warnings: results.warnings,
     runtime: results.runtime,
+    meta: results.meta,
   };
 
   // Always write reports under qa-output/ so they don't pollute git state.
@@ -1241,6 +1288,7 @@ async function main() {
   log(`Headless: ${config.headless}`, "info");
   log(`Quick: ${config.quick}`, "info");
   log(`Strict: ${config.strict}`, "info");
+  log(`Deep: ${config.deep}`, "info");
   log(`Viewport: ${viewport.name}`, "info");
 
   const browser = await puppeteer.launch({
@@ -1261,6 +1309,7 @@ async function main() {
     await testChatSendAndRespond(page);
 
     await testSectionEntryPoints(page, workspaceId);
+    await testDiscoveredRoutes(page, workspaceId);
 
     // Runtime health as tests (configurable strictness in exit code)
     if (results.runtime.serverErrors.length > 0) {
