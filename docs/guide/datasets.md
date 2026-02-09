@@ -58,9 +58,9 @@ Click **Create Dataset** to open the creation modal.
 ### Create Dataset Modal
 
 <img
-  src="/screenshots/datasets/02-create-modal.png?optional=1"
+  :src="'/screenshots/datasets/02-create-modal.png?optional=1'"
   alt="Create Dataset Modal"
-  onerror="this.remove()"
+  @error="$event.target.remove()"
 />
 
 | Field | Description | Limit |

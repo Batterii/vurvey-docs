@@ -103,9 +103,9 @@ Click any population card to access the detailed analytics view.
 The Charts view provides visual analytics dashboards:
 
 <img
-  src="/screenshots/people/02a-population-charts.png?optional=1"
+  :src="'/screenshots/people/02a-population-charts.png?optional=1'"
   alt="Population Charts"
-  onerror="this.remove()"
+  @error="$event.target.remove()"
 />
 
 **Persona Carousel**
@@ -257,9 +257,9 @@ Click the three-dot menu on any contact row:
 Click a contact's name to open their detailed profile:
 
 <img
-  src="/screenshots/people/03a-contact-profile.png?optional=1"
+  :src="'/screenshots/people/03a-contact-profile.png?optional=1'"
   alt="Contact Profile"
-  onerror="this.remove()"
+  @error="$event.target.remove()"
 />
 
 **Profile Sections:**
@@ -454,9 +454,9 @@ Segments are dynamic groups that automatically include contacts matching your de
 The segment builder provides a visual interface for creating complex rules:
 
 <img
-  src="/screenshots/people/04a-segment-builder.png?optional=1"
+  :src="'/screenshots/people/04a-segment-builder.png?optional=1'"
   alt="Segment Builder"
-  onerror="this.remove()"
+  @error="$event.target.remove()"
 />
 
 **Available Operators:**
@@ -661,9 +661,9 @@ Molds are only available to enterprise workspace managers and support users. Con
 :::
 
 <img
-  src="/screenshots/people/06-molds.png?optional=1"
+  :src="'/screenshots/people/06-molds.png?optional=1'"
   alt="Molds"
-  onerror="this.remove()"
+  @error="$event.target.remove()"
 />
 
 Molds are reusable persona templates for consistent AI population generation. Design a mold once, then generate unlimited AI personas with consistent characteristics.
@@ -719,9 +719,9 @@ A mold defines:
 The mold details page allows editing of all configuration:
 
 <img
-  src="/screenshots/people/06a-mold-details.png?optional=1"
+  :src="'/screenshots/people/06a-mold-details.png?optional=1'"
   alt="Mold Details"
-  onerror="this.remove()"
+  @error="$event.target.remove()"
 />
 
 **Editable Fields:**

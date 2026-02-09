@@ -45,12 +45,32 @@ export function extractMarkdownLinks(md) {
   // - images: ![alt](href)
   // - links: [text](href)
   // - html imgs: <img src="href" ...>
+  // - vue imgs: <img :src="'href'" ...>
   const hrefs = [];
   const mdLinkRe = /!?\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)/g;
-  const htmlImgRe = /<img[^>]+src\s*=\s*["']([^"']+)["'][^>]*>/gi;
+  // Avoid matching Vue bindings like ":src=..." by requiring "src" not be preceded by ":".
+  const htmlImgRe = /<img[^>]+(?<!:)src\s*=\s*["']([^"']+)["'][^>]*>/gi;
+  const vueImgReDouble = /<img[^>]+:src\s*=\s*"([^"]+)"[^>]*>/gi;
+  const vueImgReSingle = /<img[^>]+:src\s*=\s*'([^']+)'[^>]*>/gi;
 
   for (const m of md.matchAll(mdLinkRe)) hrefs.push(m[1]);
   for (const m of md.matchAll(htmlImgRe)) hrefs.push(m[1]);
+  for (const m of md.matchAll(vueImgReDouble)) {
+    let v = m[1];
+    // :src is usually a JS expression, commonly a string literal.
+    // We only support simple quoted literals so docs-lint can still validate paths.
+    if ((v.startsWith("'") && v.endsWith("'")) || (v.startsWith('"') && v.endsWith('"'))) {
+      v = v.slice(1, -1);
+    }
+    hrefs.push(v);
+  }
+  for (const m of md.matchAll(vueImgReSingle)) {
+    let v = m[1];
+    if ((v.startsWith("'") && v.endsWith("'")) || (v.startsWith('"') && v.endsWith('"'))) {
+      v = v.slice(1, -1);
+    }
+    hrefs.push(v);
+  }
   return hrefs;
 }
 
@@ -148,4 +168,3 @@ export async function lintDocs({repoRoot, docsRoot, publicRoot}) {
 
   return problems;
 }
-

@@ -77,6 +77,27 @@ test("extractMarkdownLinks: html img captures external URL", () => {
   assert.deepEqual(extractMarkdownLinks('<img src="https://example.com/a.png">'), ["https://example.com/a.png"]);
 });
 
+test("extractMarkdownLinks: vue img :src with single-quoted string literal", () => {
+  assert.deepEqual(
+    extractMarkdownLinks("<img :src=\"'/screenshots/a.png?optional=1'\" @error=\"$event.target.remove()\">"),
+    ["/screenshots/a.png?optional=1"],
+  );
+});
+
+test("extractMarkdownLinks: vue img :src with double-quoted string literal", () => {
+  assert.deepEqual(
+    extractMarkdownLinks("<img :src='\"/screenshots/a.png\"' />"),
+    ["/screenshots/a.png"],
+  );
+});
+
+test("extractMarkdownLinks: vue img :src with non-literal expression is returned verbatim", () => {
+  assert.deepEqual(
+    extractMarkdownLinks("<img :src=\"getUrl('/screenshots/a.png')\" />"),
+    ["getUrl('/screenshots/a.png')"],
+  );
+});
+
 test("extractMarkdownLinks: markdown link with spaces in parens is not captured (current behavior)", () => {
   assert.deepEqual(extractMarkdownLinks("[A](/a b)"), []);
 });
@@ -116,4 +137,3 @@ test("extractMarkdownLinks: handles many links without crashing", () => {
   assert.equal(hrefs[0], "/p/0");
   assert.equal(hrefs[49], "/p/49");
 });
-

@@ -103,9 +103,9 @@ Use input parameters to make workflows reusable. For example, create a `{{campai
 The workflow builder uses a React Flow-based canvas for visual editing:
 
 <img
-  src="/screenshots/workflows/02-workflow-builder.png?optional=1"
+  :src="'/screenshots/workflows/02-workflow-builder.png?optional=1'"
   alt="Workflow Builder"
-  onerror="this.remove()"
+  @error="$event.target.remove()"
 />
 
 **Canvas Features:**
