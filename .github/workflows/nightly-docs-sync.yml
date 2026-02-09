@@ -75,6 +75,7 @@ jobs:
           VURVEY_URL: ${{ env.VURVEY_URL }}
           VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
           HEADLESS: 'true'
+          CAPTURE_STRICT: 'true'
         continue-on-error: true
         run: |
           echo "Capturing screenshots from staging environment..."
@@ -100,6 +101,9 @@ jobs:
           echo "Running QA test suite..."
           npm run test:qa || echo "QA tests completed with some failures"
         continue-on-error: true
+
+      - name: Lint docs (links + screenshots)
+        run: npm run test:docs
 
       - name: Install Claude Code CLI
         run: |
@@ -201,8 +205,10 @@ jobs:
         if: always()
         run: |
           mkdir -p /tmp/qa-artifacts
-          cp qa-report.json /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-report.json"
-          cp qa-failure-report.md /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-failure-report.md"
+          cp qa-output/qa-report.json /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-output/qa-report.json"
+          cp qa-output/qa-report.md /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-output/qa-report.md"
+          cp qa-output/qa-failure-report.md /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-output/qa-failure-report.md"
+          cp -r qa-output /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-output"
           cp screenshot-validation-report.md /tmp/qa-artifacts/ 2>/dev/null || echo "No screenshot-validation-report.md"
           cp DOCUMENTATION_AUDIT_SUMMARY.md /tmp/qa-artifacts/ 2>/dev/null || echo "No DOCUMENTATION_AUDIT_SUMMARY.md"
           cp -r qa-failure-screenshots /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-failure-screenshots"

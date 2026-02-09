@@ -47,7 +47,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -60,8 +60,10 @@ jobs:
         env:
           VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
           VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
           VURVEY_URL: https://staging.vurvey.dev
           HEADLESS: 'true'
+          CAPTURE_STRICT: 'true'
         run: npm run update:screenshots
 
       - name: Check for changes
@@ -104,14 +106,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build VitePress site
-        run: npm run docs:build
+        # Fail fast on broken screenshot references or broken internal links.
+        run: |
+          npm run test:docs
+          npm run docs:build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

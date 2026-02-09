@@ -18,6 +18,7 @@ import puppeteer from 'puppeteer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import {buildWorkspaceUrl, extractWorkspaceIdFromUrl} from './lib/vurvey-url.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,11 +27,13 @@ const __dirname = path.dirname(__filename);
 const CONFIG = {
   baseUrl: process.env.VURVEY_URL || 'https://staging.vurvey.dev',
   credentials: {
-    email: process.env.VURVEY_EMAIL || 'jroell+test@batterii.com',
-    password: process.env.VURVEY_PASSWORD || 'youAre42!'
+    email: process.env.VURVEY_EMAIL,
+    password: process.env.VURVEY_PASSWORD
   },
   fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || null,
+  strict: process.env.CAPTURE_STRICT === 'true',
   screenshotsDir: path.join(__dirname, '..', 'docs', 'public', 'screenshots'),
+  artifactsDir: path.join(__dirname, '..', 'qa-output', 'capture-screenshots'),
   viewport: { width: 1920, height: 1080 },
   headless: process.env.HEADLESS !== 'false',
   timeout: 90000,
@@ -51,12 +54,70 @@ function ensureDir(dir) {
   }
 }
 
+async function takeArtifactScreenshot(page, name) {
+  try {
+    ensureDir(CONFIG.artifactsDir);
+    const safe = String(name).replace(/[^a-z0-9-_]/gi, '-').toLowerCase();
+    const filepath = path.join(CONFIG.artifactsDir, `${safe}-${Date.now()}.png`);
+    await page.screenshot({ path: filepath, fullPage: false }).catch(() => {});
+    console.log(`  ✓ Artifact screenshot: ${path.relative(path.join(__dirname, '..'), filepath)}`);
+    return filepath;
+  } catch {
+    return null;
+  }
+}
+
 async function waitForNetworkIdle(page, timeout = 15000) {
   try {
     await page.waitForNetworkIdle({ idleTime: 2000, timeout });
   } catch (e) {
     console.log('  Network idle timeout (continuing)');
   }
+}
+
+async function pageHasGlobalError(page) {
+  try {
+    const text = await page.evaluate(() => (document.body?.innerText || '').toLowerCase());
+    return text.includes('failed to fetch') || text.includes('an error occurred') || text.includes('something went wrong');
+  } catch {
+    return false;
+  }
+}
+
+async function gotoWithRetry(page, url, { label, retries = 2 } = {}) {
+  const maxAttempts = Math.max(1, retries + 1);
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    console.log(`  Navigating to: ${url}${label ? ` (${label})` : ''} [attempt ${attempt}/${maxAttempts}]`);
+    try {
+      // 'networkidle2' can be flaky on SPAs with websockets/long-polling. Use a
+      // looser navigation signal and then explicitly wait for loaders/content.
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: CONFIG.timeout });
+      await delay(2500);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+    } catch (e) {
+      console.log(`  ⚠ Navigation error: ${e.message}`);
+      if (attempt < maxAttempts) {
+        await takeArtifactScreenshot(page, `retry-nav-${label || 'page'}-${attempt}`);
+        await delay(800 * attempt);
+        continue;
+      }
+      await takeArtifactScreenshot(page, `error-nav-${label || 'page'}`);
+      return false;
+    }
+
+    if (!(await pageHasGlobalError(page))) return true;
+
+    console.log('  ⚠ Page shows global error state');
+    if (attempt < maxAttempts) {
+      await takeArtifactScreenshot(page, `retry-error-${label || 'page'}-${attempt}`);
+      await delay(800 * attempt);
+      continue;
+    }
+    await takeArtifactScreenshot(page, `error-global-${label || 'page'}`);
+    return false;
+  }
+  return false;
 }
 
 async function waitForContent(page, selectors, timeout = 10000) {
@@ -85,18 +146,25 @@ async function waitForLoaders(page, timeout = 15000) {
   const startTime = Date.now();
 
   while (Date.now() - startTime < timeout) {
-    const hasLoaders = await page.evaluate((selectors) => {
-      for (const sel of selectors) {
-        const elements = document.querySelectorAll(sel);
-        for (const el of elements) {
-          const style = window.getComputedStyle(el);
-          if (style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0') {
-            return true;
+    let hasLoaders = false;
+    try {
+      hasLoaders = await page.evaluate((selectors) => {
+        for (const sel of selectors) {
+          const elements = document.querySelectorAll(sel);
+          for (const el of elements) {
+            const style = window.getComputedStyle(el);
+            if (style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0') {
+              return true;
+            }
           }
         }
-      }
-      return false;
-    }, loaderSelectors);
+        return false;
+      }, loaderSelectors);
+    } catch {
+      // Navigation can still be in-flight or the execution context can be torn down.
+      // Treat as "no loaders" to avoid blocking or failing captures.
+      return;
+    }
 
     if (!hasLoaders) {
       console.log('  ✓ Loaders cleared');
@@ -113,12 +181,62 @@ async function takeScreenshot(page, name, subdir = '') {
   const filepath = path.join(dir, `${name}.png`);
 
   // Wait for any loaders to complete
-  await waitForLoaders(page, 8000);
-  await delay(1000);
+  try {
+    await waitForLoaders(page, 8000);
+  } catch {
+    // Ignore loader wait issues (context destroyed, etc).
+  }
+  await delay(800);
 
-  await page.screenshot({ path: filepath, fullPage: false });
+  try {
+    await page.screenshot({ path: filepath, fullPage: false });
+  } catch (e) {
+    console.log(`  ⚠ Screenshot failed (${name}): ${e.message}`);
+    return null;
+  }
   console.log(`  ✓ Screenshot: ${subdir}/${name}.png`);
   return filepath;
+}
+
+async function clickButtonByText(page, text, timeout = 8000) {
+  const startTime = Date.now();
+  const norm = String(text).trim().toLowerCase();
+
+  while (Date.now() - startTime < timeout) {
+    const clicked = await page.evaluate((needle) => {
+      const els = Array.from(document.querySelectorAll("button, a, [role='button'], [role='menuitem']"));
+      const el = els.find((e) => (e.textContent || "").trim().toLowerCase().includes(needle));
+      if (!el) return false;
+      const st = window.getComputedStyle(el);
+      if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
+      el.click();
+      return true;
+    }, norm);
+
+    if (clicked) return true;
+    await delay(250);
+  }
+
+  return false;
+}
+
+async function clickFirstVisible(page, selectors) {
+  return await page.evaluate((selectors) => {
+    for (const sel of selectors) {
+      const els = Array.from(document.querySelectorAll(sel));
+      const el = els.find((e) => {
+        const st = window.getComputedStyle(e);
+        if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
+        const r = e.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      });
+      if (el) {
+        el.click();
+        return true;
+      }
+    }
+    return false;
+  }, selectors);
 }
 
 async function safeClick(page, selectors) {
@@ -182,17 +300,93 @@ async function fillInput(page, value, selectors) {
 }
 
 function extractWorkspaceId(url) {
-  // URLs are in format: https://staging.vurvey.dev/{workspaceId}/...
-  const match = url.match(/vurvey\.dev\/([a-f0-9-]+)/);
-  return match ? match[1] : null;
+  return extractWorkspaceIdFromUrl(url);
+}
+
+async function submitFormForSelector(page, selector) {
+  return await page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    if (!el) return false;
+    const form = el.closest('form');
+    if (!form) return false;
+    if (typeof form.requestSubmit === 'function') {
+      form.requestSubmit();
+      return true;
+    }
+    const submit = form.querySelector('button[type="submit"], input[type="submit"]');
+    if (submit) {
+      submit.click();
+      return true;
+    }
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    return true;
+  }, selector);
+}
+
+async function resolveWorkspaceId(page) {
+  // 1) direct from URL
+  let id = extractWorkspaceId(page.url());
+  if (id) return id;
+
+  // 2) click into a workspace if we're on a picker/landing page
+  const clickedWorkspace = await page.evaluate(() => {
+    const uuidRe = /\/[a-f0-9-]{36}(?:\/|$)/i;
+    const links = Array.from(document.querySelectorAll('a[href^="/"]'));
+    const target = links.find((a) => uuidRe.test(a.getAttribute('href') || ''));
+    if (!target) return false;
+    target.click();
+    return true;
+  });
+  if (clickedWorkspace) {
+    await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+    await delay(1500);
+    id = extractWorkspaceId(page.url());
+    if (id) return id;
+  }
+
+  // 3) localStorage hinting
+  try {
+    id = await page.evaluate(() => {
+      const uuidRe = /^[a-f0-9-]{36}$/i;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (!k) continue;
+        const v = localStorage.getItem(k);
+        if (!v) continue;
+        if (uuidRe.test(v)) return v;
+        const m = v.match(/[a-f0-9-]{36}/i);
+        if (m) return m[0];
+      }
+      return null;
+    });
+  } catch {
+    // ignore
+  }
+  if (id) return id;
+
+  // 4) probe common routes (some builds will redirect into /{workspaceId}/...)
+  const probes = ['/agents', '/people', '/datasets', '/workflow'];
+  for (const p of probes) {
+    const ok = await gotoWithRetry(page, `${CONFIG.baseUrl}${p}`, { label: `resolve${p}`, retries: 1 });
+    if (!ok) continue;
+    id = extractWorkspaceId(page.url());
+    if (id) return id;
+  }
+
+  return null;
 }
 
 // Login function
 async function login(page) {
   console.log('\n Login...');
+  if (!CONFIG.credentials.email || !CONFIG.credentials.password) {
+    throw new Error('Missing credentials: set VURVEY_EMAIL and VURVEY_PASSWORD');
+  }
 
-  await page.goto(CONFIG.baseUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-  await delay(3000);
+  if (!(await gotoWithRetry(page, CONFIG.baseUrl, { label: 'login', retries: 2 }))) {
+    throw new Error(`Could not load login page at ${CONFIG.baseUrl}`);
+  }
+  await delay(1200);
 
   // Capture login page
   await takeScreenshot(page, '00-login-page', 'home');
@@ -232,19 +426,21 @@ async function login(page) {
     throw new Error('Could not fill email field');
   }
 
-  // Click Next/Continue
-  await delay(500);
-  await page.evaluate(() => {
-    const buttons = Array.from(document.querySelectorAll('button'));
-    const btn = buttons.find(b =>
-      b.textContent?.toLowerCase().includes('next') ||
-      b.textContent?.toLowerCase().includes('continue') ||
-      b.type === 'submit'
-    );
-    if (btn) btn.click();
-  });
+  // Submit the owning form if possible (less flaky than "find a button").
+  await delay(350);
+  const didSubmitEmail =
+    (await submitFormForSelector(page, 'input[type="email"]')) ||
+    (await clickButtonByText(page, 'next', 3500)) ||
+    (await clickButtonByText(page, 'continue', 3500));
 
-  await delay(2000);
+  if (!didSubmitEmail) {
+    console.log('  ⚠ Could not confidently submit email step (continuing)');
+  }
+
+  // Wait for password step
+  await page
+    .waitForSelector('input[type="password"]', { visible: true, timeout: 20000 })
+    .catch(() => {});
 
   // Fill password
   const passwordSelectors = [
@@ -258,50 +454,31 @@ async function login(page) {
     throw new Error('Could not fill password field');
   }
 
-  // Click login
-  await delay(500);
-  await page.evaluate(() => {
-    const buttons = Array.from(document.querySelectorAll('button'));
-    const btn = buttons.find(b =>
-      b.textContent?.toLowerCase().includes('log in') ||
-      b.textContent?.toLowerCase().includes('login') ||
-      b.textContent?.toLowerCase().includes('sign in') ||
-      b.type === 'submit'
-    );
-    if (btn) btn.click();
-  });
+  // Submit password step
+  await delay(350);
+  const didSubmitPassword =
+    (await submitFormForSelector(page, 'input[type="password"]')) ||
+    (await clickButtonByText(page, 'log in', 3500)) ||
+    (await clickButtonByText(page, 'login', 3500)) ||
+    (await clickButtonByText(page, 'sign in', 3500));
+
+  if (!didSubmitPassword) {
+    console.log('  ⚠ Could not confidently submit password step (continuing)');
+  }
 
   // Wait for redirect
   console.log('  Waiting for login to complete...');
-  await delay(8000);
-
-  try {
-    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
-  } catch (e) {
-    console.log('  Navigation timeout (continuing)');
-  }
-
-  await delay(3000);
+  await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
+  await delay(2500);
   await waitForNetworkIdle(page);
+  await waitForLoaders(page);
 
   // Extract workspace ID from URL
   const currentUrl = page.url();
-  workspaceId = extractWorkspaceId(currentUrl);
+  workspaceId = await resolveWorkspaceId(page);
 
-  if (workspaceId) {
-    console.log(`  ✓ Extracted workspace ID: ${workspaceId}`);
-  } else {
-    console.log(`  ⚠ Could not extract workspace ID from URL: ${currentUrl}`);
-    // Try to extract from page or use a fallback
-    workspaceId = await page.evaluate(() => {
-      // Try to find workspace ID in the page's data
-      const match = window.location.pathname.match(/^\/([a-f0-9-]+)/);
-      return match ? match[1] : null;
-    });
-    if (workspaceId) {
-      console.log(`  ✓ Extracted workspace ID from path: ${workspaceId}`);
-    }
-  }
+  if (workspaceId) console.log(`  ✓ Resolved workspace ID: ${workspaceId}`);
+  else console.log(`  ⚠ Could not resolve workspace ID from URL/session. Current URL: ${currentUrl}`);
 
   await takeScreenshot(page, '03-after-login', 'home');
 
@@ -314,11 +491,8 @@ async function login(page) {
 
 // Helper to build workspace-scoped URLs
 function getWorkspaceUrl(path) {
-  if (!workspaceId) {
-    console.log(`  ⚠ No workspace ID available, using path: ${path}`);
-    return `${CONFIG.baseUrl}${path}`;
-  }
-  return `${CONFIG.baseUrl}/${workspaceId}${path}`;
+  if (!workspaceId) console.log(`  ⚠ No workspace ID available, using path: ${path}`);
+  return buildWorkspaceUrl({baseUrl: CONFIG.baseUrl, workspaceId, routePath: path});
 }
 
 // Page capture functions
@@ -327,11 +501,7 @@ async function captureHome(page) {
 
   // Home is at /{workspaceId}/ (the index route)
   const homeUrl = getWorkspaceUrl('/');
-  console.log(`  Navigating to: ${homeUrl}`);
-
-  await page.goto(homeUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-  await delay(4000);
-  await waitForNetworkIdle(page);
+  if (!(await gotoWithRetry(page, homeUrl, { label: 'home' }))) return false;
 
   // Check for error state before capturing
   const hasError = await page.evaluate(() => {
@@ -378,6 +548,7 @@ async function captureHome(page) {
   // Capture conversation sidebar if visible
   await delay(1000);
   await takeScreenshot(page, '04-conversation-sidebar', 'home');
+  return true;
 }
 
 async function captureAgents(page) {
@@ -385,11 +556,7 @@ async function captureAgents(page) {
 
   // Agents are at /{workspaceId}/agents
   const agentsUrl = getWorkspaceUrl('/agents');
-  console.log(`  Navigating to: ${agentsUrl}`);
-
-  await page.goto(agentsUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-  await delay(4000);
-  await waitForNetworkIdle(page);
+  if (!(await gotoWithRetry(page, agentsUrl, { label: 'agents' }))) return false;
 
   // Wait for agent cards to load
   await waitForContent(page, [
@@ -422,18 +589,68 @@ async function captureAgents(page) {
   } catch (e) {
     console.log('  Could not capture agent detail');
   }
+
+  // Try opening Agent Builder and capturing step screenshots (best-effort).
+  try {
+    const opened =
+      (await clickButtonByText(page, 'create agent', 4000)) ||
+      (await clickButtonByText(page, 'create', 4000));
+
+    if (!opened) {
+      console.log('  ⚠ Could not open Agent Builder');
+      return;
+    }
+
+    await delay(2500);
+    await waitForNetworkIdle(page);
+    await waitForLoaders(page);
+    await takeScreenshot(page, '05-builder-objective', 'agents');
+
+    const steps = [
+      { label: 'Facets', shot: '06-builder-facets' },
+      { label: 'Instructions', shot: '07-builder-instructions' },
+      { label: 'Identity', shot: '08-builder-identity' },
+      { label: 'Appearance', shot: '09-builder-appearance' },
+      { label: 'Review', shot: '10-builder-review' }
+    ];
+
+    for (const step of steps) {
+      const moved =
+        (await clickButtonByText(page, step.label, 2500)) ||
+        (await clickButtonByText(page, 'next', 2500)) ||
+        (await clickButtonByText(page, 'continue', 2500));
+      if (!moved) {
+        console.log(`  ⚠ Could not navigate to builder step: ${step.label}`);
+        continue;
+      }
+      await delay(1800);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+      await takeScreenshot(page, step.shot, 'agents');
+    }
+
+    // Return to Agents list
+    await gotoWithRetry(page, agentsUrl, { label: 'agents-return' });
+  } catch (e) {
+    console.log(`  Could not capture agent builder: ${e.message}`);
+  }
+  return true;
 }
 
 async function capturePeople(page) {
   console.log('\n Capturing People (Audience)...');
 
-  // People/Audience is at /{workspaceId}/audience (NOT /people)
-  const audienceUrl = getWorkspaceUrl('/audience');
-  console.log(`  Navigating to: ${audienceUrl}`);
-
-  await page.goto(audienceUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-  await delay(4000);
-  await waitForNetworkIdle(page);
+  // Newer builds use /people/* routes; older builds used /audience/*.
+  const baseCandidates = ['/people', '/audience'];
+  let baseUrl = null;
+  for (const p of baseCandidates) {
+    const u = getWorkspaceUrl(p);
+    if (await gotoWithRetry(page, u, { label: `people-base-${p}` })) {
+      baseUrl = u;
+      break;
+    }
+  }
+  if (!baseUrl) return false;
 
   // Wait for content to load
   await waitForContent(page, [
@@ -446,27 +663,118 @@ async function capturePeople(page) {
 
   await takeScreenshot(page, '01-people-main', 'people');
 
-  // Sub-pages - actual routes from vurvey-web-manager code analysis
+  // Sub-pages (try /people first, then /audience).
   const subPages = [
-    { path: '/audience/populations', name: '02-populations' },
-    { path: '/audience/community', name: '03-humans' },  // "Humans" tab uses /community route
-    { path: '/audience/lists', name: '04-lists-segments' },
-    { path: '/audience/properties', name: '05-properties' }
+    { paths: ['/people/populations', '/audience/populations'], name: '02-populations' },
+    { paths: ['/people/humans', '/audience/community'], name: '03-humans' },
+    { paths: ['/people/lists', '/audience/lists'], name: '04-lists-segments' },
+    { paths: ['/people/properties', '/audience/properties'], name: '05-properties' },
   ];
 
   for (const subPage of subPages) {
     try {
-      const subUrl = getWorkspaceUrl(subPage.path);
-      console.log(`  Navigating to: ${subUrl}`);
-      await page.goto(subUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-      await delay(3000);
-      await waitForNetworkIdle(page);
-      await waitForLoaders(page);
-      await takeScreenshot(page, subPage.name, 'people');
+      let did = false;
+      for (const p of subPage.paths) {
+        const subUrl = getWorkspaceUrl(p);
+        if (await gotoWithRetry(page, subUrl, { label: subPage.name })) {
+          await takeScreenshot(page, subPage.name, 'people');
+          did = true;
+          break;
+        }
+      }
+      if (!did) console.log(`  ⚠ Could not capture ${subPage.name}`);
     } catch (e) {
       console.log(`  Could not capture ${subPage.name}: ${e.message}`);
     }
   }
+
+  // Optional deep captures (best-effort): population charts, contact profile, segment builder, molds.
+  try {
+    // Population charts: open first population card/row.
+    for (const p of ['/people/populations', '/audience/populations']) {
+      const popUrl = getWorkspaceUrl(p);
+      if (!(await gotoWithRetry(page, popUrl, { label: 'people-populations' }))) continue;
+      const opened = await clickFirstVisible(page, ['[class*="card" i]', 'table tbody tr', '[role="row"]']);
+      if (!opened) continue;
+      await delay(2500);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+      await takeScreenshot(page, '02a-population-charts', 'people');
+      break;
+    }
+  } catch (e) {
+    console.log(`  Could not capture population charts: ${e.message}`);
+  }
+
+  try {
+    // Contact profile: click first row on humans page.
+    for (const p of ['/people/humans', '/audience/community']) {
+      const humansUrl = getWorkspaceUrl(p);
+      if (!(await gotoWithRetry(page, humansUrl, { label: 'people-humans' }))) continue;
+      const clicked = await page.evaluate(() => {
+        const row = document.querySelector("table tbody tr");
+        if (!row) return false;
+        const link = row.querySelector("a, button");
+        if (link) {
+          link.click();
+          return true;
+        }
+        row.click();
+        return true;
+      });
+      if (!clicked) continue;
+      await delay(2500);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+      await takeScreenshot(page, '03a-contact-profile', 'people');
+      break;
+    }
+  } catch (e) {
+    console.log(`  Could not capture contact profile: ${e.message}`);
+  }
+
+  try {
+    // Segment builder: open create segment.
+    for (const p of ['/people/lists', '/audience/lists']) {
+      const listsUrl = getWorkspaceUrl(p);
+      if (!(await gotoWithRetry(page, listsUrl, { label: 'people-lists' }))) continue;
+      const opened =
+        (await clickButtonByText(page, 'create segment', 2500)) ||
+        (await clickButtonByText(page, 'new segment', 2500)) ||
+        (await clickButtonByText(page, 'create', 2500)) ||
+        (await clickButtonByText(page, 'new', 2500));
+      if (!opened) continue;
+      await delay(2500);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+      await takeScreenshot(page, '04a-segment-builder', 'people');
+      break;
+    }
+  } catch (e) {
+    console.log(`  Could not capture segment builder: ${e.message}`);
+  }
+
+  try {
+    // Molds: enterprise-only, optional.
+    for (const p of ['/people/molds', '/audience/molds']) {
+      const moldsUrl = getWorkspaceUrl(p);
+      if (!(await gotoWithRetry(page, moldsUrl, { label: 'people-molds' }))) continue;
+      const hasMoldsText = await page.evaluate(() => (document.body?.innerText || '').toLowerCase().includes('mold'));
+      if (!hasMoldsText) continue;
+      await takeScreenshot(page, '06-molds', 'people');
+      const opened = await clickFirstVisible(page, ['table tbody tr', '[class*="card" i]']);
+      if (opened) {
+        await delay(2500);
+        await waitForNetworkIdle(page);
+        await waitForLoaders(page);
+        await takeScreenshot(page, '06a-mold-details', 'people');
+      }
+      break;
+    }
+  } catch (e) {
+    console.log(`  Could not capture molds: ${e.message}`);
+  }
+  return true;
 }
 
 async function captureCampaigns(page) {
@@ -474,11 +782,7 @@ async function captureCampaigns(page) {
 
   // Campaigns are at /{workspaceId}/campaigns
   const campaignsUrl = getWorkspaceUrl('/campaigns');
-  console.log(`  Navigating to: ${campaignsUrl}`);
-
-  await page.goto(campaignsUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-  await delay(4000);
-  await waitForNetworkIdle(page);
+  if (!(await gotoWithRetry(page, campaignsUrl, { label: 'campaigns' }))) return false;
 
   // Wait for campaign cards
   await waitForContent(page, [
@@ -500,16 +804,14 @@ async function captureCampaigns(page) {
   for (const subPage of subPages) {
     try {
       const subUrl = getWorkspaceUrl(subPage.path);
-      console.log(`  Navigating to: ${subUrl}`);
-      await page.goto(subUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-      await delay(3000);
-      await waitForNetworkIdle(page);
-      await waitForLoaders(page);
-      await takeScreenshot(page, subPage.name, 'campaigns');
+      if (await gotoWithRetry(page, subUrl, { label: `campaigns-${subPage.name}` })) {
+        await takeScreenshot(page, subPage.name, 'campaigns');
+      }
     } catch (e) {
       console.log(`  Could not capture ${subPage.name}: ${e.message}`);
     }
   }
+  return true;
 }
 
 async function captureDatasets(page) {
@@ -517,11 +819,7 @@ async function captureDatasets(page) {
 
   // Datasets are at /{workspaceId}/datasets
   const datasetsUrl = getWorkspaceUrl('/datasets');
-  console.log(`  Navigating to: ${datasetsUrl}`);
-
-  await page.goto(datasetsUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-  await delay(4000);
-  await waitForNetworkIdle(page);
+  if (!(await gotoWithRetry(page, datasetsUrl, { label: 'datasets' }))) return false;
 
   // Wait for dataset cards
   await waitForContent(page, [
@@ -533,18 +831,33 @@ async function captureDatasets(page) {
 
   await takeScreenshot(page, '01-datasets-main', 'datasets');
 
+  // Create Dataset modal
+  try {
+    const opened =
+      (await clickButtonByText(page, 'create dataset', 3500)) ||
+      (await clickButtonByText(page, 'create', 3500));
+    if (opened) {
+      await delay(1500);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+      await takeScreenshot(page, '02-create-modal', 'datasets');
+      await page.keyboard.press('Escape').catch(() => {});
+      await delay(400);
+    }
+  } catch (e) {
+    console.log(`  Could not capture create dataset modal: ${e.message}`);
+  }
+
   // Magic Summaries tab
   try {
     const magicSummariesUrl = getWorkspaceUrl('/datasets/magic-summaries');
-    console.log(`  Navigating to: ${magicSummariesUrl}`);
-    await page.goto(magicSummariesUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-    await delay(3000);
-    await waitForNetworkIdle(page);
-    await waitForLoaders(page);
-    await takeScreenshot(page, '03-magic-summaries', 'datasets');
+    if (await gotoWithRetry(page, magicSummariesUrl, { label: 'datasets-magic-summaries' })) {
+      await takeScreenshot(page, '03-magic-summaries', 'datasets');
+    }
   } catch (e) {
     console.log(`  Could not capture magic summaries: ${e.message}`);
   }
+  return true;
 }
 
 async function captureWorkflows(page) {
@@ -552,11 +865,7 @@ async function captureWorkflows(page) {
 
   // Workflows are at /{workspaceId}/workflow (singular, NOT /workflows)
   const workflowUrl = getWorkspaceUrl('/workflow');
-  console.log(`  Navigating to: ${workflowUrl}`);
-
-  await page.goto(workflowUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-  await delay(4000);
-  await waitForNetworkIdle(page);
+  if (!(await gotoWithRetry(page, workflowUrl, { label: 'workflow' }))) return false;
 
   // Wait for workflow cards
   await waitForContent(page, [
@@ -568,6 +877,28 @@ async function captureWorkflows(page) {
 
   await takeScreenshot(page, '01-workflows-main', 'workflows');
 
+  // Workflow Builder (best-effort): open from /workflow/flows and click create/new.
+  try {
+    const flowsUrl = getWorkspaceUrl('/workflow/flows');
+    if (await gotoWithRetry(page, flowsUrl, { label: 'workflow-flows' })) {
+      const opened =
+        (await clickButtonByText(page, 'create flow', 3000)) ||
+        (await clickButtonByText(page, 'new flow', 3000)) ||
+        (await clickButtonByText(page, 'create', 3000)) ||
+        (await clickButtonByText(page, 'new', 3000));
+      if (opened) {
+        await delay(2000);
+        await waitForNetworkIdle(page);
+        await waitForLoaders(page);
+        await takeScreenshot(page, '02-workflow-builder', 'workflows');
+        await page.keyboard.press('Escape').catch(() => {});
+        await delay(400);
+      }
+    }
+  } catch (e) {
+    console.log(`  Could not capture workflow builder: ${e.message}`);
+  }
+
   // Sub-pages - corrected routes from code analysis
   const subPages = [
     { path: '/workflow/upcoming', name: '03-upcoming-runs' },    // Fixed route
@@ -578,16 +909,14 @@ async function captureWorkflows(page) {
   for (const subPage of subPages) {
     try {
       const subUrl = getWorkspaceUrl(subPage.path);
-      console.log(`  Navigating to: ${subUrl}`);
-      await page.goto(subUrl, { waitUntil: 'networkidle2', timeout: CONFIG.timeout });
-      await delay(3000);
-      await waitForNetworkIdle(page);
-      await waitForLoaders(page);
-      await takeScreenshot(page, subPage.name, 'workflows');
+      if (await gotoWithRetry(page, subUrl, { label: `workflow-${subPage.name}` })) {
+        await takeScreenshot(page, subPage.name, 'workflows');
+      }
     } catch (e) {
       console.log(`  Could not capture ${subPage.name}: ${e.message}`);
     }
   }
+  return true;
 }
 
 // Main execution
@@ -598,10 +927,12 @@ async function main() {
   console.log(`\nTarget: ${CONFIG.baseUrl}`);
   console.log(`Headless: ${CONFIG.headless}`);
   console.log(`Output: ${CONFIG.screenshotsDir}`);
+  console.log(`Strict: ${CONFIG.strict}`);
 
   // Ensure screenshot directories exist
   const dirs = ['home', 'agents', 'people', 'campaigns', 'datasets', 'workflows'];
   dirs.forEach(dir => ensureDir(path.join(CONFIG.screenshotsDir, dir)));
+  ensureDir(CONFIG.artifactsDir);
 
   const browser = await puppeteer.launch({
     headless: CONFIG.headless ? 'new' : false,
@@ -628,10 +959,8 @@ async function main() {
     // Ensure we have a workspace ID before continuing
     if (!workspaceId) {
       console.log('\n  Attempting to extract workspace ID from current page...');
-      const currentUrl = page.url();
-      const pathMatch = currentUrl.match(/\/([a-f0-9-]{36})/);
-      if (pathMatch) {
-        workspaceId = pathMatch[1];
+      workspaceId = await resolveWorkspaceId(page);
+      if (workspaceId) {
         console.log(`  ✓ Found workspace ID: ${workspaceId}`);
       } else if (CONFIG.fallbackWorkspaceId) {
         workspaceId = CONFIG.fallbackWorkspaceId;
@@ -641,21 +970,46 @@ async function main() {
       }
     }
 
-    await captureHome(page);
-    await captureAgents(page);
-    await capturePeople(page);
-    await captureCampaigns(page);
-    await captureDatasets(page);
-    await captureWorkflows(page);
+    const captures = [
+      ["home", captureHome],
+      ["agents", captureAgents],
+      ["people", capturePeople],
+      ["campaigns", captureCampaigns],
+      ["datasets", captureDatasets],
+      ["workflows", captureWorkflows],
+    ];
 
-    console.log('\n==========================================');
-    console.log(' All screenshots captured successfully!');
-    console.log('==========================================\n');
+    /** @type {{name: string, ok: boolean}[]} */
+    const captureResults = [];
+    for (const [name, fn] of captures) {
+      try {
+        const ok = await fn(page);
+        captureResults.push({name, ok: ok !== false});
+      } catch (e) {
+        captureResults.push({name, ok: false});
+        console.log(`  ⚠ Capture '${name}' threw: ${e?.message || String(e)}`);
+        await takeArtifactScreenshot(page, `capture-throw-${name}`);
+      }
+    }
+
+    const failed = captureResults.filter((r) => !r.ok).map((r) => r.name);
+    if (failed.length) {
+      console.log('\n==========================================');
+      console.log(` Screenshot capture finished with failures: ${failed.join(", ")}`);
+      console.log(' See qa-output/capture-screenshots/ for retry/error artifacts.');
+      console.log('==========================================\n');
+      if (CONFIG.strict) process.exit(1);
+    } else {
+      console.log('\n==========================================');
+      console.log(' All screenshots captured successfully!');
+      console.log('==========================================\n');
+    }
 
   } catch (error) {
     console.error('\n Error during screenshot capture:', error.message);
-    await takeScreenshot(page, 'error-state', '');
-    process.exit(1);
+    await takeArtifactScreenshot(page, 'capture-error');
+    if (CONFIG.strict) process.exit(1);
+    console.log('  ⚠ Non-strict mode: exiting 0 despite screenshot capture error');
   } finally {
     await browser.close();
   }

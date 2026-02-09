@@ -9,8 +9,11 @@
     "docs:preview": "vitepress preview docs",
     "update:screenshots": "node scripts/capture-screenshots.js",
     "update:all": "npm run update:screenshots && npm run docs:build",
+    "test": "node --test test/**/*.test.js",
     "test:qa": "node scripts/qa-test-suite.js",
     "test:qa:headed": "HEADLESS=false node scripts/qa-test-suite.js",
+    "lint:docs": "node scripts/docs-lint.js",
+    "test:docs": "npm run lint:docs",
     "sync:nightly": "npm run update:screenshots && npm run test:qa"
   },
   "repository": {

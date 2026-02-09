@@ -57,7 +57,11 @@ Click **Create Dataset** to open the creation modal.
 
 ### Create Dataset Modal
 
-![Create Dataset Modal](/screenshots/datasets/02-create-modal.png)
+<img
+  src="/screenshots/datasets/02-create-modal.png?optional=1"
+  alt="Create Dataset Modal"
+  onerror="this.remove()"
+/>
 
 | Field | Description | Limit |
 |-------|-------------|-------|
@@ -407,7 +411,7 @@ The Magic Summaries tab displays:
 1. Create datasets by project or quarter (e.g., "Q4-2024-Product-Research")
 2. Upload survey exports, interview transcripts, and reports
 3. Label files by topic, segment, and date
-4. Connect to an Analyst agent for queries
+4. Connect to an analysis-focused agent for queries (for example: an Assistant configured as a "Market Analyst")
 
 **Sample Queries:**
 - "What are the top concerns about product pricing from Q4 research?"
@@ -467,7 +471,7 @@ topic: sustainability
 1. Create datasets per product line (e.g., "Widget-Pro-Docs")
 2. Upload specs, manuals, FAQs, and training materials
 3. Label by version and document type
-4. Connect to an Expert agent for support queries
+4. Connect to a Product agent (or an Assistant configured as a product expert) for support queries
 
 **Sample Queries:**
 - "What are the compatibility requirements for Product X?"

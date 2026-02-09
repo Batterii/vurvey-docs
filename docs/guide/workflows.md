@@ -102,7 +102,11 @@ Use input parameters to make workflows reusable. For example, create a `{{campai
 
 The workflow builder uses a React Flow-based canvas for visual editing:
 
-![Workflow Builder](/screenshots/workflows/02-workflow-builder.png)
+<img
+  src="/screenshots/workflows/02-workflow-builder.png?optional=1"
+  alt="Workflow Builder"
+  onerror="this.remove()"
+/>
 
 **Canvas Features:**
 - **Dotted background** - Visual grid for alignment (theme-aware colors)
@@ -494,7 +498,7 @@ Currently displays a placeholder with:
 **Approach:**
 1. Create a training set with competitor materials
 2. Connect campaigns that mention competitors
-3. Add a Competitor Analyst agent
+3. Add a competitor analysis agent (for example: an Assistant configured for competitive intel)
 4. Add a Trends Tracker agent
 5. Schedule weekly for fresh competitive insights
 

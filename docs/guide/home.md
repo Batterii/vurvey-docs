@@ -551,7 +551,7 @@ Search for recent news about [Competitor]'s product launches in 2024.
 When you find valuable competitive intel:
 1. Copy the response
 2. Add to a dataset for future reference
-3. Use in future conversations with @Analyst agents
+3. Use in future conversations with your analysis-focused agents (for example: `@MarketAnalyst`)
 :::
 
 ### Use Case 3: Multi-Perspective Concept Testing

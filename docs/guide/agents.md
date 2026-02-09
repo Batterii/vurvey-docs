@@ -236,7 +236,11 @@ The builder displays a progress stepper showing your journey through all steps:
 
 ### Step 1: Objective
 
-![Agent Builder Objective](/screenshots/agents/05-builder-objective.png)
+<img
+  src="/screenshots/agents/05-builder-objective.png?optional=1"
+  alt="Agent Builder Objective"
+  onerror="this.remove()"
+/>
 
 Choose your agent type and define what your agent will do.
 
@@ -264,7 +268,11 @@ The strong version gives the agent:
 
 ### Step 2: Facets
 
-![Agent Builder Facets](/screenshots/agents/06-builder-facets.png)
+<img
+  src="/screenshots/agents/06-builder-facets.png?optional=1"
+  alt="Agent Builder Facets"
+  onerror="this.remove()"
+/>
 
 Configure the personality characteristics that define how the agent thinks, communicates, and behaves. You can optionally select a pre-configured mold (template) to start with common persona configurations.
 
@@ -342,7 +350,11 @@ Communication Style:
 
 ### Step 3: Instructions
 
-![Agent Builder Instructions](/screenshots/agents/07-builder-instructions.png)
+<img
+  src="/screenshots/agents/07-builder-instructions.png?optional=1"
+  alt="Agent Builder Instructions"
+  onerror="this.remove()"
+/>
 
 Provide guidance, knowledge, and resources that shape how the agent operates.
 
@@ -443,7 +455,11 @@ Rules are constraints the agent must follow. They're different from instructions
 
 ### Step 4: Identity
 
-![Agent Builder Identity](/screenshots/agents/08-builder-identity.png)
+<img
+  src="/screenshots/agents/08-builder-identity.png?optional=1"
+  alt="Agent Builder Identity"
+  onerror="this.remove()"
+/>
 
 Establish the agent's persona identity - how it presents itself to users.
 
@@ -505,7 +521,11 @@ A compelling biography includes five key elements:
 
 ### Step 5: Appearance
 
-![Agent Builder Appearance](/screenshots/agents/09-builder-appearance.png)
+<img
+  src="/screenshots/agents/09-builder-appearance.png?optional=1"
+  alt="Agent Builder Appearance"
+  onerror="this.remove()"
+/>
 
 Create the visual identity that represents your agent.
 
@@ -555,7 +575,11 @@ Better than: "A person in business clothes"
 
 ### Step 6: Review
 
-![Agent Builder Review](/screenshots/agents/10-builder-review.png)
+<img
+  src="/screenshots/agents/10-builder-review.png?optional=1"
+  alt="Agent Builder Review"
+  onerror="this.remove()"
+/>
 
 Final review of all settings before activation.
 

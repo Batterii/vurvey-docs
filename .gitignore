@@ -37,6 +37,12 @@ coverage/
 qa-failure-screenshots/
 qa-failure-report.md
 screenshot-validation-report.md
+qa-report.json
+qa-output/
+
+# Screenshot capture retries/errors (noise; keep docs screenshots clean)
+docs/public/screenshots/retry-*.png
+docs/public/screenshots/error-*.png
 
 # Bug reports (dispatched to other repos)
 bug-reports/

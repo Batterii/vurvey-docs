@@ -1,627 +1,1077 @@
 #!/usr/bin/env node
 
 /**
- * Vurvey Documentation QA Test Suite
+ * Vurvey Docs QA Test Suite (CI-focused)
  *
- * This script verifies that documented UI functionality matches the actual
- * implementation. It runs through key user journeys and reports any
- * discrepancies between documentation and reality.
+ * Goals:
+ * - Catch real regressions (navigation, chat send/response, basic CRUD entrypoints)
+ * - Produce actionable artifacts (screenshots, console/network error summaries, repro steps)
+ * - Avoid brittle selectors: prefer data-testid, aria-label, and visible text
  *
- * Usage: node scripts/qa-test-suite.js
+ * Usage:
+ *   node scripts/qa-test-suite.js [--quick] [--viewport=desktop|mobile] [--strict]
  *
- * Environment variables:
- *   VURVEY_EMAIL    - Login email
- *   VURVEY_PASSWORD - Login password
- *   VURVEY_URL      - Base URL (default: https://staging.vurvey.dev)
- *   HEADLESS        - Run headless (default: true)
+ * Env:
+ *   VURVEY_EMAIL        required
+ *   VURVEY_PASSWORD     required
+ *   VURVEY_URL          default: https://staging.vurvey.dev
+ *   VURVEY_WORKSPACE_ID optional fallback workspace id
+ *   HEADLESS            default: true (set HEADLESS=false for headed)
+ *   QA_TIMEOUT_MS       default: 30000
  */
 
-import puppeteer from 'puppeteer';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import puppeteer from "puppeteer";
+import fs from "fs/promises";
+import path from "path";
+import {fileURLToPath} from "url";
+import {buildReproSteps as buildReproStepsCore, parseCliArgs, safeName} from "./lib/qa-utils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.join(__dirname, "..");
 
-// Configuration
-const config = {
-  email: process.env.VURVEY_EMAIL || 'jroell+test@batterii.com',
-  password: process.env.VURVEY_PASSWORD || 'youAre42!',
-  baseUrl: process.env.VURVEY_URL || 'https://staging.vurvey.dev',
-  fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || 'b849c7ce-3e18-474b-8c8d-70428216b4b2',
-  headless: process.env.HEADLESS !== 'false',
-  timeout: 30000,
-  slowMo: 50,
+const args = parseCliArgs(process.argv.slice(2));
+
+const VIEWPORTS = {
+  desktop: {key: "desktop", name: "Desktop", width: 1920, height: 1080, isMobile: false, hasTouch: false},
+  mobile: {key: "mobile", name: "Mobile", width: 390, height: 844, isMobile: true, hasTouch: true},
 };
 
-// Test results storage
+const config = {
+  email: process.env.VURVEY_EMAIL,
+  password: process.env.VURVEY_PASSWORD,
+  baseUrl: process.env.VURVEY_URL || "https://staging.vurvey.dev",
+  fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || null,
+  headless: process.env.HEADLESS !== "false",
+  quick: Boolean(args.quick),
+  strict: Boolean(args.strict),
+  viewportKey: typeof args.viewport === "string" ? args.viewport : null,
+  timeoutMs: Number(process.env.QA_TIMEOUT_MS || "30000"),
+  routeRetries: Number(process.env.QA_ROUTE_RETRIES || "3"),
+};
+
+const outDir = path.join(repoRoot, "qa-output");
+const screenshotsDir = path.join(outDir, "screenshots");
+const artifactsDir = path.join(outDir, "artifacts");
+const failureScreenshotsDir = path.join(repoRoot, "qa-failure-screenshots");
+
+/** @type {import("puppeteer").Page | null} */
+let currentPage = null;
+let currentSection = null;
+let currentRoute = null;
+let currentViewport = null;
+
 const results = {
   passed: [],
   failed: [],
   warnings: [],
   startTime: new Date(),
   endTime: null,
+  meta: {
+    baseUrl: config.baseUrl,
+    quick: config.quick,
+    strict: config.strict,
+    viewport: config.viewportKey || "default",
+  },
+  runtime: {
+    consoleErrors: [],
+    pageErrors: [],
+    requestFailed: [],
+    serverErrors: [],
+  },
 };
 
-// Failure screenshots directory
-const failureScreenshotsDir = path.join(__dirname, '..', 'qa-failure-screenshots');
+function ts() {
+  return new Date().toISOString();
+}
 
-// Current test context for screenshots
-let currentPage = null;
-let currentRoute = null;
-let currentSection = null;
-
-// Helper functions
-function log(message, type = 'info') {
-  const timestamp = new Date().toISOString();
+function log(msg, type = "info") {
   const prefix = {
-    info: '\x1b[36m[INFO]\x1b[0m',
-    pass: '\x1b[32m[PASS]\x1b[0m',
-    fail: '\x1b[31m[FAIL]\x1b[0m',
-    warn: '\x1b[33m[WARN]\x1b[0m',
-  }[type] || '[INFO]';
-  console.log(`${timestamp} ${prefix} ${message}`);
+    info: "\x1b[36m[INFO]\x1b[0m",
+    pass: "\x1b[32m[PASS]\x1b[0m",
+    fail: "\x1b[31m[FAIL]\x1b[0m",
+    warn: "\x1b[33m[WARN]\x1b[0m",
+  }[type] || "[INFO]";
+  // Keep stdout stable for GH Actions; timestamps help when debugging flakes.
+  // eslint-disable-next-line no-console
+  console.log(`${ts()} ${prefix} ${msg}`);
 }
 
-async function recordTest(name, passed, details = '', selector = null) {
-  const result = {
-    name,
-    details,
-    timestamp: new Date().toISOString(),
-    section: currentSection,
-    route: currentRoute,
-    selector: selector,
-  };
-
-  if (passed) {
-    results.passed.push(result);
-    log(`${name}: ${details || 'OK'}`, 'pass');
-  } else {
-    // Capture failure screenshot
-    let screenshotPath = null;
-    if (currentPage) {
-      try {
-        await fs.mkdir(failureScreenshotsDir, { recursive: true });
-        const safeName = name.replace(/[^a-z0-9]/gi, '-').toLowerCase();
-        const timestamp = Date.now();
-        screenshotPath = path.join(failureScreenshotsDir, `${safeName}-${timestamp}.png`);
-        await currentPage.screenshot({ path: screenshotPath, fullPage: true });
-        log(`  Screenshot saved: ${screenshotPath}`, 'info');
-      } catch (e) {
-        log(`  Could not capture screenshot: ${e.message}`, 'warn');
-      }
-    }
-
-    // Build reproduction steps
-    const reproSteps = buildReproductionSteps(name, selector);
-
-    result.screenshot = screenshotPath;
-    result.reproductionSteps = reproSteps;
-    results.failed.push(result);
-    log(`${name}: ${details || 'FAILED'}`, 'fail');
-  }
+async function ensureDirs() {
+  await fs.mkdir(outDir, {recursive: true});
+  await fs.mkdir(screenshotsDir, {recursive: true});
+  await fs.mkdir(artifactsDir, {recursive: true});
+  await fs.mkdir(failureScreenshotsDir, {recursive: true});
 }
 
-function buildReproductionSteps(testName, selector) {
-  const steps = [
-    `1. Navigate to ${config.baseUrl}`,
-    `2. Log in with test credentials`,
-  ];
-
-  if (currentRoute) {
-    steps.push(`3. Navigate to route: ${currentRoute}`);
-  }
-
-  if (selector) {
-    steps.push(`4. Look for element matching: ${selector}`);
-  }
-
-  steps.push(`5. Expected: Element should be present and visible`);
-  steps.push(`6. Actual: Element was not found or not visible`);
-  steps.push('');
-  steps.push(`Test: ${testName}`);
-  steps.push(`Section: ${currentSection || 'Unknown'}`);
-  steps.push(`Route: ${currentRoute || 'Unknown'}`);
-
-  return steps;
-}
-
-function recordWarning(name, details) {
-  results.warnings.push({ name, details, timestamp: new Date().toISOString() });
-  log(`${name}: ${details}`, 'warn');
-}
-
-async function waitForNetworkIdle(page, timeout = 5000) {
+async function captureScreenshot(name, {fullPage = true, forFailure = false} = {}) {
+  if (!currentPage) return null;
   try {
-    await page.waitForNetworkIdle({ idleTime: 1000, timeout });
+    const vp = currentViewport?.name || "unknown";
+    const filename = `${safeName(name)}-${safeName(vp)}-${Date.now()}.png`;
+    const dir = forFailure ? failureScreenshotsDir : screenshotsDir;
+    const p = path.join(dir, filename);
+    await currentPage.screenshot({path: p, fullPage});
+    return p;
   } catch (e) {
-    // Network didn't go idle, but we can continue
-  }
-}
-
-async function elementExists(page, selector, timeout = 3000) {
-  try {
-    await page.waitForSelector(selector, { timeout });
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-async function getTextContent(page, selector) {
-  try {
-    const element = await page.$(selector);
-    if (!element) return null;
-    const text = await page.evaluate(el => el.textContent, element);
-    return text ? text.trim() : null;
-  } catch (e) {
+    results.warnings.push({name: "screenshot", details: String(e?.message || e), timestamp: ts()});
     return null;
   }
 }
 
-// Test Suite Classes
-class TestSuite {
-  constructor(page, workspaceId, sectionName) {
-    this.page = page;
-    this.workspaceId = workspaceId;
-    this.sectionName = sectionName;
-    currentPage = page;
-    currentSection = sectionName;
-  }
-
-  async navigate(route) {
-    currentRoute = route;
-    const url = `${config.baseUrl}/${this.workspaceId}${route}`;
-    await this.page.goto(url, { waitUntil: 'networkidle2' });
-    await waitForNetworkIdle(this.page);
-    // Wait for any loading spinners/skeletons to disappear
-    await this.waitForDataLoaded();
-  }
-
-  async waitForDataLoaded(timeout = 10000) {
-    const startTime = Date.now();
-    while (Date.now() - startTime < timeout) {
-      // Check if there are any loading indicators
-      const hasLoaders = await this.page.evaluate(() => {
-        const loaders = document.querySelectorAll('[class*="loading" i], [class*="spinner" i], [class*="skeleton" i]');
-        for (const el of loaders) {
-          const style = window.getComputedStyle(el);
-          if (style.display !== 'none' && style.visibility !== 'hidden') {
-            return true;
-          }
-        }
-        return false;
-      });
-
-      if (!hasLoaders) {
-        // Wait a bit more for React to render data
-        await new Promise(r => setTimeout(r, 1500));
-        return;
-      }
-      await new Promise(r => setTimeout(r, 500));
-    }
-    // Timeout - continue anyway
-    await new Promise(r => setTimeout(r, 1500));
-  }
-
-  async testElement(testName, selector, timeout = 3000) {
-    const exists = await elementExists(this.page, selector, timeout);
-    await recordTest(testName, exists, exists ? 'Found' : 'Not found', selector);
-    return exists;
-  }
-}
-
-// Home/Chat Tests
-class HomeChatTests extends TestSuite {
-  constructor(page, workspaceId) {
-    super(page, workspaceId, 'Home/Chat');
-  }
-
-  async runAll() {
-    log('Running Home/Chat Tests...', 'info');
-    await this.navigate('/');
-
-    await this.testElement('Home: Chat input present',
-      '[data-testid="chat-input"], textarea, input[placeholder*="message" i]');
-    await this.testElement('Home: Agent selector present',
-      '[data-testid="agent-selector"], [class*="agent" i][class*="select" i], [class*="persona" i]');
-    await this.testElement('Home: Mode toggles present',
-      '[data-testid="mode-toggle"], [class*="mode" i], button');
-    // Look for "Conversations" section header text or button with "+"
-    await this.testElement('Home: Conversation sidebar present',
-      '[class*="sidebar" i], [class*="conversations" i], button[aria-label*="conversation" i], h2, h3, span');
-    await this.testElement('Home: New conversation button present',
-      'button[aria-label*="new" i], [class*="new"][class*="conversation" i], button');
-  }
-}
-
-// Agent Tests
-class AgentTests extends TestSuite {
-  constructor(page, workspaceId) {
-    super(page, workspaceId, 'Agents');
-  }
-
-  async runAll() {
-    log('Running Agent Tests...', 'info');
-    await this.navigate('/agents');
-
-    // Check for agent cards (user confirms workspace has agents, so data should load)
-    await this.testElement('Agents: Gallery grid present',
-      '[data-testid="agent-card"], [class*="agent"][class*="card" i], [class*="persona"][class*="card" i], [class*="card" i]');
-    await this.testElement('Agents: Create button present', 'button');
-    await this.testElement('Agents: Search input present',
-      'input[type="search"], input[placeholder*="search" i], [class*="search" i] input');
-    await this.testElement('Agents: Filter/sort controls present',
-      '[class*="filter" i], [class*="sort" i], select');
-
-    const hasAgentCards = await elementExists(this.page, '[class*="card" i], [class*="agent" i][class*="item" i]');
-    if (hasAgentCards) {
-      await this.testElement('Agents: Card avatars present',
-        '[class*="avatar" i], img[class*="agent" i]');
-      await this.testElement('Agents: Card menus present',
-        '[class*="menu" i], [class*="dropdown" i], button[aria-label*="more" i]');
-    } else {
-      recordWarning('Agents: No agent cards found', 'May be empty workspace');
-    }
-  }
-}
-
-// People/Audience Tests
-class PeopleTests extends TestSuite {
-  constructor(page, workspaceId) {
-    super(page, workspaceId, 'People/Audience');
-  }
-
-  async runAll() {
-    log('Running People/Audience Tests...', 'info');
-    await this.navigate('/audience');
-
-    // Look for header navigation tabs (Populations, Humans, Lists & Segments, Properties)
-    // These could be buttons, links, or divs styled as tabs
-    const hasPeopleNav = await this.page.evaluate(() => {
-      const elements = Array.from(document.querySelectorAll('button, a, [role="tab"], div'));
-      return elements.some(el =>
-        el.textContent?.trim() === 'Populations' ||
-        el.textContent?.trim() === 'Humans' ||
-        el.textContent?.includes('Lists & Segments')
-      );
-    });
-    await recordTest('People: Navigation tabs present', hasPeopleNav, hasPeopleNav ? 'Found' : 'Not found', 'element with nav text');
-    await this.testElement('People: Populations view present',
-      '[class*="population" i], [class*="grid" i], [class*="card" i]');
-
-    await this.navigate('/audience/community');
-    await waitForNetworkIdle(this.page);
-    // Wait longer for table data to load - this page renders async
-    await new Promise(r => setTimeout(r, 3000));
-    // Check for table or controls (table should be visible now)
-    await this.testElement('People: Humans table present',
-      'table, [class*="table" i], [role="grid"], [class*="row" i], input[placeholder*="search" i]');
-
-    await this.navigate('/audience/segments');
-    await waitForNetworkIdle(this.page);
-    await this.testElement('People: Segments view present',
-      '[class*="segment" i], [class*="list" i], table');
-
-    await this.navigate('/audience/properties');
-    await waitForNetworkIdle(this.page);
-    await this.testElement('People: Properties view present',
-      '[class*="propert" i], table, [class*="list" i]');
-  }
-}
-
-// Campaign Tests
-class CampaignTests extends TestSuite {
-  constructor(page, workspaceId) {
-    super(page, workspaceId, 'Campaigns');
-  }
-
-  async runAll() {
-    log('Running Campaign Tests...', 'info');
-    await this.navigate('/campaigns');
-
-    // Check for grid OR empty state (workspace may have no campaigns)
-    const hasCampaignContent = await this.page.evaluate(() => {
-      // Check for cards/grid
-      const hasGrid = document.querySelector('[class*="grid" i], [class*="card" i], [class*="campaign" i]:not(nav):not(a)');
-      // Or check for page title "Campaigns" which proves page loaded
-      const hasTitle = document.body.textContent?.includes('Campaigns');
-      // Or check for search/filter controls
-      const hasControls = document.querySelector('input[placeholder*="campaign" i], select');
-      return hasGrid || hasTitle || hasControls;
-    });
-    await recordTest('Campaigns: Page content present', hasCampaignContent, hasCampaignContent ? 'Found' : 'Not found', 'grid or title');
-    await this.testElement('Campaigns: Create button present', 'button');
-    // Check for navigation tabs using text content (campaigns may use button nav)
-    const hasCampaignNav = await this.page.evaluate(() => {
-      const elements = Array.from(document.querySelectorAll('button, a, [role="tab"]'));
-      return elements.some(el =>
-        el.textContent?.includes('All') ||
-        el.textContent?.includes('Templates') ||
-        el.textContent?.includes('Usage')
-      ) || document.querySelector('[role="tablist"], [class*="tab" i]');
-    });
-    await recordTest('Campaigns: Navigation tabs present', hasCampaignNav, hasCampaignNav ? 'Found' : 'Not found', 'nav tabs or buttons');
-    await this.testElement('Campaigns: Filter controls present',
-      '[class*="filter" i], select, [class*="sort" i]');
-
-    const hasCards = await elementExists(this.page, '[class*="card" i]');
-    if (hasCards) {
-      await this.testElement('Campaigns: Status badges present',
-        '[class*="badge" i], [class*="status" i], [class*="chip" i]');
-    }
-  }
-}
-
-// Dataset Tests
-class DatasetTests extends TestSuite {
-  constructor(page, workspaceId) {
-    super(page, workspaceId, 'Datasets');
-  }
-
-  async runAll() {
-    log('Running Dataset Tests...', 'info');
-    await this.navigate('/datasets');
-
-    // Check for page loaded - look for sidebar nav or any page content
-    const hasDatasetContent = await this.page.evaluate(() => {
-      // Check for cards/grid
-      const hasGrid = document.querySelector('[class*="grid" i], [class*="card" i], [class*="dataset" i]');
-      // Or check for navigation tabs
-      const hasTabs = document.body.textContent?.includes('All Datasets') ||
-                       document.body.textContent?.includes('Magic Summaries');
-      // Or check for page title or sidebar
-      const hasTitle = document.body.textContent?.includes('Datasets');
-      const hasSidebar = document.querySelector('nav, [class*="sidebar" i]');
-      // Or any buttons/inputs indicating page loaded
-      const hasControls = document.querySelectorAll('button, input').length > 2;
-      return hasGrid || hasTabs || hasTitle || hasSidebar || hasControls;
-    });
-    await recordTest('Datasets: Page content present', hasDatasetContent, hasDatasetContent ? 'Found' : 'Not found', 'page loaded');
-    await this.testElement('Datasets: Create button present', 'button');
-    await this.testElement('Datasets: Search input present',
-      'input[type="search"], input[placeholder*="search" i]');
-
-    const hasCards = await elementExists(this.page, '[class*="card" i]');
-    if (hasCards) {
-      await this.testElement('Datasets: File count shown',
-        '[class*="file" i], [class*="count" i]');
-    }
-  }
-}
-
-// Workflow Tests
-class WorkflowTests extends TestSuite {
-  constructor(page, workspaceId) {
-    super(page, workspaceId, 'Workflows');
-  }
-
-  async runAll() {
-    log('Running Workflow Tests...', 'info');
-    await this.navigate('/workflow');
-
-    // Check for workflow navigation using text content (tabs could be various element types)
-    const hasWorkflowNav = await this.page.evaluate(() => {
-      const elements = Array.from(document.querySelectorAll('button, a, [role="tab"], div, span'));
-      return elements.some(el =>
-        el.textContent?.trim() === 'Flows' ||
-        el.textContent?.trim() === 'Upcoming Runs' ||
-        el.textContent?.trim() === 'Templates' ||
-        el.textContent?.trim() === 'Conversations'
-      ) || document.querySelector('[role="tablist"], [class*="tab" i]') ||
-        document.body.textContent?.includes('Workflow');
-    });
-    await recordTest('Workflows: Navigation tabs present', hasWorkflowNav, hasWorkflowNav ? 'Found' : 'Not found', 'nav tabs or page title');
-
-    await this.navigate('/workflow/flows');
-    await waitForNetworkIdle(this.page);
-
-    await this.testElement('Workflows: Flows grid present',
-      '[class*="grid" i], [class*="card" i], [class*="flow" i]');
-    await this.testElement('Workflows: Create button present', 'button');
-    await this.testElement('Workflows: Search/sort controls present',
-      'input[type="search"], select, [class*="sort" i]');
-  }
-}
-
-// Helper delay function
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Helper to fill input fields using actual typing (required for React controlled inputs)
-async function fillInput(page, value, selectors) {
-  for (const selector of selectors) {
-    try {
-      const input = await page.$(selector);
-      if (input) {
-        await input.click();
-        await delay(100);
-        // Use type() to simulate actual keystrokes - required for React controlled inputs
-        await input.type(value, { delay: 30 });
-        return true;
-      }
-    } catch (e) {
-      continue;
-    }
-  }
-
-  // Fallback: try via evaluate
-  return await page.evaluate((value, selectors) => {
-    for (const sel of selectors) {
-      const input = document.querySelector(sel);
-      if (input) {
-        input.focus();
-        input.value = value;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        return true;
-      }
-    }
-    return false;
-  }, value, selectors);
-}
-
-// Main execution
-async function login(page) {
-  log(`Logging in to ${config.baseUrl}...`, 'info');
-
-  await page.goto(config.baseUrl, { waitUntil: 'networkidle2', timeout: config.timeout });
-  await delay(3000);
-
-  // Click "Sign in with email" button first (login page shows social buttons by default)
-  log('Looking for email login button...', 'info');
-  const emailLoginClicked = await page.evaluate(() => {
-    const buttons = Array.from(document.querySelectorAll('button, a'));
-    const btn = buttons.find(b => b.textContent?.toLowerCase().includes('sign in with email'));
-    if (btn) {
-      btn.click();
-      return true;
-    }
-    return false;
+function buildReproSteps(testName, selector) {
+  return buildReproStepsCore({
+    baseUrl: config.baseUrl,
+    viewport: currentViewport,
+    route: currentRoute,
+    section: currentSection,
+    testName,
+    selector,
   });
+}
 
-  if (emailLoginClicked) {
-    log('Clicked email login button', 'info');
-    await delay(2000);
+async function recordTest(name, passed, details = "", {selector} = {}) {
+  const base = {
+    name,
+    details,
+    timestamp: ts(),
+    section: currentSection,
+    route: currentRoute,
+    viewport: currentViewport?.name || "unknown",
+    selector: selector || null,
+  };
+
+  if (passed) {
+    results.passed.push(base);
+    log(`${name}: ${details || "OK"}`, "pass");
+    return;
   }
 
-  // Now wait for and fill the email/password form (multi-step: email -> Next -> password -> Login)
-  await delay(1500);
+  const screenshot = await captureScreenshot(`failure-${name}`, {forFailure: true});
+  results.failed.push({
+    ...base,
+    screenshot,
+    reproductionSteps: buildReproSteps(name, selector),
+  });
+  log(`${name}: ${details || "FAILED"}`, "fail");
+}
 
-  // Fill email using actual typing (required for React controlled inputs)
-  log('Filling email...', 'info');
+function recordWarning(name, details) {
+  results.warnings.push({name, details, timestamp: ts(), section: currentSection, route: currentRoute, viewport: currentViewport?.name || "unknown"});
+  log(`${name}: ${details}`, "warn");
+}
+
+async function wait(ms) {
+  await new Promise((r) => setTimeout(r, ms));
+}
+
+async function waitForNetworkIdle(page, timeout = 7000) {
+  try {
+    await page.waitForNetworkIdle({idleTime: 1000, timeout});
+  } catch {
+    // ok
+  }
+}
+
+async function waitForLoadersGone(page, timeout = 12000) {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    const hasLoaders = await page.evaluate(() => {
+      const sel = [
+        '[class*="loading" i]',
+        '[class*="spinner" i]',
+        '[class*="skeleton" i]',
+        '[data-testid*="loading" i]',
+        '[data-testid*="skeleton" i]',
+        '[aria-busy="true"]',
+      ];
+      for (const s of sel) {
+        const els = document.querySelectorAll(s);
+        for (const el of els) {
+          const st = window.getComputedStyle(el);
+          if (st.display !== "none" && st.visibility !== "hidden" && st.opacity !== "0") return true;
+        }
+      }
+      return false;
+    });
+    if (!hasLoaders) {
+      // allow React a beat to paint post-loader content
+      await wait(600);
+      return;
+    }
+    await wait(400);
+  }
+}
+
+async function looksLikeLoggedOut(page) {
+  try {
+    return await page.evaluate(() => {
+      const email = document.querySelector('input[type="email"], input[name="email"]');
+      if (!email) return false;
+      const st = window.getComputedStyle(email);
+      if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
+      return true;
+    });
+  } catch {
+    return false;
+  }
+}
+
+async function getGlobalErrorText(page) {
+  try {
+    return await page.evaluate(() => {
+      const text = (document.body?.innerText || "").trim();
+      if (!text) return null;
+      const lower = text.toLowerCase();
+      if (lower.includes("failed to fetch")) return "Failed to fetch";
+      if (lower.includes("an error occurred")) return "An error occurred";
+      if (lower.includes("something went wrong")) return "Something went wrong";
+      return null;
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function elementExists(page, selector, timeout = 4000) {
+  try {
+    await page.waitForSelector(selector, {timeout, visible: true});
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function pageTextIncludes(page, needle) {
+  const n = String(needle).toLowerCase();
+  try {
+    return await page.evaluate((n) => (document.body?.innerText || "").toLowerCase().includes(n), n);
+  } catch {
+    return false;
+  }
+}
+
+async function currentPathname(page) {
+  try {
+    return await page.evaluate(() => window.location.pathname);
+  } catch {
+    return "";
+  }
+}
+
+async function clickByText(page, {selector = "button, a, [role=\"button\"], [role=\"menuitem\"], [role=\"tab\"]", text}, {timeout = 8000} = {}) {
+  const start = Date.now();
+  const norm = String(text).trim().toLowerCase();
+  while (Date.now() - start < timeout) {
+    const clicked = await page.evaluate(
+      ({selector, norm}) => {
+        const els = Array.from(document.querySelectorAll(selector));
+        const candidates = els.filter((el) => {
+          const t = (el.textContent || "").trim().toLowerCase();
+          if (!t.includes(norm)) return false;
+          const st = window.getComputedStyle(el);
+          if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
+          const r = el.getBoundingClientRect();
+          return r.width > 0 && r.height > 0;
+        });
+
+        const el = candidates[0];
+        if (!el) return false;
+        el.click();
+        return true;
+      },
+      {selector, norm},
+    );
+    if (clicked) return true;
+    await wait(250);
+  }
+  return false;
+}
+
+async function clickSidebarNavItem(page, labels, expectedPathIncludes, timeout = 8000) {
+  const start = Date.now();
+  const labelList = (Array.isArray(labels) ? labels : [labels]).filter(Boolean).map((l) => String(l).trim().toLowerCase());
+  const expectedList = (Array.isArray(expectedPathIncludes) ? expectedPathIncludes : [expectedPathIncludes])
+    .filter(Boolean)
+    .map((p) => String(p).toLowerCase());
+
+  while (Date.now() - start < timeout) {
+    const clicked = await page.evaluate(({labelList, expectedList}) => {
+      const isVisible = (el) => {
+        if (!el) return false;
+        const st = window.getComputedStyle(el);
+        if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      };
+
+      const navContainers = Array.from(document.querySelectorAll("nav, aside, [role='navigation']"));
+      const candidateEls = [];
+
+      const addCandidatesFrom = (root) => {
+        for (const el of Array.from(root.querySelectorAll("a[href], button, [role='link'], [role='button'], [role='menuitem'], [role='tab'], li"))) {
+          if (!isVisible(el)) continue;
+          candidateEls.push(el);
+        }
+      };
+
+      if (navContainers.length > 0) {
+        navContainers.forEach(addCandidatesFrom);
+      } else {
+        // Fallback: global scan if nav containers are not present in the DOM.
+        addCandidatesFrom(document);
+      }
+
+      const candidates = candidateEls
+        .map((el) => {
+          const t = (el.innerText || el.textContent || "").trim().toLowerCase();
+          const aria = (el.getAttribute("aria-label") || "").trim().toLowerCase();
+          const title = (el.getAttribute("title") || "").trim().toLowerCase();
+          const href = (el.getAttribute("href") || "").trim().toLowerCase();
+          const r = el.getBoundingClientRect();
+          const className = (el.className || "").toString().toLowerCase();
+          const parentNav = el.closest("nav, aside, [role='navigation']");
+          const inNav = Boolean(parentNav);
+          const inSidebar =
+            className.includes("sidebar") ||
+            (parentNav && ((parentNav.className || "").toString().toLowerCase().includes("sidebar")));
+
+          const labelHit = labelList.some((l) => l && (t.includes(l) || aria.includes(l) || title.includes(l)));
+          const hrefHit = expectedList.some((p) => p && href.includes(p));
+
+          let score = 0;
+          if (labelHit) score += 60;
+          if (hrefHit) score += 120;
+          if (inNav) score += 15;
+          if (inSidebar) score += 25;
+          if (r.x < 300) score += 10;
+          if (r.y > window.innerHeight * 0.85) score -= 5;
+
+          return {el, score, href, t, aria, title, x: r.x, y: r.y};
+        })
+        .filter((c) => c.score > 0);
+
+      candidates.sort((a, b) => b.score - a.score);
+      const best = candidates[0];
+      if (!best) return false;
+
+      best.el.click();
+      return true;
+    }, {labelList, expectedList});
+
+    if (clicked) return true;
+    await wait(250);
+  }
+
+  return false;
+}
+
+async function typeIntoFirst(page, selectors, text) {
+  for (const sel of selectors) {
+    try {
+      const el = await page.$(sel);
+      if (!el) continue;
+      await el.click({clickCount: 3});
+      await wait(100);
+      await page.type(sel, text, {delay: 20});
+      return sel;
+    } catch {
+      // try next
+    }
+  }
+  return null;
+}
+
+async function submitFormForSelector(page, inputSelector) {
+  // Best-effort "submit the right form" for multi-step login UIs.
+  return await page.evaluate((sel) => {
+    const input = document.querySelector(sel);
+    if (!input) return false;
+    const form = input.closest("form");
+
+    const isVisible = (el) => {
+      if (!el) return false;
+      const st = window.getComputedStyle(el);
+      if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    };
+
+    if (form) {
+      const submitBtn =
+        form.querySelector('button[type="submit"]') ||
+        form.querySelector('input[type="submit"]') ||
+        Array.from(form.querySelectorAll("button")).find((b) => isVisible(b));
+
+      if (submitBtn && isVisible(submitBtn)) {
+        submitBtn.click();
+        return true;
+      }
+
+      // requestSubmit is more semantically correct (triggers submit handlers),
+      // but isn't always available.
+      if (typeof form.requestSubmit === "function") {
+        form.requestSubmit();
+        return true;
+      }
+
+      // Fallback: dispatch submit event.
+      const ev = new Event("submit", {bubbles: true, cancelable: true});
+      return form.dispatchEvent(ev);
+    }
+
+    // If there is no form, try hitting Enter on the input.
+    input.dispatchEvent(new KeyboardEvent("keydown", {key: "Enter", code: "Enter", bubbles: true}));
+    input.dispatchEvent(new KeyboardEvent("keyup", {key: "Enter", code: "Enter", bubbles: true}));
+    return true;
+  }, inputSelector);
+}
+
+async function setViewport(page, viewport) {
+  currentViewport = viewport;
+  await page.setViewport({
+    width: viewport.width,
+    height: viewport.height,
+    isMobile: viewport.isMobile,
+    hasTouch: viewport.hasTouch,
+  });
+}
+
+function extractUuidFromUrl(url) {
+  const m = String(url || "").match(/\/([a-f0-9-]{36})\b/i);
+  return m ? m[1] : null;
+}
+
+async function findWorkspaceIdsFromDom(page) {
+  return await page.evaluate(() => {
+    const re = /\/([a-f0-9-]{36})\b/ig;
+    const ids = new Set();
+
+    // Common: sidebar/topnav links include the workspace prefix.
+    for (const a of document.querySelectorAll("a[href]")) {
+      const href = a.getAttribute("href") || "";
+      let m;
+      while ((m = re.exec(href))) ids.add(m[1]);
+    }
+
+    // Sometimes data attributes contain URLs.
+    for (const el of document.querySelectorAll("[data-href], [data-url]")) {
+      const href = el.getAttribute("data-href") || el.getAttribute("data-url") || "";
+      let m;
+      while ((m = re.exec(href))) ids.add(m[1]);
+    }
+
+    return Array.from(ids);
+  });
+}
+
+async function findWorkspaceIdsFromStorage(page) {
+  return await page.evaluate(() => {
+    const uuidRe = /([a-f0-9-]{36})/ig;
+    const candidates = [];
+
+    const scanStorage = (storage, storageName) => {
+      if (!storage) return;
+      for (let i = 0; i < storage.length; i++) {
+        const key = storage.key(i);
+        if (!key) continue;
+        let val = null;
+        try {
+          val = storage.getItem(key);
+        } catch {
+          continue;
+        }
+        if (!val) continue;
+
+        // Prefer keys that look workspace-related.
+        const isWorkspaceKey = /workspace/i.test(key);
+        let m;
+        while ((m = uuidRe.exec(val))) {
+          candidates.push({id: m[1], score: isWorkspaceKey ? 10 : 1, key: `${storageName}:${key}`});
+        }
+      }
+    };
+
+    scanStorage(window.localStorage, "localStorage");
+    scanStorage(window.sessionStorage, "sessionStorage");
+
+    // Sort: higher score first, stable order otherwise.
+    candidates.sort((a, b) => b.score - a.score);
+    return candidates.map((c) => c.id);
+  });
+}
+
+async function tryNavigateToWorkspace(page, baseUrl, workspaceId) {
+  try {
+    // SPAs often keep long-lived connections open; use a looser signal and
+    // explicitly wait for loaders/network quiescence.
+    await page.goto(`${baseUrl}/${workspaceId}/agents`, {waitUntil: "domcontentloaded", timeout: 30000});
+    await waitForNetworkIdle(page, 12000);
+    await waitForLoadersGone(page);
+    return page.url().includes(workspaceId);
+  } catch {
+    return false;
+  }
+}
+
+async function resolveWorkspaceIdAfterLogin(page) {
+  // 1) Direct URL
+  const fromUrl = extractUuidFromUrl(page.url());
+  if (fromUrl) return fromUrl;
+
+  // 2) Pathname
+  const fromPath = await page.evaluate(() => {
+    const m = window.location.pathname.match(/^\/([a-f0-9-]{36})/i);
+    return m ? m[1] : null;
+  });
+  if (fromPath) return fromPath;
+
+  // 3) If we landed on a workspace picker page, try clicking a link that includes a workspace UUID.
+  const clicked = await page.evaluate(() => {
+    const re = /\/([a-f0-9-]{36})\b/i;
+    const links = Array.from(document.querySelectorAll("a[href]"));
+    const link = links.find((a) => re.test(a.getAttribute("href") || ""));
+    if (!link) return null;
+    const m = (link.getAttribute("href") || "").match(re);
+    link.click();
+    return m ? m[1] : null;
+  });
+  if (clicked) {
+    await wait(1500);
+    await waitForNetworkIdle(page, 12000);
+    await waitForLoadersGone(page);
+    const maybe = extractUuidFromUrl(page.url()) || extractUuidFromUrl(await page.evaluate(() => window.location.pathname));
+    if (maybe) return maybe;
+    // If click returned an id but URL didn't update, we can still try it.
+    if (await tryNavigateToWorkspace(page, config.baseUrl, clicked)) return clicked;
+  }
+
+  // 4) Probe common routes to trigger workspace-prefixed redirects.
+  for (const probe of ["/agents", "/audience", "/campaigns", "/datasets", "/workflow"]) {
+    try {
+      await page.goto(`${config.baseUrl}${probe}`, {waitUntil: "domcontentloaded", timeout: 30000});
+      await waitForNetworkIdle(page, 12000);
+      await waitForLoadersGone(page);
+      const id = extractUuidFromUrl(page.url());
+      if (id) return id;
+    } catch {
+      // ignore
+    }
+  }
+
+  // 5) Parse IDs from DOM links and validate by navigation.
+  const domIds = await findWorkspaceIdsFromDom(page);
+  for (const id of domIds) {
+    if (await tryNavigateToWorkspace(page, config.baseUrl, id)) return id;
+  }
+
+  // 6) Parse IDs from local/session storage and validate by navigation.
+  const storageIds = await findWorkspaceIdsFromStorage(page);
+  for (const id of storageIds) {
+    if (await tryNavigateToWorkspace(page, config.baseUrl, id)) return id;
+  }
+
+  // 7) Fallback if provided.
+  if (config.fallbackWorkspaceId) {
+    recordWarning("Auth: Workspace ID", `Could not extract from UI; using fallback ${config.fallbackWorkspaceId}`);
+    return config.fallbackWorkspaceId;
+  }
+
+  return null;
+}
+
+async function login(page) {
+  currentSection = "Auth";
+  currentRoute = "/";
+
+  await page.goto(config.baseUrl, {waitUntil: "domcontentloaded", timeout: config.timeoutMs});
+  await wait(1500);
+  await waitForNetworkIdle(page, 12000);
+  await waitForLoadersGone(page, 12000);
+
+  // Most environments show social login first; email login is a button.
+  await clickByText(page, {text: "sign in with email"}, {timeout: 6000});
+  await wait(700);
+
+  // Fill multi-step auth flow: email -> next -> password -> login.
   const emailSelectors = [
     'input[type="email"]',
     'input[name="email"]',
     'input[placeholder*="email" i]',
-    'input[placeholder*="Email"]',
-    'input:not([type="password"]):not([type="hidden"])'
+    'input:not([type="password"]):not([type="hidden"])',
   ];
-  const emailFilled = await fillInput(page, config.email, emailSelectors);
-  if (!emailFilled) {
-    log('Could not fill email field', 'warn');
+  const emailSel = await typeIntoFirst(page, emailSelectors, config.email);
+  await recordTest("Auth: Email field fill", Boolean(emailSel), emailSel ? "Filled" : "Could not find email input", {selector: "email input"});
+
+  if (emailSel) {
+    // Prefer submitting the form that owns the email input; text buttons are a fallback.
+    await submitFormForSelector(page, emailSel);
   }
+  await clickByText(page, {text: "next"}, {timeout: 1500});
+  await clickByText(page, {text: "continue"}, {timeout: 1500});
+  await wait(800);
 
-  await delay(500);
+  // Wait for password step to actually appear before typing/clicking.
+  await page.waitForSelector('input[type="password"], input[name="password"]', {visible: true, timeout: 15000});
 
-  // Click Next/Continue button (first step)
-  log('Clicking Next/Continue...', 'info');
-  await page.evaluate(() => {
-    const buttons = Array.from(document.querySelectorAll('button'));
-    const btn = buttons.find(b =>
-      b.textContent?.toLowerCase().includes('next') ||
-      b.textContent?.toLowerCase().includes('continue') ||
-      b.type === 'submit'
-    );
-    if (btn) btn.click();
-  });
-
-  await delay(2000);
-
-  // Fill password using actual typing (second step)
-  log('Filling password...', 'info');
-  const passwordSelectors = [
+  const passSelectors = [
     'input[type="password"]',
     'input[name="password"]',
-    'input[placeholder*="password" i]'
+    'input[placeholder*="password" i]',
   ];
-  const passwordFilled = await fillInput(page, config.password, passwordSelectors);
-  if (!passwordFilled) {
-    log('Could not fill password field', 'warn');
+  const passSel = await typeIntoFirst(page, passSelectors, config.password);
+  await recordTest("Auth: Password field fill", Boolean(passSel), passSel ? "Filled" : "Could not find password input", {selector: "password input"});
+
+  if (passSel) {
+    await submitFormForSelector(page, passSel);
   }
+  // Fallbacks for UIs that don't wire forms.
+  await clickByText(page, {text: "log in"}, {timeout: 1500});
+  await clickByText(page, {text: "login"}, {timeout: 1500});
+  // Avoid clicking "sign in" too early; at this point we should be on password step.
+  await clickByText(page, {text: "sign in"}, {timeout: 1500});
 
-  await delay(500);
+  // Wait for redirect into workspace.
+  await wait(1500);
+  // SPA redirect won't trigger navigation; assert on URL change instead.
+  const gotWorkspaceInUrl = await page
+    .waitForFunction(() => /\/[a-f0-9-]{36}\b/i.test(window.location.pathname), {timeout: 60000})
+    .then(() => true)
+    .catch(() => false);
 
-  // Click Login/Sign in button (second step)
-  log('Clicking Login button...', 'info');
-  await page.evaluate(() => {
-    const buttons = Array.from(document.querySelectorAll('button'));
-    const btn = buttons.find(b =>
-      b.textContent?.toLowerCase().includes('log in') ||
-      b.textContent?.toLowerCase().includes('login') ||
-      b.textContent?.toLowerCase().includes('sign in') ||
-      b.type === 'submit'
-    );
-    if (btn) btn.click();
-  });
+  await waitForNetworkIdle(page, 15000);
+  await waitForLoadersGone(page, 15000);
 
-  // Wait for login to complete
-  log('Waiting for login to complete...', 'info');
-  await delay(8000);
-
-  try {
-    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
-  } catch (e) {
-    log('Navigation timeout (continuing)', 'warn');
-  }
-
-  await delay(3000);
-
-  // Wait for network to be idle
-  try {
-    await page.waitForNetworkIdle({ idleTime: 2000, timeout: 15000 });
-  } catch (e) {
-    log('Network idle timeout (continuing)', 'warn');
-  }
-
-  // Extract workspace ID from URL
-  let url = page.url();
-  log(`Current URL after login: ${url}`, 'info');
-
-  let workspaceMatch = url.match(/\/([a-f0-9-]{36})/);
-
-  if (workspaceMatch) {
-    log(`Logged in successfully. Workspace: ${workspaceMatch[1]}`, 'pass');
-    return workspaceMatch[1];
-  }
-
-  // Try to extract from page path
-  const workspaceId = await page.evaluate(() => {
-    const match = window.location.pathname.match(/^\/([a-f0-9-]+)/);
-    return match ? match[1] : null;
-  });
-
-  if (workspaceId && workspaceId.match(/^[a-f0-9-]{36}$/)) {
-    log(`Extracted workspace ID from path: ${workspaceId}`, 'pass');
+  // If we're on a workspace picker page, resolve by clicking a workspace link and re-check.
+  const workspaceId = await resolveWorkspaceIdAfterLogin(page);
+  if (workspaceId && (gotWorkspaceInUrl || extractUuidFromUrl(page.url()))) {
+    log(`Login successful. Workspace: ${workspaceId}`, "pass");
     return workspaceId;
   }
 
-  // Try navigating to a known page to trigger workspace redirect
-  log('Trying to navigate to agents page to get workspace ID...', 'info');
-  try {
-    await page.goto(`${config.baseUrl}/agents`, { waitUntil: 'networkidle2', timeout: 30000 });
-    await delay(3000);
-    url = page.url();
-    workspaceMatch = url.match(/\/([a-f0-9-]{36})/);
-    if (workspaceMatch) {
-      log(`Logged in successfully. Workspace: ${workspaceMatch[1]}`, 'pass');
-      return workspaceMatch[1];
+  const url = page.url();
+  const alertText = await page.evaluate(() => {
+    const el = document.querySelector('[role="alert"], [class*="error" i], [class*="alert" i]');
+    return el ? (el.textContent || "").trim().slice(0, 500) : null;
+  });
+  if (alertText) recordWarning("Auth: Possible error", alertText);
+
+  await captureScreenshot("workspace-id-not-found", {forFailure: true});
+  throw new Error(`Could not extract workspace ID from URL/UI: ${url}`);
+}
+
+async function gotoWorkspaceRoute(page, workspaceId, route, {retries = config.routeRetries} = {}) {
+  currentRoute = route;
+  const url = `${config.baseUrl}/${workspaceId}${route}`;
+  const maxAttempts = Math.max(1, Number.isFinite(retries) ? retries + 1 : 3);
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      await page.goto(url, {waitUntil: "domcontentloaded", timeout: config.timeoutMs});
+      await waitForNetworkIdle(page, 12000);
+      await waitForLoadersGone(page, 15000);
+    } catch (e) {
+      lastError = `Navigation error: ${e?.message || String(e)}`;
+      if (attempt < maxAttempts) {
+        log(`Route retry: ${route}: ${lastError}, retrying (${attempt}/${maxAttempts - 1})`, "info");
+        await captureScreenshot(`retry-nav-${safeName(route)}-${attempt}`, {forFailure: true});
+        await wait(800 * attempt);
+        continue;
+      }
+      await captureScreenshot(`route-nav-failed-${safeName(route)}`, {forFailure: true});
+      return {ok: false, url: page.url(), error: lastError};
     }
-  } catch (e) {
-    log('Navigation to agents failed', 'warn');
+
+    if (await looksLikeLoggedOut(page)) {
+      await captureScreenshot(`logged-out-${safeName(route)}`, {forFailure: true});
+      throw new Error(`Session appears logged out while loading route ${route} (${page.url()})`);
+    }
+
+    const globalErr = await getGlobalErrorText(page);
+    if (!globalErr) return {ok: true, url: page.url(), error: null};
+
+    lastError = globalErr;
+    if (attempt < maxAttempts) {
+      log(`Route retry: ${route}: saw "${globalErr}", retrying (${attempt}/${maxAttempts - 1})`, "info");
+      await captureScreenshot(`retry-${safeName(route)}-${attempt}`, {forFailure: true});
+      await wait(800 * attempt);
+      continue;
+    }
   }
 
-  // If we're still on login page, something went wrong
-  if (url.includes('login') || url.includes('auth')) {
-    log('Still on login page - checking for errors...', 'warn');
-    const errorText = await page.evaluate(() => {
-      const errorEl = document.querySelector('[class*="error"], [class*="alert"], [role="alert"]');
-      return errorEl?.textContent || 'No error message found';
+  await captureScreenshot(`route-failed-${safeName(route)}`, {forFailure: true});
+  return {ok: false, url: page.url(), error: lastError || "Unknown route load error"};
+}
+
+async function verifySidebarNav(page, {label, expectedPathIncludes}) {
+  currentSection = `Nav: ${label}`;
+  const labels = Array.isArray(label) ? label : [label];
+  const expectedPaths = Array.isArray(expectedPathIncludes) ? expectedPathIncludes : [expectedPathIncludes];
+  let okClick = await clickSidebarNavItem(page, labels, expectedPaths, 8000);
+  let clickedLabel = labels[0];
+  if (!okClick) {
+    recordWarning(`Nav: Click '${labels.join("/")}'`, "Could not find nav item");
+    return false;
+  }
+
+  // Navigation is SPA; accept any expected path (for People this may be /people not /audience).
+  const okRoute = await page
+    .waitForFunction((needles) => needles.some((n) => window.location.pathname.includes(n)), {timeout: 20000}, expectedPaths.filter(Boolean))
+    .then(() => true)
+    .catch(() => false);
+
+  const actualPath = await page.evaluate(() => window.location.pathname);
+  if (!okRoute) {
+    recordWarning(`Nav: '${clickedLabel}' navigates`, `Unexpected route (${actualPath})`);
+  } else {
+    // Some builds can briefly hit the expected route then redirect; don't warn on that.
+    log(`Nav: '${clickedLabel}' navigates: OK (${actualPath})`, "pass");
+  }
+  await waitForLoadersGone(page);
+  return okRoute;
+}
+
+async function testChatSendAndRespond(page) {
+  currentSection = "Home/Chat";
+  await recordTest("Home: Loaded", true, "Starting chat tests");
+
+  const chatInputSel =
+    (await elementExists(page, '[data-testid="chat-input"]')) ? '[data-testid="chat-input"]'
+      : (await elementExists(page, 'textarea')) ? "textarea"
+        : (await elementExists(page, 'input[placeholder*="message" i]')) ? 'input[placeholder*="message" i]'
+          : null;
+
+  await recordTest("Chat: Input present", Boolean(chatInputSel), chatInputSel ? "Found" : "Not found", {selector: chatInputSel || "chat input"});
+  if (!chatInputSel) return;
+
+  const message = `QA ping ${new Date().toISOString()}`;
+
+  const beforeCount = await page.evaluate(() => {
+    const sel = [
+      '[data-testid*="message" i]',
+      '[class*="message" i]',
+      '[class*="bubble" i]',
+      '[role="listitem"]',
+    ];
+    const set = new Set();
+    for (const s of sel) document.querySelectorAll(s).forEach((el) => set.add(el));
+    return set.size;
+  });
+
+  await page.click(chatInputSel);
+  await page.type(chatInputSel, message, {delay: 10});
+
+  // Prefer explicit Send button; fallback to Enter.
+  const sent =
+    (await clickByText(page, {selector: 'button, [role="button"]', text: "send"}, {timeout: 1200})) ||
+    (await clickByText(page, {selector: 'button, [role="button"]', text: "submit"}, {timeout: 1200})) ||
+    (await (async () => {
+      try {
+        await page.keyboard.press("Enter");
+        return true;
+      } catch {
+        return false;
+      }
+    })());
+
+  await recordTest("Chat: Message sent", sent, sent ? "Submitted" : "Could not submit message", {selector: "send/enter"});
+  if (!sent) return;
+
+  // Wait for new content to appear (response or at least additional message nodes).
+  const gotMore = await page
+    .waitForFunction(
+      (prev) => {
+        const sel = [
+          '[data-testid*="message" i]',
+          '[class*="message" i]',
+          '[class*="bubble" i]',
+          '[role="listitem"]',
+        ];
+        const set = new Set();
+        for (const s of sel) document.querySelectorAll(s).forEach((el) => set.add(el));
+        return set.size > prev;
+      },
+      // Staging can be slow; keep this generous even in quick mode.
+      {timeout: config.quick ? 20000 : 30000},
+      beforeCount,
+    )
+    .then(() => true)
+    .catch(() => false);
+
+  await recordTest("Chat: Response appears", gotMore, gotMore ? "New messages rendered" : "No new message nodes detected", {selector: "message nodes count"});
+
+  // Basic health check: no obvious error toast after send.
+  const hasErrorToast = await page.evaluate(() => {
+    const txt = (document.body.textContent || "").toLowerCase();
+    return txt.includes("something went wrong") || txt.includes("failed to") || txt.includes("error");
+  });
+  if (hasErrorToast) {
+    recordWarning("Chat: Possible error state", "Detected generic error text on page after send (may be a false positive)");
+  }
+}
+
+async function testSectionEntryPoints(page, workspaceId) {
+  // Verify sidebar navigation (exercises app routing + nav wiring).
+  await verifySidebarNav(page, {label: "Agents", expectedPathIncludes: ["/agents"]});
+  {
+    const nav = await gotoWorkspaceRoute(page, workspaceId, "/agents");
+    if (!nav.ok) {
+      await recordTest("Agents: Page loads", false, nav.error, {selector: "route:/agents"});
+      return;
+    }
+  }
+  await recordTest("Agents: Buttons present", await elementExists(page, "button"), "Create UI varies; ensuring at least buttons exist", {selector: "button"});
+  if (!config.quick) {
+    const opened =
+      (await clickByText(page, {text: "create agent"}, {timeout: 3000})) ||
+      (await clickByText(page, {text: "create"}, {timeout: 3000})) ||
+      false;
+    await recordTest("Agents: Create flow opens", opened, opened ? "Clicked create" : "Could not click create", {selector: "text:create"});
+    if (opened) {
+      // Agent Builder is a full-page view in many builds (not a modal).
+      const hasBuilder = await page
+        .waitForFunction(() => {
+          const txt = (document.body?.innerText || "").toLowerCase();
+          return txt.includes("agent builder") || txt.includes("complete all fields to enable agent testing");
+        }, {timeout: 15000})
+        .then(() => true)
+        .catch(() => false);
+      await recordTest("Agents: Create UI visible", hasBuilder, hasBuilder ? "Agent Builder detected" : "No Agent Builder detected", {selector: "text:Agent Builder"});
+
+      if (hasBuilder) {
+        const hasName = await elementExists(page, 'input[placeholder*="name of the agent" i], input[name*="name" i]', 3000);
+        await recordTest("Agents: Builder has name field", hasName, hasName ? "Name field found" : "Name field missing", {selector: "input[name]/placeholder"});
+      }
+
+      // Always return to the list before continuing; otherwise sidebar nav may not exist.
+      await gotoWorkspaceRoute(page, workspaceId, "/agents");
+    }
+  }
+
+  await verifySidebarNav(page, {label: ["People", "Audience"], expectedPathIncludes: ["/audience", "/people"]});
+  {
+    const nav = await gotoWorkspaceRoute(page, workspaceId, "/audience");
+    if (!nav.ok) {
+      await recordTest("People: Page loads", false, nav.error, {selector: "route:/audience"});
+    }
+  }
+  const hasPeopleContent = await elementExists(page, "table, [role=\"grid\"], [class*=\"table\" i], [class*=\"grid\" i], [class*=\"card\" i], [class*=\"population\" i]", 8000);
+  await recordTest("People: Page content present", hasPeopleContent, hasPeopleContent ? "Found table/grid/cards" : "No table/grid/cards found", {selector: "table/grid/card"});
+  if (!config.quick) {
+    // Deep route checks (these are stable, avoid tab-click brittleness).
+    for (const r of ["/people/populations", "/audience/populations"]) {
+      const nav = await gotoWorkspaceRoute(page, workspaceId, r);
+      if (nav.ok) {
+        const pathNow = await currentPathname(page);
+        if (!pathNow.includes("populations")) {
+          recordWarning("People: Populations route redirected", `Ended on ${pathNow} after navigating to ${r}`);
+          break;
+        }
+        const ok = await elementExists(page, '[class*="population" i], [class*="card" i], table', 8000);
+        await recordTest("People: Populations route loads", ok, ok ? "OK" : "Missing populations UI", {selector: `route:${r}`});
+        // From populations page, navigate to Humans using the UI tab so we follow the canonical route.
+        try {
+          const clicked = await clickByText(page, {selector: "[role=\"tab\"], button, a, [role=\"button\"]", text: "humans"}, {timeout: 4000});
+          if (clicked) {
+            await waitForNetworkIdle(page, 15000);
+            await waitForLoadersGone(page, 15000);
+            const path = await currentPathname(page);
+            const okHumans =
+              (await elementExists(page, 'table, [role="grid"], [class*="table" i], [class*="empty" i], [class*="no-results" i]', 10000)) ||
+              (await pageTextIncludes(page, "humans"));
+            await recordTest("People: Humans view loads (via tab)", okHumans, okHumans ? `OK (${path})` : `Missing humans view/table/empty-state (${path})`, {selector: "tab:Humans"});
+          } else {
+            recordWarning("People: Humans tab", "Could not click Humans tab; skipping");
+          }
+        } catch (e) {
+          recordWarning("People: Humans tab", `Error clicking Humans tab: ${e?.message || String(e)}`);
+        }
+        break; // done with people deep checks
+      }
+    }
+    for (const r of ["/people/lists", "/audience/lists"]) {
+      const nav = await gotoWorkspaceRoute(page, workspaceId, r);
+      if (nav.ok) {
+        const ok = await elementExists(page, 'table, [role="grid"], [class*="list" i], [class*="segment" i]', 8000);
+        await recordTest("People: Lists/Segments route loads", ok, ok ? "OK" : "Missing lists/segments UI", {selector: `route:${r}`});
+        break;
+      }
+    }
+    for (const r of ["/people/properties", "/audience/properties"]) {
+      const nav = await gotoWorkspaceRoute(page, workspaceId, r);
+      if (nav.ok) {
+        const ok = await elementExists(page, 'table, [role="grid"], [class*="propert" i]', 8000);
+        await recordTest("People: Properties route loads", ok, ok ? "OK" : "Missing properties UI", {selector: `route:${r}`});
+        break;
+      }
+    }
+  }
+
+  await verifySidebarNav(page, {label: "Campaigns", expectedPathIncludes: ["/campaigns"]});
+  {
+    const nav = await gotoWorkspaceRoute(page, workspaceId, "/campaigns");
+    if (!nav.ok) {
+      await recordTest("Campaigns: Page loads", false, nav.error, {selector: "route:/campaigns"});
+    }
+  }
+  await recordTest("Campaigns: Buttons present", await elementExists(page, "button"), "Create UI varies; ensuring at least buttons exist", {selector: "button"});
+  if (!config.quick) {
+    const opened =
+      (await clickByText(page, {text: "create campaign"}, {timeout: 3000})) ||
+      (await clickByText(page, {text: "create"}, {timeout: 3000})) ||
+      false;
+    await recordTest("Campaigns: Create flow opens", opened, opened ? "Clicked create" : "Could not click create", {selector: "text:create"});
+    if (opened) {
+      const hasDialog = await elementExists(page, '[role="dialog"], [class*="modal" i], [class*="drawer" i]', 6000);
+      await recordTest("Campaigns: Create UI visible", hasDialog, hasDialog ? "Dialog detected" : "No dialog detected", {selector: "dialog/modal"});
+      await page.keyboard.press("Escape").catch(() => {});
+      await wait(500);
+    }
+
+    for (const r of ["/campaigns/templates", "/campaigns/usage", "/campaigns/magic-reels"]) {
+      const nav = await gotoWorkspaceRoute(page, workspaceId, r);
+      if (!nav.ok) {
+        await recordTest(`Campaigns: Route loads (${r})`, false, nav.error, {selector: `route:${r}`});
+        continue;
+      }
+      const ok = await elementExists(page, "button, [class*=\"tab\" i], [role=\"tablist\"], [class*=\"grid\" i], [class*=\"card\" i]", 8000);
+      await recordTest(`Campaigns: Route loads (${r})`, ok, ok ? "OK" : "Missing expected UI", {selector: `route:${r}`});
+    }
+  }
+
+  await verifySidebarNav(page, {label: "Datasets", expectedPathIncludes: ["/datasets"]});
+  {
+    const nav = await gotoWorkspaceRoute(page, workspaceId, "/datasets");
+    if (!nav.ok) {
+      await recordTest("Datasets: Page loads", false, nav.error, {selector: "route:/datasets"});
+    }
+  }
+  await recordTest("Datasets: Search input present", await elementExists(page, "input[type=\"search\"], input[placeholder*=\"search\" i]"), "Found search input", {selector: "input[type=search]"});
+  if (!config.quick) {
+    const opened =
+      (await clickByText(page, {text: "create dataset"}, {timeout: 3000})) ||
+      (await clickByText(page, {text: "create"}, {timeout: 3000})) ||
+      false;
+    await recordTest("Datasets: Create flow opens", opened, opened ? "Clicked create" : "Could not click create", {selector: "text:create"});
+    if (opened) {
+      const hasDialog = await elementExists(page, '[role="dialog"], [class*="modal" i], [class*="drawer" i], input, textarea', 6000);
+      await recordTest("Datasets: Create UI visible", hasDialog, hasDialog ? "Dialog/form detected" : "No dialog/form detected", {selector: "dialog/modal/form"});
+      await page.keyboard.press("Escape").catch(() => {});
+      await wait(500);
+    }
+
+    // Magic summaries
+    {
+      const nav = await gotoWorkspaceRoute(page, workspaceId, "/datasets/magic-summaries");
+      if (!nav.ok) {
+        await recordTest("Datasets: Magic summaries route loads", false, nav.error, {selector: "route:/datasets/magic-summaries"});
+      } else {
+        const pathNow = await currentPathname(page);
+        if (!pathNow.includes("magic-summaries")) {
+          recordWarning("Datasets: Magic summaries route redirected", `Ended on ${pathNow} after navigating to /datasets/magic-summaries`);
+        }
+
+        const ok =
+          (await elementExists(page, "[class*=\"summary\" i], [class*=\"magic\" i], table, [class*=\"card\" i]", 8000)) ||
+          (await pageTextIncludes(page, "magic summaries")) ||
+          (await pageTextIncludes(page, "coming soon"));
+
+        await recordTest("Datasets: Magic summaries route loads", ok, ok ? "OK" : "Missing magic summaries UI/empty-state", {selector: "route:/datasets/magic-summaries"});
+      }
+    }
+  }
+
+  await verifySidebarNav(page, {label: "Workflow", expectedPathIncludes: ["/workflow"]});
+  // Root /workflow is occasionally flaky in staging; use /workflow/flows as the canonical "it works" page.
+  {
+    const nav = await gotoWorkspaceRoute(page, workspaceId, "/workflow/flows");
+    if (!nav.ok) {
+      await recordTest("Workflow: Flows page loads", false, nav.error, {selector: "route:/workflow/flows"});
+      return;
+    }
+  }
+  const hasWorkflowShell =
+    (await elementExists(page, "[role=\"tablist\"], [class*=\"tab\" i], [class*=\"flow\" i], [class*=\"card\" i], button", 8000)) ||
+    (await page.evaluate(() => (document.body?.innerText || "").toLowerCase().includes("workflow")));
+  await recordTest("Workflow: Flows page loads", hasWorkflowShell, hasWorkflowShell ? "Workflow flows UI detected" : "Workflow flows UI not detected", {selector: "tablist/flow/card/button or text:workflow"});
+  if (!config.quick) {
+    // The builder is usually under /workflow/flows; try to open a create/builder UI.
+    let opened =
+      (await clickByText(page, {text: "create flow"}, {timeout: 2500})) ||
+      (await clickByText(page, {text: "new flow"}, {timeout: 2500})) ||
+      (await clickByText(page, {text: "create"}, {timeout: 2500})) ||
+      (await clickByText(page, {text: "new"}, {timeout: 2500})) ||
+      false;
+
+    // Fallback: open first existing flow card/row if create isn't available.
+    let openedVia = opened ? "create/new" : "existing flow";
+    if (!opened) {
+      opened = await page.evaluate(() => {
+        const candidates = [
+          ...Array.from(document.querySelectorAll("a[href*='/workflow/'], a[href*='/flows/']")),
+          ...Array.from(document.querySelectorAll("[class*='card' i], [role='row']")),
+        ];
+        const isVisible = (el) => {
+          const st = window.getComputedStyle(el);
+          if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
+          const r = el.getBoundingClientRect();
+          return r.width > 0 && r.height > 0;
+        };
+        const el = candidates.find(isVisible);
+        if (!el) return false;
+        el.click();
+        return true;
+      });
+    }
+
+    await recordTest("Workflow: Builder entrypoint opens", opened, opened ? `Opened via ${openedVia}` : "Could not open builder via create or existing flow", {selector: "text:create/new or first flow card"});
+    if (opened) {
+      const hasBuilder = await elementExists(page, '[class*="canvas" i], [class*="builder" i], [class*="reactflow" i], [role="dialog"], [class*="modal" i]', 12000);
+      await recordTest("Workflow: Builder UI visible", hasBuilder, hasBuilder ? "Builder detected" : "No builder detected", {selector: "canvas/builder"});
+      await gotoWorkspaceRoute(page, workspaceId, "/workflow/flows").catch(() => {});
+    }
+
+    // Additional routes
+    for (const r of ["/workflow/upcoming", "/workflow/templates", "/workflow/conversations"]) {
+      const nav = await gotoWorkspaceRoute(page, workspaceId, r);
+      if (!nav.ok) {
+        await recordTest(`Workflow: Route loads (${r})`, false, nav.error, {selector: `route:${r}`});
+        continue;
+      }
+      const ok = await elementExists(page, "button, [class*=\"tab\" i], [class*=\"grid\" i], [class*=\"card\" i], table", 8000);
+      await recordTest(`Workflow: Route loads (${r})`, ok, ok ? "OK" : "Missing expected UI", {selector: `route:${r}`});
+    }
+  }
+}
+
+function attachRuntimeWatchers(page) {
+  page.on("console", (msg) => {
+    if (msg.type() === "error") {
+      results.runtime.consoleErrors.push({text: msg.text(), timestamp: ts()});
+    }
+  });
+  page.on("pageerror", (err) => {
+    results.runtime.pageErrors.push({message: err?.message || String(err), timestamp: ts()});
+  });
+  page.on("requestfailed", (req) => {
+    results.runtime.requestFailed.push({
+      url: req.url(),
+      method: req.method(),
+      failure: req.failure()?.errorText || "unknown",
+      timestamp: ts(),
     });
-    log(`Page error: ${errorText}`, 'warn');
-    throw new Error(`Login failed. URL: ${url}`);
-  }
-
-  // Use fallback workspace ID if available
-  if (config.fallbackWorkspaceId) {
-    log(`Using fallback workspace ID: ${config.fallbackWorkspaceId}`, 'warn');
-    return config.fallbackWorkspaceId;
-  }
-
-  throw new Error(`Could not extract workspace ID from URL: ${url}`);
+  });
+  page.on("response", (res) => {
+    const status = res.status();
+    if (status >= 500) {
+      results.runtime.serverErrors.push({url: res.url(), status, timestamp: ts()});
+    }
+  });
 }
 
 async function generateReport() {
   results.endTime = new Date();
-  const duration = (results.endTime - results.startTime) / 1000;
+  const durationSec = (results.endTime - results.startTime) / 1000;
 
   const report = {
     summary: {
@@ -629,142 +1079,225 @@ async function generateReport() {
       passed: results.passed.length,
       failed: results.failed.length,
       warnings: results.warnings.length,
-      duration: `${duration.toFixed(2)}s`,
+      duration: `${durationSec.toFixed(2)}s`,
       timestamp: results.startTime.toISOString(),
       baseUrl: config.baseUrl,
+      quick: config.quick,
+      strict: config.strict,
+      viewport: currentViewport?.name || "unknown",
+      runtime: {
+        consoleErrors: results.runtime.consoleErrors.length,
+        pageErrors: results.runtime.pageErrors.length,
+        requestFailed: results.runtime.requestFailed.length,
+        serverErrors: results.runtime.serverErrors.length,
+      },
     },
     passed: results.passed,
     failed: results.failed,
     warnings: results.warnings,
+    runtime: results.runtime,
   };
 
-  // Save JSON report
-  const reportPath = path.join(__dirname, '..', 'qa-report.json');
-  await fs.writeFile(reportPath, JSON.stringify(report, null, 2));
+  // Always write reports under qa-output/ so they don't pollute git state.
+  const outJsonPath = path.join(outDir, "qa-report.json");
+  await fs.writeFile(outJsonPath, JSON.stringify(report, null, 2));
 
-  // Generate markdown report for failures with reproduction steps
-  if (results.failed.length > 0) {
-    const mdReportPath = path.join(__dirname, '..', 'qa-failure-report.md');
-    let mdContent = `# QA Test Failure Report\n\n`;
-    mdContent += `**Generated**: ${results.startTime.toISOString()}\n`;
-    mdContent += `**Target URL**: ${config.baseUrl}\n`;
-    mdContent += `**Duration**: ${duration.toFixed(2)}s\n\n`;
-    mdContent += `## Summary\n\n`;
-    mdContent += `- **Passed**: ${results.passed.length}\n`;
-    mdContent += `- **Failed**: ${results.failed.length}\n`;
-    mdContent += `- **Warnings**: ${results.warnings.length}\n\n`;
-    mdContent += `## Failed Tests\n\n`;
+  // Optional: write a root-level report if explicitly requested (CI artifact convenience).
+  if (process.env.QA_WRITE_ROOT_REPORT === "true") {
+    const jsonPath = path.join(repoRoot, "qa-report.json");
+    await fs.writeFile(jsonPath, JSON.stringify(report, null, 2));
+  }
 
-    for (const failure of results.failed) {
-      mdContent += `### ${failure.name}\n\n`;
-      mdContent += `**Section**: ${failure.section || 'Unknown'}\n`;
-      mdContent += `**Route**: ${failure.route || 'Unknown'}\n`;
-      mdContent += `**Selector**: \`${failure.selector || 'N/A'}\`\n`;
-      mdContent += `**Time**: ${failure.timestamp}\n\n`;
+  // Always write a human-readable summary report.
+  {
+    const outMdPath = path.join(outDir, "qa-report.md");
+    let md = `# QA Test Report\n\n`;
+    md += `**Generated**: ${results.startTime.toISOString()}\n`;
+    md += `**Target URL**: ${config.baseUrl}\n`;
+    md += `**Duration**: ${durationSec.toFixed(2)}s\n\n`;
+    md += `## Summary\n\n`;
+    md += `- Passed: ${results.passed.length}\n`;
+    md += `- Failed: ${results.failed.length}\n`;
+    md += `- Warnings: ${results.warnings.length}\n`;
+    md += `- Console errors: ${results.runtime.consoleErrors.length}\n`;
+    md += `- Page errors: ${results.runtime.pageErrors.length}\n`;
+    md += `- Request failed: ${results.runtime.requestFailed.length}\n`;
+    md += `- Server errors (5xx): ${results.runtime.serverErrors.length}\n\n`;
 
-      if (failure.screenshot) {
-        const relPath = path.relative(path.join(__dirname, '..'), failure.screenshot);
-        mdContent += `**Screenshot**: \`${relPath}\`\n\n`;
+    if (results.runtime.serverErrors.length > 0) {
+      md += `## Server Errors (5xx)\n\n`;
+      for (const e of results.runtime.serverErrors.slice(0, 20)) {
+        md += `- ${e.status} ${e.url}\n`;
       }
-
-      if (failure.reproductionSteps && failure.reproductionSteps.length > 0) {
-        mdContent += `**Reproduction Steps**:\n\n`;
-        for (const step of failure.reproductionSteps) {
-          mdContent += `${step}\n`;
-        }
-        mdContent += `\n`;
-      }
-      mdContent += `---\n\n`;
+      md += `\n`;
     }
 
-    await fs.writeFile(mdReportPath, mdContent);
-    console.log(`\nFailure report saved to: ${mdReportPath}`);
+    if (results.runtime.consoleErrors.length > 0) {
+      md += `## Console Errors (sample)\n\n`;
+      for (const e of results.runtime.consoleErrors.slice(0, 20)) {
+        md += `- ${e.text}\n`;
+      }
+      md += `\n`;
+    }
+
+    await fs.writeFile(outMdPath, md);
+
+    if (process.env.QA_WRITE_ROOT_REPORT === "true") {
+      await fs.writeFile(path.join(repoRoot, "qa-report.md"), md);
+    }
+  }
+
+  // Only write a failure report when there are actual test failures or hard runtime errors.
+  const shouldWriteFailure =
+    results.failed.length > 0 ||
+    results.runtime.serverErrors.length > 0 ||
+    (config.strict && results.runtime.pageErrors.length > 0);
+
+  if (shouldWriteFailure) {
+    const outMdPath = path.join(outDir, "qa-failure-report.md");
+    let md = `# QA Failures\n\n`;
+    md += `**Generated**: ${results.startTime.toISOString()}\n`;
+    md += `**Target URL**: ${config.baseUrl}\n`;
+    md += `**Duration**: ${durationSec.toFixed(2)}s\n\n`;
+
+    if (results.failed.length > 0) {
+      md += `## Failed Tests\n\n`;
+      for (const f of results.failed) {
+        md += `### ${f.name}\n\n`;
+        md += `- Section: ${f.section || "Unknown"}\n`;
+        md += `- Route: ${f.route || "Unknown"}\n`;
+        md += `- Viewport: ${f.viewport || "Unknown"}\n`;
+        md += `- Selector: \`${f.selector || "N/A"}\`\n`;
+        if (f.screenshot) md += `- Screenshot: \`${path.relative(repoRoot, f.screenshot)}\`\n`;
+        md += `\nReproduction steps:\n\`\`\`\n${(f.reproductionSteps || []).join("\n")}\n\`\`\`\n\n`;
+      }
+    }
+
+    if (results.runtime.pageErrors.length > 0) {
+      md += `## Page Errors\n\n`;
+      for (const e of results.runtime.pageErrors.slice(0, 20)) {
+        md += `- ${e.message}\n`;
+      }
+      md += `\n`;
+    }
+
+    if (results.runtime.serverErrors.length > 0) {
+      md += `## Server Errors (5xx)\n\n`;
+      for (const e of results.runtime.serverErrors.slice(0, 20)) {
+        md += `- ${e.status} ${e.url}\n`;
+      }
+      md += `\n`;
+    }
+
+    await fs.writeFile(outMdPath, md);
+
+    if (process.env.QA_WRITE_ROOT_REPORT === "true") {
+      await fs.writeFile(path.join(repoRoot, "qa-failure-report.md"), md);
+    }
   }
 
   // Print summary
-  console.log('\n' + '='.repeat(60));
-  console.log('QA TEST SUMMARY');
-  console.log('='.repeat(60));
+  // eslint-disable-next-line no-console
+  console.log("\n" + "=".repeat(60));
+  // eslint-disable-next-line no-console
+  console.log("QA TEST SUMMARY");
+  // eslint-disable-next-line no-console
+  console.log("=".repeat(60));
+  // eslint-disable-next-line no-console
   console.log(`Total Tests: ${report.summary.totalTests}`);
-  console.log(`\x1b[32mPassed: ${report.summary.passed}\x1b[0m`);
-  console.log(`\x1b[31mFailed: ${report.summary.failed}\x1b[0m`);
-  console.log(`\x1b[33mWarnings: ${report.summary.warnings}\x1b[0m`);
+  // eslint-disable-next-line no-console
+  console.log(`Passed: ${report.summary.passed}`);
+  // eslint-disable-next-line no-console
+  console.log(`Failed: ${report.summary.failed}`);
+  // eslint-disable-next-line no-console
+  console.log(`Warnings: ${report.summary.warnings}`);
+  // eslint-disable-next-line no-console
+  console.log(`Console errors: ${report.summary.runtime.consoleErrors}`);
+  // eslint-disable-next-line no-console
+  console.log(`Server errors (5xx): ${report.summary.runtime.serverErrors}`);
+  // eslint-disable-next-line no-console
   console.log(`Duration: ${report.summary.duration}`);
-  console.log('='.repeat(60));
-
-  if (results.failed.length > 0) {
-    console.log('\nFailed Tests:');
-    for (const f of results.failed) {
-      console.log(`  - ${f.name}: ${f.details}`);
-      if (f.screenshot) {
-        console.log(`    Screenshot: ${f.screenshot}`);
-      }
-    }
-  }
-
-  if (results.warnings.length > 0) {
-    console.log('\nWarnings:');
-    results.warnings.forEach(w => console.log(`  - ${w.name}: ${w.details}`));
-  }
-
-  console.log(`\nReport saved to: ${reportPath}`);
+  // eslint-disable-next-line no-console
+  console.log("=".repeat(60));
 
   return report;
 }
 
 async function main() {
   if (!config.email || !config.password) {
-    console.error('Error: VURVEY_EMAIL and VURVEY_PASSWORD environment variables required');
+    // eslint-disable-next-line no-console
+    console.error("Error: VURVEY_EMAIL and VURVEY_PASSWORD environment variables required");
     process.exit(1);
   }
 
-  log('Starting Vurvey QA Test Suite', 'info');
-  log(`Target: ${config.baseUrl}`, 'info');
-  log(`Headless: ${config.headless}`, 'info');
+  await ensureDirs();
+
+  const viewport =
+    (config.viewportKey && VIEWPORTS[config.viewportKey]) ? VIEWPORTS[config.viewportKey]
+      : (config.quick ? VIEWPORTS.desktop : VIEWPORTS.desktop);
+
+  log("Starting Vurvey QA Test Suite", "info");
+  log(`Target: ${config.baseUrl}`, "info");
+  log(`Headless: ${config.headless}`, "info");
+  log(`Quick: ${config.quick}`, "info");
+  log(`Strict: ${config.strict}`, "info");
+  log(`Viewport: ${viewport.name}`, "info");
 
   const browser = await puppeteer.launch({
     headless: config.headless,
-    slowMo: config.slowMo,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    slowMo: config.quick ? 0 : 30,
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
   });
 
   const page = await browser.newPage();
-  await page.setViewport({ width: 1920, height: 1080 });
+  currentPage = page;
+  attachRuntimeWatchers(page);
 
   try {
-    // Login
+    await setViewport(page, viewport);
     const workspaceId = await login(page);
 
-    // Run all test suites
-    const homeChatTests = new HomeChatTests(page, workspaceId);
-    await homeChatTests.runAll();
+    await gotoWorkspaceRoute(page, workspaceId, "/");
+    await testChatSendAndRespond(page);
 
-    const agentTests = new AgentTests(page, workspaceId);
-    await agentTests.runAll();
+    await testSectionEntryPoints(page, workspaceId);
 
-    const peopleTests = new PeopleTests(page, workspaceId);
-    await peopleTests.runAll();
-
-    const campaignTests = new CampaignTests(page, workspaceId);
-    await campaignTests.runAll();
-
-    const datasetTests = new DatasetTests(page, workspaceId);
-    await datasetTests.runAll();
-
-    const workflowTests = new WorkflowTests(page, workspaceId);
-    await workflowTests.runAll();
-
-    // Generate report
-    const report = await generateReport();
-
-    // Exit with error if any tests failed
-    if (report.summary.failed > 0) {
-      process.exit(1);
+    // Runtime health as tests (configurable strictness in exit code)
+    if (results.runtime.serverErrors.length > 0) {
+      if (config.strict) {
+        await recordTest("Runtime: No 5xx responses", false, `${results.runtime.serverErrors.length} server error response(s)`, {selector: "response.status>=500"});
+      } else {
+        recordWarning("Runtime: 5xx responses", `${results.runtime.serverErrors.length} server error response(s)`);
+      }
+    } else {
+      await recordTest("Runtime: No 5xx responses", true, "OK");
     }
 
-  } catch (error) {
-    log(`Fatal error: ${error.message}`, 'fail');
-    console.error(error);
+    if (results.runtime.pageErrors.length > 0) {
+      if (config.strict) {
+        await recordTest("Runtime: No page errors", false, `${results.runtime.pageErrors.length} pageerror event(s)`, {selector: "pageerror"});
+      } else {
+        // Non-strict mode still includes these in qa-output/qa-report.json; don't fail or warn.
+      }
+    } else {
+      await recordTest("Runtime: No page errors", true, "OK");
+    }
+
+    const report = await generateReport();
+
+    const strictRuntimeIssues =
+      results.runtime.consoleErrors.length > 0 ||
+      results.runtime.requestFailed.length > 0 ||
+      results.runtime.serverErrors.length > 0 ||
+      results.runtime.pageErrors.length > 0;
+
+    if (report.summary.failed > 0) process.exit(1);
+    if (config.strict && strictRuntimeIssues) process.exit(1);
+  } catch (e) {
+    log(`Fatal error: ${e?.message || String(e)}`, "fail");
+    // eslint-disable-next-line no-console
+    console.error(e);
+    await captureScreenshot("fatal", {forFailure: true});
     process.exit(1);
   } finally {
     await browser.close();

@@ -44,11 +44,16 @@ The site will be available at `http://localhost:5173/vurvey-docs/`
 | `npm run docs:build` | Build for production |
 | `npm run docs:preview` | Preview production build |
 | `npm run update:screenshots` | Capture fresh screenshots |
+| `npm run test:qa` | Run QA smoke suite against staging (requires credentials) |
+| `npm run test:docs` | Lint docs (broken links + missing screenshots) |
 | `npm run update:all` | Update screenshots + build |
 
 ## Automated Updates
 
-Screenshots are automatically updated every night at 2 AM UTC via GitHub Actions.
+This repo runs two scheduled GitHub Actions workflows:
+
+- **Update Documentation** (`.github/workflows/update-docs.yml`): captures screenshots and deploys GitHub Pages (2 AM UTC)
+- **Nightly Documentation Sync** (`.github/workflows/nightly-docs-sync.yml`): captures screenshots, runs QA, proposes doc updates, and opens a PR (3 AM UTC)
 
 ### GitHub Secrets Required
 
@@ -58,6 +63,15 @@ Configure these secrets in your repository settings:
 |--------|-------------|
 | `VURVEY_EMAIL` | Login email for staging.vurvey.dev |
 | `VURVEY_PASSWORD` | Login password |
+| `VURVEY_WORKSPACE_ID` | Workspace ID used for deterministic routing in CI (recommended) |
+
+### QA Stability Settings
+
+The staging app can occasionally show transient global errors like "Failed to fetch". The QA suite will retry route navigation automatically.
+
+- `QA_ROUTE_RETRIES` (default: `3`)
+
+QA output files are written under `qa-output/` (ignored by git).
 
 ### Manual Trigger
 
@@ -104,6 +118,12 @@ export VURVEY_PASSWORD="your-password"
 
 # Run screenshot capture
 npm run update:screenshots
+```
+
+By default, screenshot capture is best-effort. To fail the run if login/workspace resolution fails:
+
+```bash
+CAPTURE_STRICT=true npm run update:screenshots
 ```
 
 ### Adding New Screenshots

@@ -125,8 +125,8 @@ PNG, JPG, GIF
 |------|----------|
 | **Assistant** | General help, Q&A, broad research |
 | **Consumer Persona** | Simulating consumer perspectives |
-| **Expert** | Domain-specific analysis |
-| **Analyst** | Data interpretation and insights |
+| **Product** | Product-specific expertise and analysis |
+| **Visual Generator** | Creating visual content and imagery |
 
 ## Permission Levels
 
@@ -265,4 +265,8 @@ The Home (chat) page is at the workspace root: `/{workspaceId}/`
 
 ---
 
-**Need more help?** Ask in the chat interface or browse the detailed guides in the sidebar.
+**Need more help?** Ask in the chat interface or browse the detailed guides in the sidebar:
+
+- [Sources & Citations](/guide/sources-and-citations)
+- [Permissions & Sharing](/guide/permissions-and-sharing)
+- [Automation & QA](/guide/automation-and-qa)
