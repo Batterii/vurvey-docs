@@ -4,119 +4,140 @@ title: Permissions & Sharing
 
 # Permissions & Sharing
 
-Vurvey uses resource-level permissions to control who can view, edit, share, and delete objects like Agents, Campaigns, Datasets, and Workflows.
+Vurvey is built for team research. This page explains how to share your work with colleagues, control who can see and change things, and keep your research data secure.
 
-This page explains the common permission levels you’ll see in the UI, how sharing typically works, and how to troubleshoot “permission denied” issues.
+## How Access Works in Vurvey
 
-## The Common Permission Levels
+Everything in Vurvey lives inside a **workspace** -- a shared environment for your team or project. Everyone in your workspace can see the resources that have been shared with them, but access to individual items (agents, campaigns, datasets, and workflows) is controlled by permissions.
 
-Across most resources, you’ll see some combination of:
+There are different levels of access you can grant to team members:
 
-| Permission | What You Can Do | Typical UI Signals |
-|------------|------------------|--------------------|
-| **View** | Open the resource and use it (where applicable) | “View” option instead of “Edit” |
-| **Edit** | Change configuration/content | “Edit” button/menu item is visible |
-| **Manage** | Share with others / change permissions | “Share” action is visible |
-| **Delete** | Permanently remove the resource | “Delete” action is visible (usually destructive/red) |
+| Access Level | What the Person Can Do |
+|---|---|
+| **View** | Open and read the resource, use it where applicable (e.g., chat with an agent) |
+| **Edit** | Make changes to the resource's settings and content |
+| **Share** | Grant or change other people's access to the resource |
+| **Remove** | Permanently delete the resource |
 
-Notes:
+::: tip Not Everyone Needs Full Access
+Most collaborators only need **View** or **Edit** access. Reserve **Share** access for project leads who need to manage the team, and be cautious with **Remove** access to prevent accidental data loss.
+:::
 
-- If you don’t have **Edit**, you may still be able to *use* the resource (for example: chat with an active Agent).
-- If you don’t have **Manage**, you can’t grant permissions to other users.
-- **Delete** is usually separate from **Edit** to reduce accidental data loss.
+## Sharing with Your Team
 
-## What “Sharing” Usually Means
+### How to Share a Resource
 
-Sharing typically grants other workspace members access to a specific resource, with a selected permission level.
+The process is similar across agents, campaigns, datasets, and workflows:
 
-Common sharing patterns:
+1. Open the resource (or find it in the list and open its menu)
+2. Click **Share**
+3. Search for and add the team members you want to share with
+4. Choose the access level for each person
+5. Save your changes
 
-- **Share for collaboration**: give a teammate `Edit` so they can iterate with you.
-- **Share for review**: give a stakeholder `View` so they can review without changing anything.
-- **Share for ownership transfer**: give a lead `Manage` so they can control access and updates.
+If you don't see a **Share** option, you may not have sharing access for that resource. Ask the owner or your workspace administrator to share it with you or grant you sharing access.
 
-## How To Share a Resource (Typical Flow)
+### Common Sharing Scenarios
 
-Exact UI details can vary by resource, but the common flow is:
+**Sharing for review**: You've built an agent or set up a campaign and want a colleague to review it before launch.
+- Grant them **View** access so they can look without changing anything
+- Collect their feedback, then make changes yourself
 
-1. Open the resource (or its card menu).
-2. Click **Share**.
-3. Add one or more users (or select “workspace-wide” access when available).
-4. Choose the permission level(s) to grant.
-5. Save/apply.
+**Sharing for collaboration**: You're working on a project together and both need to make changes.
+- Grant them **Edit** access so you can both iterate on the resource
+- Use clear naming conventions to keep track of versions (e.g., "Q1 Packaging Study v2")
 
-If you don’t see **Share**, you likely don’t have `Manage` permission for that resource.
+**Handing off ownership**: A project is moving to a different team lead who needs full control.
+- Grant them **Share** access (along with **Edit**) so they can manage the resource going forward
+- They'll be able to add or remove other team members as needed
 
-## How Permissions Affect Actions
+## What You Can Share
 
-Here are common “why can’t I…” scenarios and the usual cause:
+| Resource | What Gets Shared |
+|---|---|
+| **Agents** | The agent's configuration, personality, knowledge sources, and appearance. Others can chat with a shared agent. |
+| **Campaigns** | The survey setup, questions, and collected responses. Useful for team analysis of results. |
+| **Datasets** | The collection of files and any labels or organization you've applied. Others can use shared datasets in their conversations. |
+| **Workflows** | The automated pipeline design and its execution history. Collaborators can help refine or monitor workflow runs. |
 
-| Symptom | Likely Cause | Fix |
-|--------|--------------|-----|
-| “Edit” is missing | You only have View | Ask the owner/admin for `Edit` |
-| “Share” is missing | You don’t have Manage | Ask for `Manage` or have the owner share |
-| “Delete” is missing | You don’t have Delete | Ask for `Delete`, or request the owner delete |
-| You can view but not use | Resource is inactive or you lack usage permission | Confirm it’s active/published; check workspace access |
+## Workspace Roles
 
-## Best Practices (Team Hygiene)
+Your workspace may have different roles that determine your baseline access:
 
-- Prefer **least privilege**: `View` for reviewers, `Edit` for collaborators, `Manage` for owners.
-- Avoid granting **Delete** broadly. Use `Deactivate`/`Archive` behaviors when available instead of deleting.
-- If you need to experiment, **Copy/Duplicate** the resource first, then iterate on the copy.
-- Use naming conventions that make shared resources easy to find and safe to use:
-  - Example: `Q1-Packaging-ConceptTest-v1` or `Persona-MillennialParent-v2`.
+- **Members** can view and use resources that have been shared with them, create their own resources, and share what they own
+- **Administrators** have broader access to manage workspace settings, invite new members, and oversee all resources
 
-## Use Cases
+If you're unsure about your role, check with your workspace administrator.
 
-### Use Case: Cross-Functional Review Without Risk
+## Privacy and Data Security
 
-Goal: product/brand/legal can review an Agent or Campaign without accidentally changing it.
+### Workspaces Are Isolated
 
-- Share with `View`.
-- Ask reviewers to leave feedback via comments/notes outside of the resource (or in a shared document).
-- Apply changes yourself (or grant `Edit` to a designated collaborator).
+Each workspace is a separate, private environment. People in one workspace cannot see resources from another workspace, even if they belong to both. This means:
 
-### Use Case: Agency Collaboration
+- Your research data stays within your workspace
+- Sharing only works within the same workspace
+- Switching workspaces gives you a completely separate set of resources
 
-Goal: an external partner helps build Campaigns but shouldn’t manage workspace access.
+### Who Can See Your Data
 
-- Grant `Edit` on the Campaign(s) and any required Datasets.
-- Avoid `Manage` unless they are responsible for access control.
-- Avoid `Delete`.
+- **Resources you create** are visible to you by default. Others can see them only if you share explicitly.
+- **Campaign responses** are tied to the campaign and follow its sharing permissions
+- **Dataset files** follow the dataset's sharing permissions -- if someone can access the dataset, they can access the files inside it
+- **Chat conversations** are private to you unless the conversation involves a shared agent in a shared context
 
-### Use Case: Delegated Ownership
+## Best Practices for Team Research
 
-Goal: transfer ongoing maintenance of a Workflow to another owner.
+### Keep Things Organized
 
-- Grant `Manage` (and usually `Edit`) to the new owner.
-- Confirm they can see the Share dialog and adjust permissions.
+- **Use clear naming conventions**: Include the project name, date, or version in resource names (e.g., "2024-Q1 Snack Packaging - Consumer Persona" or "Holiday Campaign v3")
+- **Label your datasets**: Apply consistent labels to files within datasets so team members can understand what's inside
+- **Archive old work**: When a campaign is complete or an agent is no longer needed, archive it rather than deleting it to preserve the historical record
+
+### Manage Access Thoughtfully
+
+- **Start with View access** and upgrade to Edit only when someone needs to make changes
+- **Limit Remove access** to prevent accidental deletion -- archive resources instead when possible
+- **Review sharing periodically**: When team members change roles or leave a project, update their access
+- **Duplicate before experimenting**: If you want to try significant changes to a shared resource, make a copy first so you don't disrupt others
+
+### Collaborate Effectively
+
+- **Agree on naming conventions** at the start of a project so shared resources are easy to find
+- **Designate an owner** for key resources so there's always someone responsible for access management
+- **Communicate changes**: When you make significant edits to a shared resource, let your team know
 
 ## Troubleshooting
 
-### “Permission denied” after it worked yesterday
+### I can't edit something that worked before
 
 Common causes:
+- Your access level was changed by the resource owner
+- The resource was re-shared with different permissions
+- Your workspace role changed
 
-- You were removed from the workspace (or changed roles).
-- The resource was re-shared and your permission level changed.
-- The resource owner deleted or deactivated it.
+**What to do**: Ask the resource owner or your workspace administrator to check your access level.
 
-What to do:
+### I can't see something my teammate can see
 
-1. Confirm you’re in the correct workspace.
-2. Ask the owner/admin to verify your permissions on the specific resource.
-3. If the issue affects multiple resources, it’s probably a workspace-role change.
+- Make sure you're in the **same workspace** -- workspaces are isolated environments
+- Ask your teammate to **share the specific resource** with you
+- Check if the resource was recently moved or archived
 
-### I can’t see something a teammate can see
+### I can't find the Share option
 
-- Confirm you’re looking at the same workspace (workspaces are isolated).
-- Ask them to share the specific resource with you.
+- You may only have **View** or **Edit** access, which doesn't include sharing permissions
+- Ask the resource owner to either share it on your behalf or grant you **Share** access
+
+### Someone accidentally deleted something
+
+- Contact your workspace administrator immediately -- they may be able to help recover the resource
+- For the future, consider limiting **Remove** access to project leads only
 
 ## Related Guides
 
-- [Agents](/guide/agents)
-- [Campaigns](/guide/campaigns)
-- [Datasets](/guide/datasets)
-- [Workflow](/guide/workflows)
-- [Sources & Citations](/guide/sources-and-citations)
-
+- [Agents](/guide/agents) -- Creating and managing AI personas
+- [Campaigns](/guide/campaigns) -- Running research surveys
+- [Datasets](/guide/datasets) -- Uploading and organizing files
+- [Workflow](/guide/workflows) -- Building automated research pipelines
+- [Sources & Citations](/guide/sources-and-citations) -- How AI references your data
