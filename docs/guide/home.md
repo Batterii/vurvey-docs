@@ -7,7 +7,7 @@ In the Vurvey API and codebase, the chat system uses these terms:
 - **ChatConversation** = A conversation/chat session
 - **ChatQueryMessage** = A user message (input)
 - **ChatResponseMessage** = An AI response
-- **ChatConversationMode** = Chat mode (CONVERSATION, SMART_TOOLS, SMART_SOURCES)
+- **ChatConversationMode** = Chat mode (`conversation`, `smart_sources`, `smart_tools`, `omni`, `manual_tools`)
 - **ChatLayoutMode** = Layout state (HOME or CHAT)
 - **AiPersona** = An Agent you chat with
 
@@ -240,13 +240,19 @@ Mention multiple agents in the same message to get diverse perspectives instantl
 
 ## Chat Modes
 
-Three mode toggles control how the AI processes your request:
+The platform supports five chat modes that control how the AI processes your request:
 
-| Mode | Icon | API Value | Description |
-|------|------|-----------|-------------|
-| **Chat** | Default | `CONVERSATION` | General reasoning using the AI's base knowledge |
-| **My Data** | Data icon | `SMART_SOURCES` | References your connected datasets and uploaded files |
-| **Web** | Globe icon | `SMART_TOOLS` | Searches and reasons over live web content |
+| Mode | API Value | Description |
+|------|-----------|-------------|
+| **Conversation** | `conversation` | Basic chat mode with no tools - uses only conversation context |
+| **Smart Sources (My Data)** | `smart_sources` | AI retrieves information from your connected datasets and sources |
+| **Smart Tools (Web)** | `smart_tools` | Curated tool groups for specialized capabilities |
+| **Omni** | `omni` | Default mode with all capabilities enabled |
+| **Manual Tools** | `manual_tools` | User manually selects individual tools to use |
+
+::: info Mode Selection in UI
+The UI typically presents simplified toggles for Chat, My Data, and Web modes. These map to the underlying mode system, with Omni being the default when multiple capabilities are enabled together.
+:::
 
 ::: tip Combining Modes
 Modes can be combined for comprehensive analysis. For example, enable both **My Data** and **Web** to compare your research findings with external sources.
