@@ -69,7 +69,7 @@ jobs:
           VURVEY_URL: ${{ env.VURVEY_URL }}
           VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
           HEADLESS: 'true'
-          CAPTURE_STRICT: 'true'
+          CAPTURE_STRICT: 'false'
         continue-on-error: true
         run: |
           echo "Capturing screenshots from staging environment..."

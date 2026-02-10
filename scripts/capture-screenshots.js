@@ -1831,6 +1831,7 @@ async function main() {
   const browser = await puppeteer.launch({
     headless: CONFIG.headless ? 'new' : false,
     defaultViewport: CONFIG.viewport,
+    protocolTimeout: 300_000, // 5 min CDP timeout (default 180s too short for heavy pages like Agent Builder)
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
