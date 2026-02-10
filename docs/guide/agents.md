@@ -259,9 +259,9 @@ You can optionally start from a pre-configured **mold** (template) that provides
 
 ---
 
-### Step 3: Optional Settings
+### Step 3: Instructions
 
-<!-- Screenshot placeholder: agents/07-builder-optional-settings.png — will be captured by automated screenshots -->
+<!-- Screenshot placeholder: agents/07-builder-instructions.png — will be captured by automated screenshots -->
 
 This step lets you fine-tune how your agent operates by adding knowledge, rules, and connecting datasets. Everything here is optional — you can skip it entirely or come back later.
 
@@ -271,20 +271,22 @@ This step lets you fine-tune how your agent operates by adding knowledge, rules,
 
 Choose which AI model powers your agent:
 
-- **Gemini Flash** — Fastest responses, great for most everyday tasks
-- **Gemini Pro** — Deeper reasoning, can analyze images and video
+- **Gemini 3 Flash** (Recommended) — Fastest responses, latest generation, great for most everyday tasks
+- **Gemini 3 Pro** — Latest generation with deeper reasoning, can analyze images and video
 - **Claude** — Excellent at staying in character and following nuanced instructions
 - **GPT-4o** — Strong general knowledge across a wide range of topics
+- **Gemini 2.5 Flash/Pro** (Legacy) — Previous generation models, still available for compatibility
 
 ::: tip Which Model Should You Pick?
-Start with **Gemini Flash** for most agents — it's fast and handles the majority of tasks well. Switch to **Claude** when personality consistency matters most (like consumer persona agents that need to stay in character). Use **Gemini Pro** when your agent needs to analyze visual content.
+Start with **Gemini 3 Flash** for most agents — it's the latest generation, fast, and handles the majority of tasks well. Switch to **Claude** when personality consistency matters most (like consumer persona agents that need to stay in character). Use **Gemini 3 Pro** when your agent needs to analyze visual content.
 :::
 
 **Detailed Model Comparison:**
 
-| Feature | Gemini Flash | Gemini Pro | Claude | GPT-4o |
+| Feature | Gemini 3 Flash | Gemini 3 Pro | Claude | GPT-4o |
 |---------|-------------|------------|--------|--------|
 | **Speed** | Fastest | Moderate | Moderate | Moderate |
+| **Generation** | Latest (3.x) | Latest (3.x) | Current | Current |
 | **Persona consistency** | Good | Good | Excellent | Good |
 | **Analytical depth** | Good | Excellent | Excellent | Excellent |
 | **Visual understanding** | Basic | Excellent | Good | Excellent |
@@ -294,16 +296,16 @@ Start with **Gemini Flash** for most agents — it's fast and handles the majori
 
 ::: details When to Switch Models — Real Scenarios
 **Scenario 1: Your persona agent keeps breaking character**
-→ Switch from Gemini Flash to **Claude**. Claude excels at maintaining consistent personas even under adversarial questioning.
+→ Switch from Gemini 3 Flash to **Claude**. Claude excels at maintaining consistent personas even under adversarial questioning.
 
 **Scenario 2: You need the agent to analyze product images**
-→ Switch to **Gemini Pro**. It has the strongest visual understanding and can describe images in detail.
+→ Switch to **Gemini 3 Pro**. It has the strongest visual understanding and can describe images in detail.
 
 **Scenario 3: Responses are too slow for your workshop**
-→ Switch to **Gemini Flash**. When running a live session with 20+ questions, speed matters more than depth.
+→ Switch to **Gemini 3 Flash**. When running a live session with 20+ questions, speed matters more than depth.
 
 **Scenario 4: The agent gives shallow competitive analysis**
-→ Switch to **Gemini Pro** or **Claude**. Both offer deeper reasoning for analytical tasks.
+→ Switch to **Gemini 3 Pro** or **Claude**. Both offer deeper reasoning for analytical tasks.
 :::
 
 #### Tools
@@ -895,7 +897,7 @@ Always include at least one agent configured to be skeptical or critical. This "
 - Reduce the temperature/creativity by using precise rules and factual missions rather than creative ones
 
 ### Agent is too slow to respond
-- Switch to **Gemini Flash** — it's the fastest model option
+- Switch to **Gemini 3 Flash** — it's the fastest model option
 - Disconnect unnecessary datasets — each connected dataset adds search time
 - Disable unused tools, especially **Code Execution** and **Web Search**
 - Simplify the agent's knowledge and rules sections — shorter contexts process faster
@@ -940,8 +942,8 @@ Agents with the **Web Search** tool enabled can search the web for current infor
 **How often should I update agent datasets?**
 It depends on how quickly your data changes. For product catalogs and pricing, update monthly or whenever changes occur. For market research data, update quarterly. For brand guidelines that rarely change, annual updates are sufficient. Set a calendar reminder so datasets don't go stale.
 
-**What's the difference between Gemini Flash and Pro for agents?**
-**Gemini Flash** is faster and cheaper, suitable for most everyday interactions. **Gemini Pro** offers deeper analytical reasoning and better image/video understanding. Choose Flash for speed and volume, Pro for complex analysis and visual content.
+**What's the difference between Gemini 3 Flash and Pro for agents?**
+**Gemini 3 Flash** is faster and cheaper, suitable for most everyday interactions. **Gemini 3 Pro** offers deeper analytical reasoning and better image/video understanding. Choose Flash for speed and volume, Pro for complex analysis and visual content. Both are the latest generation models (3.x) with significant improvements over the legacy 2.5 versions.
 
 **Can I use my own images for avatars?**
 Yes — in the Appearance step, you can upload any image as the agent's avatar. Use JPG or PNG format. The image will be displayed as a square thumbnail, so centered, square-cropped images work best.
