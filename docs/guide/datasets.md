@@ -685,6 +685,6 @@ Yes. If you delete a file that was referenced in a conversation, the AI will no 
 ## Next Steps
 
 - [Use datasets with AI agents](/guide/agents) for context-aware conversations
-- [Reference datasets in chat](/guide/home) using My Data mode
+- [Reference datasets in chat](/guide/home) using the Sources button in the toolbar
 - [Connect datasets to campaigns](/guide/campaigns) for research analysis
 - [Automate dataset analysis with workflows](/guide/workflows)

@@ -29,10 +29,10 @@ Use the left sidebar to move between sections:
 | Ask the AI a quick question | Home | Type your question, press Enter |
 | Chat with a specific agent | Home | Click the Agents button in the toolbar, select your agent, then chat |
 | Analyze your own data | Home | Click the Sources button, select your campaigns/datasets, then ask |
-| Search the web for trends | Home | Click the Search tool button, then ask your question |
-| Combine internal data with web research | Home | Enable both Sources and Search tool in the toolbar |
+| Search the web for trends | Home | Click the **Tools** button to enable web research, then ask your question |
+| Combine internal data with web research | Home | Enable both **Sources** and **Tools** in the toolbar |
 | Get multiple AI perspectives | Home | Type `@AgentName` in your message to bring in additional agents |
-| Generate images | Home | Click the Image Model button, then describe what you want |
+| Generate images | Home | Click the **Images** button, then describe what you want |
 
 ### Creating and Managing Content
 
@@ -80,18 +80,19 @@ Use the left sidebar to move between sections:
 | Copy AI conversation | Home > response actions | Clipboard, text |
 | Export conversation history | Home > conversation menu | Text file |
 
-## Chat Modes Explained
+## Chat Toolbar
 
-The Home page gives you three modes to control how the AI answers your questions:
+The Home page uses **Omni Mode** by default — the AI automatically decides which tools to use based on your question. You can also fine-tune using the toolbar buttons:
 
-| Mode | Best For | How It Works |
+| Toolbar Button | Icon | What It Does |
 |---|---|---|
-| **Chat** | Brainstorming, drafting, general questions | The AI uses its general knowledge and your conversation history |
-| **My Data** | Insights from your research | The AI searches your selected campaigns and datasets for answers |
-| **Web** | Current events, competitive intelligence | The AI searches the internet for up-to-date information |
+| **Agents** | People icon | Bring a specific AI agent into the conversation |
+| **Sources** | Folder icon | Select campaigns, datasets, and files for the AI to search |
+| **Images** | Picture icon | Enable AI image generation (toggle on/off) |
+| **Tools** | Sliders icon | Enable web research and social media tools (toggle on/off) |
 
-::: tip Combine Modes for Deeper Analysis
-Turn on **My Data + Web** together to compare your internal research findings against external market trends -- a powerful setup for competitive analysis and validation.
+::: tip Combine Sources and Tools for Deeper Analysis
+Turn on **Sources** (your internal data) and **Tools** (web research) together to compare your internal research findings against external market trends -- a powerful setup for competitive analysis and validation.
 :::
 
 ## Agent Builder: The 6 Steps
@@ -186,6 +187,7 @@ After you upload a file, watch for these status indicators:
 |---|---|---|
 | **Pending** | Queued and waiting to start | Wait for execution to begin |
 | **Running** | Currently executing its steps | Monitor progress on the Run tab |
+| **Paused** | Temporarily paused | Resume when ready |
 | **Completed** | Finished successfully | Review results in Conversations |
 | **Failed** | An error occurred during execution | Check the Run tab for error details |
 | **Cancelled** | Manually stopped before completing | Re-run when ready |

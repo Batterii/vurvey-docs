@@ -26,7 +26,6 @@ Access **Workflows** from the main sidebar (look for the beta badge). The sectio
 | **Upcoming Runs** | Scheduled workflow executions |
 | **Templates** | Pre-built workflow templates to get you started |
 | **Conversations** | Past workflow outputs and conversation history |
-| **Outputs** | Shareable deliverables from workflows (coming soon) |
 
 ## Browsing Your Workflows
 
@@ -92,7 +91,7 @@ The workflow builder is a visual canvas where you design your automation pipelin
 
 ### Node Types
 
-Your workflow is built from four types of nodes that you connect together:
+Your workflow is built from several types of nodes that you connect together. The most common ones are:
 
 #### Variables Node
 
@@ -412,6 +411,7 @@ The workflow detail page header gives you the key actions:
 |--------|---------|
 | **Pending** | Queued and waiting to start |
 | **Running** | Currently executing |
+| **Paused** | Temporarily paused — can be resumed |
 | **Completed** | All steps finished successfully |
 | **Failed** | An error occurred — check the Run tab for details |
 | **Cancelled** | You stopped it manually |
@@ -567,12 +567,6 @@ Click the three-dot menu (⋯) on any conversation:
 - **Export important outputs** so they don't get buried in the history.
 - **Rename conversations** with the date and purpose for easy searching.
 - **Delete test runs** regularly to keep the list clean.
-:::
-
-## Outputs
-
-::: info Coming Soon
-The Outputs feature will combine your data, agents, and workflow results into polished, shareable deliverables.
 :::
 
 ## Sharing and Permissions

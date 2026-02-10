@@ -24,9 +24,9 @@ The People section has five tabs across the top of the page:
 |-----|-------------|
 | **Populations** | AI-generated audience profiles representing consumer segments |
 | **Humans** | Real people who participate in your research campaigns |
+| **Molds** | Templates for creating consistent persona profiles (Enterprise only) |
 | **Lists & Segments** | Ways to organize your audiences into reusable groups |
 | **Properties** | Custom attributes you track about your audience |
-| **Molds** | Templates for creating consistent persona profiles (Enterprise only) |
 
 ::: info Enterprise Feature
 The **Molds** tab is only visible to enterprise workspaces. It lets you create reusable templates for consistent AI population generation.
@@ -244,7 +244,7 @@ Segments are dynamic groups that automatically update as contacts match your rul
 **Building a segment:**
 
 1. Choose a **Property** to filter on (age, location, custom attributes, etc.)
-2. Select an **Operator** (equals, contains, greater than, is set, in list, etc.)
+2. Select an **Operator** — **Equals** or **Not Equals**
 3. Enter the **Value** to match
 4. Choose **Any** (OR logic — match if any rule is true) or **All** (AND logic — must match every rule)
 5. Preview matching contacts and save

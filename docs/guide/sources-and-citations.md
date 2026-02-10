@@ -18,30 +18,39 @@ Vurvey's citation system gives you that traceability. When the AI uses your data
 
 ## How AI Uses Your Data
 
-Vurvey's AI draws on three types of information, depending on which chat modes you have turned on:
+Vurvey uses **Omni Mode** by default — the AI automatically decides which tools and sources to use based on your question. You can also fine-tune what the AI has access to using the **chat toolbar** buttons:
 
-### Chat Mode (Default)
-The AI uses its general knowledge and your conversation history. It does not search your uploaded files or campaign results. This is ideal for brainstorming, drafting, and general questions.
+### Omni Mode (Default)
 
-**Best for:** Creative brainstorming, writing drafts, general market knowledge questions, strategy discussions.
+By default, the AI intelligently decides whether to use your data, search the web, or rely on its general knowledge — all based on how you phrase your question. You don't need to toggle anything manually for most conversations.
 
-### My Data Mode
-When you turn on **My Data**, the AI searches through the specific campaigns, datasets, and files you've selected. It retrieves relevant passages, quotes, and data points from your actual research materials to inform its answers. This is where citations become most valuable.
+### Sources Button (Folder Icon)
+
+Click the **Sources** button in the chat toolbar to select exactly which campaigns, datasets, and files the AI should search. When sources are active, the AI retrieves relevant passages, quotes, and data points from your actual research materials. This is where citations become most valuable.
 
 **Best for:** Analyzing survey results, finding specific quotes, generating evidence-based reports, answering questions about your research.
 
-### Web Mode
-When you turn on **Web**, the AI searches the internet for current information. This is useful for competitive intelligence, trend research, and validating your findings against external sources.
+### Tools Button (Sliders Icon)
 
-**Best for:** Competitive analysis, trend research, market context, validating internal findings.
+Click the **Tools** button in the chat toolbar to enable web research and social media tools. The AI can search the web, TikTok, Reddit, LinkedIn, YouTube, X/Twitter, and Instagram for current information.
 
-::: tip Combine Modes for Richer Analysis
-Turn on **My Data + Web** together to get answers that blend your internal research findings with external market context. This is especially powerful for competitive analysis and trend validation. For example: "How do our survey findings about sustainable packaging compare to industry trends?"
+**Best for:** Competitive analysis, trend research, market context, social media sentiment, validating internal findings.
+
+### Agents Button
+
+Click the **Agents** button to bring a specific AI agent into the conversation. Agents have their own knowledge, personality, and connected datasets.
+
+### Images Button (Picture Icon)
+
+Click the **Images** button to enable AI image generation within your conversation.
+
+::: tip Combine Sources and Tools for Richer Analysis
+Turn on **Sources** (your internal data) and **Tools** (web research) together to get answers that blend your internal research findings with external market context. This is especially powerful for competitive analysis and trend validation. For example: "How do our survey findings about sustainable packaging compare to industry trends?"
 :::
 
 ## Selecting Your Sources
 
-When **My Data** is turned on, a Sources panel appears where you can choose exactly which data the AI should search. Your options include:
+When you click the **Sources** button in the chat toolbar, a panel appears where you can choose exactly which data the AI should search. Your options include:
 
 ### Source Types
 
@@ -110,7 +119,7 @@ Expanding the citations section shows:
 
 ## How Semantic Search Works
 
-When you ask a question with My Data mode enabled, the AI doesn't just look for exact keyword matches. It uses **semantic search**, which means it understands the meaning and intent behind your question.
+When you ask a question with sources selected, the AI doesn't just look for exact keyword matches. It uses **semantic search**, which means it understands the meaning and intent behind your question.
 
 For example, if you ask "What do consumers think about our pricing?" the AI will find relevant passages even if respondents used different words like "cost," "value," "expensive," "affordable," or "worth the money."
 
@@ -263,7 +272,7 @@ When the AI provides specific percentages or statistics, always verify them agai
 - **Narrow your sources**: Select just one campaign or dataset instead of everything
 - **Ask for evidence explicitly**: Add "with supporting quotes" or "cite your sources" to your prompt
 - **Check file status**: Make sure your dataset files show "Success" status -- files still processing can't be searched
-- **Verify My Data mode is on**: Check that you've clicked the Sources button and selected actual sources
+- **Verify Sources are active**: Check that you've clicked the Sources button in the toolbar and selected actual sources
 - **Rephrase your question**: Try using more specific terms that relate to your source content
 
 ### The AI cited the wrong source
@@ -277,7 +286,7 @@ When the AI provides specific percentages or statistics, always verify them agai
 
 - **Use the same language**: Match the terms that appear in your source files (question text, labels, column headers)
 - **Ask for a targeted search**: "Search for all mentions of [keyword] and return matching excerpts with their sources"
-- **Check your source selection**: Make sure the relevant campaign or dataset is actually selected in the Sources panel
+- **Check your source selection**: Make sure the relevant campaign or dataset is selected via the Sources button in the toolbar
 - **Try a different phrasing**: If "pricing concerns" doesn't work, try "cost," "value," "expensive," or related terms
 - **Check file processing**: The file may show "Success" but content extraction may have missed certain sections (especially from image-heavy PDFs)
 
@@ -290,7 +299,7 @@ When the AI provides specific percentages or statistics, always verify them agai
 
 ### AI says it can't find relevant information
 
-- **Check source selection**: Make sure you've actually selected sources in the Sources panel
+- **Check source selection**: Make sure you've clicked the Sources button in the toolbar and selected sources
 - **Broaden your question**: You may be asking something too specific -- try a more general query first
 - **Verify file processing**: Check that all files show "Success" status in the dataset
 - **Try different source types**: If a dataset isn't working, try selecting a campaign directly (or vice versa)
@@ -300,7 +309,7 @@ When the AI provides specific percentages or statistics, always verify them agai
 ::: details Click to expand
 
 **Q: Does the AI always provide citations?**
-Citations appear when the AI draws on your selected sources (My Data mode). In regular Chat mode or Web mode, citations may not appear because the AI is using general knowledge or web results rather than your specific files.
+Citations appear when the AI draws on your selected sources (via the Sources button). When the AI is using general knowledge or web results rather than your specific files, citations may not appear.
 
 **Q: Can I trust the citation accuracy?**
 Citations point to real sources in your data, but always verify important claims. The AI identifies relevant passages accurately most of the time, but it may occasionally misinterpret context or draw connections that aren't quite right.

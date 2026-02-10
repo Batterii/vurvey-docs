@@ -22,16 +22,19 @@ When you open **Agents** from the left navigation, you'll see the Agent Gallery 
 
 ### Gallery Sections
 
-Agents are organized into collapsible sections:
+Agents are organized into collapsible sections by category:
 
 - **Trending** — Popular agents from the Vurvey platform over the last 30 days. These are marked with the Vurvey Badge (a sparkle icon) to indicate they were created by Vurvey.
-- **Assistant** — General-purpose agents for research, analysis, and Q&A
-- **Consumer Persona** — Agents that simulate specific consumer segments and demographics
-- **Product** — Agents with deep expertise about particular products or product lines
-- **Visual Generator** — Agents that create images and visual content
+- **Research** — Agents focused on data analysis, survey interpretation, and market research
+- **Creation** — Agents that generate content, visuals, and creative assets
+- **Marketing** — Agents specialized in marketing strategy, campaign analysis, and brand positioning
+- **E-Commerce** — Agents designed for online retail, product optimization, and shopping behavior analysis
+- **vTeam** — Pre-built Vurvey platform agents that provide out-of-the-box capabilities
 
-::: tip Trending vs. Agent Types
-"Trending" is a display section, not an agent type. The four agent types you can create are **Assistant**, **Consumer Persona**, **Product**, and **Visual Generator**. The Trending section highlights popular Vurvey-created agents regardless of their type.
+Within each category, agents are one of four types: **Assistant**, **Consumer Persona**, **Product**, or **Visual Generator**.
+
+::: tip Categories vs. Agent Types
+Categories (Research, Creation, Marketing, E-Commerce, vTeam) organize how agents appear in the gallery. The four agent types you can create are **Assistant**, **Consumer Persona**, **Product**, and **Visual Generator**. A Research-category agent might be an Assistant type, while a Creation-category agent might be a Visual Generator type.
 :::
 
 ### Agent Cards
@@ -51,7 +54,7 @@ Use the filter bar at the top of the gallery to find specific agents:
 
 - **Sort** — Order agents by Newest or Oldest
 - **Type** — Filter by Assistant, Consumer Persona, Product, or Visual Generator
-- **Model** — Filter by the AI model powering the agent (GPT, Gemini, Claude, and others)
+- **Model** — Filter by the AI model powering the agent (GPT, Gemini, Claude, Stable Diffusion, DALL-E, Imagen, and others)
 - **Status** — Show only Active (Published) or Inactive (Draft) agents
 - **Search** — Type a name to find a specific agent instantly
 
@@ -408,11 +411,12 @@ Connect knowledge sources to give your agent specialized expertise. For example,
   @error="$event.target.remove()"
 />
 
-Give your agent a name and biography that bring it to life.
+Give your agent a name, biography, and voice that bring it to life.
 
 **What you'll set:**
 - **Name** — The display name your team will see (e.g., "Maya Chen" or "Beauty Trends Analyst")
 - **Biography** — A detailed description of who this agent is, their background, expertise, and personality
+- **Voice** — Select a voice for your agent (used when the agent speaks in audio or video outputs)
 
 Click the **Generate** button (sparkle icon) to have AI suggest a name, biography, or both based on the facets you configured.
 

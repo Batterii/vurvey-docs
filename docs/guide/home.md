@@ -104,22 +104,25 @@ Start narrow, then broaden. Select one campaign or a few files first. If the AI'
 There's a practical limit to how many sources the AI can process effectively in a single conversation. If you select too many, responses may become slower or less focused. Aim for no more than 5–10 sources at a time for the best experience.
 :::
 
-### Image Model
+### Images
 
-Click the image model button (tooltip: "Select an image model") to enable AI image generation. Once enabled, you can ask the AI to create visuals — for example, "Create a mood board for our new product line" or "Generate a logo concept for a natural skincare brand."
+Click the **Images** button (picture icon, tooltip: "Select an image model") to enable AI image generation. Once enabled, you can ask the AI to create visuals — for example, "Create a mood board for our new product line" or "Generate a logo concept for a natural skincare brand."
 
 #### Available Image Models
 
-Depending on your workspace configuration, you may have access to several image generation models:
+Select an image generation model from the dropdown:
 
 | Model | Best For |
 |-------|----------|
-| **DALL-E** | Photorealistic images, product mockups, lifestyle scenes |
+| **Nano Banana** | Vurvey's proprietary model for fast, versatile image generation |
+| **OpenAI (DALL-E)** | Photorealistic images, product mockups, lifestyle scenes |
+| **Google Imagen** | High-fidelity images with strong text rendering and detail |
 | **Stable Diffusion** | Artistic styles, concept art, creative visuals |
-| **Flux** | High-quality illustrations, stylized imagery |
+
+You can also toggle image generation on or off using the **Turn on/off images** option at the bottom of the dropdown.
 
 ::: tip Choosing an Image Model
-If you're unsure which model to use, start with **DALL-E** for realistic product and marketing imagery, or **Stable Diffusion** for more artistic and creative concepts. You can always regenerate with a different model if the first result isn't what you need.
+If you're unsure which model to use, start with **Nano Banana** for quick iterations, **DALL-E** for realistic product and marketing imagery, or **Stable Diffusion** for more artistic and creative concepts. You can always regenerate with a different model if the first result isn't what you need.
 :::
 
 #### Image Generation Tips
@@ -129,27 +132,46 @@ If you're unsure which model to use, start with **DALL-E** for realistic product
 - **Iterate** — Ask the AI to "make it warmer," "add more negative space," or "try a different angle" to refine results
 - **Reference styles** — Mention visual styles like "flat design," "watercolor," "3D render," or "vintage photography"
 
-### Search Tool
+### Tools
 
-Click the search tool button (tooltip: "Select a search tool") to give the AI access to the web. With search enabled, you can ask about current events, competitor activity, or industry trends — for example, "What are the latest trends in sustainable packaging?"
+Click the **Tools** button (sliders icon, tooltip: "Select a search tool") to give the AI access to web research and social media tools. Select a specific tool from the dropdown or let the AI use all available tools automatically.
 
-#### What Search Can Find
+#### Available Tools
+
+| Tool | What It Searches |
+|------|-----------------|
+| **Web Research** | General web search for current information, news, and trends |
+| **TikTok** | TikTok content, trends, and creator insights |
+| **Reddit** | Reddit discussions, threads, and community sentiment |
+| **LinkedIn** | LinkedIn posts, professional content, and industry discussions |
+| **YouTube** | YouTube videos, comments, and channel content |
+| **X/Twitter** | Posts, trending topics, and public conversations on X |
+| **Instagram** | Instagram posts, reels, and visual content trends |
+
+You can also toggle all tools on or off using the **Turn on/off tools** option at the bottom of the dropdown.
+
+#### What Tools Can Find
 
 - Current industry news and trends
 - Competitor websites, press releases, and public data
 - Market reports and published research (publicly available)
-- Social media trends and public discussions
+- Social media trends, sentiment, and public discussions
 - Product listings and pricing information
+- Platform-specific content from TikTok, Reddit, YouTube, and more
 
-#### What Search Cannot Find
+#### What Tools Cannot Find
 
 - Paywalled or subscription-only content
 - Private social media posts or closed communities
 - Real-time stock prices or live data feeds
 - Content behind login walls
 
-::: tip Combining Search with Sources
-For the most powerful analysis, enable both **Search** and **Sources** together. Ask questions like: "Based on our consumer survey data, how do our findings compare to the latest industry trends?" The AI will reference your data and supplement it with current web information.
+::: tip Combining Tools with Sources
+For the most powerful analysis, enable both **Tools** and **Sources** together. Ask questions like: "Based on our consumer survey data, how do our findings compare to the latest industry trends?" The AI will reference your data and supplement it with current web information.
+:::
+
+::: tip Social Media Research
+Select a specific social media tool (like TikTok or Reddit) when you want targeted platform insights. For example, select **TikTok** and ask "What are the trending skincare routines this month?" or select **Reddit** and ask "What are consumers saying about our brand on Reddit?"
 :::
 
 ### Model Selector
@@ -168,16 +190,18 @@ When set to **Auto-Select**, Vurvey evaluates your question and the tools you've
 Most users never need to change the model manually. However, if you notice responses are too brief for complex questions, try manually selecting a more powerful model. If responses are slow for simple questions, try selecting a faster model.
 :::
 
-## How Chat Modes Work
+## How Omni Mode Works
 
-You don't need to pick a "mode" manually — Vurvey figures it out based on what you've enabled in the toolbar:
+You don't need to pick a "mode" manually — Vurvey uses **Omni Mode** by default, which intelligently decides which tools to use based on your question and what you've enabled in the toolbar:
 
 | What you've enabled | How the AI behaves |
 |---|---|
-| **Everything on** (default) | The AI can use all available tools — search the web, query your data, generate images — whatever fits your question |
+| **Everything on** (default — Omni Mode) | The AI can use all available tools — search the web, query your data, generate images — whatever fits your question. A status line reads "Using all sources, all tools, and image generation" |
 | **Only Sources selected** | The AI focuses exclusively on your connected datasets and campaigns, citing specific data points |
-| **A search or image tool selected** | The AI uses that specific tool to answer your question |
-| **Nothing selected** | Simple conversation mode — the AI uses only its general knowledge and what you've discussed so far |
+| **A specific tool or image model selected** | The AI uses that specific tool to answer your question |
+| **Nothing selected** | Simple conversation mode — the AI uses only its general knowledge and what you've discussed so far. Status reads "Talking to Vee" (or your selected agent's name) |
+
+You can toggle individual categories on or off using the **Turn on/off** option in each toolbar dropdown. The status display below the toolbar always shows what the AI currently has access to.
 
 ## Attaching Files
 
@@ -375,7 +399,7 @@ You just closed a survey with 500 responses and need insights for a meeting in t
 
 Your team needs to understand how competitors are positioning themselves.
 
-1. Click the **Search tool** button to enable web search
+1. Click the **Tools** button and select **Web Research** to enable web search
 2. Ask: *"What is [Competitor]'s current messaging in the skincare market?"*
 3. Follow up: *"Compare their positioning to ours based on our latest brand study"* (with your brand study selected as a Source)
 
@@ -424,7 +448,7 @@ You've run similar surveys at different times and want to understand how consume
 Your brand team needs a regular pulse check on brand perception.
 
 1. Click **Sources** and select your brand tracking campaign data
-2. Enable the **Search tool** to supplement with market data
+2. Enable the **Tools** button to supplement with market data
 3. Ask: *"Based on our brand tracking data, what is the current state of our brand health? Include aided awareness, favorability, and purchase intent if available"*
 4. Follow up: *"How do these metrics compare to industry benchmarks?"* (the AI will use web search for benchmarks)
 5. Then: *"What are the 3 most actionable recommendations to improve our weakest brand metrics?"*
@@ -554,7 +578,7 @@ Occasionally, very long responses may stop before they're finished. Simply type 
 Make sure you've selected the correct agent using the Agents button or the correct @mention name. If the agent's responses don't match their configured personality, they may be influenced by the conversation context. Try starting a new conversation with a fresh prompt.
 
 **Search results seem outdated or irrelevant?**
-Web search results depend on what's publicly available. Try rephrasing your search query to be more specific — include dates, brand names, or specific topics. For the most current information, include "2025" or "latest" in your question.
+Web search results depend on what's publicly available. Try rephrasing your search query to be more specific — include dates, brand names, or specific topics. For the most current information, include the current year or "latest" in your question. For platform-specific results, select a specific social media tool instead of using general Web Research.
 
 **Can't find a previous conversation?**
 Check the conversation sidebar and use the search field to filter by keyword. If you still can't find it, click **View all** to browse your complete history. Conversations are listed by most recent activity, so scroll down for older ones.

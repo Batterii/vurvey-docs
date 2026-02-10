@@ -99,6 +99,26 @@ Describe your research goals in plain language and let AI generate appropriate q
 Be specific about what you want to learn. Include your target audience and the topics you want to explore. The AI suggestions are starting points — always review and customize before launching.
 :::
 
+### Campaign Editor Tabs
+
+Once you open a campaign, the top navigation bar provides these tabs:
+
+| Tab | What It Does |
+|-----|-------------|
+| **Build** | Add and configure questions using the drag-and-drop editor |
+| **Configure** | Set campaign-level settings — name, dates, language, branding |
+| **Audience** | Manage who receives the campaign — recruit, mailing lists, Vurvey Creators, People Models |
+| **Launch** | Pre-launch checklist and confirmation — verify everything before going live |
+| **Results** | View per-question responses with charts, video playback, and transcripts |
+| **Analyze** | Tabular response data with sorting, filtering, and export options |
+| **Summary** | AI-generated insights summary with key findings and themes |
+
+<!-- Screenshot: Campaign Build tab showing question list -->
+<!-- ![Campaign Build Tab](/vurvey-docs/screenshots/campaigns/06-build-questions.png) -->
+
+::: tip Results, Analyze, and Summary tabs are disabled while the campaign is in Draft status. They become available once the campaign is launched and starts collecting responses.
+:::
+
 ### Step-by-Step Campaign Creation Walkthrough
 
 Whether you choose Manual, From Template, or From Objectives, you'll end up in the **Campaign Editor** where you build and refine your study. Here's a detailed walkthrough of the entire creation process.
@@ -148,6 +168,9 @@ Click the **Add Question** button (or the "+" icon) at the bottom of the questio
 - **Stimulus** — Video Playback (shows a video before the question)
 
 Select the question type you need and it will appear in your question list.
+
+<!-- Screenshot: Question type selector panel -->
+<!-- ![Question Type Selector](/vurvey-docs/screenshots/campaigns/07-question-type-selector.png) -->
 
 #### Step 4: Configuring Each Question
 
@@ -246,6 +269,9 @@ Vurvey supports a rich set of question types to capture every kind of consumer f
 
 #### Video Recording
 
+<!-- Screenshot: Video question editor -->
+<!-- ![Video Question Editor](/vurvey-docs/screenshots/campaigns/10-question-video.png) -->
+
 Respondents record a video answer using their device's camera. This is Vurvey's signature feature — capturing authentic, unscripted consumer voices.
 
 **Configuration options:**
@@ -341,6 +367,9 @@ Respondents upload a PDF document.
 ### Choice & Ranking Questions
 
 #### Choice (Single Select)
+
+<!-- Screenshot: Multiple choice question editor -->
+<!-- ![Multiple Choice Editor](/vurvey-docs/screenshots/campaigns/11-question-choice.png) -->
 
 Respondents pick one option from a list. Use this for mutually exclusive answers.
 
@@ -485,6 +514,9 @@ Respondents enter a numeric value.
 ### Rating Questions
 
 #### Star Rating
+
+<!-- Screenshot: Star rating question editor -->
+<!-- ![Star Rating Editor](/vurvey-docs/screenshots/campaigns/14-question-star.png) -->
 
 Respondents rate on a star scale (typically 1-5 stars).
 
@@ -715,6 +747,9 @@ Once your campaign is Open:
 ## Campaign Results
 
 ### Viewing Responses
+
+<!-- Screenshot: Campaign Results tab -->
+<!-- ![Campaign Results Tab](/vurvey-docs/screenshots/campaigns/20-results-tab.png) -->
 
 The Results tab shows summary statistics — total responses, completion rate, average duration, and total video minutes collected. Click any individual response to see:
 
