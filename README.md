@@ -63,7 +63,7 @@ Configure these secrets in your repository settings:
 |--------|-------------|
 | `VURVEY_EMAIL` | Login email for staging.vurvey.dev |
 | `VURVEY_PASSWORD` | Login password |
-| `VURVEY_WORKSPACE_ID` | Workspace ID used for deterministic routing in CI (recommended) |
+| `VURVEY_WORKSPACE_ID` | Workspace ID for deterministic routing (default: DEMO workspace `07e5edb5-e739-4a35-9f82-cc6cec7c0193`) |
 
 ### QA Stability Settings
 

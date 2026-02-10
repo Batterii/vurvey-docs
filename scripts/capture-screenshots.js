@@ -30,7 +30,7 @@ const CONFIG = {
     email: process.env.VURVEY_EMAIL,
     password: process.env.VURVEY_PASSWORD
   },
-  fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || null,
+  fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193',
   strict: process.env.CAPTURE_STRICT === 'true',
   screenshotsDir: path.join(__dirname, '..', 'docs', 'public', 'screenshots'),
   artifactsDir: path.join(__dirname, '..', 'qa-output', 'capture-screenshots'),

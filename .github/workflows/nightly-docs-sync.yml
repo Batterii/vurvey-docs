@@ -67,7 +67,7 @@ jobs:
           VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
           VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
           VURVEY_URL: ${{ env.VURVEY_URL }}
-          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
           HEADLESS: 'true'
           CAPTURE_STRICT: 'true'
         continue-on-error: true
@@ -88,7 +88,7 @@ jobs:
           VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
           VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
           VURVEY_URL: ${{ env.VURVEY_URL }}
-          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
           HEADLESS: 'true'
           QA_DEEP: 'true'
           QA_WEB_MANAGER_DIR: 'vurvey-web-manager'
@@ -131,7 +131,7 @@ jobs:
           VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
           VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
           VURVEY_URL: ${{ env.VURVEY_URL }}
-          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
           HEADLESS: 'true'
         continue-on-error: true
         run: node scripts/qa-doc-validator.js

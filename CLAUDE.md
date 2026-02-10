@@ -68,7 +68,7 @@ Uses **Node.js native test runner** (`node --test`). Tests cover link validation
 | `VURVEY_EMAIL` | For screenshots/QA | - | Staging login email |
 | `VURVEY_PASSWORD` | For screenshots/QA | - | Staging login password |
 | `VURVEY_URL` | No | `https://staging.vurvey.dev` | Target environment |
-| `VURVEY_WORKSPACE_ID` | No | Auto-detected | Fallback workspace ID |
+| `VURVEY_WORKSPACE_ID` | No | `07e5edb5-e739-4a35-9f82-cc6cec7c0193` (DEMO) | Workspace ID for screenshot capture |
 | `HEADLESS` | No | `true` | Browser visibility |
 | `CAPTURE_STRICT` | No | `false` | Fail on login/workspace errors |
 | `QA_DEEP` | No | `false` | Enable deep route testing |
