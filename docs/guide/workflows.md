@@ -424,7 +424,8 @@ Agent task cards show visual feedback during execution with animated borders whe
 
 | Status | Description |
 |--------|-------------|
-| **In Progress** | Currently executing |
+| **Pending** | Queued and waiting to start |
+| **Running** | Currently executing |
 | **Completed** | Finished all steps successfully |
 | **Failed** | Error occurred during execution |
 | **Cancelled** | Manually stopped by user |
