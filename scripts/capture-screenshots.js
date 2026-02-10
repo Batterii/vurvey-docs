@@ -919,6 +919,147 @@ async function captureWorkflows(page) {
   return true;
 }
 
+// ── New section capture functions ──────────────────────────────────
+
+async function captureSettings(page) {
+  console.log('\n Capturing Settings...');
+
+  const settingsUrl = getWorkspaceUrl('/workspace/settings');
+  if (!(await gotoWithRetry(page, settingsUrl, { label: 'settings' }))) return false;
+
+  await waitForContent(page, [
+    'form',
+    'input',
+    '[class*="settings" i]',
+    '[class*="form" i]',
+  ], 15000);
+
+  await takeScreenshot(page, '01-general-settings', 'settings');
+
+  // AI Models sub-page
+  try {
+    const aiUrl = getWorkspaceUrl('/workspace/settings/ai-models');
+    if (await gotoWithRetry(page, aiUrl, { label: 'settings-ai-models' })) {
+      await takeScreenshot(page, '02-ai-models', 'settings');
+    }
+  } catch (e) {
+    console.log(`  Could not capture AI models: ${e.message}`);
+  }
+
+  // Members sub-page
+  try {
+    const membersUrl = getWorkspaceUrl('/workspace/members');
+    if (await gotoWithRetry(page, membersUrl, { label: 'settings-members' })) {
+      await takeScreenshot(page, '03-members', 'settings');
+    }
+  } catch (e) {
+    console.log(`  Could not capture members: ${e.message}`);
+  }
+
+  return true;
+}
+
+async function captureBranding(page) {
+  console.log('\n Capturing Branding...');
+
+  const brandingUrl = getWorkspaceUrl('/branding');
+  if (!(await gotoWithRetry(page, brandingUrl, { label: 'branding' }))) return false;
+
+  await waitForContent(page, [
+    'form',
+    'input',
+    '[class*="brand" i]',
+    '[class*="form" i]',
+  ], 15000);
+
+  await takeScreenshot(page, '01-brand-settings', 'branding');
+
+  // Sub-pages
+  const subPages = [
+    { path: '/branding/reviews', name: '02-reviews' },
+    { path: '/branding/reels', name: '03-reels' },
+  ];
+
+  for (const subPage of subPages) {
+    try {
+      const subUrl = getWorkspaceUrl(subPage.path);
+      if (await gotoWithRetry(page, subUrl, { label: `branding-${subPage.name}` })) {
+        await takeScreenshot(page, subPage.name, 'branding');
+      }
+    } catch (e) {
+      console.log(`  Could not capture ${subPage.name}: ${e.message}`);
+    }
+  }
+
+  return true;
+}
+
+async function captureForecast(page) {
+  console.log('\n Capturing Forecast...');
+
+  const forecastUrl = getWorkspaceUrl('/forecast');
+  if (!(await gotoWithRetry(page, forecastUrl, { label: 'forecast' }))) return false;
+
+  // Check if we were redirected (feature flag off)
+  const currentUrl = page.url();
+  if (!currentUrl.includes('forecast')) {
+    console.log('  ⚠ Forecast appears to be feature-flagged off (redirected). Skipping.');
+    return true; // Not a failure, just gated
+  }
+
+  await waitForContent(page, [
+    '[class*="forecast" i]',
+    '[class*="chart" i]',
+    'canvas',
+    'table',
+  ], 15000);
+
+  await takeScreenshot(page, '01-forecast-main', 'forecast');
+  return true;
+}
+
+async function captureRewards(page) {
+  console.log('\n Capturing Rewards...');
+
+  const rewardsUrl = getWorkspaceUrl('/rewards');
+  if (!(await gotoWithRetry(page, rewardsUrl, { label: 'rewards' }))) return false;
+
+  await waitForContent(page, [
+    '[class*="reward" i]',
+    '[class*="tremendous" i]',
+    'table',
+    'button',
+  ], 15000);
+
+  await takeScreenshot(page, '01-rewards-main', 'rewards');
+  return true;
+}
+
+async function captureIntegrations(page) {
+  console.log('\n Capturing Integrations...');
+
+  // Try /settings/integrations first, then /integrations
+  let loaded = false;
+  for (const p of ['/settings/integrations', '/integrations']) {
+    const url = getWorkspaceUrl(p);
+    if (await gotoWithRetry(page, url, { label: 'integrations' })) {
+      loaded = true;
+      break;
+    }
+  }
+  if (!loaded) return false;
+
+  await waitForContent(page, [
+    '[class*="integration" i]',
+    '[class*="connection" i]',
+    '[class*="tool" i]',
+    'table',
+  ], 15000);
+
+  await takeScreenshot(page, '01-integrations-main', 'integrations');
+  return true;
+}
+
 // Main execution
 async function main() {
   console.log('==========================================');
@@ -930,7 +1071,7 @@ async function main() {
   console.log(`Strict: ${CONFIG.strict}`);
 
   // Ensure screenshot directories exist
-  const dirs = ['home', 'agents', 'people', 'campaigns', 'datasets', 'workflows'];
+  const dirs = ['home', 'agents', 'people', 'campaigns', 'datasets', 'workflows', 'settings', 'branding', 'forecast', 'rewards', 'integrations'];
   dirs.forEach(dir => ensureDir(path.join(CONFIG.screenshotsDir, dir)));
   ensureDir(CONFIG.artifactsDir);
 
@@ -977,6 +1118,11 @@ async function main() {
       ["campaigns", captureCampaigns],
       ["datasets", captureDatasets],
       ["workflows", captureWorkflows],
+      ["settings", captureSettings],
+      ["branding", captureBranding],
+      ["forecast", captureForecast],
+      ["rewards", captureRewards],
+      ["integrations", captureIntegrations],
     ];
 
     /** @type {{name: string, ok: boolean}[]} */

@@ -6,7 +6,13 @@ function isLikelyRouteFile(p) {
   if (!/\.(tsx?|jsx?)$/.test(lower)) return false;
   if (lower.includes("/node_modules/")) return false;
   // Bias toward where routes are usually defined.
-  return lower.includes("route") || lower.includes("routes") || lower.includes("router") || lower.includes("nav");
+  if (lower.includes("route") || lower.includes("routes") || lower.includes("router") || lower.includes("nav")) return true;
+  // Also scan files that commonly contain route definitions.
+  if (lower.includes("page") || lower.includes("layout") || lower.includes("sidebar") || lower.includes("/config/")) return true;
+  // Top-level app entry points.
+  const base = lower.split("/").pop() || "";
+  if (base === "app.tsx" || base === "routes.tsx" || base === "app.ts") return true;
+  return false;
 }
 
 async function* walk(dir) {
@@ -26,7 +32,7 @@ function extractCandidateRoutesFromText(text) {
   // Pull out string literals that look like route paths.
   // This is intentionally conservative: we only want core app sections.
   const out = [];
-  const re = /['"`](\/(?:agents|audience|campaigns|datasets|workflow)(?:\/[a-z0-9\-_/.:]+)?)['"`]/gi;
+  const re = /['"`](\/(?:agents|audience|people|campaigns|datasets|workflow|workspace|settings|branding|forecast|rewards|mentions|admin|integrations|canvas|survey|reel|me)(?:\/[a-z0-9\-_/.:]+)?)['"`]/gi;
   for (const m of text.matchAll(re)) out.push(m[1]);
   return out;
 }
@@ -76,7 +82,7 @@ export async function discoverWorkspaceRoutes({webManagerDir}) {
   for (const r of sorted) {
     const prefix = r.split("/").slice(0, 2).join("/") || "/";
     const n = perPrefixCap.get(prefix) || 0;
-    if (n >= 25) continue;
+    if (n >= 35) continue;
     perPrefixCap.set(prefix, n + 1);
     capped.push(r);
   }

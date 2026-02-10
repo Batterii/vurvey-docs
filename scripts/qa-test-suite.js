@@ -1049,6 +1049,150 @@ async function testSectionEntryPoints(page, workspaceId) {
   }
 }
 
+// ── New domain test functions ──────────────────────────────────────
+
+async function testSettings(page, workspaceId) {
+  currentSection = "Settings";
+  const nav = await gotoWorkspaceRoute(page, workspaceId, "/workspace/settings");
+  if (!nav.ok) {
+    recordWarning("Settings: Page loads", nav.error || "Could not navigate");
+    return;
+  }
+  const hasContent =
+    (await elementExists(page, "form, input, [class*='settings' i], [class*='form' i]", 8000)) ||
+    (await pageTextIncludes(page, "settings"));
+  await recordTest("Settings: Page loads", hasContent, hasContent ? "Settings UI detected" : "No settings UI detected", {selector: "route:/workspace/settings"});
+
+  if (!config.quick) {
+    // AI Models sub-page
+    const aiNav = await gotoWorkspaceRoute(page, workspaceId, "/workspace/settings/ai-models");
+    if (aiNav.ok) {
+      const ok = await elementExists(page, "table, [class*='model' i], [class*='card' i], [class*='list' i]", 8000) || (await pageTextIncludes(page, "model"));
+      await recordTest("Settings: AI Models page loads", ok, ok ? "OK" : "Missing AI models UI", {selector: "route:/workspace/settings/ai-models"});
+    } else {
+      recordWarning("Settings: AI Models sub-page", aiNav.error || "Could not navigate");
+    }
+
+    // Members sub-page
+    const membersNav = await gotoWorkspaceRoute(page, workspaceId, "/workspace/members");
+    if (membersNav.ok) {
+      const ok = await elementExists(page, "table, [class*='member' i], [class*='list' i], [class*='user' i]", 8000) || (await pageTextIncludes(page, "member"));
+      await recordTest("Settings: Members page loads", ok, ok ? "OK" : "Missing members UI", {selector: "route:/workspace/members"});
+    } else {
+      recordWarning("Settings: Members sub-page", membersNav.error || "Could not navigate");
+    }
+  }
+}
+
+async function testBranding(page, workspaceId) {
+  currentSection = "Branding";
+  const nav = await gotoWorkspaceRoute(page, workspaceId, "/branding");
+  if (!nav.ok) {
+    recordWarning("Branding: Page loads", nav.error || "Could not navigate");
+    return;
+  }
+  const hasContent =
+    (await elementExists(page, "form, input, [class*='brand' i], [class*='form' i]", 8000)) ||
+    (await pageTextIncludes(page, "brand"));
+  await recordTest("Branding: Page loads", hasContent, hasContent ? "Branding UI detected" : "No branding UI detected", {selector: "route:/branding"});
+
+  if (!config.quick) {
+    for (const r of ["/branding/reviews", "/branding/reels", "/branding/questions"]) {
+      const subNav = await gotoWorkspaceRoute(page, workspaceId, r);
+      if (!subNav.ok) {
+        recordWarning(`Branding: Route ${r}`, subNav.error || "Could not navigate");
+        continue;
+      }
+      const ok = await elementExists(page, "button, table, [class*='card' i], [class*='list' i], [class*='tab' i]", 8000);
+      await recordTest(`Branding: Route loads (${r})`, ok, ok ? "OK" : "Missing expected UI", {selector: `route:${r}`});
+    }
+  }
+}
+
+async function testForecast(page, workspaceId) {
+  currentSection = "Forecast";
+  const nav = await gotoWorkspaceRoute(page, workspaceId, "/forecast");
+  if (!nav.ok) {
+    recordWarning("Forecast: Page loads", nav.error || "Could not navigate");
+    return;
+  }
+  // Forecast may be feature-flagged off — detect redirect or empty state and record as warning, not failure.
+  const pathname = await currentPathname(page);
+  if (!pathname.includes("forecast")) {
+    recordWarning("Forecast: Feature-flagged off", `Redirected to ${pathname} (feature may be disabled for this workspace)`);
+    return;
+  }
+  const hasContent =
+    (await elementExists(page, "[class*='forecast' i], [class*='chart' i], [class*='card' i], table, canvas", 8000)) ||
+    (await pageTextIncludes(page, "forecast"));
+  await recordTest("Forecast: Page loads", hasContent, hasContent ? "Forecast UI detected" : "No forecast UI detected", {selector: "route:/forecast"});
+}
+
+async function testRewards(page, workspaceId) {
+  currentSection = "Rewards";
+  const nav = await gotoWorkspaceRoute(page, workspaceId, "/rewards");
+  if (!nav.ok) {
+    recordWarning("Rewards: Page loads", nav.error || "Could not navigate");
+    return;
+  }
+  const hasContent =
+    (await elementExists(page, "[class*='reward' i], [class*='tremendous' i], table, button, [class*='card' i]", 8000)) ||
+    (await pageTextIncludes(page, "reward")) ||
+    (await pageTextIncludes(page, "tremendous"));
+  await recordTest("Rewards: Page loads", hasContent, hasContent ? "Rewards UI detected" : "No rewards UI detected", {selector: "route:/rewards"});
+}
+
+async function testIntegrations(page, workspaceId) {
+  currentSection = "Integrations";
+  // Integrations may be under /settings/integrations or /integrations
+  let nav = await gotoWorkspaceRoute(page, workspaceId, "/settings/integrations");
+  if (!nav.ok) {
+    nav = await gotoWorkspaceRoute(page, workspaceId, "/integrations");
+  }
+  if (!nav.ok) {
+    recordWarning("Integrations: Page loads", nav.error || "Could not navigate");
+    return;
+  }
+  const hasContent =
+    (await elementExists(page, "[class*='integration' i], [class*='connection' i], [class*='tool' i], table, [class*='card' i]", 8000)) ||
+    (await pageTextIncludes(page, "integration")) ||
+    (await pageTextIncludes(page, "connect"));
+  await recordTest("Integrations: Page loads", hasContent, hasContent ? "Integrations UI detected" : "No integrations UI detected", {selector: "route:/settings/integrations"});
+}
+
+async function testAdmin(page, workspaceId) {
+  currentSection = "Admin";
+  const nav = await gotoWorkspaceRoute(page, workspaceId, "/admin");
+  if (!nav.ok) {
+    recordWarning("Admin: Page loads", nav.error || "Could not navigate (enterprise-only)");
+    return;
+  }
+  // Admin is enterprise-only — detect redirect and record as warning, not failure.
+  const pathname = await currentPathname(page);
+  if (!pathname.includes("admin")) {
+    recordWarning("Admin: Enterprise-only guard", `Redirected to ${pathname} (admin may require enterprise access)`);
+    return;
+  }
+  const hasContent =
+    (await elementExists(page, "[class*='admin' i], [class*='dashboard' i], table, [class*='card' i], iframe", 8000)) ||
+    (await pageTextIncludes(page, "admin")) ||
+    (await pageTextIncludes(page, "dashboard"));
+  await recordTest("Admin: Page loads", hasContent, hasContent ? "Admin UI detected" : "No admin UI detected", {selector: "route:/admin"});
+
+  if (!config.quick && hasContent) {
+    // Test a couple sub-routes
+    for (const r of ["/admin/brand-management", "/admin/campaign-templates"]) {
+      const subNav = await gotoWorkspaceRoute(page, workspaceId, r);
+      if (!subNav.ok) {
+        recordWarning(`Admin: Route ${r}`, subNav.error || "Could not navigate");
+        continue;
+      }
+      const ok = await elementExists(page, "table, [class*='card' i], [class*='list' i], button", 8000);
+      await recordTest(`Admin: Route loads (${r})`, ok, ok ? "OK" : "Missing expected UI", {selector: `route:${r}`});
+    }
+  }
+}
+
 async function testDiscoveredRoutes(page, workspaceId) {
   if (!config.deep) return;
   if (!config.webManagerDir) return;
@@ -1309,6 +1453,24 @@ async function main() {
     await testChatSendAndRespond(page);
 
     await testSectionEntryPoints(page, workspaceId);
+
+    // New domain tests — each wrapped in try-catch so one failure doesn't block others.
+    const newDomainTests = [
+      ["Settings", testSettings],
+      ["Branding", testBranding],
+      ["Forecast", testForecast],
+      ["Rewards", testRewards],
+      ["Integrations", testIntegrations],
+      ["Admin", testAdmin],
+    ];
+    for (const [name, fn] of newDomainTests) {
+      try {
+        await fn(page, workspaceId);
+      } catch (e) {
+        recordWarning(`${name}: Uncaught error`, e?.message || String(e));
+      }
+    }
+
     await testDiscoveredRoutes(page, workspaceId);
 
     // Runtime health as tests (configurable strictness in exit code)

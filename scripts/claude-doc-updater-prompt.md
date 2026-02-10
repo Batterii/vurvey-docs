@@ -14,6 +14,19 @@ You are also responsible for improving documentation coverage and usefulness ove
 
 ---
 
+## Reference Document — Read First
+
+Before starting analysis, read `scripts/domain-knowledge/vurvey-qa-compiled-findings.md`. This contains:
+- Complete route maps for all 12+ feature domains (~115+ routes)
+- All GraphQL operations (~200+ queries, mutations, subscriptions)
+- Detailed model/type definitions
+- Test scenarios and edge cases per domain
+- Feature flag dependencies
+
+Use this as your **primary reference** when verifying documentation completeness and accuracy. When this document and the codebase disagree, the codebase is authoritative.
+
+---
+
 ## Phase 0: Screenshot Validation (NON-BLOCKING)
 
 **Read every PNG in `docs/public/screenshots/` and verify each shows:**
@@ -39,7 +52,7 @@ For each documentation file in `docs/guide/`, compare against:
 
 ### Coverage & Depth Requirements (Do This As You Go)
 
-For each major feature area (Home/Chat, Agents, People, Campaigns, Datasets, Workflows), ensure the documentation includes:
+For each major feature area (Home/Chat, Agents, People, Campaigns, Datasets, Workflows, Settings, Branding, Canvas & Image Studio, Forecast, Rewards, Integrations, Reels, Admin), ensure the documentation includes:
 
 1. What it is (short)
 2. How to use it (step-by-step for common tasks)
@@ -55,13 +68,30 @@ If any of these are missing or shallow, improve the markdown directly. Do not wa
 If you discover a meaningful feature area that does not have a guide page:
 
 1. Create a new file under `docs/guide/<feature>.md`
-2. Add it to the VitePress sidebar in `docs/.vitepress/config.js`
+2. Add it to the VitePress sidebar in `docs/.vitepress/config.js` (sidebar entries for Platform pages already exist)
 3. Link to it from related pages
 
 Screenshots are helpful but should not block docs improvements. If a screenshot does not exist yet:
 
 - Reference the target screenshot with `?optional=1` and add a TODO comment indicating it should be captured, or
 - Reuse the closest existing screenshot that still illustrates the feature.
+
+### New Pages to Create (If Missing)
+
+The following pages should exist. If any are missing, **create them** following the style of existing guide pages (VitePress frontmatter, screenshots with `?optional=1`, API terminology info boxes using `:::info` containers, field/option tables):
+
+| Page | File | Primary Source |
+|------|------|----------------|
+| Settings | `docs/guide/settings.md` | `vurvey-web-manager/src/workspace-settings/` |
+| Branding | `docs/guide/branding.md` | `vurvey-web-manager/src/branding/` |
+| Canvas & Image Studio | `docs/guide/canvas-and-image-studio.md` | `vurvey-web-manager/src/canvas/` |
+| Forecast | `docs/guide/forecast.md` | `vurvey-web-manager/src/forecast/` |
+| Rewards | `docs/guide/rewards.md` | `vurvey-web-manager/src/rewards/` |
+| Integrations | `docs/guide/integrations.md` | `vurvey-web-manager/src/integrations/` |
+| Reels | `docs/guide/reels.md` | `vurvey-web-manager/src/reel/` |
+| Admin (Enterprise) | `docs/guide/admin.md` | `vurvey-web-manager/src/admin/` |
+
+These pages have corresponding sidebar entries already configured under the "Platform" group in `docs/.vitepress/config.js`.
 
 ### Classification Rules
 
@@ -213,6 +243,117 @@ When documentation is correct but code has a bug, create a structured bug report
 - Agent selector behavior
 - Data source options
 
+### Area 7: Settings (`docs/guide/settings.md`)
+
+**Compare against:**
+- `vurvey-web-manager/src/workspace-settings/`
+
+**Verify:**
+- Routes: `/:workspaceId/workspace/settings`, `/workspace/settings/ai-models`, `/workspace/members`
+- General settings form fields (workspace name, avatar, session timeout)
+- AI models browser (list of available models)
+- Member management (invite, roles, remove)
+- Label management CRUD operations
+- API management section (Apigee keys, currently disabled in some builds)
+
+**If `docs/guide/settings.md` does not exist**, create it following the style of existing guide pages.
+
+### Area 8: Branding (`docs/guide/branding.md`)
+
+**Compare against:**
+- `vurvey-web-manager/src/branding/`
+
+**Verify:**
+- Routes: `/:workspaceId/branding`, `/branding/reviews`, `/branding/reels`, `/branding/questions`
+- Brand settings form fields (name, description, logo, banner, colors, categories, benefits, activities, countries)
+- Feedback questions CRUD
+- Reviews page and reel creation from reviews
+- Brand profile completeness
+
+**If `docs/guide/branding.md` does not exist**, create it following the style of existing guide pages.
+
+### Area 9: Canvas & Image Studio (`docs/guide/canvas-and-image-studio.md`)
+
+**Compare against:**
+- `vurvey-web-manager/src/canvas/`
+
+**Verify:**
+- Perlin sphere animation configuration
+- Prompt showcase cards
+- Image Studio tools (enhance, upscale, edit, remove background, convert to video)
+- REST endpoints for image operations (not GraphQL)
+- Video generation settings (duration, aspect ratio, person generation toggle)
+
+**If `docs/guide/canvas-and-image-studio.md` does not exist**, create it following the style of existing guide pages.
+
+### Area 10: Forecast (`docs/guide/forecast.md`)
+
+**Compare against:**
+- `vurvey-web-manager/src/forecast/`
+
+**Verify:**
+- Routes: `/:workspaceId/forecast` and 5 sub-pages (Forecast View, Model Validation, Model Comparison, Discover, Optimize)
+- Feature flag gating (`forecastEnabled` on workspace)
+- Discovery CSV upload
+- GraphQL operations for forecast data
+
+**Note:** Forecast may be feature-flagged off in the staging workspace. Document the feature flag dependency.
+
+**If `docs/guide/forecast.md` does not exist**, create it following the style of existing guide pages.
+
+### Area 11: Rewards (`docs/guide/rewards.md`)
+
+**Compare against:**
+- `vurvey-web-manager/src/rewards/`
+
+**Verify:**
+- Routes: `/:workspaceId/rewards`
+- Tremendous integration setup and configuration
+- 7 supported currencies
+- Reward statuses and bulk selection
+- Permission requirements (`tremendousSettings`)
+
+**If `docs/guide/rewards.md` does not exist**, create it following the style of existing guide pages.
+
+### Area 12: Integrations (`docs/guide/integrations.md`)
+
+**Compare against:**
+- `vurvey-web-manager/src/integrations/` or `vurvey-web-manager/src/workspace-settings/`
+
+**Verify:**
+- Routes: `/:workspaceId/settings/integrations`
+- Composio integration framework
+- Tool categories (15 categories)
+- Auth methods (OAuth2, API key, Bearer token)
+- Connection lifecycle states (ACTIVE, ERROR, REVOKED, PENDING)
+
+**If `docs/guide/integrations.md` does not exist**, create it following the style of existing guide pages.
+
+### Area 13: Reels (`docs/guide/reels.md`)
+
+**Compare against:**
+- `vurvey-web-manager/src/reel/`
+
+**Verify:**
+- Three-column layout
+- Clip management (drag-reorder, add from upload/search/library)
+- Sharing with link, display mode, password protection
+- Transcoding status and polling
+
+**If `docs/guide/reels.md` does not exist**, create it following the style of existing guide pages.
+
+### Area 14: Admin (`docs/guide/admin.md`)
+
+**Compare against:**
+- `vurvey-web-manager/src/admin/`
+
+**Verify:**
+- Routes: `/:workspaceId/admin` with enterprise-only guard
+- 11 lazy-loaded admin pages (Dashboard, Brand Management, Campaign Templates, Agents Admin, SSO Providers, Workspace Management, System Prompts, Taxonomy Management, Vurvey Employees, etc.)
+- Enterprise-only route guards
+
+**If `docs/guide/admin.md` does not exist**, create it following the style of existing guide pages.
+
 ---
 
 ## Phase 3: Backend API Verification Areas
@@ -255,6 +396,38 @@ When documentation is correct but code has a bug, create a structured bug report
 - Error messages match documented error cases
 - Rate limits or quotas match documentation
 
+### Area 10: REST API Endpoints
+
+**Compare against:**
+- `vurvey-api/src/routes/` - Express route handlers
+
+**Verify:**
+- Image Studio REST endpoints (enhance, upscale, imgeditor) exist and match docs
+- Chat history download endpoint
+- Apigee key management endpoints
+- Workspace creation REST endpoint
+- File upload multipart endpoints
+
+### Area 11: Subscription Event Schemas
+
+**Compare against:**
+- `vurvey-api/src/common/event-bus/types` - Event type definitions
+
+**Verify:**
+- Documented event types for chat and orchestration subscriptions match implementation
+- Event payload shapes match documented fields
+- Subscription names in frontend match backend publishers
+
+### Area 12: Workspace Feature Flags
+
+**Compare against:**
+- `vurvey-api/src/models/workspace.ts` - Workspace model feature flags
+
+**Verify:**
+- Feature flags that gate navigation (forecastEnabled, etc.) match docs
+- Default values for feature flags are documented correctly
+- Enterprise-only features are identified accurately
+
 ---
 
 ## Terminology Mapping
@@ -266,6 +439,13 @@ When documentation is correct but code has a bug, create a structured bug report
 | Campaign | Survey | Legacy naming in code |
 | Dataset | TrainingSet | Legacy naming |
 | People/Audience | Community/Population | Multiple terms in code |
+| Forecast | Forecast | Feature-flagged via `forecastEnabled` |
+| Branding / Brand | Brand | Brand profile settings |
+| Reels | Reel | Video clip compilations |
+| Rewards | Tremendous | Tremendous integration for incentives |
+| Integrations | Composio | Third-party tool integrations |
+| Mentions | Mention | Enterprise @mention routing |
+| Admin | Admin | Enterprise-only super admin |
 
 ---
 

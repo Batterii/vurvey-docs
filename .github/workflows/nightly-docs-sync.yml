@@ -24,7 +24,7 @@ env:
 jobs:
   sync-documentation:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     outputs:
       has_bug_reports: ${{ steps.check_bugs.outputs.has_bugs }}
       bug_reports: ${{ steps.check_bugs.outputs.bug_reports }}
@@ -120,11 +120,21 @@ jobs:
 
           claude -p "$PROMPT_CONTENT" \
             --dangerously-skip-permissions \
-            --max-turns 75 \
+            --max-turns 100 \
             --output-format json \
             2>&1 | tee /tmp/claude-log.txt || true
 
           echo "Claude Code analysis complete"
+
+      - name: Validate documentation accuracy
+        env:
+          VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
+          VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
+          VURVEY_URL: ${{ env.VURVEY_URL }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
+          HEADLESS: 'true'
+        continue-on-error: true
+        run: node scripts/qa-doc-validator.js
 
       - name: Check for bug reports
         id: check_bugs
@@ -209,6 +219,8 @@ jobs:
           cp DOCUMENTATION_AUDIT_SUMMARY.md /tmp/qa-artifacts/ 2>/dev/null || echo "No DOCUMENTATION_AUDIT_SUMMARY.md"
           cp -r qa-failure-screenshots /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-failure-screenshots"
           cp -r bug-reports /tmp/qa-artifacts/ 2>/dev/null || echo "No bug-reports"
+          cp qa-output/doc-validation-report.json /tmp/qa-artifacts/ 2>/dev/null || echo "No doc-validation-report.json"
+          cp qa-output/doc-validation-report.md /tmp/qa-artifacts/ 2>/dev/null || echo "No doc-validation-report.md"
           cp /tmp/claude-log.txt /tmp/qa-artifacts/ 2>/dev/null || echo "No claude-log.txt"
           ls -la /tmp/qa-artifacts/
 

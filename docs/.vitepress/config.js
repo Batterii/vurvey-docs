@@ -52,6 +52,20 @@ export default defineConfig({
           ]
         },
         {
+          text: 'Platform',
+          collapsed: true,
+          items: [
+            { text: 'Settings', link: '/guide/settings' },
+            { text: 'Branding', link: '/guide/branding' },
+            { text: 'Canvas & Image Studio', link: '/guide/canvas-and-image-studio' },
+            { text: 'Forecast', link: '/guide/forecast' },
+            { text: 'Rewards', link: '/guide/rewards' },
+            { text: 'Integrations', link: '/guide/integrations' },
+            { text: 'Reels', link: '/guide/reels' },
+            { text: 'Admin (Enterprise)', link: '/guide/admin' },
+          ]
+        },
+        {
           text: 'Reference',
           items: [
             { text: 'Quick Reference', link: '/guide/quick-reference' },
