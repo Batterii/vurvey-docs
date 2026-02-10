@@ -89,11 +89,7 @@ The process is similar across agents, campaigns, datasets, and workflows:
 5. Choose the access level for each person
 6. Save your changes
 
-<img
-  :src="'/screenshots/settings/04-share-dialog.png'"
-  alt="Share dialog"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: settings/04-share-dialog.png — will be captured by automated screenshots -->
 
 If you don't see a **Share** option, you may not have sharing access for that resource. Ask the owner or your workspace administrator to share it with you or grant you sharing access.
 

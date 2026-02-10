@@ -211,11 +211,7 @@ The specific version gives your agent clear context, scope, and expected outputs
 
 ### Step 2: Facets
 
-<img
-  :src="'/screenshots/agents/06-builder-facets.png'"
-  alt="Agent Builder - Facet Values"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: agents/06-builder-facets.png — will be captured by automated screenshots -->
 
 Facets define your agent's characteristics — the traits, demographics, and background that shape how it thinks and communicates. The page header shows **Facet Values** as you work through this step.
 
@@ -265,11 +261,7 @@ You can optionally start from a pre-configured **mold** (template) that provides
 
 ### Step 3: Optional Settings
 
-<img
-  :src="'/screenshots/agents/07-builder-optional-settings.png'"
-  alt="Agent Builder - Optional Settings"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: agents/07-builder-optional-settings.png — will be captured by automated screenshots -->
 
 This step lets you fine-tune how your agent operates by adding knowledge, rules, and connecting datasets. Everything here is optional — you can skip it entirely or come back later.
 
@@ -405,11 +397,7 @@ Connect knowledge sources to give your agent specialized expertise. For example,
 
 ### Step 4: Identity
 
-<img
-  :src="'/screenshots/agents/08-builder-identity.png'"
-  alt="Agent Builder - Identity"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: agents/08-builder-identity.png — will be captured by automated screenshots -->
 
 Give your agent a name, biography, and voice that bring it to life.
 
@@ -452,11 +440,7 @@ A great biography includes:
 
 ### Step 5: Appearance
 
-<img
-  :src="'/screenshots/agents/09-builder-appearance.png'"
-  alt="Agent Builder - Appearance"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: agents/09-builder-appearance.png — will be captured by automated screenshots -->
 
 Create the visual identity that represents your agent.
 
@@ -490,11 +474,7 @@ Here are some examples of descriptions that produce great avatars:
 
 ### Step 6: Review
 
-<img
-  :src="'/screenshots/agents/10-builder-review.png'"
-  alt="Agent Builder - Review"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: agents/10-builder-review.png — will be captured by automated screenshots -->
 
 The final step brings everything together so you can review your agent's complete configuration before going live.
 

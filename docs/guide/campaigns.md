@@ -113,8 +113,7 @@ Once you open a campaign, the top navigation bar provides these tabs:
 | **Analyze** | Tabular response data with sorting, filtering, and export options |
 | **Summary** | AI-generated insights summary with key findings and themes |
 
-<!-- Screenshot: Campaign Build tab showing question list -->
-<!-- ![Campaign Build Tab](/vurvey-docs/screenshots/campaigns/06-build-questions.png) -->
+<!-- Screenshot placeholder: 06-build-questions.png will be captured by automated screenshots -->
 
 ::: tip Results, Analyze, and Summary tabs are disabled while the campaign is in Draft status. They become available once the campaign is launched and starts collecting responses.
 :::
@@ -150,11 +149,7 @@ The campaign editor is where you build your study. It contains:
 - **Question editor (center)** — Configure the selected question's text, type, options, and media
 - **Preview panel (right)** — Live preview of how the question will appear to respondents
 
-<img
-  :src="'/screenshots/campaigns/06-campaign-editor.png'"
-  alt="Campaign editor layout"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: campaigns/06-campaign-editor.png — will be captured by automated screenshots -->
 
 #### Step 3: Adding Questions
 
@@ -169,8 +164,7 @@ Click the **Add Question** button (or the "+" icon) at the bottom of the questio
 
 Select the question type you need and it will appear in your question list.
 
-<!-- Screenshot: Question type selector panel -->
-<!-- ![Question Type Selector](/vurvey-docs/screenshots/campaigns/07-question-type-selector.png) -->
+<!-- Screenshot placeholder: 07-question-type-selector.png will be captured by automated screenshots -->
 
 #### Step 4: Configuring Each Question
 
@@ -269,8 +263,7 @@ Vurvey supports a rich set of question types to capture every kind of consumer f
 
 #### Video Recording
 
-<!-- Screenshot: Video question editor -->
-<!-- ![Video Question Editor](/vurvey-docs/screenshots/campaigns/10-question-video.png) -->
+<!-- Screenshot placeholder: 10-question-video.png will be captured by automated screenshots -->
 
 Respondents record a video answer using their device's camera. This is Vurvey's signature feature — capturing authentic, unscripted consumer voices.
 
@@ -368,8 +361,7 @@ Respondents upload a PDF document.
 
 #### Choice (Single Select)
 
-<!-- Screenshot: Multiple choice question editor -->
-<!-- ![Multiple Choice Editor](/vurvey-docs/screenshots/campaigns/11-question-choice.png) -->
+<!-- Screenshot placeholder: 11-question-choice.png will be captured by automated screenshots -->
 
 Respondents pick one option from a list. Use this for mutually exclusive answers.
 
@@ -515,8 +507,7 @@ Respondents enter a numeric value.
 
 #### Star Rating
 
-<!-- Screenshot: Star rating question editor -->
-<!-- ![Star Rating Editor](/vurvey-docs/screenshots/campaigns/14-question-star.png) -->
+<!-- Screenshot placeholder: 14-question-star.png will be captured by automated screenshots -->
 
 Respondents rate on a star scale (typically 1-5 stars).
 
@@ -643,11 +634,7 @@ In the Group step, you configure:
 | **End date/time** | When the campaign automatically closes |
 | **Incentive** | Credit reward amount per completed response |
 
-<img
-  :src="'/screenshots/campaigns/07-launch-group.png'"
-  alt="Launch flow - group configuration"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: campaigns/07-launch-group.png — will be captured by automated screenshots -->
 
 ### Step 2: Members Selection
 
@@ -668,11 +655,7 @@ In the Members step, you choose exactly who will receive the campaign invitation
 - Filter by demographics, interests, and location
 - Set response quotas for specific demographic groups
 
-<img
-  :src="'/screenshots/campaigns/08-launch-members.png'"
-  alt="Launch flow - members selection"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: campaigns/08-launch-members.png — will be captured by automated screenshots -->
 
 ### Audience Targeting
 
@@ -748,8 +731,7 @@ Once your campaign is Open:
 
 ### Viewing Responses
 
-<!-- Screenshot: Campaign Results tab -->
-<!-- ![Campaign Results Tab](/vurvey-docs/screenshots/campaigns/20-results-tab.png) -->
+<!-- Screenshot placeholder: 20-results-tab.png will be captured by automated screenshots -->
 
 The Results tab shows summary statistics — total responses, completion rate, average duration, and total video minutes collected. Click any individual response to see:
 
@@ -761,11 +743,7 @@ The Results tab shows summary statistics — total responses, completion rate, a
 
 Each response appears as a card showing the respondent's name (or anonymous ID), completion date, and a thumbnail preview of their video. Cards are sorted by most recent by default.
 
-<img
-  :src="'/screenshots/campaigns/09-response-card.png'"
-  alt="Individual response card"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: campaigns/09-response-card.png — will be captured by automated screenshots -->
 
 ### Video Playback
 

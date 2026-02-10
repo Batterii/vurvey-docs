@@ -19,11 +19,7 @@ When you arrive at Home, you'll see a greeting — **"Hi [Your Name]! What might
 
 Above the text input, you'll find a row of toolbar buttons that control how the AI responds to your messages.
 
-<img
-  :src="'/screenshots/home/05-chat-toolbar.png'"
-  alt="Chat toolbar buttons"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: home/05-chat-toolbar.png — will be captured by automated screenshots -->
 
 ### Agents
 
@@ -69,11 +65,7 @@ Selecting one or two relevant sources usually produces sharper answers than sele
 
 When you click the Sources button, a modal opens with multiple tabs. Each tab lets you connect a different type of data to your conversation.
 
-<img
-  :src="'/screenshots/home/07-sources-modal.png'"
-  alt="Sources selector modal with tabs"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: home/07-sources-modal.png — will be captured by automated screenshots -->
 
 | Tab | What It Contains | Best For |
 |-----|-----------------|----------|
@@ -242,11 +234,7 @@ Very large files (over 25 MB) may take a moment to process. You'll see a progres
 
 Each AI response includes several helpful features:
 
-<img
-  :src="'/screenshots/home/06-response-actions.png'"
-  alt="AI response with action buttons"
-  @error="$event.target.remove()"
-/>
+<!-- Screenshot placeholder: home/06-response-actions.png — will be captured by automated screenshots -->
 
 ### Citations
 
