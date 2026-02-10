@@ -1765,22 +1765,57 @@ async function testSettings(page, workspaceId) {
   await recordTest("Settings: Page loads", hasContent, hasContent ? "Settings UI detected" : "No settings UI detected", {selector: "route:/workspace/settings"});
 
   if (!config.quick) {
-    // AI Models sub-page
-    const aiNav = await gotoWorkspaceRoute(page, workspaceId, "/workspace/settings/ai-models");
-    if (aiNav.ok) {
-      const ok = await elementExists(page, "table, [class*='model' i], [class*='card' i], [class*='list' i]", 8000) || (await pageTextIncludes(page, "model"));
-      await recordTest("Settings: AI Models page loads", ok, ok ? "OK" : "Missing AI models UI", {selector: "route:/workspace/settings/ai-models"});
-    } else {
-      recordWarning("Settings: AI Models sub-page", aiNav.error || "Could not navigate");
+    // General settings form — verify workspace name field exists
+    {
+      const hasNameField =
+        (await elementExists(page, 'input[name*="name" i], input[placeholder*="workspace" i], input[placeholder*="name" i]', 6000)) ||
+        (await elementExists(page, 'input[type="text"]', 4000));
+      await recordTest("Settings: General form has workspace name field", hasNameField, hasNameField ? "Workspace name input found" : "No workspace name input found", {selector: "input workspace name"});
     }
 
-    // Members sub-page
-    const membersNav = await gotoWorkspaceRoute(page, workspaceId, "/workspace/members");
-    if (membersNav.ok) {
-      const ok = await elementExists(page, "table, [class*='member' i], [class*='list' i], [class*='user' i]", 8000) || (await pageTextIncludes(page, "member"));
-      await recordTest("Settings: Members page loads", ok, ok ? "OK" : "Missing members UI", {selector: "route:/workspace/members"});
-    } else {
-      recordWarning("Settings: Members sub-page", membersNav.error || "Could not navigate");
+    // AI Models sub-page — verify model cards/toggles visible
+    {
+      const aiNav = await gotoWorkspaceRoute(page, workspaceId, "/workspace/settings/ai-models");
+      if (aiNav.ok) {
+        const ok = await elementExists(page, "table, [class*='model' i], [class*='card' i], [class*='list' i]", 8000) || (await pageTextIncludes(page, "model"));
+        await recordTest("Settings: AI Models page loads", ok, ok ? "OK" : "Missing AI models UI", {selector: "route:/workspace/settings/ai-models"});
+
+        // Verify model cards are visible
+        const hasModelCards =
+          (await elementExists(page, '[class*="modelCard" i], [class*="card" i][class*="model" i], [class*="aiModel" i]', 6000)) ||
+          (await elementExists(page, '[class*="card" i]', 4000));
+        await recordTest("Settings: AI Models has model cards", hasModelCards, hasModelCards ? "Model cards detected" : "No model cards found", {selector: "modelCard/aiModel"});
+
+        // Verify toggles or selection controls
+        const hasToggles = await elementExists(page, '[class*="toggle" i], input[type="checkbox"], [role="switch"], input[type="radio"]', 4000);
+        if (hasToggles) {
+          await recordTest("Settings: AI Models has toggles/controls", true, "Toggle/checkbox/radio controls detected", {selector: "toggle/checkbox/switch"});
+        }
+      } else {
+        recordWarning("Settings: AI Models sub-page", aiNav.error || "Could not navigate");
+      }
+    }
+
+    // Members sub-page — verify member rows with roles
+    {
+      const membersNav = await gotoWorkspaceRoute(page, workspaceId, "/workspace/members");
+      if (membersNav.ok) {
+        const ok = await elementExists(page, "table, [class*='member' i], [class*='list' i], [class*='user' i]", 8000) || (await pageTextIncludes(page, "member"));
+        await recordTest("Settings: Members page loads", ok, ok ? "OK" : "Missing members UI", {selector: "route:/workspace/members"});
+
+        // Verify member rows are present
+        const hasRows = await elementExists(page, 'table tbody tr, [role="row"], [class*="row" i], [class*="memberRow" i]', 6000);
+        await recordTest("Settings: Members list has rows", hasRows, hasRows ? "Member rows detected" : "No member rows found", {selector: "table row/memberRow"});
+
+        // Verify role indicators are visible
+        const hasRoles = await page.evaluate(() => {
+          const text = (document.body?.innerText || "").toLowerCase();
+          return ["admin", "manager", "owner", "member", "editor", "viewer"].some((role) => text.includes(role));
+        });
+        await recordTest("Settings: Members list shows roles", hasRoles, hasRoles ? "Role labels detected" : "No role labels found in page text", {selector: "text:admin/manager/owner/member"});
+      } else {
+        recordWarning("Settings: Members sub-page", membersNav.error || "Could not navigate");
+      }
     }
   }
 }
