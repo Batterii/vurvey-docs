@@ -237,6 +237,31 @@ async function clickButtonByText(page, text, timeout = 8000) {
   return false;
 }
 
+async function clickByAriaLabel(page, label, timeout = 5000) {
+  const startTime = Date.now();
+  const norm = String(label).trim().toLowerCase();
+
+  while (Date.now() - startTime < timeout) {
+    const clicked = await page.evaluate((needle) => {
+      const els = Array.from(document.querySelectorAll('[aria-label]'));
+      const el = els.find((e) => {
+        const al = (e.getAttribute('aria-label') || '').trim().toLowerCase();
+        if (al !== needle) return false;
+        const st = window.getComputedStyle(e);
+        return st.display !== 'none' && st.visibility !== 'hidden' && st.opacity !== '0';
+      });
+      if (!el) return false;
+      el.click();
+      return true;
+    }, norm);
+
+    if (clicked) return true;
+    await delay(250);
+  }
+
+  return false;
+}
+
 async function clickFirstVisible(page, selectors) {
   return await page.evaluate((selectors) => {
     for (const sel of selectors) {
@@ -812,21 +837,25 @@ async function captureAgents(page) {
 
     await takeScreenshot(page, '05-builder-objective', 'agents');
 
+    // Builder uses circular icon buttons with aria-label attributes for step nav.
+    // "Instructions" step is labeled "Optional Settings" in the UI.
     const steps = [
-      { label: 'Facets', shot: '06-builder-facets' },
-      { label: 'Instructions', shot: '07-builder-instructions' },
-      { label: 'Identity', shot: '08-builder-identity' },
-      { label: 'Appearance', shot: '09-builder-appearance' },
-      { label: 'Review', shot: '10-builder-review' }
+      { ariaLabel: 'Facets', shot: '06-builder-facets' },
+      { ariaLabel: 'Optional Settings', shot: '07-builder-instructions' },
+      { ariaLabel: 'Identity', shot: '08-builder-identity' },
+      { ariaLabel: 'Appearance', shot: '09-builder-appearance' },
+      { ariaLabel: 'Review', shot: '10-builder-review' }
     ];
 
     for (const step of steps) {
+      // Primary: click the step's circular nav button via aria-label
+      // Fallback: click Next/Continue text button at bottom of page
       const moved =
-        (await clickButtonByText(page, step.label, 2500)) ||
+        (await clickByAriaLabel(page, step.ariaLabel, 3000)) ||
         (await clickButtonByText(page, 'next', 2500)) ||
         (await clickButtonByText(page, 'continue', 2500));
       if (!moved) {
-        console.log(`  ⚠ Could not navigate to builder step: ${step.label}`);
+        console.log(`  ⚠ Could not navigate to builder step: ${step.ariaLabel}`);
         continue;
       }
       await delay(TIMING.builderStepWait);
