@@ -141,6 +141,34 @@ Click **Add Files** to see your upload options:
 - **Videos and audio** are automatically transcribed so the AI can search spoken content.
 :::
 
+### File Type Best Practices
+
+Different formats have different strengths. Choosing the right one can significantly improve how well the AI understands and uses your content.
+
+| Format | Best For | Tips |
+|--------|----------|------|
+| **PDF** | Polished reports, branded documents, multi-page research with charts | Use text-based PDFs, not scanned images. If you must scan, make sure OCR is enabled. |
+| **DOCX** | Working documents, interview guides, internal memos | Preserves document structure well. Headings and bullet points help the AI understand hierarchy. |
+| **CSV** | Survey exports, CRM data, any tabular data | Include clear column headers. Keep one data type per column. Remove merged cells before upload. |
+| **XLSX** | Multi-sheet workbooks, data with formatting context | Name your sheets descriptively. The AI can read multiple sheets but processes each independently. |
+| **TXT / MD** | Raw transcripts, notes, simple text content | Good for quick uploads when formatting doesn't matter. Markdown headings help organize long documents. |
+| **JSON** | API exports, structured data from tools | Works well for nested data structures. The AI handles JSON natively. |
+| **PPTX** | Slide decks, presentations | The AI reads slide text and notes. Images within slides are also analyzed. |
+| **PNG / JPG** | Screenshots, infographics, product images | The AI describes visual content and can answer questions about what's shown. High resolution gives better results. |
+| **MP4 / MOV** | Interview recordings, focus group videos, product demos | Automatically transcribed. Shorter clips (under 30 minutes) process faster and more accurately. |
+| **MP3 / WAV** | Audio interviews, podcast clips, meeting recordings | Automatically transcribed. Clear audio with minimal background noise gives the best results. |
+
+::: tip When to Use CSV vs. XLSX
+- **Use CSV** when you have clean, flat tabular data (survey exports, contact lists, simple metrics). CSVs process faster and are less error-prone.
+- **Use XLSX** when you need to preserve multiple sheets, formulas context, or have complex headers. Be aware that heavy formatting may not translate.
+- **General rule:** If you can export as CSV, prefer CSV. If you need the spreadsheet structure, use XLSX.
+:::
+
+::: tip When to Use PDF vs. DOCX
+- **Use PDF** for final reports you won't edit again — especially if they contain charts or visual layouts.
+- **Use DOCX** for working documents you may update later. DOCX files also tend to produce slightly better text extraction than PDFs in some cases.
+:::
+
 ### How Uploading Works
 
 1. Select your files using the file picker or Google Drive browser.
@@ -162,6 +190,49 @@ When you choose **Add via Google Drive**:
 2. Browse and select the files you want.
 3. Files are copied into Vurvey — they aren't linked, so future changes in Drive won't sync automatically.
 
+### Google Drive Import: Step-by-Step Walkthrough
+
+If this is your first time importing from Google Drive, here's a detailed walkthrough:
+
+**Step 1: Connect Your Google Account**
+
+1. Click **Add Files** on your dataset detail page.
+2. Select **Add via Google Drive**.
+3. A Google authentication window opens — sign in with the Google account that has access to your files.
+4. Grant Vurvey permission to view your Drive files. Vurvey only reads the files you select; it does not modify anything in your Drive.
+
+::: tip Google Workspace Users
+If your organization uses Google Workspace, you may need your IT administrator to approve the Vurvey integration before you can connect. Check with your admin if you see an "access blocked" message.
+:::
+
+**Step 2: Browse and Select Files**
+
+1. Once authenticated, a file browser opens showing your Google Drive contents.
+2. Navigate through folders to find the files you need.
+3. Select one or multiple files by clicking on them.
+4. You can select files from different folders — use the breadcrumb navigation to move between directories.
+
+**Step 3: Import and Process**
+
+1. Click **Import** (or **Select**) to bring the files into Vurvey.
+2. Files are copied into your dataset — this creates a snapshot. If you later update the file in Google Drive, the Vurvey copy stays as it was at import time.
+3. Imported files enter the same processing queue as direct uploads.
+4. Monitor progress in the stats panel.
+
+::: warning Google Drive Permissions
+- You can only import files you have at least **View** access to in Google Drive.
+- Shared Drive (Team Drive) files work as long as you have access.
+- If a file fails to import, double-check that sharing permissions haven't changed.
+- Large files from Google Drive may take a moment to transfer before processing begins.
+:::
+
+**Step 4: Verify Your Import**
+
+After importing, check the file table to confirm:
+- All expected files appear in the list.
+- File names match what you selected.
+- Processing status shows "Uploaded" or "Processing" (not "Failed").
+
 ## File Processing
 
 After upload, each file goes through AI processing. You'll see a status badge next to every file:
@@ -175,11 +246,31 @@ After upload, each file goes through AI processing. You'll see a status badge ne
 
 ### Typical Processing Times
 
-| File Type | Estimated Time |
-|-----------|---------------|
-| Documents | 1–5 minutes |
-| Audio | 2–15 minutes depending on length |
-| Video | 5–30 minutes depending on length |
+| File Type | Size Range | Estimated Time |
+|-----------|------------|---------------|
+| Text documents (TXT, MD) | Under 1 MB | Under 1 minute |
+| Documents (PDF, DOCX) | Under 5 MB | 1–3 minutes |
+| Documents (PDF, DOCX) | 5–25 MB | 3–8 minutes |
+| Documents (PDF, DOCX) | 25–50 MB | 8–15 minutes |
+| Spreadsheets (CSV) | Under 5 MB | 1–3 minutes |
+| Spreadsheets (CSV) | 5–20 MB | 3–10 minutes |
+| Spreadsheets (XLSX) | Under 10 MB | 2–5 minutes |
+| Spreadsheets (XLSX) | 10–30 MB | 5–12 minutes |
+| Presentations (PPTX) | Under 20 MB | 2–8 minutes |
+| Images (PNG, JPG, GIF, WEBP) | Under 10 MB | 1–3 minutes |
+| Audio (MP3, WAV) | Under 10 minutes of audio | 2–5 minutes |
+| Audio (MP3, WAV) | 10–60 minutes of audio | 5–15 minutes |
+| Video (MP4, MOV) | Under 5 minutes of video | 3–10 minutes |
+| Video (MP4, MOV) | 5–30 minutes of video | 10–30 minutes |
+| Video (MP4, MOV) | 30–60 minutes of video | 25–45 minutes |
+
+::: tip Processing Time Factors
+Processing time depends on more than just file size:
+- **Text density** — A 2 MB PDF with dense text takes longer than a 5 MB PDF with mostly images.
+- **Audio/video quality** — Clear audio transcribes faster; noisy recordings need extra processing.
+- **Queue depth** — If many files are processing simultaneously, each one may take slightly longer.
+- **File complexity** — Spreadsheets with thousands of rows or documents with complex layouts take more time.
+:::
 
 The page polls for updates every 30 seconds and shows a notification when everything is ready.
 
@@ -240,6 +331,122 @@ Well-organized labels help the AI narrow its search when answering questions. Us
 
 ::: warning Bulk Label Warning
 When applying labels to files that already have labels, you'll be asked whether to replace the existing ones. This prevents accidentally overwriting metadata.
+:::
+
+### Label Strategy Examples
+
+Here are complete labeling schemes for common research scenarios. Use these as starting points and adapt to your team's terminology.
+
+#### Example 1: Beauty Brand Research
+
+```
+product-line: skincare | haircare | makeup | fragrance
+study-type: concept-test | usage-attitudes | brand-tracking | claims-test
+quarter: Q1-2025 | Q2-2025 | Q3-2025 | Q4-2025
+region: north-america | europe | asia-pacific | latin-america
+source: online-survey | focus-group | in-depth-interview | social-listening
+status: draft | reviewed | final
+```
+
+**How to use it:** When your agent asks questions about skincare concept tests from Q1, the labels let the AI zero in on exactly the right files instead of searching your entire dataset.
+
+#### Example 2: CPG Category Management
+
+```
+category: beverages | snacks | personal-care | household | frozen-foods
+data-source: nielsen | iri | internal-survey | social-listening | retailer-pos
+time-period: weekly | monthly | quarterly | annual
+channel: grocery | mass | convenience | online | club
+brand: own-brand | competitor-a | competitor-b | private-label
+```
+
+**How to use it:** Ask your agent "Show me quarterly Nielsen trends for beverages in the grocery channel" and the labels help surface the most relevant data files.
+
+#### Example 3: Competitive Intelligence
+
+```
+competitor: competitor-a | competitor-b | competitor-c | competitor-d
+intel-type: pricing | messaging | product-launch | campaign | partnership
+confidence: confirmed | rumored | speculative
+date-collected: 2025-01 | 2025-02 | 2025-03
+source: press-release | website | social-media | industry-report | field-observation
+```
+
+**How to use it:** Track the freshness and reliability of your competitive intel. When the AI cites a source, you can quickly tell whether it's confirmed intelligence or a rumor.
+
+#### Example 4: Multi-Market Consumer Research
+
+```
+market: us | uk | germany | france | japan | brazil
+language: english | german | french | japanese | portuguese
+methodology: quant-survey | qual-interview | ethnography | diary-study
+wave: wave-1 | wave-2 | wave-3 | pre-launch | post-launch
+segment: gen-z | millennials | gen-x | boomers | all-ages
+```
+
+**How to use it:** Run cross-market comparisons by asking agents to analyze differences between segments or markets — the labels make it easy to pull the right files for each comparison.
+
+::: tip Label Naming Conventions
+- Use **lowercase** and **hyphens** for consistency (e.g., "north-america" not "North America").
+- Keep key names **short but descriptive** — "source" is better than "data-collection-source-type."
+- Agree on a standard set of labels with your team before you start uploading.
+- Document your label scheme somewhere your team can reference it (a shared doc or wiki page).
+:::
+
+## Dataset Organization Patterns
+
+How you organize your datasets depends on your research workflow. Here are four proven patterns:
+
+### Pattern 1: By Project
+
+Create one dataset per research project or initiative.
+
+| Dataset Name | Contents |
+|-------------|----------|
+| Holiday-Campaign-2025 | All research files related to the 2025 holiday campaign |
+| Product-A-Relaunch | Consumer testing, competitive analysis, and concept boards for the relaunch |
+| Brand-Health-Tracker | Ongoing brand tracking survey data and reports |
+
+**Best for:** Teams that work on distinct projects with clear start and end dates.
+
+### Pattern 2: By Quarter
+
+Organize research chronologically for easy time-based comparisons.
+
+| Dataset Name | Contents |
+|-------------|----------|
+| Q1-2025-Research | All research completed in January–March 2025 |
+| Q2-2025-Research | All research completed in April–June 2025 |
+| Q3-2025-Research | All research completed in July–September 2025 |
+
+**Best for:** Teams that need to track trends over time or compare insights across periods.
+
+### Pattern 3: By Topic
+
+Group files by subject matter regardless of when they were created.
+
+| Dataset Name | Contents |
+|-------------|----------|
+| Sustainability-Consumer-Attitudes | All research on sustainability perceptions and green purchasing |
+| Pricing-Sensitivity-Research | Price testing, willingness-to-pay studies, value perception data |
+| Packaging-Design-Insights | Package testing results, shelf impact studies, design preference data |
+
+**Best for:** Teams that need a long-running knowledge base on specific topics.
+
+### Pattern 4: By Competitor
+
+Dedicate a dataset to each competitor for focused competitive intelligence.
+
+| Dataset Name | Contents |
+|-------------|----------|
+| Competitor-A-Intel | Press releases, product info, ad creative, pricing data |
+| Competitor-B-Intel | Campaign analysis, social listening exports, market share data |
+| Market-Landscape-2025 | Industry reports and category-level data that spans competitors |
+
+**Best for:** Teams running ongoing competitive monitoring programs.
+
+::: tip Combine Patterns
+Most teams use a mix. For example, you might organize by project for active work and by topic for your long-term knowledge base. The key is consistency within your team.
 :::
 
 ## Sharing and Permissions
@@ -340,6 +547,15 @@ Magic Summaries will automatically generate insights and connections across your
 - Be consistent with values — avoid using both "US" and "United States."
 - Label files right after uploading so nothing gets missed.
 
+### Dataset Size Guidelines
+
+| Dataset Size | AI Performance | Recommendation |
+|-------------|---------------|----------------|
+| 1–50 files | Excellent — fast retrieval, highly focused answers | Great for focused project datasets |
+| 50–200 files | Very good — broad knowledge with good precision | Ideal range for most use cases |
+| 200–500 files | Good — may occasionally surface less relevant results | Consider splitting into sub-topics if answers lose focus |
+| 500+ files | Adequate — slower retrieval, answers may be less precise | Split into multiple focused datasets and use labels heavily |
+
 ## Data Security
 
 - All data is encrypted at rest and in transit.
@@ -373,6 +589,46 @@ Make sure any data you upload complies with your organization's data policies an
 3. Check that the content is text-searchable (scanned image-only PDFs may not work).
 4. Try rephrasing your question using terms that appear in the files.
 
+### File Upload Timing Out
+
+1. Check your internet connection — large uploads need a stable connection.
+2. Try a smaller batch (5–10 files instead of 20).
+3. If uploading a very large file (over 30 MB), try during off-peak hours when network congestion is lower.
+4. Switch to a wired connection if you're on Wi-Fi and experiencing intermittent drops.
+5. If the timeout persists, split the file into smaller parts (e.g., split a 100-page PDF into two 50-page files).
+
+### Large CSV Not Processing Correctly
+
+1. Check that your CSV uses **UTF-8 encoding** — other encodings can cause garbled characters.
+2. Ensure column headers are on the first row with no merged cells.
+3. Remove any blank rows at the top or bottom of the file.
+4. Check for special characters in header names — stick to letters, numbers, and hyphens.
+5. If the file is very large (over 10 MB or 100,000+ rows), consider splitting it into smaller chunks. Processing is more reliable with files under 50,000 rows.
+6. Open the file in a text editor to verify there are no hidden formatting issues from Excel.
+
+### Google Drive Permission Errors
+
+1. Confirm you are signed into the correct Google account.
+2. Check that you have at least **View** access to the files in Google Drive.
+3. If your organization uses Google Workspace, ask your IT administrator to approve the Vurvey integration.
+4. Try disconnecting and reconnecting your Google account: log out of the Google picker, then re-authenticate.
+5. If importing from a Shared Drive, verify that your Shared Drive permissions haven't changed recently.
+
+### Files Showing Wrong Content After Processing
+
+1. Verify you uploaded the correct file — check the file name and size in the file table.
+2. If the document was recently updated, you may have uploaded an older version. Delete the file and re-upload the current version.
+3. For PDFs, check that the document isn't password-protected — Vurvey cannot process encrypted PDFs.
+4. If a spreadsheet shows unexpected content, open it locally to verify the data is on the first sheet (or named sheets) and not hidden.
+
+### Dataset Too Large for Optimal AI Performance
+
+1. If you notice the AI is giving vague or less relevant answers, your dataset may be too large. Check the file count in the stats panel.
+2. Consider splitting into multiple smaller, focused datasets. For example, split "All Research 2024" into "Q1-Research-2024," "Q2-Research-2024," etc.
+3. Remove duplicate files — the same report uploaded twice dilutes search quality.
+4. Remove outdated files that are no longer relevant to your current research questions.
+5. Use labels aggressively — even in large datasets, good labels help the AI narrow its search.
+
 ## Frequently Asked Questions
 
 ::: details Click to expand
@@ -400,6 +656,30 @@ The AI uses semantic search — it understands meaning and context, not just exa
 
 **Q: Can multiple people upload to the same dataset?**
 Yes, as long as they have Edit permission.
+
+**Q: What is the optimal number of files per dataset?**
+For most use cases, 50–200 files hits the sweet spot. The AI retrieves content quickly and answers stay focused. Below 50 files is fine for narrow topics. Above 200, consider whether you could split into more focused datasets. If you must go larger, use labels consistently to help the AI find the right content.
+
+**Q: Can I organize files into folders within a dataset?**
+Datasets don't have a folder structure. Instead, use **labels** to organize files. Labels are actually more powerful than folders because a single file can have multiple labels (e.g., both "region: europe" and "study-type: concept-test"), whereas a folder only allows one location. Think of labels as multi-dimensional folders.
+
+**Q: How do I update a file without deleting and re-uploading?**
+Currently, there's no in-place update. To replace a file with a newer version: (1) upload the new version, (2) apply the same labels to the new file, (3) delete the old file. This ensures continuity while keeping your dataset current.
+
+**Q: Do labels affect AI search quality?**
+Yes — significantly. Labels help the AI narrow its search when answering questions. If you ask "What did consumers in Europe say about pricing?" and your files are labeled with `region: europe`, the AI can prioritize those files. Without labels, the AI searches all files equally and may surface less relevant results.
+
+**Q: Can I merge two datasets into one?**
+There's no automatic merge feature. To combine datasets manually: (1) go to the target dataset, (2) download files from the source dataset you want to move, (3) upload them to the target dataset, (4) re-apply labels. If you find yourself merging often, consider whether your dataset organization pattern needs adjustment.
+
+**Q: What's the maximum file size I can upload?**
+File size limits vary by type: documents up to 50 MB, videos up to 100 MB, audio up to 25 MB, images up to 10 MB. If a file exceeds these limits, try compressing it or splitting it into smaller parts.
+
+**Q: Can I export a dataset or download all files at once?**
+There is no bulk download feature. You can download individual files from the file table. For backup purposes, consider maintaining a copy of your original files in a cloud storage service like Google Drive alongside your Vurvey dataset.
+
+**Q: Do deleted files affect existing conversations?**
+Yes. If you delete a file that was referenced in a conversation, the AI will no longer be able to cite or retrieve content from that file. The conversation itself remains, but future questions about that content won't have the file to draw from.
 :::
 
 ## Next Steps
