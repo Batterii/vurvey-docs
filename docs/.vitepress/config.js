@@ -43,9 +43,9 @@ export default defineConfig({
         {
           text: 'Features',
           items: [
-            { text: 'Home (Chat)', link: '/guide/home' },
+            { text: 'Home', link: '/guide/home' },
             { text: 'Agents', link: '/guide/agents' },
-            { text: 'People (Audience)', link: '/guide/people' },
+            { text: 'People', link: '/guide/people' },
             { text: 'Campaigns', link: '/guide/campaigns' },
             { text: 'Datasets', link: '/guide/datasets' },
             { text: 'Workflow (Beta)', link: '/guide/workflows' },
@@ -71,7 +71,7 @@ export default defineConfig({
             { text: 'Quick Reference', link: '/guide/quick-reference' },
             { text: 'Sources & Citations', link: '/guide/sources-and-citations' },
             { text: 'Permissions & Sharing', link: '/guide/permissions-and-sharing' },
-            { text: 'Automation & QA', link: '/guide/automation-and-qa' },
+            { text: 'About This Documentation', link: '/guide/automation-and-qa' },
           ]
         }
       ]

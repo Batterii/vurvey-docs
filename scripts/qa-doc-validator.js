@@ -42,7 +42,7 @@ const config = {
   email: process.env.VURVEY_EMAIL,
   password: process.env.VURVEY_PASSWORD,
   baseUrl: process.env.VURVEY_URL || "https://staging.vurvey.dev",
-  fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || null,
+  fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193',
   headless: process.env.HEADLESS !== "false",
   timeoutMs: 30000,
 };

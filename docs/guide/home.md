@@ -1,987 +1,609 @@
-# Home (Chat Interface)
+# Home
 
-The Home page is your primary workspace for interacting with Vurvey's AI capabilities through a conversational interface. This is the default landing page after logging in.
+The Home page is your AI-powered research assistant. It's the first thing you see after logging in — a conversational workspace where you can ask questions, analyze data, and generate insights.
 
-::: info API Terminology
-In the Vurvey API and codebase, the chat system uses these terms:
-- **ChatConversation** = A conversation/chat session
-- **ChatQueryMessage** = A user message (input)
-- **ChatResponseMessage** = An AI response
-- **ChatConversationMode** = Chat mode (`conversation`, `smart_sources`, `smart_tools`, `omni`, `manual_tools`)
-- **ChatLayoutMode** = Layout state (HOME or CHAT)
-- **AiPersona** = An Agent you chat with
+![The Vurvey Home screen](/screenshots/home/03-after-login.png)
 
-Understanding these mappings helps when troubleshooting or working with the platform programmatically.
+## Getting Started
+
+When you arrive at Home, you'll see a greeting — **"Hi [Your Name]! What might we create today?"** — along with a text input at the bottom of the screen. Just type a question or request and press **Enter** to start a conversation.
+
+**Try asking something like:**
+- "Summarize the key themes from our latest beauty brand survey"
+- "What are the top consumer complaints about our packaging?"
+- "Write an executive summary of this quarter's research findings"
+
+![The main chat interface](/screenshots/home/01-chat-main.png)
+
+## The Chat Toolbar
+
+Above the text input, you'll find a row of toolbar buttons that control how the AI responds to your messages.
+
+<img
+  :src="'/screenshots/home/05-chat-toolbar.png'"
+  alt="Chat toolbar buttons"
+  @error="$event.target.remove()"
+/>
+
+### Agents
+
+Click the **Agents** button to choose which AI persona answers your questions. Each agent has its own personality, expertise, and knowledge base. For example, you might have:
+
+- A **consumer persona** that responds as if they're a real customer in your target demographic
+- An **analyst** that specializes in finding patterns in survey data
+- A **strategist** that helps you develop positioning and messaging
+
+You can also mention an agent by name mid-conversation by typing **@** followed by their name — for example, `@MarketAnalyst, what patterns do you see in this data?`
+
+::: tip Multi-Agent Conversations
+Mention multiple agents in the same message to get diverse perspectives at once. For example: `@MillennialMom, would you buy this product? @GenZShopper, how about you?`
 :::
 
-## Overview
+#### Switching Agents Mid-Conversation
 
-![Chat Interface](/screenshots/home/01-chat-main.png)
+You can change your active agent at any point in a conversation. When you switch agents:
 
-The chat interface provides a unified way to query AI agents, attach data sources, and control how the AI reasons about your research questions.
+- The new agent can see the full conversation history so far
+- The agent's unique personality and expertise immediately take effect
+- Sources you've selected remain connected — the new agent can access the same data
+- Previous responses from other agents stay in the conversation thread
 
-::: tip What Can You Do Here?
-The Home chat is your research command center. You can:
-- Ask questions about your survey data and get instant insights
-- Analyze documents, videos, and images with AI
-- Get multiple perspectives by mentioning different agents
-- Generate reports, summaries, and creative content
-- Search the web for current information and trends
-- Create images using AI generation tools
-- Export conversations and create campaigns from insights
+::: tip Quick Agent Switching
+If you only need a quick answer from a different agent, use the **@mention** syntax instead of switching your active agent. This keeps your primary agent selected while pulling in a one-time response from another.
 :::
 
-## Page Layout Architecture
+### Sources
 
-The chat interface is built around two main layouts that animate smoothly between each other:
+Click the **Sources** button (tooltip: "Select Datasets and/or Campaigns") to connect your data to the conversation. You can select:
 
-### HOME Layout (Initial State)
+- **Datasets** — documents, spreadsheets, or other files you've uploaded
+- **Campaigns** — survey responses you've collected through Vurvey
 
-When you first arrive at Home, you'll see a welcome message: **"Hi [Your Name]! What might we create today?"** This is the HOME layout before any conversation starts.
+When sources are connected, the AI reads and cites your actual data rather than relying on general knowledge. This is essential for getting accurate, evidence-based insights.
 
-**Visual Elements:**
-| Element | Description |
-|---------|-------------|
-| **Animated Background** | Perlin sphere animation (if enabled in workspace settings) |
-| **Greeting Header** | Personalized "Hi [firstName]!" message |
-| **Subheader** | "What might we create today?" prompt |
-| **Prompt Showcase** | Example prompts to get started (if feature enabled) |
-| **Chat Input** | Full input capabilities available even on home screen |
-
-### CHAT Layout (Active Conversation)
-
-Once you start a conversation, the page transitions to the CHAT layout showing your conversation history.
-
-**Visual Elements:**
-| Element | Description |
-|---------|-------------|
-| **Chat Name Pill** | Displays conversation name above message list |
-| **Message List** | Scrollable area with user and AI messages |
-| **Error Banner** | Appears at top if errors occur |
-| **Chat Input** | Persistent input area at bottom |
-
-The transition between layouts is animated with smooth spring physics (0.15-0.3 second duration).
-
-## Chat Input Area
-
-At the bottom of the screen, you'll find the chat input area where you compose messages. This is a sophisticated component with multiple sub-elements.
-
-### Text Input
-
-The main text area supports rich input capabilities:
-
-- **Type** your question or prompt in the text area
-- **Use `@`** to mention specific agents in your message
-- **Use `/`** to access tool groups and specialized capabilities
-- **Paste images** directly into the input for visual analysis
-- **Auto-expand** - The text area grows as you type multi-line content
-
-::: tip Pro Tip: Multiline Messages
-Press `Shift + Enter` to add line breaks for multi-step prompts:
-```
-Analyze the Q4 survey results and:
-1. Identify the top 3 themes
-2. Find notable quotes for each theme
-3. Suggest follow-up questions
-```
+::: tip Focused Sources Get Better Results
+Selecting one or two relevant sources usually produces sharper answers than selecting everything at once. The AI can focus on what matters instead of sifting through unrelated data.
 :::
 
-### Input Controls
+#### The Sources Selector Modal
 
-| Control | Location | Purpose |
-|---------|----------|---------|
-| **Upload** | Left of input | Attach documents or images |
-| **Sources Chip** | Above input | View/manage selected data sources |
-| **Tool Badge** | Above input | Shows active tool group (with PAUSED indicator if applicable) |
-| **Mode Chips** | Above input | Shows Smart Tools or Smart Sources badge |
-| **Send** | Right of input | Submit your message (disabled when empty) |
+When you click the Sources button, a modal opens with multiple tabs. Each tab lets you connect a different type of data to your conversation.
 
-### Agent Selector Tab
+<img
+  :src="'/screenshots/home/07-sources-modal.png'"
+  alt="Sources selector modal with tabs"
+  @error="$event.target.remove()"
+/>
 
-Above the input area, you'll see the **Persona Tab Wrapper** showing your currently selected agent:
+| Tab | What It Contains | Best For |
+|-----|-----------------|----------|
+| **Campaigns** | Your Vurvey survey campaigns and their collected responses | Analyzing survey results, finding themes in consumer feedback |
+| **Questions** | Individual questions from your campaigns | Drilling into specific survey questions instead of entire campaigns |
+| **Datasets** | Collections of files you've uploaded to Vurvey | Broad research context from multiple documents |
+| **Files** | Individual documents within your datasets | Focused analysis of a single report, spreadsheet, or document |
+| **Videos** | Video content from campaigns or uploads | Analyzing video responses, extracting visual insights |
+| **Audio** | Audio recordings and transcripts | Reviewing interview recordings, podcast analysis |
 
-- Click to expand and see agent details (name, description, avatar)
-- Animated entrance/exit (33px slide)
-- Shows which agent will respond to your message
+**Campaigns Tab** — Shows all campaigns in your workspace. Select one or more campaigns to give the AI access to every response collected. This is the most common starting point for survey analysis.
 
-### File Attachments
+**Questions Tab** — Lets you drill down into specific questions from your campaigns. Instead of selecting an entire campaign, you can choose individual questions. This is useful when you want the AI to focus on one aspect of a survey, such as "Tell me about responses to Question 3 only."
 
-Click the upload button to attach files to your message:
+**Datasets Tab** — Displays file collections you've uploaded. Selecting a dataset connects all files within it. Great for broad context like competitive reports, brand guidelines, or research libraries.
 
-**Supported File Types:**
-| Category | Formats |
-|----------|---------|
-| **Documents** | PDF, DOCX, TXT, MD, CSV, JSON, PPTX, XLSX |
-| **Images** | PNG, JPG, GIF (for visual analysis) |
-| **Videos** | MP4, MOV (for video analysis) |
-| **Audio** | MP3, WAV (if enabled) |
+**Files Tab** — Shows individual files within your datasets. Select specific files when you want precise, focused analysis — for example, analyzing one quarterly report instead of an entire dataset of reports.
 
-Files are uploaded and processed before your message is sent. A spinner appears during upload.
+**Videos Tab** — Surfaces video content from your campaigns and uploads. The AI can analyze video transcripts, summarize key moments, and extract insights from video responses.
 
-::: warning Upload Limitations
-- The upload button is disabled when a tool is active
-- The upload button is disabled when revoked attachments are present
-- Large files may take longer to process
-- Some file types may have size limits (typically 50MB max)
+**Audio Tab** — Connects audio recordings and their transcripts. Useful for analyzing interview recordings, focus group audio, or any audio-based research materials.
+
+::: tip Source Selection Strategy
+Start narrow, then broaden. Select one campaign or a few files first. If the AI's answers need more context, add additional sources. This approach gives you more focused, citation-rich responses.
 :::
 
-::: details File Attachment Use Cases (Click to Expand)
-
-**Competitive Analysis:**
-Upload a competitor's PDF brochure and ask: "How does our messaging compare to this competitor's positioning?"
-
-**Visual Research:**
-Paste multiple product images and ask: "What design patterns do these successful products have in common?"
-
-**Meeting Notes:**
-Upload an audio recording from a client call and ask: "Summarize the key action items and client concerns."
-
-**Data Exploration:**
-Upload a CSV export and ask: "What are the most interesting patterns in this customer data?"
-
-**Presentation Review:**
-Upload a PowerPoint and ask: "What are the strongest and weakest slides in this deck?"
+::: warning Source Limits
+There's a practical limit to how many sources the AI can process effectively in a single conversation. If you select too many, responses may become slower or less focused. Aim for no more than 5–10 sources at a time for the best experience.
 :::
 
-### Tool Groups & Slash Commands
+### Images
 
-Use `/` in the chat input to access specialized tool groups. When you type `/`, a **Tool Selector Popup** appears showing available tools.
+Click the **Images** button (picture icon, tooltip: "Select an image model") to enable AI image generation. Once enabled, you can ask the AI to create visuals — for example, "Create a mood board for our new product line" or "Generate a logo concept for a natural skincare brand."
 
-**Tool Selector Behavior:**
-- Appears when you type `/`
-- Disappears when you add a space
-- Lists available tools with icons and descriptions
-- Click to select a tool group
+#### Available Image Models
 
-**Common Tool Groups:**
-| Tool | Command | Purpose |
-|------|---------|---------|
-| **Web Search** | `/web` | Search the internet for information |
-| **Image Generation** | `/image` | Create images from descriptions |
-| **Data Analysis** | `/analysis` | Statistical analysis and visualization |
-| **Content Creation** | `/content` | Generate structured content |
+Select an image generation model from the dropdown:
 
-#### Tool Pausing Behavior
+| Model | Best For |
+|-------|----------|
+| **Nano Banana** | Vurvey's proprietary model for fast, versatile image generation |
+| **OpenAI (DALL-E)** | Photorealistic images, product mockups, lifestyle scenes |
+| **Google Imagen** | High-fidelity images with strong text rendering and detail |
+| **Stable Diffusion** | Artistic styles, concept art, creative visuals |
 
-In certain modes, some tools are automatically paused:
-- **Chat mode**: ALL tools paused by default (shown with grayscale + reduced opacity)
-- **My Data mode**: Web-based tools paused
-- A **"PAUSED"** badge appears on tool groups that won't be used
+You can also toggle image generation on or off using the **Turn on/off images** option at the bottom of the dropdown.
 
-The Tool Group Badge Section shows your selected tool with clear visual feedback about its active/paused state.
-
-::: tip Pro Tip: Tool Group Selection
-Type `/` to see available tools and their descriptions. Select the right tool group before sending your message for best results. The slash command hint (e.g., `/web`) appears on each tool card.
+::: tip Choosing an Image Model
+If you're unsure which model to use, start with **Nano Banana** for quick iterations, **DALL-E** for realistic product and marketing imagery, or **Stable Diffusion** for more artistic and creative concepts. You can always regenerate with a different model if the first result isn't what you need.
 :::
 
-### Chat Bubble Drawer
+#### Image Generation Tips
 
-When you click the tool selector button (slash icon), a **Chat Bubble Drawer** modal opens with Tool Group Cards:
+- **Be descriptive** — Include details like style, color palette, composition, and mood. "A modern minimalist skincare bottle on a marble countertop with soft natural lighting" will produce better results than "a skincare bottle."
+- **Specify dimensions** — Ask for "landscape," "portrait," or "square" to control the aspect ratio
+- **Iterate** — Ask the AI to "make it warmer," "add more negative space," or "try a different angle" to refine results
+- **Reference styles** — Mention visual styles like "flat design," "watercolor," "3D render," or "vintage photography"
 
-**Each Tool Group Card Shows:**
-- Icon for the tool
-- Tool group name (localized)
-- Slash command hint
-- Description
-- Checkmark when selected
-- Border highlight when selected
-- Animated entrance (staggered 0.05s delay)
-- Hover effect (scale 1.02)
-- Tap effect (scale 0.98)
+### Tools
 
-The drawer closes automatically when you select a tool or click outside.
+Click the **Tools** button (sliders icon, tooltip: "Select a search tool") to give the AI access to web research and social media tools. Select a specific tool from the dropdown or let the AI use all available tools automatically.
 
-## Agent Selection
+#### Available Tools
 
-### Choosing an Agent
+| Tool | What It Searches |
+|------|-----------------|
+| **Web Research** | General web search for current information, news, and trends |
+| **TikTok** | TikTok content, trends, and creator insights |
+| **Reddit** | Reddit discussions, threads, and community sentiment |
+| **LinkedIn** | LinkedIn posts, professional content, and industry discussions |
+| **YouTube** | YouTube videos, comments, and channel content |
+| **X/Twitter** | Posts, trending topics, and public conversations on X |
+| **Instagram** | Instagram posts, reels, and visual content trends |
 
-Click the agent selector at the top of the input area to choose which AI persona responds to your queries. Each agent is configured with:
+You can also toggle all tools on or off using the **Turn on/off tools** option at the bottom of the dropdown.
 
-| Attribute | Description |
-|-----------|-------------|
-| **Personality** | Communication style and tone |
-| **Expertise** | Domain knowledge and specializations |
-| **Instructions** | Behavioral guidelines |
-| **Knowledge** | Connected datasets |
-| **Voice** | Voice ID for audio playback (if configured) |
+#### What Tools Can Find
 
-::: tip Pro Tip: Match Agent to Task
-- **Consumer Personas** for "voice of customer" perspectives
-- **Analysts** for data interpretation and pattern finding
-- **Experts** for industry-specific terminology and context
-- **Assistants** for general brainstorming and exploration
+- Current industry news and trends
+- Competitor websites, press releases, and public data
+- Market reports and published research (publicly available)
+- Social media trends, sentiment, and public discussions
+- Product listings and pricing information
+- Platform-specific content from TikTok, Reddit, YouTube, and more
+
+#### What Tools Cannot Find
+
+- Paywalled or subscription-only content
+- Private social media posts or closed communities
+- Real-time stock prices or live data feeds
+- Content behind login walls
+
+::: tip Combining Tools with Sources
+For the most powerful analysis, enable both **Tools** and **Sources** together. Ask questions like: "Based on our consumer survey data, how do our findings compare to the latest industry trends?" The AI will reference your data and supplement it with current web information.
 :::
 
-### Agent Mentions with @
-
-Type `@` followed by an agent's name to mention them in your message. This triggers a **Mention Popup** that:
-- Shows available published agents
-- Filters as you type the agent name
-- Allows selecting one agent per message
-
-**Examples of Agent Mentions:**
-
-```
-What do you think about this concept? @SarahTheMillennial, would this
-appeal to you?
-```
-
-```
-@MarketAnalyst, what do you see in this data? @BrandStrategist, how
-would you position this?
-```
-
-::: tip Pro Tip: Multi-Agent Conversations
-Mention multiple agents in the same message to get diverse perspectives instantly. This is powerful for:
-- Testing messaging with different demographics
-- Getting both analytical and creative viewpoints
-- Validating ideas across stakeholder perspectives
+::: tip Social Media Research
+Select a specific social media tool (like TikTok or Reddit) when you want targeted platform insights. For example, select **TikTok** and ask "What are the trending skincare routines this month?" or select **Reddit** and ask "What are consumers saying about our brand on Reddit?"
 :::
 
-## Chat Modes
+### Model Selector
 
-The platform supports five chat modes that control how the AI processes your request:
+If available, a model selector button lets you choose which AI model powers your conversation. The default setting, **Auto-Select**, automatically picks the best model for your task. You can also choose a specific model if you prefer.
 
-| Mode | API Value | Description |
-|------|-----------|-------------|
-| **Conversation** | `conversation` | Basic chat mode with no tools - uses only conversation context |
-| **Smart Sources (My Data)** | `smart_sources` | AI retrieves information from your connected datasets and sources |
-| **Smart Tools (Web)** | `smart_tools` | Curated tool groups for specialized capabilities |
-| **Omni** | `omni` | Default mode with all capabilities enabled |
-| **Manual Tools** | `manual_tools` | User manually selects individual tools to use |
+#### How Auto-Select Works
 
-::: info Mode Selection in UI
-The UI typically presents simplified toggles for Chat, My Data, and Web modes. These map to the underlying mode system, with Omni being the default when multiple capabilities are enabled together.
+When set to **Auto-Select**, Vurvey evaluates your question and the tools you've enabled, then routes your request to the model best suited for the task:
+
+- **Complex analytical questions** with large datasets may use a more capable model
+- **Simple follow-up questions** may use a faster model for quicker responses
+- **Image generation requests** are automatically routed to your selected image model
+
+::: tip When to Override Auto-Select
+Most users never need to change the model manually. However, if you notice responses are too brief for complex questions, try manually selecting a more powerful model. If responses are slow for simple questions, try selecting a faster model.
 :::
 
-::: tip Combining Modes
-Modes can be combined for comprehensive analysis. For example, enable both **My Data** and **Web** to compare your research findings with external sources.
+## How Omni Mode Works
+
+You don't need to pick a "mode" manually — Vurvey uses **Omni Mode** by default, which intelligently decides which tools to use based on your question and what you've enabled in the toolbar:
+
+| What you've enabled | How the AI behaves |
+|---|---|
+| **Everything on** (default — Omni Mode) | The AI can use all available tools — search the web, query your data, generate images — whatever fits your question. A status line reads "Using all sources, all tools, and image generation" |
+| **Only Sources selected** | The AI focuses exclusively on your connected datasets and campaigns, citing specific data points |
+| **A specific tool or image model selected** | The AI uses that specific tool to answer your question |
+| **Nothing selected** | Simple conversation mode — the AI uses only its general knowledge and what you've discussed so far. Status reads "Talking to Vee" (or your selected agent's name) |
+
+You can toggle individual categories on or off using the **Turn on/off** option in each toolbar dropdown. The status display below the toolbar always shows what the AI currently has access to.
+
+## Attaching Files
+
+Click the **upload button** (to the left of the text input) to attach files directly to your message. The AI can analyze:
+
+- **Documents** — PDF, Word, PowerPoint, Excel, CSV, and text files
+- **Images** — PNG, JPG, and GIF for visual analysis
+- **Videos** — MP4 and MOV
+
+**Example:** Upload a competitor's brochure and ask, "How does their messaging compare to ours?" Or paste a product photo and ask, "What design elements make this packaging stand out?"
+
+### Supported File Types and Limits
+
+| File Type | Formats | Size Limit | What the AI Can Do |
+|-----------|---------|------------|-------------------|
+| **Documents** | PDF, DOCX, PPTX, TXT | Up to 50 MB | Read text, extract key points, summarize, compare across documents |
+| **Spreadsheets** | XLSX, CSV | Up to 50 MB | Analyze data, identify trends, generate charts, calculate statistics |
+| **Images** | PNG, JPG, GIF, WEBP | Up to 20 MB | Describe visual content, analyze design elements, read text in images, compare product photos |
+| **Videos** | MP4, MOV | Up to 100 MB | Transcribe audio, summarize content, identify key moments |
+| **Audio** | MP3, WAV, M4A | Up to 100 MB | Transcribe speech, summarize discussions, extract quotes |
+
+### File Attachment Tips
+
+- **Multiple files** — You can attach several files in a single message. The AI will analyze them together, making it easy to compare documents side by side.
+- **Drag and drop** — Simply drag files from your desktop or file explorer directly onto the chat input area.
+- **Inline analysis** — When you upload an image, the AI automatically sees it and can describe or analyze it without further prompting.
+- **Reference previous uploads** — Files you attach stay available throughout the conversation. You can reference them in later messages — "Go back to the spreadsheet I uploaded earlier and break down the data by region."
+
+::: tip Best Results with File Attachments
+When uploading documents for analysis, tell the AI what to focus on. Instead of just uploading a 50-page report and asking "what do you think?", try "Review pages 10–15 of this report and summarize the consumer preference findings."
 :::
 
-### Mode Behavior Details
-
-| Mode Configuration | Behavior |
-|-------------------|----------|
-| **Chat mode only** | Agent uses its trained knowledge and conversation context. All tools paused. |
-| **My Data mode** | Agent searches and cites your selected datasets. Web-based tools paused. |
-| **Web mode** | Agent searches the internet for current information. |
-| **Combined modes** | Agent synthesizes information from multiple sources. |
-
-### Mode Selection Strategy
-
-::: details When to Use Each Mode (Click to Expand)
-
-**Use Chat Mode When:**
-- Brainstorming and exploring ideas
-- General knowledge questions
-- Creative tasks like writing or ideation
-- You want the agent's trained perspective without data lookup
-
-**Use My Data Mode When:**
-- Analyzing survey responses or research data
-- Getting insights from your uploaded documents
-- Comparing findings across your datasets
-- You need citations and source references
-
-**Use Web Mode When:**
-- Researching current events or trends
-- Finding competitor information
-- Getting up-to-date market data
-- Validating your research with external sources
-
-**Combine My Data + Web When:**
-- Comparing your findings to industry benchmarks
-- Validating internal research with external sources
-- Understanding how your data relates to broader trends
-- Building comprehensive competitive analyses
+::: warning Large File Processing
+Very large files (over 25 MB) may take a moment to process. You'll see a progress indicator while the file uploads. Wait for it to complete before sending your message.
 :::
 
-## Sources Panel
+## Reading AI Responses
 
-When in My Data mode, the Sources section shows which data is available to the agent.
+Each AI response includes several helpful features:
 
-### Source Types
+<img
+  :src="'/screenshots/home/06-response-actions.png'"
+  alt="AI response with action buttons"
+  @error="$event.target.remove()"
+/>
 
-| Source Type | Icon | Description |
-|-------------|------|-------------|
-| **Campaigns** | Megaphone | Survey responses and data |
-| **Questions** | Question mark | Individual survey questions |
-| **Training Sets** | Folder | Datasets you've uploaded |
-| **Files** | Document | Individual documents |
-| **Videos** | Video | Video content |
-| **Audios** | Equalizer | Audio files |
-| **Active Tool** | Tool icon | Currently selected tool |
+### Citations
 
-### Managing Sources
+When the AI references your data, it shows a **Citations** section you can expand to see exactly which sources informed the answer. Click the citations button to toggle inline source references on or off within the response text.
 
-The **Sources Section** component displays chips for each selected source:
+#### How Citations Work
 
-- Click any chip's **X** to remove that source
-- View badges for "All campaigns" or "All datasets" mode
-- Sources chips are hidden when empty (configurable)
-- Click the sources area to open the **Select Chat Sources Modal**
+- **Numbered references** appear inline in the response text (e.g., [1], [2])
+- Click any reference number to jump to the source detail
+- The Citations panel shows the original text, file name, and location within the source
+- Use citations to verify the AI's claims against your original data
 
-**In the Selection Modal:**
-- Add or remove individual sources
-- Select "All campaigns" for comprehensive survey analysis
-- Select "All datasets" for full dataset access
-- Sources persist across messages in the same conversation
-
-::: tip Pro Tip: Focused Sources = Better Results
-Selecting fewer, more relevant sources often produces better results than selecting everything. The AI can focus on what matters instead of sifting through unrelated data.
-
-**Good:** "Q4 Customer Satisfaction Survey" + "Product Feedback Dataset"
-**Less Focused:** "All campaigns" + "All datasets"
-:::
-
-## Message Display
-
-### User Messages (Input Bubbles)
-
-Your messages appear with:
-
-| Element | Description |
-|---------|-------------|
-| **Avatar** | Your user avatar (square, medium size) |
-| **Message Text** | Your prompt rendered as markdown |
-| **Document Grid** | Attached documents in thumbnail grid (small for 2+, medium for single) |
-| **Image Gallery** | Uploaded images (clickable to view in Image Studio) |
-| **Actions** | Copy, delete, regenerate options |
-
-### AI Responses (Response Bubbles)
-
-Agent responses include multiple sections:
-
-| Section | Description |
-|---------|-------------|
-| **Agent Avatar** | The responding agent/persona avatar |
-| **Agent Name** | Persona name or "Vurvey" for default agent |
-| **Timeline Summary** | Reasoning thought process timeline (if available, shows streaming indicator when active) |
-| **Main Content** | Response rendered as markdown with syntax highlighting |
-| **Grounding Section** | Expandable/collapsible sources that powered the response |
-| **Tool Action Bubbles** | Shows tool invocations (function calls, search, Twitter, Instagram, reasoning, etc.) |
-| **Response Actions** | Like, dislike, copy, citations, audio, more actions, delete |
-
-### Grounding & Citations
-
-When the agent references your data, the Grounding Section shows:
-
-| Grounding Type | Description |
-|----------------|-------------|
-| **Answer Grounding** | Factual sources used for the response |
-| **Dataset Grounding** | Which training sets were queried |
-| **Question Grounding** | Survey questions referenced |
-| **Web Grounding** | External web sources cited |
-
-Click the **Citations toggle** to show or hide source references inline in the response text.
-
-::: tip Understanding Citations
-Citations help you:
-- **Verify accuracy** - Check the source directly
-- **Explore deeper** - Find related content in the source
-- **Build trust** - Know where insights come from
-- **Share confidently** - Reference specific data points
+::: tip Verifying AI Responses
+Always check citations when the AI makes specific statistical claims or quotes from your data. Citations help you confirm accuracy and give you the exact source to reference in your own reports.
 :::
 
 ### Response Actions
 
-Each AI response has action buttons below it:
+Below each AI response, you'll find a row of action buttons:
 
-| Action | Icon | Purpose | Notes |
-|--------|------|---------|-------|
-| **Like** | Thumbs up | Mark as helpful response | Tooltip changes when liked |
-| **Dislike** | Thumbs down | Mark as unhelpful | Tooltip changes when disliked |
-| **Copy** | Document | Copy response to clipboard | Disabled for image-only messages |
-| **Citations** | Quote | Toggle source citations | Only visible if response has grounding |
-| **Audio** | Speaker | Play response as audio | Shows for Vurvey agents or enterprise; uses agent's voiceId |
-| **More** | Lightning | Additional actions dropdown | Generate Campaign, Create Agent |
-| **Delete** | Trash | Remove message and response | Confirmation modal: "This will delete both your message and the assistant's response" |
+| Button | What it does |
+|---|---|
+| **Like** (thumbs up) | Mark a response as helpful |
+| **Dislike** (thumbs down) | Mark a response as unhelpful |
+| **Copy** | Copy the response text to your clipboard — great for pasting into reports or presentations |
+| **Citations** | Show or hide source references within the response |
+| **Audio** | Listen to the response read aloud (available for Vurvey agents and enterprise accounts) |
+| **More** (lightning bolt) | Opens additional actions: **Generate Campaign** (turns the insight into a new survey) and **Create Agent** (creates a new AI agent based on the response) |
+| **Delete** | Remove both your message and the AI's response from the conversation |
 
-::: tip Pro Tip: Copy with Formatting
-Use the **Copy** button to preserve markdown formatting when pasting into documents, presentations, or emails. The formatting transfers cleanly to most applications.
+#### When to Use Each Action
+
+- **Like / Dislike** — Your feedback helps Vurvey improve responses over time. Use these regularly to signal what's working and what isn't.
+- **Copy** — Perfect for pulling insights into presentations, emails, or reports. The copied text preserves formatting including headings, bullet points, and tables.
+- **Citations** — Toggle on when you need to trace claims back to source data. Toggle off when you're reading for a high-level understanding.
+- **Audio** — Great for reviewing long responses while multitasking. Available with agents that have voice capabilities enabled.
+- **Generate Campaign** — Use when the AI identifies a knowledge gap or suggests a hypothesis worth testing with real consumers. Vurvey will pre-populate a new campaign based on the insight.
+- **Create Agent** — Use when the AI's response captures a useful analytical framework or perspective you want to reuse. The new agent will adopt the expertise demonstrated in that response.
+
+::: tip From Insight to Action
+Found a compelling insight? Click the **More** button and select **Generate Campaign** to instantly turn it into a new survey you can send to your audience.
 :::
 
-## Conversation Sidebar
+## Managing Conversations
 
-![Conversation Sidebar](/screenshots/home/04-conversation-sidebar.png)
+![Conversation sidebar](/screenshots/home/04-conversation-sidebar.png)
 
-The left panel manages your conversation history.
+Your conversations are saved automatically and listed in the left sidebar under **Conversations**.
 
-### Conversations List
+- **Start a new conversation** — Click the **+** button next to the Conversations header
+- **Continue a conversation** — Click any conversation in the list to pick up where you left off
+- **View all conversations** — Click **View all** at the bottom of the list to browse your full history
+- **Manage a conversation** — Right-click (or use the menu on) any conversation to rename, export, or delete it
 
-- Listed by title (auto-generated or custom)
-- Sorted by most recent activity
-- Click any conversation to continue where you left off
-- Conversations are automatically saved
-
-### Creating New Chats
-
-- Click **+** next to "Conversations" header
-- Starts a fresh conversation with your selected agent
-- Previous conversation context is not carried over
-
-::: tip When to Start a New Conversation
-Start fresh when:
-- Switching to a completely different topic
-- The current thread is getting too long (affects response quality)
-- You want a clean slate without previous context
-- Testing different approaches to the same question
+::: tip When to Start Fresh
+Start a new conversation when you're switching to a completely different topic. Keeping conversations focused helps the AI give more relevant, contextual responses.
 :::
 
-### Managing Conversations
+### Renaming Conversations
 
-Right-click or use the menu on any conversation to:
-- **Rename** - Edit the conversation title
-- **Copy** - Duplicate conversation history
-- **Export** - Download conversation to file
-- **Delete** - Remove the conversation
+Conversations are auto-named based on your first message. To rename one:
+1. Right-click the conversation in the sidebar (or click the three-dot menu)
+2. Select **Rename**
+3. Type a descriptive name — for example, "Q4 2025 Brand Health Analysis" or "Packaging Redesign Concepts"
 
-### View All
+Good naming habits make it easy to find past research when you need it later.
 
-Click "View all" to access the complete conversation history with advanced filtering and search options.
+### Exporting Conversations
 
-## Prompt Showcase
+To save a conversation outside of Vurvey:
+1. Right-click the conversation and select **Export**
+2. Choose your preferred format
+3. The exported file includes all messages, AI responses, and citations
 
-On the home screen (before starting a conversation), you may see example prompts to help you get started. The **PromptShowcase** component shows 10 example prompts with icons:
+Exported conversations are great for sharing with team members who may not have Vurvey access, or for archiving completed research projects.
 
-| Category | Example Prompts |
-|----------|-----------------|
-| **Social Media** | Twitter/X trend analysis, Instagram inspiration |
-| **Video** | YouTube video analysis |
-| **Research** | Web search queries, URL summarization |
-| **SEO** | SEO audits |
-| **Creative** | Image generation examples |
-| **Enhancement** | AI enhancement tools |
+### Searching Past Conversations
 
-Click any example to start a conversation with that prompt pre-filled.
+Use the search field at the top of the conversation sidebar to find past conversations by keyword. The search looks through conversation titles, so descriptive names help you find things quickly.
 
-## Image Studio
-
-The **Image Studio** is a floating panel that appears at the bottom right when working with images:
-
-- Opens when viewing uploaded images in detail
-- Provides image editing and manipulation capabilities
-- Submit button: **"Save to conversation"** saves edits back to the chat
-- Useful for cropping, annotating, or enhancing images before analysis
-
-## Error Handling
-
-### Error Banner
-
-When errors occur, a **ChatErrorBanner** appears at the top of the message list:
-
-| Element | Description |
-|---------|-------------|
-| **Error Icon** | Visual indicator of issue |
-| **Error Message** | Description of what went wrong |
-| **Retry Button** | Attempts the failed operation again (if available) |
-| **Dismiss Button** | Closes the banner |
-
-**Banner Behavior:**
-- Uses `role="alert"` and `aria-live="assertive"` for accessibility
-- Auto-dismissable
-- Cleared when user sends a new message
-- Can be programmatically cleared via `CLEAR_ERROR` action
-
-### Revoked Attachments Notice
-
-The **RevokedAttachmentsNotice** component appears when your permissions to attachments have changed:
-
-**Types of Revoked Items:**
-- Files
-- Videos
-- Audios
-- Training sets
-- Surveys
-- Questions
-- AI Persona
-
-This notice appears above the chat input and may disable messaging until acknowledged.
-
-## Real-World Use Cases
-
-### Use Case 1: Rapid Survey Analysis
-
-**Scenario:** You just closed a survey with 500 responses and need key insights for a meeting in 2 hours.
-
-**Approach:**
-1. Select the survey campaign as your source
-2. Enable **My Data** mode
-3. Start with broad questions, then drill down
-
-**Sample Prompts:**
-```
-What are the top 5 themes in these survey responses?
-```
-```
-Show me notable quotes that represent each major theme.
-```
-```
-Which demographic groups had the most different opinions?
-```
-```
-What surprised you most in this data?
-```
-
-::: tip Pro Tip: Build a Narrative
-Use the conversation to build your presentation:
-1. Get the overview
-2. Drill into interesting findings
-3. Ask for supporting quotes
-4. Request a summary you can present
+::: tip Organizing Your Research
+Develop a naming convention for your conversations. For example: "[Project] - [Topic] - [Date]" like "Spring Launch - Consumer Sentiment - Jan 2025". This makes it easy to filter and find related conversations later.
 :::
 
-### Use Case 2: Competitive Intelligence
+## Multi-Agent Conversations
 
-**Scenario:** Your team needs to understand how competitors are positioning themselves.
+One of Vurvey's most powerful features is the ability to bring multiple AI agents into the same conversation. This lets you simulate focus groups, get diverse perspectives, and challenge assumptions — all without scheduling a single meeting.
 
-**Approach:**
-1. Enable **Web** mode
-2. Use the `/web` tool group for research
-3. Compare findings to your own positioning
+### @Mention Syntax
 
-**Sample Prompts:**
-```
-What is [Competitor]'s current messaging and positioning in the
-[category] market?
-```
-```
-Compare the website messaging of these 3 competitors: [A], [B], [C].
-What are their key differentiators?
-```
-```
-Search for recent news about [Competitor]'s product launches in 2024.
-```
+To bring an agent into your conversation, type **@** followed by their name. The agent selector dropdown will appear as you type, showing matching agents.
 
-::: tip Pro Tip: Save Key Findings
-When you find valuable competitive intel:
-1. Copy the response
-2. Add to a dataset for future reference
-3. Use in future conversations with your analysis-focused agents (for example: `@MarketAnalyst`)
+**Syntax examples:**
+- `@MarketAnalyst` — Mentions a single agent
+- `@MillennialMom @GenZShopper @BudgetShopper` — Mentions multiple agents in one message
+- `@BrandStrategist, based on what @MarketAnalyst just said, what positioning do you recommend?` — Chain agent responses together
+
+### Multi-Agent Patterns
+
+#### Virtual Focus Group
+
+Simulate a consumer focus group by mentioning several persona agents at once:
+
+> *"@MillennialMom @GenZShopper @LuxuryBuyer @BudgetShopper — Here's our new packaging design. What's your first impression? Would you pick this up in a store?"*
+
+Each agent responds from their unique perspective, giving you a range of reactions in seconds.
+
+#### Expert Debate
+
+Have two agents with different expertise discuss a topic:
+
+> *"@MarketAnalyst, what does our data say about the premium pricing opportunity? @BrandStrategist, do you agree with that assessment given current market conditions?"*
+
+The second agent can reference and build on (or challenge) the first agent's response.
+
+#### Moderator Pattern
+
+Use one agent as a moderator to synthesize multiple perspectives:
+
+1. First, get individual responses: *"@PersonaA @PersonaB @PersonaC — What matters most to you when choosing a shampoo brand?"*
+2. Then summarize: *"@MarketAnalyst, synthesize these three perspectives. Where do they agree and disagree?"*
+
+#### Iterative Refinement
+
+Use agents in sequence to refine an idea:
+
+1. *"@CreativeDirector, draft three tagline concepts for our new product"*
+2. *"@BrandStrategist, evaluate these taglines against our brand guidelines"*
+3. *"@TargetConsumer, which of these taglines resonates with you and why?"*
+
+::: tip Multi-Agent Best Practices
+- **Limit to 3–4 agents per message** for clearer, more focused responses
+- **Give each agent a specific question** rather than a vague request
+- **Reference previous responses** to create a flowing dialogue between agents
+- **Use a summarizer agent** at the end to consolidate insights from the group
 :::
 
-### Use Case 3: Multi-Perspective Concept Testing
+## Practical Examples
 
-**Scenario:** You have a new product concept and want diverse perspectives before consumer testing.
+### Rapid Survey Analysis
 
-**Approach:**
-1. Upload concept materials (images, descriptions)
-2. Mention multiple consumer persona agents
-3. Ask specific questions about appeal and concerns
+You just closed a survey with 500 responses and need insights for a meeting in two hours.
 
-**Sample Prompts:**
-```
-Here's our new product concept [attached image].
+1. Click **Sources** and select your survey campaign
+2. Ask: *"What are the top 5 themes in these survey responses?"*
+3. Follow up: *"Show me notable quotes that represent each theme"*
+4. Then: *"Write a 3-paragraph executive summary I can present to leadership"*
 
-@MillennialParent: Would this appeal to you? What would make you buy it?
-@GenZConsumer: Is this something you'd share with friends?
-@BudgetConscious: Is the value clear? What concerns would you have?
-```
+### Competitive Intelligence
 
-::: tip Pro Tip: Synthesize Perspectives
-After getting individual views, ask:
-"Based on all these perspectives, what are the strongest selling points? What are the biggest barriers to purchase?"
+Your team needs to understand how competitors are positioning themselves.
+
+1. Click the **Tools** button and select **Web Research** to enable web search
+2. Ask: *"What is [Competitor]'s current messaging in the skincare market?"*
+3. Follow up: *"Compare their positioning to ours based on our latest brand study"* (with your brand study selected as a Source)
+
+### Multi-Perspective Concept Testing
+
+You have a new product concept and want diverse reactions before live consumer testing.
+
+1. Upload your concept image or description
+2. Ask: *"@MillennialMom, would this product appeal to you? @BudgetShopper, is the value clear? @TrendSetter, would you share this with friends?"*
+3. Then: *"Based on all perspectives, what are the strongest selling points and biggest purchase barriers?"*
+
+### Product Concept Deep Dive
+
+You're developing a new product line and want to pressure-test the concept before investing in prototypes.
+
+1. Upload your concept images, mood board, or product description
+2. Click **Sources** and select any existing consumer research relevant to this category
+3. Ask: *"Based on our consumer research, how does this concept align with the needs and preferences of our target audience?"*
+4. Follow up: *"What are the top 3 risks and top 3 opportunities for this concept?"*
+5. Then: *"Draft a one-page concept summary I can share with our product development team, including recommended next steps"*
+
+### Weekly Research Digest
+
+Your team needs a consolidated view of insights across multiple ongoing research projects.
+
+1. Click **Sources** and select 3–4 recent campaigns
+2. Ask: *"Give me a consolidated summary of the key findings across all these campaigns from the past week"*
+3. Follow up: *"What are the recurring themes that appear across multiple studies?"*
+4. Then: *"Format this as a weekly research digest with bullet points, organized by theme"*
+
+::: tip Weekly Digest Automation
+If you create a weekly digest regularly, save your source selections and prompt structure. Start each week's conversation with the same approach to maintain consistency across reports.
 :::
 
-### Use Case 4: Report Generation
+### Cross-Campaign Comparison
 
-**Scenario:** You need to create a monthly research summary for stakeholders.
+You've run similar surveys at different times and want to understand how consumer sentiment has shifted.
 
-**Approach:**
-1. Select all relevant campaigns and datasets
-2. Enable **My Data** mode
-3. Guide the AI through your report structure
+1. Click **Sources** and select both campaigns (e.g., Q1 and Q3 brand trackers)
+2. Ask: *"Compare the results of these two campaigns. What has changed in consumer sentiment between them?"*
+3. Follow up: *"Which specific metrics improved or declined the most?"*
+4. Then: *"Create a comparison table showing the key differences side by side"*
 
-**Sample Prompts:**
-```
-Create an executive summary of all research conducted this month.
-Include:
-- Number of surveys conducted
-- Total responses collected
-- Key themes across all studies
-- Most actionable insights
-```
-```
-Format the key findings as a bullet-point presentation for executives.
-```
-```
-What are 3 recommended actions based on this month's research?
-```
+### Brand Health Monitoring
 
-### Use Case 5: Image-Based Research Analysis
+Your brand team needs a regular pulse check on brand perception.
 
-**Scenario:** You want to analyze visual content from your campaigns, including video thumbnails, product images, and participant-submitted photos.
+1. Click **Sources** and select your brand tracking campaign data
+2. Enable the **Tools** button to supplement with market data
+3. Ask: *"Based on our brand tracking data, what is the current state of our brand health? Include aided awareness, favorability, and purchase intent if available"*
+4. Follow up: *"How do these metrics compare to industry benchmarks?"* (the AI will use web search for benchmarks)
+5. Then: *"What are the 3 most actionable recommendations to improve our weakest brand metrics?"*
 
-**Approach:**
-1. Upload or paste images directly into the chat
-2. Use an agent specialized in visual analysis
-3. Combine with survey data for comprehensive insights
+### Ad Creative Testing
 
-**Sample Prompts:**
-```
-Here are 10 product photos submitted by survey participants.
-What visual themes do you see? What do these tell us about how
-customers use our product?
-```
-```
-[Attached competitor product images]
-Compare the packaging design of our product vs. these competitors.
-What visual elements stand out?
-```
-```
-Analyze these mood board images. What emotional associations do
-they create? How might we incorporate these into our brand?
-```
+You have multiple ad concepts and want quick feedback before committing budget.
 
-::: tip Pro Tip: Image + Data Synthesis
-Combine visual analysis with survey data:
-1. Upload product images
-2. Select your survey campaign as a source
-3. Ask: "How do these images align with what customers said in the survey about visual appeal?"
-:::
+1. Upload your ad mockups (images or PDFs)
+2. Ask: *"@TargetConsumer, look at these three ad concepts. Which one grabs your attention first and why?"*
+3. Follow up: *"@MarketAnalyst, based on advertising best practices, which concept has the strongest call-to-action and visual hierarchy?"*
+4. Then: *"Create a scorecard comparing all three concepts across memorability, clarity, emotional appeal, and brand fit"*
 
-## Tips for Effective Chat
+### Customer Journey Mapping
 
-### Query Formulation
+Combine multiple data sources to build a comprehensive understanding of the customer experience.
 
-1. **Be specific** - Provide context about what you're looking for
-2. **Include constraints** - Mention relevant criteria or limitations
-3. **Ask follow-ups** - Refine results with iterative questions
-4. **Provide examples** - Show what format you want in the response
+1. Click **Sources** and select your purchase experience survey, customer satisfaction data, and any uploaded customer feedback files
+2. Ask: *"Map out the key stages of our customer journey based on this data. What are customers experiencing at each stage?"*
+3. Follow up: *"Where are the biggest pain points and moments of delight?"*
+4. Then: *"Prioritize the top 3 pain points by severity and frequency, and suggest improvements for each"*
 
-::: details Query Writing Tips (Click to Expand)
+## Advanced Chat Techniques
 
-**Instead of:** "Analyze this data"
-**Try:** "Identify the top 3 themes in these survey responses, with 2-3 supporting quotes for each theme"
+### Prompt Engineering for Market Research
 
-**Instead of:** "What do customers think?"
-**Try:** "What are the most common complaints in these product reviews, and which product categories are most affected?"
+The way you phrase your questions significantly affects the quality of the AI's responses. Here are proven techniques for market researchers:
 
-**Instead of:** "Write a summary"
-**Try:** "Create a 3-paragraph executive summary suitable for C-level stakeholders who have 2 minutes to read it"
+#### Be Specific About Output Format
 
-**Instead of:** "Find trends"
-**Try:** "Compare responses between Q1 and Q4 - what changed significantly?"
-:::
+Instead of open-ended questions, specify exactly what you need:
 
-### Mode Selection
+| Instead of... | Try... |
+|--------------|--------|
+| "Analyze this data" | "Create a table of the top 5 themes with frequency counts and representative quotes" |
+| "What do consumers think?" | "Summarize consumer sentiment in 3 bullet points: positive, negative, and neutral, with percentages" |
+| "Tell me about trends" | "Identify 3 emerging trends, explain each in 2 sentences, and rate their potential impact as high/medium/low" |
 
-- Start with **Chat** mode for exploratory questions
-- Switch to **My Data** when you need insights from specific files
-- Add **Web** mode for external context and current information
+#### Chain-of-Thought Prompting
 
-### Agent Selection
+For complex analysis, guide the AI through your reasoning step by step:
 
-- Use specialized agents for domain-specific questions
-- Try different agents to get varied perspectives
-- Mention agents with `@` to get multiple viewpoints
+> *"First, identify the key demographic segments in this survey data. Then, for each segment, summarize their top concerns. Finally, compare segments and highlight where they agree and disagree."*
 
-### Source Management
+This produces more thorough analysis than asking "What do different demographics think?"
 
-- Select relevant sources before asking data-related questions
-- Keep source selection focused to get more targeted answers
-- Use "All datasets" when you're unsure which data is relevant
+#### Comparison Prompting
 
-### Advanced Prompt Techniques
+When you need the AI to compare two things, provide a framework:
 
-::: details Click to Expand Advanced Techniques
+> *"Compare Product A and Product B across these dimensions: price perception, quality perception, brand trust, and purchase intent. Present the results in a table with a winner for each dimension."*
 
-**Chain-of-Thought Prompting:**
-```
-Think through this step by step:
-1. First, identify the main themes
-2. Then, rank them by frequency
-3. Finally, explain why the top theme matters most
-```
+#### Role-Based Prompting
 
-**Role Assignment:**
-```
-You are a senior market researcher presenting to a client.
-Analyze this data and provide strategic recommendations.
-```
+Tell the AI what perspective to take:
 
-**Format Specification:**
-```
-Present your findings as:
-- A one-line summary
-- 3 key bullet points
-- A recommended next step
-```
+> *"As a brand strategist presenting to the CMO, summarize these findings in a way that emphasizes business implications and recommended actions."*
 
-**Comparative Analysis:**
-```
-Compare [Dataset A] and [Dataset B]:
-- What's similar?
-- What's different?
-- What explains the differences?
-```
+### Template Prompts for Common Tasks
 
-**Devil's Advocate:**
-```
-What are the strongest counterarguments to this conclusion?
-What might we be missing?
-```
-:::
+Copy and customize these templates for recurring research tasks:
 
-## Best Practices
+**Executive Summary:**
+> *"Write a 3-paragraph executive summary of [campaign/data]. Paragraph 1: key findings. Paragraph 2: implications for our business. Paragraph 3: recommended next steps."*
 
-### Conversation Management
+**Theme Analysis:**
+> *"Identify the top [N] themes in these responses. For each theme, provide: a descriptive name, the approximate percentage of responses mentioning it, 2–3 representative quotes, and one actionable insight."*
 
-| Practice | Benefit |
-|----------|---------|
-| Start new conversations for new topics | Better context, more focused responses |
-| Use descriptive prompts | AI understands intent clearly |
-| Break complex requests into steps | More accurate, detailed responses |
-| Save important conversations | Build a research knowledge base |
-| Export conversations before deleting | Preserve institutional knowledge |
+**Competitive Brief:**
+> *"Based on [sources], create a competitive brief covering: market positioning, key messaging, target audience, strengths, and vulnerabilities for [competitor name]."*
 
-### Performance Optimization
+**Research Debrief:**
+> *"Create a research debrief for [campaign]. Include: objectives, methodology, sample size, key findings (top 5), surprises or unexpected results, and recommendations."*
 
-| Practice | Benefit |
-|----------|---------|
-| Select fewer, relevant sources | Faster, more focused responses |
-| Upload smaller files when possible | Quicker processing |
-| Use specific queries over broad ones | Better accuracy |
-| Clear unused attachments | Reduce confusion |
+### Using Shift + Enter for Complex Prompts
 
-### Collaboration Tips
+Press **Shift + Enter** to add new lines within your message without sending it. This is useful for:
 
-| Practice | Benefit |
-|----------|---------|
-| Rename conversations descriptively | Easy to find later |
-| Export and share key insights | Team alignment |
-| Use consistent agent selection | Reproducible results |
-| Document successful prompt patterns | Team efficiency |
+- Multi-part questions with numbered steps
+- Including context before your question
+- Structuring complex requests with clear sections
+
+**Example multi-line prompt:**
+> *Context: We launched a new skincare line in March targeting Gen Z consumers.*
+>
+> *Data: I've connected our post-launch survey (n=1,200) and our pre-launch baseline study.*
+>
+> *Questions:*
+> *1. How does post-launch brand awareness compare to our pre-launch baseline?*
+> *2. Which product in the line has the highest purchase intent?*
+> *3. What are the top 3 barriers to trial among those aware but not yet purchasing?*
+
+## Tips for Better Results
+
+- **Be specific** — Instead of "analyze this data," try "identify the top 3 themes with supporting quotes for each"
+- **Build on previous answers** — Follow up with "tell me more about the second theme" or "break that down by age group"
+- **Set the format** — Ask for bullet points, an executive summary, a comparison table, or whatever format you need
+- **Use Shift + Enter** for multi-line prompts when you have a complex request with several parts
+- **Start with your goal** — Lead with what you need the output for: "For a client presentation, summarize..." or "For an internal Slack update, give me..."
+- **Ask for revisions** — If a response is close but not quite right, ask the AI to adjust: "Make this more concise," "Add more data points," or "Rewrite this for a non-technical audience"
+- **Save good prompts** — When you find a prompt structure that works well, save it for reuse. Consistency in prompting leads to consistency in output quality.
 
 ## Troubleshooting
 
-### Common Issues and Solutions
+**Responses seem generic and don't reference your data?**
+Make sure you've selected specific sources using the Sources button. Without sources connected, the AI uses only its general knowledge.
 
-#### Responses Are Too Generic
+**Can't send a message?**
+Check that your text input isn't empty, or wait for the current response to finish before sending another message.
 
-**Symptoms:** AI gives vague answers that don't reference your data.
+**Response is slow?**
+Try reducing the number of connected sources, or break a complex question into simpler follow-up questions.
 
-**Solutions:**
-1. Enable **My Data** mode (check that icon is highlighted)
-2. Select specific sources (not "All")
-3. Reference the data explicitly in your prompt: "Based on the Q4 survey responses..."
-4. Check that selected sources contain relevant content
+**Response seems to ignore your selected sources?**
+This usually happens when your question is too broad. Try asking about specific topics within your data — for example, instead of "tell me about this campaign," ask "what did respondents aged 25–34 say about price sensitivity in this campaign?"
 
-#### Agent Isn't Using Connected Datasets
+**The AI is making claims that aren't in your data?**
+When sources are connected, the AI should cite your data. If it's generating information not found in your sources, try rephrasing your question to explicitly ask it to "only use the connected sources" or "cite every claim." You can also check the Citations panel to verify which claims are supported.
 
-**Symptoms:** Agent responds but doesn't cite or reference connected data.
+**Images won't upload?**
+Check the file format (PNG, JPG, GIF, or WEBP) and size (under 20 MB). If the file is too large, reduce the resolution or compress it before uploading. Also ensure you have a stable internet connection — large uploads may fail on slow connections.
 
-**Solutions:**
-1. Verify **My Data** mode is enabled (icon should be highlighted)
-2. Check the Sources panel shows expected datasets
-3. Rephrase query to explicitly request data analysis
-4. Try: "Search my connected datasets for..."
+**Response is cut off or seems incomplete?**
+Occasionally, very long responses may stop before they're finished. Simply type "continue" or "please finish your response" and the AI will pick up where it left off. For very long analyses, consider breaking your request into smaller parts.
 
-#### Slow Response Times
+**Agent isn't behaving as expected in chat?**
+Make sure you've selected the correct agent using the Agents button or the correct @mention name. If the agent's responses don't match their configured personality, they may be influenced by the conversation context. Try starting a new conversation with a fresh prompt.
 
-**Symptoms:** Long wait times for AI responses.
+**Search results seem outdated or irrelevant?**
+Web search results depend on what's publicly available. Try rephrasing your search query to be more specific — include dates, brand names, or specific topics. For the most current information, include the current year or "latest" in your question. For platform-specific results, select a specific social media tool instead of using general Web Research.
 
-**Solutions:**
-1. Reduce the number of selected sources
-2. Simplify complex queries into multiple simpler ones
-3. Avoid uploading very large files (break into smaller chunks)
-4. Check your internet connection
+**Can't find a previous conversation?**
+Check the conversation sidebar and use the search field to filter by keyword. If you still can't find it, click **View all** to browse your complete history. Conversations are listed by most recent activity, so scroll down for older ones.
 
-#### Web Search Returns Outdated Information
+**Multi-agent response isn't coherent?**
+When mentioning multiple agents, each responds independently. If their responses seem disconnected, try a follow-up message asking one agent to synthesize: *"@MarketAnalyst, summarize the key points from everyone's responses above and identify where they agree."*
 
-**Symptoms:** Web mode returns old or irrelevant results.
-
-**Solutions:**
-1. Add date constraints: "Search for [topic] 2024 news"
-2. Use specific domain names: "Search site:techcrunch.com for..."
-3. Rephrase with current event references
-4. Try the `/web` tool group for more control
-
-#### Conversation Lost or Missing
-
-**Symptoms:** Can't find a previous conversation.
-
-**Solutions:**
-1. Click "View all" in the sidebar
-2. Use the search function
-3. Check if you're in the correct workspace
-4. Conversations may have been deleted by another user with permissions
-
-#### File Upload Fails
-
-**Symptoms:** Files won't attach or show errors.
-
-**Solutions:**
-1. Check file size limits (typically 50MB max)
-2. Verify file format is supported (see supported formats above)
-3. Try refreshing the page and re-uploading
-4. For large PDFs, try splitting into smaller files
-5. Ensure you don't have revoked attachments blocking uploads
-
-#### Send Button Is Disabled
-
-**Symptoms:** Can't send your message.
-
-**Possible Causes:**
-- Input is empty or whitespace only
-- Only an @mention with no other text
-- No attachments and no text
-- Currently sending a question (wait for response)
-- Currently updating
-- No workspace selected
-- Revoked attachments present
-
-**Solutions:**
-1. Add text content to your message
-2. Wait for current operation to complete
-3. Acknowledge revoked attachments notice
-4. Refresh the page if issue persists
-
-### Getting Help
-
-If issues persist:
-1. **Document the problem** with screenshots
-2. **Note the conversation ID** (visible in URL)
-3. **Check workspace settings** for any restrictions
-4. **Contact support** via the Help menu
-
-## Frequently Asked Questions
-
-::: details FAQs (Click to Expand)
-
-**Q: Are my conversations private?**
-A: Yes, conversations are visible only to you unless you explicitly share them. Workspace admins may have visibility for compliance purposes.
-
-**Q: How long are conversations saved?**
-A: Conversations are saved indefinitely until you delete them. There's no automatic expiration.
-
-**Q: Can I export a conversation?**
-A: Yes, right-click any conversation and select "Export" to download as a file.
-
-**Q: Why does the agent sometimes give different answers to the same question?**
-A: AI responses have some natural variation. For more consistent results, be very specific in your prompts and use the same agent and mode settings.
-
-**Q: Can I use the chat on mobile?**
-A: Yes, the chat interface is responsive and works on mobile devices. Some features may be condensed in the mobile view.
-
-**Q: How do I share a conversation with a colleague?**
-A: Use the conversation menu to copy or export, then share via your preferred method. Direct sharing within the platform is coming soon.
-
-**Q: What's the maximum message length?**
-A: There's a generous limit for most use cases. If you're hitting limits, try breaking complex prompts into multiple messages.
-
-**Q: Can I use my own AI model?**
-A: The available models are configured by your workspace. Enterprise customers may have access to additional models.
-
-**Q: How do citations work with web search?**
-A: When using Web mode, the AI cites sources with links. Click the link to verify information directly.
-
-**Q: Why can't I see certain agents?**
-A: You can only see agents you've created or that have been shared with you. Ask the agent owner to share if you need access.
-
-**Q: What does the "PAUSED" badge mean on tools?**
-A: Some tools are automatically paused in certain modes. For example, all tools are paused in pure Chat mode, and web-based tools are paused in My Data mode. This is normal behavior.
-
-**Q: Can I use multiple tools in one message?**
-A: You can select one tool group per message. To use different tools, send separate messages.
-
-**Q: How do I create a campaign from a chat response?**
-A: Click the lightning bolt (More Actions) icon below any AI response and select "Generate Campaign."
-
-**Q: How do I create an agent from a chat response?**
-A: Click the lightning bolt (More Actions) icon below any AI response and select "Create Agent."
+::: warning Known Limitations
+- The AI may occasionally paraphrase rather than directly quote your data. Always check citations for exact wording.
+- Very large datasets (thousands of pages) may result in the AI focusing on the most relevant sections rather than covering everything.
+- Image generation results vary — you may need 2–3 attempts to get the visual you're looking for.
 :::
 
 ## Keyboard Shortcuts
 
-| Action | Shortcut |
-|--------|----------|
-| Send message | `Enter` |
-| New line | `Shift + Enter` |
-| Send message (alternative) | `Ctrl/Cmd + Enter` |
-| New conversation | Click `+` button |
-| Focus chat input / Open tools | `/` |
-| Mention agent | `@` + type name |
-| Cancel upload | `Escape` |
-| Close modal/drawer | `Escape` |
-| Copy last response | `Cmd/Ctrl + Shift + C` |
-| Tab navigation | `Tab` |
-
-## Test IDs Reference
-
-For automated testing and debugging, key elements have `data-testid` attributes:
-
-| Element | Test ID |
-|---------|---------|
-| Input bubble | `input-bubble` |
-| Response bubble | `response-bubble` |
-| Attached documents grid | `attached-documents` |
-| Send button | `send-button` |
-| Upload button | `upload-button` |
-| Error banner | Uses `role="alert"` |
-| Like button | `like-button` |
-| Dislike button | `dislike-button` |
-| Copy button | `copy-button` |
-| Delete button | `delete-button` |
-| Citations toggle | `citations-toggle` |
-| Tool selector | `tool-selector` |
-| Source chip | `source-chip` |
-| Chat input textarea | `chat-input` |
-
-## Technical Architecture Notes
-
-::: details Developer Reference (Click to Expand)
-
-**Component Hierarchy:**
-```
-CanvasPage
-└── ChatView
-    ├── HOME Layout
-    │   ├── PerlinSphere (animated background)
-    │   ├── Header ("Hi {firstName}!")
-    │   ├── Subheader ("What might we create today?")
-    │   └── PromptShowcase
-    └── CHAT Layout
-        ├── ChatNamePill
-        ├── ChatErrorBanner (if error)
-        └── ScrollableList
-            └── MessageList
-                ├── InputBubble (user messages)
-                └── ResponseBubble (AI messages)
-```
-
-**Input Area Hierarchy:**
-```
-ChatBubble
-├── PersonaTabWrapper
-│   └── PersonaRenderer
-└── InputBubble
-    ├── CommandTextArea
-    │   ├── ToolSelector (on /)
-    │   └── Mention (on @)
-    ├── UploadButton
-    ├── UploadedImageSection
-    ├── SourcesSection
-    ├── ToolGroupBadgeSection
-    ├── ChatToolbarChips
-    └── SubmitButton
-```
-
-**State Management:**
-- `ChatActionTypes` enum for reducer actions
-- `useChatDrawerContext()` for drawer state
-- `useAddFileToConversation` hook for file uploads
-- `useLocalFileUpload` hook for file validation
-
-**CSS Conventions:**
-- Files use kebab-case: `chat-bubble.module.scss`
-- Classes use camelCase: `styles.chatBubble`
-- Modifiers: `&.isDarkMode`, `&.isSelected`, `&.isFocused`
-:::
+| Shortcut | Action |
+|----------|--------|
+| **Enter** | Send your message |
+| **Shift + Enter** | Add a new line without sending |
+| **@** + agent name | Mention an agent in your message |
+| **Up arrow** | Edit your last sent message (when input is empty) |
 
 ## Next Steps
 
-- [Create custom agents](/guide/agents) for specialized research tasks
-- [Upload datasets](/guide/datasets) to give agents knowledge
-- [Launch a campaign](/guide/campaigns) to collect primary research data
-- [Build automated workflows](/guide/workflows) for recurring analysis
+- [Create custom Agents](/guide/agents) tailored to your research needs
+- [Upload Datasets](/guide/datasets) to give agents your proprietary knowledge
+- [Launch a Campaign](/guide/campaigns) to collect primary research data
+- [Build Workflows](/guide/workflows) to automate recurring analysis

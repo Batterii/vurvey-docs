@@ -54,7 +54,7 @@ jobs:
         env:
           VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
           VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
-          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
           VURVEY_URL: https://staging.vurvey.dev
           HEADLESS: 'true'
           CAPTURE_STRICT: 'true'
@@ -110,7 +110,7 @@ jobs:
         env:
           VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
           VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
-          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
           VURVEY_URL: https://staging.vurvey.dev
           HEADLESS: 'true'
           QA_DEEP: 'true'

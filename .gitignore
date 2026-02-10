@@ -47,6 +47,13 @@ docs/public/screenshots/error-*.png
 # Bug reports (dispatched to other repos)
 bug-reports/
 
+# Research notes (agent-generated, not shipped)
+research/
+
 # Checked out repos for analysis
 vurvey-web-manager/
 vurvey-api/
+CLAUDE.md
+AGENT.md
+AGENTS.md
+WARP.md

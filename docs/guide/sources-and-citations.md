@@ -4,157 +4,336 @@ title: Sources & Citations
 
 # Sources & Citations
 
-Vurvey’s chat can answer based on:
+When you use Vurvey's AI to analyze your research data, you need to trust that the answers are grounded in real evidence -- not just made up. This page explains how Vurvey connects AI responses back to your actual data, and how you can verify the claims it makes.
 
-- The conversation context (what you and the agent have already discussed)
-- Your workspace data (campaigns, datasets, files, etc.)
-- The web (when web tooling is enabled)
+## Why This Matters for Research
 
-This page explains how to control *what the agent is allowed to use*, how to get reproducible answers, and how to interpret citations/grounding.
+In consumer insights and market research, every finding needs to be traceable. If your AI assistant says "65% of respondents preferred the new packaging," you need to know:
 
-## Mental Model
+- **Where** that number came from (which campaign, which question, which file)
+- **Whether** the AI is summarizing real data or making a general statement
+- **How** to verify the claim against your source materials
 
-Think of every message as having two knobs:
+Vurvey's citation system gives you that traceability. When the AI uses your data to answer a question, it can show you exactly which sources informed its response.
 
-1. **Mode(s)**: what kinds of retrieval/tools are permitted (Chat, My Data, Web).
-2. **Sources**: which specific items are in-scope (which campaigns/datasets/files).
+## How AI Uses Your Data
 
-If you want high confidence output, you generally want:
+Vurvey uses **Omni Mode** by default — the AI automatically decides which tools and sources to use based on your question. You can also fine-tune what the AI has access to using the **chat toolbar** buttons:
 
-- Narrow sources
-- Explicit output requirements
-- Citations enabled in the response (when available)
+### Omni Mode (Default)
 
-## Chat Modes
+By default, the AI intelligently decides whether to use your data, search the web, or rely on its general knowledge — all based on how you phrase your question. You don't need to toggle anything manually for most conversations.
 
-The Home (Chat) page exposes three primary modes:
+### Sources Button (Folder Icon)
 
-| Mode | What It’s For | What Changes |
-|------|---------------|--------------|
-| **Chat** | Brainstorming, general questions, drafting | Uses conversation context and the agent’s general knowledge |
-| **My Data** | Analysis grounded in *your* data | Enables retrieval over selected workspace sources |
-| **Web** | Current events, competitive research, external references | Enables web tooling (when available) |
+Click the **Sources** button in the chat toolbar to select exactly which campaigns, datasets, and files the AI should search. When sources are active, the AI retrieves relevant passages, quotes, and data points from your actual research materials. This is where citations become most valuable.
 
-You can combine modes. A common “research” setup is **My Data + Web** to compare internal findings to external context.
+**Best for:** Analyzing survey results, finding specific quotes, generating evidence-based reports, answering questions about your research.
 
-## Source Types (My Data)
+### Tools Button (Sliders Icon)
 
-When **My Data** is enabled, the Sources panel can include:
+Click the **Tools** button in the chat toolbar to enable web research and social media tools. The AI can search the web, TikTok, Reddit, LinkedIn, YouTube, X/Twitter, and Instagram for current information.
 
-- **Campaigns**: survey responses and metadata
-- **Questions**: individual question-level slices
-- **Training Sets / Datasets**: collections of uploaded files
-- **Files**: individual documents/spreadsheets/media
-- **Videos / Audio**: media sources when supported
+**Best for:** Competitive analysis, trend research, market context, social media sentiment, validating internal findings.
 
-### How Source Selection Affects Output
+### Agents Button
 
-| Selection Strategy | What You Get | When to Use |
-|-------------------|--------------|-------------|
-| **One focused campaign** | Tight, consistent findings | Executive summaries, quick readouts |
-| **Two campaigns (A vs B)** | Comparative insights | Before/after studies, segment experiments |
-| **One dataset with labels** | Structured retrieval | Internal docs, playbooks, research libraries |
-| **“All campaigns/datasets”** | Broad context but more noise | Discovery, exploratory analysis |
+Click the **Agents** button to bring a specific AI agent into the conversation. Agents have their own knowledge, personality, and connected datasets.
 
-## Citations and Grounding
+### Images Button (Picture Icon)
 
-When the agent is using sources (My Data and/or Web), responses may include a grounding/citations section that shows:
+Click the **Images** button to enable AI image generation within your conversation.
 
-- Which sources were used (campaigns/datasets/files/urls)
-- Where specific claims came from
+::: tip Combine Sources and Tools for Richer Analysis
+Turn on **Sources** (your internal data) and **Tools** (web research) together to get answers that blend your internal research findings with external market context. This is especially powerful for competitive analysis and trend validation. For example: "How do our survey findings about sustainable packaging compare to industry trends?"
+:::
 
-### How to Ask for Better Grounding
+## Selecting Your Sources
 
-Use prompts that force traceability:
+When you click the **Sources** button in the chat toolbar, a panel appears where you can choose exactly which data the AI should search. Your options include:
+
+### Source Types
+
+| Source Type | What It Contains | When to Use |
+|---|---|---|
+| **Campaigns** | Survey responses, video transcripts, and all associated metadata | Analyzing survey results, finding respondent quotes |
+| **Questions** | Specific question-level data from your campaigns | Focused analysis on how people answered a particular question |
+| **Datasets** | Collections of uploaded files (documents, spreadsheets, media) | Referencing reports, research documents, competitive intel |
+| **Individual files** | Specific documents within a dataset | Deep analysis of a single important document |
+| **Videos** | Video content (auto-transcribed) | Finding specific moments in video responses |
+| **Audio** | Audio files (auto-transcribed) | Searching through interview recordings |
+
+### How Source Selection Affects Your Results
+
+| What You Select | What You Get | Best For |
+|---|---|---|
+| **One campaign** | Focused, consistent findings tied to that study | Executive summaries, quick readouts |
+| **Two campaigns** | Comparative insights across studies | Before/after studies, segment comparisons |
+| **One labeled dataset** | Structured answers from organized files | Internal knowledge bases, research libraries |
+| **A specific question** | Detailed breakdown of responses to that question | Question-level analysis, response coding |
+| **Everything** | Broad context, but potentially more noise | Discovery, exploratory analysis |
+
+::: tip Keep It Focused
+For the most accurate and citation-rich responses, select just one or two sources at a time. The narrower your source selection, the more precise and traceable the AI's answers will be. If you select too many sources, the AI may draw from less relevant materials.
+:::
+
+### Source Selection Strategy
+
+Follow this decision tree to pick the best sources:
+
+1. **Do you need data from a specific survey?** → Select that Campaign
+2. **Do you need answers to a particular question?** → Select that Question
+3. **Do you need information from uploaded documents?** → Select the relevant Dataset or individual Files
+4. **Are you comparing two studies?** → Select both Campaigns
+5. **Are you exploring broadly?** → Select multiple sources, but expect less precise citations
+6. **Not sure where to start?** → Start with one source and broaden if the AI says it can't find relevant information
+
+## How Citations Appear
+
+When the AI uses your data to answer a question, look for the **Citations** button below the response. Clicking it reveals:
+
+- **Which sources were used** -- the specific campaigns, datasets, or files the AI drew from
+- **Where specific claims came from** -- connections between individual statements and their source materials
+
+![Citations button under AI response](/screenshots/home/03-after-login.png)
+
+This gives you a clear audit trail from the AI's conclusion back to your original data.
+
+### Inline Citations
+
+When citations are available, you can toggle them on or off within the response text. With inline citations enabled:
+
+- Specific claims show a numbered reference (e.g., [1], [2])
+- Clicking a reference jumps to the source detail
+- You can verify each claim independently
+
+### Citation Detail View
+
+Expanding the citations section shows:
+
+| Element | What It Shows |
+|---|---|
+| **Source name** | Which campaign, dataset, or file was referenced |
+| **Relevant excerpt** | The specific passage or data point used |
+| **Context** | Where in the source material the information appears |
+
+## How Semantic Search Works
+
+When you ask a question with sources selected, the AI doesn't just look for exact keyword matches. It uses **semantic search**, which means it understands the meaning and intent behind your question.
+
+For example, if you ask "What do consumers think about our pricing?" the AI will find relevant passages even if respondents used different words like "cost," "value," "expensive," "affordable," or "worth the money."
+
+This makes it much easier to find relevant insights without needing to know the exact terms your respondents used.
+
+::: tip Use Natural Language
+Because semantic search understands meaning, you can ask questions naturally instead of trying to guess exact keywords. "What concerns do people have about the new product?" will find relevant responses even if nobody used the word "concerns" -- they might have said "worried," "hesitant," "unsure," or described their concern without using any of those words.
+:::
+
+## Getting Better Citations
+
+The way you phrase your questions has a big impact on how well the AI cites its sources. Here are prompting strategies that encourage detailed, traceable answers:
+
+### Ask for Structured Output with Sources
 
 ```text
-Give me 5 themes. For each theme:
-- 2 supporting quotes
-- which campaign/question/file each quote came from
-- a confidence rating (high/med/low)
+Give me 5 themes from this campaign. For each theme:
+- 2 supporting quotes from respondents
+- Which question each quote came from
+- A confidence rating (high / medium / low)
 ```
+
+### Constrain the AI to Your Data
 
 ```text
-Only use the selected sources. If you can’t find support in the sources, say so.
+Only use the selected sources. If you can't find support
+in the data, say so rather than guessing.
 ```
+
+### Request a Citation Table
 
 ```text
-Create a table with:
-theme | supporting evidence | source | segment (if known)
+Create a table with these columns:
+Theme | Supporting Evidence | Source | Segment (if known)
 ```
 
-## Reproducible Analysis Prompts
-
-If you want answers that are stable across runs and easy to share internally:
-
-- Name the exact sources to use (one campaign/dataset at a time)
-- Ask for a deterministic output structure (tables, bullet counts)
-- Ask for explicit assumptions and unknowns
-
-Examples:
-
-```text
-Using only Campaign X, summarize top 3 drivers of dissatisfaction.
-Return:
-1) Drivers (ranked)
-2) Representative quotes (3 per driver)
-3) Suggested follow-ups (5 questions)
-```
+### Compare Across Studies
 
 ```text
 Compare Campaign A vs Campaign B:
-- What changed the most?
-- Which segments diverged?
-- What should we do next?
-Include citations for every claim that is not general knowledge.
+- What changed the most between the two?
+- Which audience segments diverged?
+- What should we investigate next?
+Include citations for every claim.
 ```
 
-## Common Use Cases
+### Ask for Verbatim Quotes
 
-### Use Case: Executive Readout in 30 Minutes
+```text
+Find 10 direct quotes from respondents about [topic].
+For each quote, include:
+- The exact words they used
+- Which question they were answering
+- Any demographic context available
+```
 
-1. Select the campaign you just closed.
-2. Enable **My Data**.
-3. Ask for “themes + quotes + what to do next”.
-4. Export/copy the output into your deck, keeping citations for backup.
+### Request Quantitative Breakdowns
 
-### Use Case: Competitive Comparison
+```text
+How many respondents mentioned [topic]?
+Break down by:
+- Age group
+- Gender
+- Region (if available)
+Cite the specific responses for each group.
+```
 
-1. Enable **My Data + Web**.
-2. Select your internal campaign/dataset (My Data).
-3. Ask for a comparison table (internal signals vs external positioning).
+### Challenge the AI to Prove Its Claims
 
-### Use Case: Build a “Knowledge Agent”
+```text
+What evidence in the data supports the claim that
+consumers prefer [option A] over [option B]?
+Show me the strongest and weakest evidence.
+```
 
-1. Organize a dataset (Training Set) around one domain (product, industry, brand).
-2. Label files inside the dataset so retrieval is focused.
-3. Connect that dataset to an Agent (see Agents guide).
-4. In chat, ask for answers that cite the dataset first.
+## Common Research Workflows
+
+### Executive Readout in 30 Minutes
+
+1. Go to **Home** and click the **Sources** button
+2. Select the campaign you just closed
+3. Ask: "Summarize the top themes with supporting quotes and recommended next steps"
+4. Review the citations to verify key claims
+5. Ask follow-up: "Format this as a 3-paragraph executive summary suitable for a leadership presentation"
+6. Copy the output into your presentation, keeping citations as backup
+
+### Competitive Comparison
+
+1. Enable both **Sources** (your internal data) and **Search** (web access) in the toolbar
+2. Select your internal campaign or dataset as the data source
+3. Ask: "Compare what our respondents said about [topic] with current market trends"
+4. The AI will blend your internal findings with external context
+5. Follow up: "Create a comparison table showing our findings vs. industry benchmarks"
+
+### Building a Knowledge Agent
+
+1. Create a **Dataset** organized around one domain (a product category, industry, or brand)
+2. Label your files clearly so the AI can find relevant content quickly
+3. Create an **Agent** and connect that dataset to it (see the [Agents](/guide/agents) guide)
+4. When chatting with that agent, ask questions that reference the dataset -- the AI will cite specific files
+5. Over time, add new files as research accumulates
+
+### Cross-Campaign Trend Analysis
+
+1. Select multiple campaigns from different time periods as sources
+2. Ask: "What themes have changed between [Campaign A] and [Campaign B]?"
+3. Follow up: "Which themes are growing stronger? Which are fading?"
+4. Ask: "Create a trend summary with supporting evidence from each campaign"
+5. Use citations to verify that the trends are real, not artifacts of different question wording
+
+### Audience Segment Deep Dive
+
+1. Select a campaign with demographic data
+2. Ask: "How do responses differ between [Segment A] and [Segment B]?"
+3. Follow up: "What are the unique concerns of each segment?"
+4. Ask: "Which segment has the strongest brand loyalty? Show me the evidence."
+5. Verify citations to ensure segment comparisons are based on actual response data
+
+## Verifying AI Claims
+
+Even with citations, it's good practice to verify important findings:
+
+1. **Check the citation source** -- Click the Citations button and confirm the referenced source matches what you expect
+2. **Read the original** -- Go to the cited campaign or dataset and review the raw data yourself
+3. **Cross-reference** -- Ask the same question with different source selections to see if findings are consistent
+4. **Ask for specifics** -- If a claim seems vague, follow up with "Show me the exact quotes that support this"
+5. **Test with constraints** -- Ask the AI to only use a single source and compare the output to a broader query
+6. **Check for recency** -- If your data spans multiple time periods, make sure the AI isn't mixing old and new findings
+7. **Verify quantities** -- If the AI says "most respondents" or gives a percentage, ask it to show you the count
+
+::: warning Be Skeptical of Precise Numbers
+When the AI provides specific percentages or statistics, always verify them against your source data. The AI is very good at identifying themes and patterns, but quantitative claims should be double-checked, especially when the sample size is small.
+:::
+
+## Tips for Citation-Rich Responses
+
+| Strategy | Why It Works |
+|---|---|
+| **Select fewer sources** | The AI focuses more deeply on each source |
+| **Ask for quotes** | Forces the AI to ground claims in actual respondent language |
+| **Request tables** | Structured output makes it easier to trace claims to evidence |
+| **Name sources explicitly** | "Using only the Q4 study..." helps the AI stay on target |
+| **Ask iteratively** | Start broad, then drill into specific areas for richer citations |
+| **Specify the audience** | "Write this for a VP of Marketing" encourages evidence-backed claims |
 
 ## Troubleshooting
 
-### “No citations” or “it sounds generic”
+### The AI's answer seems generic with no citations
 
-- Reduce the number of sources (choose 1 campaign/dataset)
-- Ask for quotes and explicit source references
-- Make sure the files are fully processed (dataset file status shows success)
+- **Narrow your sources**: Select just one campaign or dataset instead of everything
+- **Ask for evidence explicitly**: Add "with supporting quotes" or "cite your sources" to your prompt
+- **Check file status**: Make sure your dataset files show "Success" status -- files still processing can't be searched
+- **Verify Sources are active**: Check that you've clicked the Sources button in the toolbar and selected actual sources
+- **Rephrase your question**: Try using more specific terms that relate to your source content
 
-### “It cited the wrong thing”
+### The AI cited the wrong source
 
-- Specify the exact campaign/dataset by name in the prompt
-- Ask the agent to list the sources it used before answering
+- **Name the source in your prompt**: Say "Using only the Q4 Packaging Study, tell me..."
+- **Ask it to list sources first**: "Before answering, list which sources you're using"
+- **Reduce the number of selected sources** to eliminate confusion
+- **Check for similarly named sources**: If you have "Q3 Study" and "Q4 Study," be explicit about which one
 
-### “It missed something that’s definitely in my data”
+### The AI missed something you know is in your data
 
-- Rephrase using the same terms that appear in the source (question text, labels, headings)
-- Ask for a targeted search pass:
-  - “Search for mentions of X and return matching excerpts with sources”
+- **Use the same language**: Match the terms that appear in your source files (question text, labels, column headers)
+- **Ask for a targeted search**: "Search for all mentions of [keyword] and return matching excerpts with their sources"
+- **Check your source selection**: Make sure the relevant campaign or dataset is selected via the Sources button in the toolbar
+- **Try a different phrasing**: If "pricing concerns" doesn't work, try "cost," "value," "expensive," or related terms
+- **Check file processing**: The file may show "Success" but content extraction may have missed certain sections (especially from image-heavy PDFs)
+
+### Citations seem inconsistent between queries
+
+- This can happen when sources contain overlapping information
+- **Be more specific** in your question to guide the AI to the right source
+- **Ask for source attribution**: "For each claim, tell me which specific file or campaign response it came from"
+- **Run the same query twice** to check consistency -- if results vary significantly, narrow your sources
+
+### AI says it can't find relevant information
+
+- **Check source selection**: Make sure you've clicked the Sources button in the toolbar and selected sources
+- **Broaden your question**: You may be asking something too specific -- try a more general query first
+- **Verify file processing**: Check that all files show "Success" status in the dataset
+- **Try different source types**: If a dataset isn't working, try selecting a campaign directly (or vice versa)
+
+## Frequently Asked Questions
+
+::: details Click to expand
+
+**Q: Does the AI always provide citations?**
+Citations appear when the AI draws on your selected sources (via the Sources button). When the AI is using general knowledge or web results rather than your specific files, citations may not appear.
+
+**Q: Can I trust the citation accuracy?**
+Citations point to real sources in your data, but always verify important claims. The AI identifies relevant passages accurately most of the time, but it may occasionally misinterpret context or draw connections that aren't quite right.
+
+**Q: Why do I get different citations for the same question?**
+The AI's search process has some variability. If you ask the same question twice, it may surface different relevant passages. This is normal -- your data may contain multiple relevant sections, and the AI samples from them.
+
+**Q: Can I export citations with my conversation?**
+When you copy or export a conversation, the citation references are included in the output. This makes it easy to share evidence-backed findings with stakeholders.
+
+**Q: How does the AI decide which sources are most relevant?**
+The AI uses semantic search to find passages that are conceptually similar to your question. It weighs relevance, recency, and specificity. More focused source selections lead to more relevant citations.
+
+**Q: Do labels on dataset files affect citation quality?**
+Yes. Well-labeled files help the AI narrow its search. If you label files with categories like "product: skincare" or "quarter: Q4-2024," the AI can more efficiently find relevant content.
+
+**Q: Can I cite a specific respondent?**
+When the AI cites campaign data, it can reference individual responses. However, respondent identity depends on what data was collected -- anonymous campaigns won't include personal identifiers.
+:::
 
 ## Related Guides
 
-- [Home (Chat)](/guide/home)
-- [Datasets](/guide/datasets)
-- [Campaigns](/guide/campaigns)
-- [Agents](/guide/agents)
-- [Permissions & Sharing](/guide/permissions-and-sharing)
-
+- [Home](/guide/home) -- Full guide to the chat interface
+- [Datasets](/guide/datasets) -- How to upload and organize files for AI analysis
+- [Campaigns](/guide/campaigns) -- Creating and managing research surveys
+- [Agents](/guide/agents) -- Building AI personas with specialized knowledge
+- [Permissions & Sharing](/guide/permissions-and-sharing) -- Controlling who can access your research
