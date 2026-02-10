@@ -24,7 +24,7 @@ env:
 jobs:
   sync-documentation:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     outputs:
       has_bug_reports: ${{ steps.check_bugs.outputs.has_bugs }}
       bug_reports: ${{ steps.check_bugs.outputs.bug_reports }}
@@ -110,6 +110,8 @@ jobs:
         run: mkdir -p bug-reports
 
       - name: Run documentation analysis and updates
+        timeout-minutes: 30
+        continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
@@ -120,7 +122,7 @@ jobs:
 
           claude -p "$PROMPT_CONTENT" \
             --dangerously-skip-permissions \
-            --max-turns 100 \
+            --max-turns 30 \
             --output-format json \
             2>&1 | tee /tmp/claude-log.txt || true
 
