@@ -50,3 +50,7 @@ bug-reports/
 # Checked out repos for analysis
 vurvey-web-manager/
 vurvey-api/
+CLAUDE.md
+AGENT.md
+AGENTS.md
+WARP.md
