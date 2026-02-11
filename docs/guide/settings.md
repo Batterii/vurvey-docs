@@ -4,7 +4,7 @@ The Settings section is where you configure workspace-level options, manage team
 
 ## Overview
 
-![General Settings](/vurvey-docs/screenshots/settings/01-general-settings.png)
+![General Settings](/screenshots/settings/01-general-settings.png)
 
 Settings control how your entire workspace operates. From session timeouts and workspace branding to team member roles and AI model selection, this is your workspace's control center.
 
@@ -95,7 +95,7 @@ See the [Rewards](/guide/rewards) page for detailed Tremendous configuration and
 
 ## AI Models
 
-![AI Models Browser](/vurvey-docs/screenshots/settings/02-ai-models.png)
+![AI Models Browser](/screenshots/settings/02-ai-models.png)
 
 The AI Models page lets you browse all available AI models in your workspace, organized by category.
 
@@ -131,7 +131,7 @@ The models shown here are available when creating Agents or configuring Workflow
 
 ## Workspace Members
 
-![Workspace Members](/vurvey-docs/screenshots/settings/03-members.png)
+![Workspace Members](/screenshots/settings/03-members.png)
 
 Manage your team members, invite new users, and control access permissions.
 
@@ -213,7 +213,7 @@ You cannot change your own role or remove yourself from the workspace. Ask anoth
 API Management is available for enterprise workspaces. The feature may be disabled in some builds.
 :::
 
-![API Management](/vurvey-docs/screenshots/settings/04-api-management.png?optional=1)
+![API Management](/screenshots/settings/04-api-management.png?optional=1)
 
 The API Management page lets you create and manage API keys for programmatic access to the Vurvey platform via Apigee.
 
