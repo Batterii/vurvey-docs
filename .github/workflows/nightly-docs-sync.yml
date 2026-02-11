@@ -162,6 +162,7 @@ jobs:
           fi
 
           claude -p "$PROMPT_CONTENT" \
+            --model claude-sonnet-4-5-20250929 \
             --dangerously-skip-permissions \
             --max-turns 30 \
             --output-format json \
@@ -181,6 +182,7 @@ jobs:
           REMEDIATION_PROMPT=$(cat scripts/qa-remediation-prompt.md)
 
           claude -p "$REMEDIATION_PROMPT" \
+            --model claude-sonnet-4-5-20250929 \
             --dangerously-skip-permissions \
             --max-turns 20 \
             --output-format json \

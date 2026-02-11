@@ -226,6 +226,7 @@ jobs:
           PROMPT_CONTENT=$(cat scripts/qa-remediation-prompt.md)
 
           claude -p "$PROMPT_CONTENT" \
+            --model claude-sonnet-4-5-20250929 \
             --dangerously-skip-permissions \
             --max-turns 25 \
             --output-format json \

@@ -198,6 +198,7 @@ jobs:
 
           set +e
           claude -p "$PROMPT_CONTENT" \
+            --model claude-sonnet-4-5-20250929 \
             --dangerously-skip-permissions \
             --max-turns 15 \
             --output-format json \
