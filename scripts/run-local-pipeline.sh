@@ -219,6 +219,7 @@ else
   set +e
   claude -p "$REMEDIATION_PROMPT" \
     --model claude-sonnet-4-5-20250929 \
+    --dangerously-skip-permissions \
     --max-turns 25 \
     --output-format json \
     2>&1 | tee /tmp/claude-remediation-log.txt
