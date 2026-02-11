@@ -185,7 +185,7 @@ else
   node scripts/qa-failure-analyzer.js 2>&1
 
   if [[ -f qa-output/qa-analysis-input.json ]]; then
-    FAILURE_COUNT=$(python3 -c "import json; print(json.load(open('qa-output/qa-analysis-input.json'))['metadata'].get('total_failures', 0))" 2>/dev/null || echo 0)
+    FAILURE_COUNT=$(python3 -c "import json; print(json.load(open('qa-output/qa-analysis-input.json')).get('total_failures', 0))" 2>/dev/null || echo 0)
     echo ""
     echo -e "  Failures classified: ${BOLD}$FAILURE_COUNT${RESET}"
 
