@@ -22,6 +22,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  pull-requests: write
 
 # Allow only one concurrent deployment
 concurrency:
@@ -127,11 +128,312 @@ jobs:
             qa-failure-screenshots/
           retention-days: 7
 
+  remediate:
+    runs-on: ubuntu-latest
+    needs: [qa]
+    if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && needs.qa.result != 'cancelled'
+    timeout-minutes: 45
+    outputs:
+      has_bug_reports: ${{ steps.check_outputs.outputs.has_bugs }}
+      bug_reports: ${{ steps.check_outputs.outputs.bug_reports }}
+      has_doc_fixes: ${{ steps.check_outputs.outputs.has_doc_fixes }}
+      doc_fixes: ${{ steps.check_outputs.outputs.doc_fixes }}
+      has_changes: ${{ steps.check_changes.outputs.changes }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Checkout vurvey-web-manager (for source code analysis)
+        uses: actions/checkout@v4
+        with:
+          repository: batterii/vurvey-web-manager
+          path: vurvey-web-manager
+          token: ${{ secrets.VURVEY_REPO_TOKEN }}
+
+      - name: Checkout vurvey-api (for source code analysis)
+        uses: actions/checkout@v4
+        with:
+          repository: batterii/vurvey-api
+          path: vurvey-api
+          token: ${{ secrets.VURVEY_REPO_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download QA artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: qa-artifacts
+          path: qa-artifacts-download/
+        continue-on-error: true
+
+      - name: Restore QA output
+        run: |
+          if [ -d "qa-artifacts-download/qa-output" ]; then
+            cp -r qa-artifacts-download/qa-output ./qa-output
+          fi
+          if [ -d "qa-artifacts-download/qa-failure-screenshots" ]; then
+            cp -r qa-artifacts-download/qa-failure-screenshots ./qa-failure-screenshots
+          fi
+          mkdir -p qa-output bug-reports doc-fixes
+
+      - name: Run QA failure analyzer
+        run: node scripts/qa-failure-analyzer.js
+        continue-on-error: true
+
+      - name: Check for QA failures
+        id: check_failures
+        run: |
+          if [ -f "qa-output/qa-analysis-input.json" ]; then
+            FAILURE_COUNT=$(cat qa-output/qa-analysis-input.json | jq '.total_failures // 0')
+            echo "failure_count=$FAILURE_COUNT" >> $GITHUB_OUTPUT
+            if [ "$FAILURE_COUNT" -gt "0" ]; then
+              echo "has_failures=true" >> $GITHUB_OUTPUT
+              echo "QA analysis found $FAILURE_COUNT failure(s) - will run remediation"
+            else
+              echo "has_failures=false" >> $GITHUB_OUTPUT
+              echo "No QA failures to remediate"
+            fi
+          else
+            echo "failure_count=0" >> $GITHUB_OUTPUT
+            echo "has_failures=false" >> $GITHUB_OUTPUT
+            echo "No QA analysis input found"
+          fi
+
+      - name: Install Claude Code CLI
+        if: steps.check_failures.outputs.has_failures == 'true'
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run Claude Code remediation
+        if: steps.check_failures.outputs.has_failures == 'true'
+        timeout-minutes: 25
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          QA_WEB_MANAGER_DIR: vurvey-web-manager
+          QA_API_DIR: vurvey-api
+        run: |
+          PROMPT_CONTENT=$(cat scripts/qa-remediation-prompt.md)
+
+          claude -p "$PROMPT_CONTENT" \
+            --dangerously-skip-permissions \
+            --max-turns 25 \
+            --output-format json \
+            2>&1 | tee /tmp/claude-remediation-log.txt || true
+
+          echo "Claude Code remediation complete"
+
+      - name: Check for bug reports
+        id: check_outputs
+        run: |
+          # Check bug reports
+          if [ -d "bug-reports" ] && [ "$(ls -A bug-reports/*.json 2>/dev/null)" ]; then
+            echo "has_bugs=true" >> $GITHUB_OUTPUT
+
+            BUG_REPORTS=$(ls bug-reports/*.json | while read file; do
+              cat "$file"
+            done | jq -s '.')
+
+            echo "bug_reports<<EOF" >> $GITHUB_OUTPUT
+            echo "$BUG_REPORTS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            echo "Found $(ls bug-reports/*.json | wc -l) bug report(s)"
+          else
+            echo "has_bugs=false" >> $GITHUB_OUTPUT
+            echo "bug_reports=[]" >> $GITHUB_OUTPUT
+            echo "No bug reports found"
+          fi
+
+          # Check doc fixes
+          if [ -d "doc-fixes" ] && [ "$(ls -A doc-fixes/*.json 2>/dev/null)" ]; then
+            echo "has_doc_fixes=true" >> $GITHUB_OUTPUT
+
+            DOC_FIXES=$(ls doc-fixes/*.json | while read file; do
+              cat "$file"
+            done | jq -s '.')
+
+            echo "doc_fixes<<EOF" >> $GITHUB_OUTPUT
+            echo "$DOC_FIXES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            echo "Found $(ls doc-fixes/*.json | wc -l) doc fix suggestion(s)"
+          else
+            echo "has_doc_fixes=false" >> $GITHUB_OUTPUT
+            echo "doc_fixes=[]" >> $GITHUB_OUTPUT
+            echo "No doc fixes found"
+          fi
+
+      - name: Check for documentation changes
+        id: check_changes
+        run: |
+          git add docs/guide/ || true
+          if git diff --staged --quiet; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No documentation changes from remediation"
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Documentation changes detected from remediation"
+            git diff --staged --stat
+          fi
+
+      - name: Create remediation PR
+        if: steps.check_changes.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: QA remediation fixes [automated]"
+          title: "[QA Remediation] Documentation fixes from QA test failures"
+          body: |
+            ## QA Remediation
+
+            This PR was automatically generated by the QA remediation pipeline.
+
+            ### What happened
+            - The QA test suite detected ${{ steps.check_failures.outputs.failure_count }} failure(s)
+            - Claude Code analyzed the failures and applied documentation fixes
+
+            ### Bug reports dispatched
+            ${{ steps.check_outputs.outputs.has_bugs == 'true' && 'Code bugs were detected and dispatched to target repositories.' || 'No code bugs detected.' }}
+
+            ### Verification checklist
+            - [ ] Documentation changes are accurate
+            - [ ] Fixes address the QA failures
+            - [ ] No broken formatting or links
+
+            ---
+            *Generated by QA Remediation Pipeline*
+          branch: automated/qa-remediation
+          delete-branch: true
+          labels: |
+            documentation
+            automated
+            qa-remediation
+
+      - name: Upload remediation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: remediation-artifacts
+          path: |
+            qa-output/
+            bug-reports/
+            doc-fixes/
+            REMEDIATION_SUMMARY.md
+            /tmp/claude-remediation-log.txt
+          retention-days: 7
+
+  # Dispatch bug reports to vurvey-web-manager
+  dispatch-frontend-bugs:
+    needs: [remediate]
+    if: needs.remediate.outputs.has_bug_reports == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Filter frontend bug reports
+        id: filter_bugs
+        run: |
+          FRONTEND_BUGS=$(echo '${{ needs.remediate.outputs.bug_reports }}' | jq '[.[] | select(.target_repo == "vurvey-web-manager")]')
+          BUG_COUNT=$(echo "$FRONTEND_BUGS" | jq 'length')
+
+          if [ "$BUG_COUNT" -gt "0" ]; then
+            echo "has_frontend_bugs=true" >> $GITHUB_OUTPUT
+            echo "frontend_bugs<<EOF" >> $GITHUB_OUTPUT
+            echo "$FRONTEND_BUGS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "Found $BUG_COUNT frontend bug report(s)"
+          else
+            echo "has_frontend_bugs=false" >> $GITHUB_OUTPUT
+            echo "No frontend bugs to dispatch"
+          fi
+
+      - name: Dispatch to vurvey-web-manager
+        if: steps.filter_bugs.outputs.has_frontend_bugs == 'true'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.VURVEY_REPO_TOKEN }}
+          repository: batterii/vurvey-web-manager
+          event-type: bug-fix-request
+          client-payload: |
+            {
+              "source": "vurvey-docs-qa-remediation",
+              "workflow_run_id": "${{ github.run_id }}",
+              "bug_reports": ${{ steps.filter_bugs.outputs.frontend_bugs }}
+            }
+
+  # Dispatch bug reports to vurvey-api
+  dispatch-backend-bugs:
+    needs: [remediate]
+    if: needs.remediate.outputs.has_bug_reports == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Filter backend bug reports
+        id: filter_bugs
+        run: |
+          BACKEND_BUGS=$(echo '${{ needs.remediate.outputs.bug_reports }}' | jq '[.[] | select(.target_repo == "vurvey-api")]')
+          BUG_COUNT=$(echo "$BACKEND_BUGS" | jq 'length')
+
+          if [ "$BUG_COUNT" -gt "0" ]; then
+            echo "has_backend_bugs=true" >> $GITHUB_OUTPUT
+            echo "backend_bugs<<EOF" >> $GITHUB_OUTPUT
+            echo "$BACKEND_BUGS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "Found $BUG_COUNT backend bug report(s)"
+          else
+            echo "has_backend_bugs=false" >> $GITHUB_OUTPUT
+            echo "No backend bugs to dispatch"
+          fi
+
+      - name: Dispatch to vurvey-api
+        if: steps.filter_bugs.outputs.has_backend_bugs == 'true'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.VURVEY_REPO_TOKEN }}
+          repository: batterii/vurvey-api
+          event-type: bug-fix-request
+          client-payload: |
+            {
+              "source": "vurvey-docs-qa-remediation",
+              "workflow_run_id": "${{ github.run_id }}",
+              "bug_reports": ${{ steps.filter_bugs.outputs.backend_bugs }}
+            }
+
+  # Dispatch doc fixes back to self
+  dispatch-doc-fixes:
+    needs: [remediate]
+    if: needs.remediate.outputs.has_doc_fixes == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Dispatch doc fixes
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.VURVEY_REPO_TOKEN }}
+          repository: batterii/vurvey-docs
+          event-type: doc-fix-request
+          client-payload: |
+            {
+              "source": "vurvey-docs-qa-remediation",
+              "workflow_run_id": "${{ github.run_id }}",
+              "doc_fixes": ${{ needs.remediate.outputs.doc_fixes }}
+            }
+
   build:
     runs-on: ubuntu-latest
-    needs: [update-screenshots, qa]
-    # Run build even if update-screenshots was skipped
-    if: always() && (needs.update-screenshots.result == 'success' || needs.update-screenshots.result == 'skipped') && (needs.qa.result == 'success' || needs.qa.result == 'skipped')
+    needs: [update-screenshots, qa, remediate]
+    # Run build even if upstream jobs were skipped or remediation had issues
+    if: always() && (needs.update-screenshots.result == 'success' || needs.update-screenshots.result == 'skipped') && (needs.qa.result == 'success' || needs.qa.result == 'skipped') && (needs.remediate.result == 'success' || needs.remediate.result == 'skipped')
 
     steps:
       - name: Checkout repository

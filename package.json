@@ -12,6 +12,7 @@
     "test": "node --test test/**/*.test.js",
     "test:qa": "node scripts/qa-test-suite.js",
     "test:qa:headed": "HEADLESS=false node scripts/qa-test-suite.js",
+    "test:qa:analyze": "node scripts/qa-failure-analyzer.js",
     "lint:docs": "node scripts/docs-lint.js",
     "test:docs": "npm run lint:docs",
     "sync:nightly": "npm run update:screenshots && npm run test:qa",
