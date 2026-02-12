@@ -150,7 +150,7 @@ Click the three-dot menu on any agent card to access quick actions:
 
 ## Creating an Agent
 
-Click **+ Create Agent** in the top-right corner of the gallery to launch the Agent Builder. The builder walks you through six steps to create a complete, well-configured agent.
+Click **+ Create Agent** in the top-right corner of the gallery to open the Generate Agent dialog. The dialog walks you through six steps to create a complete, well-configured agent.
 
 ::: tip Classic Builder Available
 If you prefer the original builder experience, click **Use Classic Builder** in the top navigation bar at any time.
@@ -158,7 +158,7 @@ If you prefer the original builder experience, click **Use Classic Builder** in 
 
 ### Builder Navigation
 
-The top of the builder shows a visual progress bar with all six steps. Each step displays one of these states:
+The top of the dialog shows a visual progress bar with all six steps. Each step displays one of these states:
 
 - **Locked** — You need to complete earlier steps first
 - **Available** — Ready for you to work on
