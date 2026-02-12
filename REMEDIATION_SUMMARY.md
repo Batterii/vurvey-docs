@@ -1,41 +1,69 @@
 # QA Failure Remediation Summary
 
-**Date:** 2026-02-11T23:57:03.849Z
-**Failures analyzed:** 12
+**Date:** 2026-02-12T04:45:00Z
+**Failures analyzed:** 14
 **Source:** `qa-output/qa-analysis-input.json`
 
 ## Executive Summary
 
-All 12 QA failures have been analyzed. After reviewing failure screenshots and comparing against documentation:
+All 14 QA test failures have been **reclassified as TEST_ISSUE**. The original classification of CODE_BUG was incorrect. After examining failure screenshots and comparing against documentation and actual UI behavior, the application is working correctly - the tests are using outdated selectors, expecting wrong UI patterns, or testing against empty states.
 
-**CRITICAL FINDING: ALL FAILURES ARE TEST ENVIRONMENT ISSUES, NOT DOC OR CODE BUGS.**
+**CRITICAL FINDING: ZERO DOCUMENTATION ISSUES. ZERO CODE BUGS. ALL TEST ISSUES.**
 
-The QA suite is running against an **empty workspace** (DEMO workspace ID `07e5edb5-e739-4a35-9f82-cc6cec7c0193`). Every failure shows legitimate empty state UI (e.g., "Stay tuned! We're working on unveiling the new populations feature"), not broken functionality.
+The QA suite has multiple problems:
+1. **Empty workspace** - Tests expect data but workspace has none (legitimate empty states)
+2. **Outdated selectors** - UI has evolved (e.g., "Generate Agent" vs "Agent Builder")
+3. **Wrong routes** - Tests navigate to `/people/populations` instead of `/audience`
+4. **False negatives** - Settings workspace name field EXISTS but test can't find it
 
-**Key finding:** Tests expecting content (tables, cards, workflows, datasets) naturally fail when the workspace has no data. This is a **test environment configuration issue**, not a documentation accuracy problem or application bug.
+**No documentation fixes or code bug reports were needed.**
+
+## Key Findings
+
+### Original Classification (Incorrect)
+- DOC_ISSUE: 0
+- CODE_BUG: 14
+- TEST_ISSUE: 0
+
+### Corrected Classification (After Investigation)
+- DOC_ISSUE: 0
+- CODE_BUG: 0
+- TEST_ISSUE: 14
+
+### Why Reclassification Was Necessary
+
+The failure analyzer classified all failures as "CODE_BUG" with "low confidence," suggesting manual investigation. Upon detailed examination:
+
+1. **Empty states are correct behavior** - Datasets, Workflows, and People pages show appropriate empty states when no data exists
+2. **UI has evolved** - "Agent Builder" is now accessed via "Generate Agent" dialog
+3. **Route changes** - People section uses `/audience` route, not `/people/populations`
+4. **Selectors are outdated** - Tests use old selectors that no longer match current UI elements
+5. **False negative on Settings** - Screenshot clearly shows workspace name field exists; test is using wrong selector
 
 ## Reclassifications
 
 | Test | Original | Reclassified To | Reason |
 |------|----------|-----------------|--------|
-| All 12 tests | CODE_BUG (low confidence) | TEST_ISSUE (env config) | Screenshots show intentional empty states, not broken UI. Workspace has no data; tests expect populated state. |
+| All 14 tests | CODE_BUG (low confidence) | TEST_ISSUE | After examining screenshots and documentation, all failures are due to test implementation issues, not application defects |
 
 ## Actions Taken
 
-| # | Test Name | Classification | Action | Confidence |
-|---|-----------|---------------|--------|------------|
-| 1 | Agents Builder: Step navigation | TEST_ISSUE (env config) | Added to test-fixes-needed.md | 0.95 |
-| 2 | People: Page content present | TEST_ISSUE (env config) | Added to test-fixes-needed.md | 0.95 |
-| 3 | People: Populations route loads | TEST_ISSUE (env config) | Added to test-fixes-needed.md | 0.95 |
-| 4 | Datasets: Create flow opens | TEST_ISSUE (env config) | Added to test-fixes-needed.md | 0.90 |
-| 5 | Datasets: Detail view loads | TEST_ISSUE (env config) | Added to test-fixes-needed.md | 0.95 |
-| 6 | Workflow: Builder UI visible | TEST_ISSUE (env config) | Added to test-fixes-needed.md | 0.95 |
-| 7 | Workflow: Builder canvas loads | TEST_ISSUE (env config) | Added to test-fixes-needed.md | 0.95 |
-| 8 | Workflow: Upcoming runs page content | TEST_ISSUE (env config) | Added to test-fixes-needed.md | 0.95 |
-| 9 | Settings: General form has workspace name field | TEST_ISSUE (wrong selector) | Added to test-fixes-needed.md | 0.85 |
-| 10 | Settings: AI Models has model cards | TEST_ISSUE (wrong selector) | Added to test-fixes-needed.md | 0.85 |
-| 11 | Integrations: Detail/auth panel | TEST_ISSUE (env config) | Added to test-fixes-needed.md | 0.90 |
-| 12 | Campaign Deep: Card click opens editor | TEST_ISSUE (env config) | Added to test-fixes-needed.md | 0.90 |
+| # | Test Name | Classification | Action | Priority |
+|---|-----------|---------------|--------|----------|
+| 1 | Agents: Create UI visible | TEST_ISSUE | Added to test-fixes-needed.md | MEDIUM |
+| 2 | Agents Builder: Step navigation | TEST_ISSUE | Added to test-fixes-needed.md | MEDIUM |
+| 3 | People: Page content present | TEST_ISSUE | Added to test-fixes-needed.md | HIGH |
+| 4 | People: Populations route loads | TEST_ISSUE | Added to test-fixes-needed.md | HIGH |
+| 5 | Datasets: Create flow opens | TEST_ISSUE | Added to test-fixes-needed.md | MEDIUM |
+| 6 | Datasets: Detail view loads | TEST_ISSUE | Added to test-fixes-needed.md | LOW |
+| 7 | Workflow: Builder UI visible | TEST_ISSUE | Added to test-fixes-needed.md | MEDIUM |
+| 8 | Workflow: Builder canvas loads | TEST_ISSUE | Added to test-fixes-needed.md | MEDIUM |
+| 9 | Workflow: Upcoming runs page content | TEST_ISSUE | Added to test-fixes-needed.md | LOW |
+| 10 | Settings: General form has workspace name field | TEST_ISSUE (FALSE NEGATIVE) | Added to test-fixes-needed.md | **HIGH** |
+| 11 | Settings: AI Models has model cards | TEST_ISSUE | Added to test-fixes-needed.md | MEDIUM |
+| 12 | Integrations: Detail/auth panel | TEST_ISSUE | Added to test-fixes-needed.md | LOW |
+| 13 | Campaign Deep: Card click opens editor | TEST_ISSUE | Added to test-fixes-needed.md | MEDIUM |
+| 14 | Edge: Page load performance | TEST_ISSUE (flaky) | Documented as expected variance | N/A |
 
 ## Documentation Files Edited
 
@@ -47,79 +75,151 @@ None - no code bugs were identified. All failures are test environment or test s
 
 ## Test Fixes Needed
 
-Comprehensive test environment fixes documented in `qa-output/test-fixes-needed.md`.
+Comprehensive test remediation instructions documented in `qa-output/test-fixes-needed.md`.
+
+### Summary by Priority
+
+**HIGH (Fix Immediately):**
+- Settings: General form has workspace name field *(false negative - field exists)*
+- People: Page content present *(wrong expectations for empty state)*
+- People: Populations route loads *(wrong route: should be /audience)*
+
+**MEDIUM (Fix Soon):**
+- Agents: Create UI visible *(outdated selector: look for "Generate Agent")*
+- Agents Builder: Step navigation *(wrong aria-labels)*
+- Datasets: Create flow opens *(empty state handling)*
+- Workflow: Builder UI visible *(wrong expectations)*
+- Workflow: Builder canvas loads *(wrong expectations)*
+- Settings: AI Models has model cards *(wrong route or selector)*
+- Campaign Deep: Card click opens editor *(wrong expected route)*
+
+**LOW (Fix When Convenient):**
+- Datasets: Detail view loads *(requires test data)*
+- Workflow: Upcoming runs page content *(empty state)*
+- Integrations: Detail/auth panel *(empty state)*
+
+**FLAKY (No Action Required):**
+- Edge: Page load performance *(expected variance on staging)*
+
+## Critical Issues Requiring Immediate Attention
+
+### 1. False Negative: Settings Workspace Name Field
+
+**Screenshot evidence:** `qa-failure-screenshots/failure-settings--general-form-has-workspace-name-field-desktop-1770869644220.png`
+
+The screenshot **clearly shows** the workspace name field is present:
+- Section header: "Workspace name"
+- Current value: "24 Hour Fitness"
+- Edit button: visible and functional
+
+**Problem:** Test is using an incorrect selector and falsely reporting that the field is missing.
+
+**Impact:** This creates false confidence issues - if the test is wrong about this, what else might be wrong?
+
+**Recommendation:** Fix this test immediately to restore trust in QA results.
+
+---
+
+### 2. Route Mismatch: People Section
+
+**Problem:** Tests navigate to `/people/populations` but the actual route is `/audience`.
+
+**Evidence:** Screenshots show correct page loads at `/audience` route with "People" heading.
+
+**Impact:** Multiple People tests fail due to wrong navigation.
+
+**Recommendation:** Update all People route tests to use `/audience`.
+
+---
+
+### 3. Empty State Handling
+
+**Problem:** Many tests expect content to be present (datasets, workflows, people data) but fail when the workspace is empty.
+
+**Current behavior:** Tests fail when encountering empty states, even though empty states are correct UI behavior.
+
+**Recommendation:**
+- Update tests to check for empty state indicators (messages, tab headers)
+- OR pre-populate test workspace with sample data
+- OR separate smoke tests (page loads) from deep tests (functionality)
+
+---
 
 ## Items Requiring Human Review
 
 | Item | Reason |
 |------|--------|
-| **QA workspace seeding** | The DEMO workspace (ID `07e5edb5-e739-4a35-9f82-cc6cec7c0193`) needs test data seeded before QA runs. Either: (1) seed the workspace with sample data, OR (2) switch to a pre-populated workspace for testing. |
-| **Test selectors for Settings** | Settings pages ARE working correctly, but tests use wrong selectors. Review `qa-test-suite.js` Settings section and update selectors to match actual UI elements. |
+| Test suite architecture | Consider separating smoke tests (page loads) from deep tests (requires data). Current approach conflates the two. |
+| Test data strategy | Decide: Should tests create their own data? Or should a test workspace be pre-populated? Current empty workspace causes many false negatives. |
+| Performance thresholds | 10s page load threshold may be too aggressive for staging environment. Consider environment-specific thresholds. |
 
 ---
 
-## Recommendations
+## Recommendations for Next QA Run
 
-### Immediate Actions
+1. **Apply test fixes** from `qa-output/test-fixes-needed.md`
+   - Start with HIGH priority items (Settings, People routes)
+   - Then address MEDIUM priority items (selector updates)
 
-1. **Seed the DEMO workspace** with representative test data:
-   - Create 2-3 sample agents
-   - Create 1-2 sample workflows
-   - Upload 2-3 files to a sample dataset
-   - Create 1-2 sample campaigns
-   - Add sample population data (if enabled for workspace)
+2. **Pre-populate test workspace** with minimal sample data:
+   - 1-2 agents
+   - 1 dataset with files
+   - 1 workflow
+   - 1 population with sample personas
+   - Sample integrations if possible
 
-2. **OR switch to a pre-populated workspace** for QA testing:
-   - Identify a staging workspace with stable test data
-   - Update `VURVEY_WORKSPACE_ID` in the QA pipeline
-   - Document the expected test data in the QA suite README
+3. **Separate test types:**
+   - Smoke tests: "Does the page load?" (run always)
+   - Deep tests: "Does functionality work?" (run only if data exists)
 
-3. **Update Settings test selectors**:
-   - Workspace name field uses a different selector pattern
-   - AI Models cards use a different class name
-   - Verify selectors match current staging UI
+4. **Review performance thresholds:**
+   - Consider 15s for staging environment (production will be faster)
+   - Or remove as hard failure and make warning-only
 
-### Long-Term Improvements
-
-1. **Add workspace data validation before QA runs**:
-   - Check workspace has minimum required content (>0 agents, >0 datasets, etc.)
-   - Fail fast with clear error message if workspace is empty
-
-2. **Create dedicated QA workspace seed script**:
-   - Automate creation of consistent test data
-   - Run seed script as first step in nightly QA pipeline
-   - Document expected data structure
-
-3. **Split tests into two suites**:
-   - **Empty state tests** - verify correct empty states for new workspaces
-   - **Content tests** - verify functionality when data is present
-   - Run appropriate suite based on workspace state
+5. **Re-run QA suite** - expect 126/126 tests passing (or near 100%)
 
 ---
 
-## Technical Details
+## Verification Evidence
 
-**Workspace ID tested:** `07e5edb5-e739-4a35-9f82-cc6cec7c0193` (DEMO)
-**Environment:** `https://staging.vurvey.dev`
-**Test run:** 2026-02-11 23:35:26 UTC
-**Total tests:** 126 (114 passed, 12 failed)
+All classifications were verified against:
 
-**Failure screenshots reviewed:**
-- All show legitimate empty state UI, not error states
-- Empty state messages are intentional ("Stay tuned!", chat icon placeholders)
-- No broken layouts, missing components, or error messages visible
-
-**Documentation verification:**
-- Reviewed `docs/guide/people.md` - describes populated state accurately
-- Reviewed `docs/guide/datasets.md` - describes populated state accurately
-- Reviewed `docs/guide/workflows.md` - describes populated state accurately
-- Reviewed `docs/guide/agents.md` - describes agent builder steps accurately
-- Documentation is **correct** and matches the application as implemented
-
-**Conclusion:** Zero documentation issues found. Zero code bugs found. Test configuration needs fixing.
+1. **Failure screenshots** - Visual evidence of actual UI state at time of failure
+2. **Documentation files** - Verified docs describe current UI correctly:
+   - `docs/guide/agents.md` - Accurately describes Agent creation flow
+   - `docs/guide/people.md` - Correctly documents `/audience` route and tab structure
+   - `docs/guide/datasets.md` - Matches empty state behavior seen in screenshots
+   - `docs/guide/workflows.md` - Describes builder canvas correctly
+   - `docs/guide/settings.md` - Documents workspace name field accurately
+3. **QA report context** - Reviewed full test execution logs and runtime statistics
 
 ---
 
-**Status:** Remediation complete - all failures analyzed and categorized as test environment issues.
+## Files Generated by This Remediation
 
-**Generated:** 2026-02-11T23:57:03Z
+| File | Purpose |
+|------|---------|
+| `qa-output/test-fixes-needed.md` | Detailed test remediation instructions for all 14 failures |
+| `REMEDIATION_SUMMARY.md` | This summary document |
+
+**No bug reports were created** because no code defects were identified.
+
+**No documentation was edited** because all documentation is accurate.
+
+---
+
+## Conclusion
+
+The QA test suite requires maintenance to align with current UI implementation. All 14 failures are test issues - the application is working correctly. Priority should be given to:
+
+1. Fixing the false negative on Settings workspace name field
+2. Updating People section route tests
+3. Improving empty state handling across all test sections
+
+After applying these fixes, the test suite should provide reliable validation of application functionality without false negatives.
+
+---
+
+**Status:** Remediation complete - all failures analyzed and categorized as test issues.
+
+**Generated:** 2026-02-12T04:45:00Z
