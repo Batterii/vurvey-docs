@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-02-12T03:36:00Z",
+  "qa_test": "Agents: Create UI visible",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/agents.md",
+  "section": "Creating an Agent",
+  "change_summary": "Updated terminology from 'Agent Builder' to 'Generate Agent' dialog to match actual UI. The create flow now shows 'Generate Agent' modal first, not directly launching the builder.",
+  "lines_changed": "151-159",
+  "verified_against": "vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136",
+  "confidence": 0.95
+}
