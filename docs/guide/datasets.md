@@ -131,9 +131,9 @@ Click **Add Files** to see your upload options:
 | **Documents** | PDF, DOC, DOCX, TXT, MD, JSON |
 | **Spreadsheets** | CSV, XLS, XLSX |
 | **Presentations** | PPTX |
-| **Images** | PNG, JPG, GIF, WEBP |
+| **Images** | PNG, JPG, JPEG, GIF, WEBP |
 | **Video** | MP4, MOV, AVI |
-| **Audio** | MP3, WAV, OGG, AAC, M4A, WEBM, FLAC (when enabled for your workspace) |
+| **Audio** | MP3, WAV, OGG, AAC, M4A, WEBM, FLAC (when audio uploads are enabled for your workspace) |
 
 ::: tip Choosing the Right Format
 - **PDFs** are ideal for formatted reports and presentations.

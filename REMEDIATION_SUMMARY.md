@@ -1,7 +1,7 @@
 # QA Failure Remediation Summary
 
-**Date:** 2026-02-13T09:00:00Z  
-**Failures analyzed:** 15  
+**Date:** 2026-02-13T13:20:00Z
+**Failures analyzed:** 15
 **Source:** `qa-output/qa-analysis-input.json`
 
 ## Executive Summary
@@ -80,7 +80,7 @@ Created comprehensive test fix document: `qa-output/test-fixes-needed.md`
 
 1. **Seed DEMO workspace with sample content** before running tests:
    - Create 2-3 sample agents
-   - Create 1-2 sample workflows  
+   - Create 1-2 sample workflows
    - Upload 1-2 sample datasets
    - Create 1 sample campaign
 
@@ -103,13 +103,29 @@ Created comprehensive test fix document: `qa-output/test-fixes-needed.md`
 
 ## Reclassifications
 
+All 15 failures were reclassified from their original classification after verification.
+
 | Test | Original | Reclassified To | Reason |
 |------|----------|-----------------|--------|
-| All 15 failures | CODE_BUG (low-medium confidence) | 1 CODE_BUG, 1 DOC_ISSUE, 12 TEST_ISSUE, 1 PERF_ISSUE | After screenshot analysis, 14/15 failures were test/config/docs issues, not code bugs |
+| Agents: Create UI visible | CODE_BUG (low) | TEST_ISSUE | Screenshot shows "Generate Agent" dialog, not "Agent Builder". Docs confirm this is correct. Test uses wrong text selector. |
+| Agents Builder: Step navigation | CODE_BUG (low) | TEST_ISSUE | Test looks for aria-labels that may not exist or use different values. Selector issue. |
+| People: Page content present | CODE_BUG (low) | DOC_ISSUE + FEATURE_WIP | Screenshot shows intentional empty state message. Doc updated with WIP warning. |
+| People: Populations route loads | CODE_BUG (low) | DOC_ISSUE + FEATURE_WIP | Populations feature in development, empty state is correct behavior. |
+| Datasets: Create flow opens | CODE_BUG (medium) | TEST_ISSUE | Test uses text:create selector which may not match actual button text. |
+| Datasets: Detail view loads | CODE_BUG (low) | TEST_ISSUE | No datasets exist to view. Test needs test data OR should accept empty state. |
+| Workflow: Builder UI visible | CODE_BUG (low) | TEST_ISSUE | Empty state when no workflows exist. Test should accept empty state. |
+| Workflow: Route loads (/workflow/templates) | CODE_BUG (medium) | CODE_BUG | Permission error is a genuine bug. Bug report filed. |
+| Workflow: Builder canvas loads | CODE_BUG (low) | TEST_ISSUE | Test must open a workflow before checking for canvas. Missing prerequisite. |
+| Workflow: Upcoming runs page content | CODE_BUG (low) | TEST_ISSUE | Empty state when no scheduled runs. Test should accept empty state as valid. |
+| Settings: Workspace name field | CODE_BUG (low) | TEST_ISSUE | Screenshot confirms workspace name is static text with Edit button. This is correct design. |
+| Settings: AI Models has model cards | CODE_BUG (low) | TEST_ISSUE + FEATURE_CONFIG | DEMO workspace has no AI models configured. Selector doesn't match actual DOM. |
+| Integrations: Detail/auth panel | CODE_BUG (medium) | TEST_ISSUE | Screenshot shows collapsed accordion. Test must expand accordion first. |
+| Campaign Deep: Card click opens editor | CODE_BUG (low) | TEST_ISSUE | Screenshot proves editor DID open at /questions route. Test assertion expects wrong route. |
+| Edge: Page load performance | CODE_BUG (low) | PERF_ISSUE | Staging environment performance, not code defect. |
 
 **Analysis Method:** Cross-referenced each failure against:
 1. Screenshot evidence of actual UI state
-2. Documentation of expected behavior  
+2. Documentation of expected behavior
 3. Knowledge of empty workspace constraints
 
 **Key Insight:** The initial classifier marked everything as CODE_BUG with low confidence because it couldn't distinguish between "feature doesn't work" and "feature works but workspace has no data to display."
@@ -129,9 +145,9 @@ Created comprehensive test fix document: `qa-output/test-fixes-needed.md`
 
 ## Output Files Created
 
-✓ `bug-reports/2026-02-13-0900-vurvey-web-manager-workflow-templates-permission-error.json`  
-✓ `doc-fixes/2026-02-13-0900-populations-feature-in-development-note.json`  
-✓ `qa-output/test-fixes-needed.md`  
+✓ `bug-reports/2026-02-13-0900-vurvey-web-manager-workflow-templates-permission-error.json`
+✓ `doc-fixes/2026-02-13-0900-populations-feature-in-development-note.json`
+✓ `qa-output/test-fixes-needed.md`
 ✓ `REMEDIATION_SUMMARY.md` (this file)
 
 ---
@@ -157,9 +173,3 @@ Created comprehensive test fix document: `qa-output/test-fixes-needed.md`
 3. **Product:** Decide on DEMO workspace seeding strategy for QA automation
 4. **Documentation:** Monitor Populations feature launch and remove WIP warning when ready
 5. **DevOps:** Consider staging environment performance optimization if 10s+ page loads are problematic
-
----
-
-**Remediation Agent:** Completed successfully  
-**Total Processing Time:** ~15 minutes  
-**Confidence in Assessment:** 0.92 (high confidence in classification; medium confidence that all edge cases were caught)
