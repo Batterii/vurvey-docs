@@ -150,12 +150,12 @@ Click the three-dot menu on any agent card to access quick actions:
 
 ## Creating an Agent
 
-Click **+ Create Agent** in the top-right corner of the gallery to open the Generate Agent dialog. You can choose to generate an agent quickly using AI, or open the full builder for more detailed configuration.
+Click **+ Create Agent** in the top-right corner of the gallery to open the Generate Agent dialog. This modal gives you two creation paths:
 
-::: tip Agent Builder Options
-After clicking Create Agent, you have two paths:
+::: tip Agent Creation Options
+The Generate Agent dialog offers two paths:
 - **Generate Agent** — Quick AI-powered agent creation from a name and objective
-- **Agent Builder** — Step-by-step guided builder with complete control over all settings
+- **Use Builder** — Step-by-step guided builder with complete control over all settings
 :::
 
 ::: tip Classic Builder Available
