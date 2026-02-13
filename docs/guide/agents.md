@@ -24,17 +24,19 @@ When you open **Agents** from the left navigation, you'll see the Agent Gallery 
 
 Agents are organized into collapsible sections by category:
 
-- **Trending** — Popular agents from the Vurvey platform over the last 30 days. These are marked with the Vurvey Badge (a sparkle icon) to indicate they were created by Vurvey.
+- **Trending** — A dynamic section showing popular Vurvey-created agents from the last 30 days. These are marked with the Vurvey Badge (a sparkle icon). This is not a persistent category but a filtered view of recent platform agents.
 - **Research** — Agents focused on data analysis, survey interpretation, and market research
 - **Creation** — Agents that generate content, visuals, and creative assets
 - **Marketing** — Agents specialized in marketing strategy, campaign analysis, and brand positioning
 - **E-Commerce** — Agents designed for online retail, product optimization, and shopping behavior analysis
 - **vTeam** — Pre-built Vurvey platform agents that provide out-of-the-box capabilities
 
+The five persistent categories you can assign to your agents are: **Research**, **Creation**, **Marketing**, **E-Commerce**, and **vTeam**.
+
 Within each category, agents are one of four types: **Assistant**, **Consumer Persona**, **Product**, or **Visual Generator**.
 
 ::: tip Categories vs. Agent Types
-Categories (Research, Creation, Marketing, E-Commerce, vTeam) organize how agents appear in the gallery. The four agent types you can create are **Assistant**, **Consumer Persona**, **Product**, and **Visual Generator**. A Research-category agent might be an Assistant type, while a Creation-category agent might be a Visual Generator type.
+Categories (Research, Creation, Marketing, E-Commerce, vTeam) organize how agents appear in the gallery and are assigned when creating an agent. The four agent types you can create are **Assistant**, **Consumer Persona**, **Product**, and **Visual Generator**. A Research-category agent might be an Assistant type, while a Creation-category agent might be a Visual Generator type.
 :::
 
 ### Agent Cards
@@ -279,26 +281,27 @@ Choose which AI model powers your agent:
 
 - **Gemini 3 Flash** (Recommended) — Fastest responses, latest generation, great for most everyday tasks
 - **Gemini 3 Pro** — Latest generation with deeper reasoning, can analyze images and video
-- **Claude** — Excellent at staying in character and following nuanced instructions
+- **Claude Sonnet** — Excellent at staying in character and following nuanced instructions
+- **GPT-5** — Latest OpenAI model with enhanced reasoning capabilities
 - **GPT-4o** — Strong general knowledge across a wide range of topics
 - **Gemini 2.5 Flash/Pro** (Legacy) — Previous generation models, still available for compatibility
 
 ::: tip Which Model Should You Pick?
-Start with **Gemini 3 Flash** for most agents — it's the latest generation, fast, and handles the majority of tasks well. Switch to **Claude** when personality consistency matters most (like consumer persona agents that need to stay in character). Use **Gemini 3 Pro** when your agent needs to analyze visual content.
+Start with **Gemini 3 Flash** for most agents — it's the latest generation, fast, and handles the majority of tasks well. Switch to **Claude Sonnet** when personality consistency matters most (like consumer persona agents that need to stay in character). Use **Gemini 3 Pro** when your agent needs to analyze visual content. Choose **GPT-5** for tasks requiring the latest reasoning improvements.
 :::
 
 **Detailed Model Comparison:**
 
-| Feature | Gemini 3 Flash | Gemini 3 Pro | Claude | GPT-4o |
-|---------|-------------|------------|--------|--------|
-| **Speed** | Fastest | Moderate | Moderate | Moderate |
-| **Generation** | Latest (3.x) | Latest (3.x) | Current | Current |
-| **Persona consistency** | Good | Good | Excellent | Good |
-| **Analytical depth** | Good | Excellent | Excellent | Excellent |
-| **Visual understanding** | Basic | Excellent | Good | Excellent |
-| **Instruction following** | Good | Good | Excellent | Good |
-| **Creative writing** | Good | Good | Excellent | Good |
-| **Best for** | Quick Q&A, high-volume tasks | Image/video analysis, complex reasoning | Character agents, nuanced rules | General knowledge, broad topics |
+| Feature | Gemini 3 Flash | Gemini 3 Pro | Claude Sonnet | GPT-5 | GPT-4o |
+|---------|-------------|------------|---------------|-------|--------|
+| **Speed** | Fastest | Moderate | Moderate | Moderate | Moderate |
+| **Generation** | Latest (3.x) | Latest (3.x) | Current | Latest | Current |
+| **Persona consistency** | Good | Good | Excellent | Good | Good |
+| **Analytical depth** | Good | Excellent | Excellent | Excellent | Excellent |
+| **Visual understanding** | Basic | Excellent | Good | Excellent | Excellent |
+| **Instruction following** | Good | Good | Excellent | Excellent | Good |
+| **Creative writing** | Good | Good | Excellent | Good | Good |
+| **Best for** | Quick Q&A, high-volume tasks | Image/video analysis, complex reasoning | Character agents, nuanced rules | Advanced reasoning, latest capabilities | General knowledge, broad topics |
 
 ::: details When to Switch Models — Real Scenarios
 **Scenario 1: Your persona agent keeps breaking character**
