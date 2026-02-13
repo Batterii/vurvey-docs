@@ -781,7 +781,7 @@ Always include at least one agent configured to be skeptical or critical. This "
 **The solution:**
 1. Create an Assistant agent specialized in qualitative analysis
 2. Upload your survey response data as a dataset
-3. In Optional Settings, add rules like "Always cite specific consumer quotes" and "Organize findings by theme"
+3. In Instructions, add rules like "Always cite specific consumer quotes" and "Organize findings by theme"
 4. Use the agent to identify patterns, summarize findings, and draft initial reports
 
 ### Testing Campaign Questions Before Launch
@@ -863,7 +863,7 @@ Always include at least one agent configured to be skeptical or critical. This "
 - Simplify lengthy rules or knowledge sections
 
 ### Agent doesn't reference connected datasets
-- Verify the datasets are connected in the Optional Settings step
+- Verify the datasets are connected in the Instructions step
 - Check that dataset files show a "Success" processing status
 - Add a rule: "Always check your connected knowledge sources before answering"
 - Use search terms in your questions that match the language in your datasets
@@ -894,7 +894,7 @@ Always include at least one agent configured to be skeptical or critical. This "
 - The biography strongly influences tone — rewrite it to match the voice you want
 
 ### Image generation not working
-- Verify that the **Image Generation** tool is enabled in Optional Settings
+- Verify that the **Image Generation** tool is enabled in Instructions
 - Check that the agent type is Visual Generator (or that Image Generation is manually enabled for other types)
 - Rephrase your image request with more specific descriptive details — vague prompts produce poor results
 - If generation fails repeatedly, try simplifying the request: start with a basic image and add complexity
@@ -937,7 +937,7 @@ Absolutely. Use the benchmark chat in the Review step, or save the agent as a Dr
 Write a detailed biography with personality details, set specific communication style facets, include example phrasing in your rules, and consider using Claude as the model (it tends to produce more natural-sounding responses).
 
 **Can Visual Generator agents create images?**
-Yes — make sure to enable the Image Generation tool in the Optional Settings step.
+Yes — make sure to enable the Image Generation tool in the Instructions step.
 
 **What happens to my agents if I leave the workspace?**
 Agents you created stay in the workspace. Transfer ownership to a teammate before leaving if you want them maintained.
