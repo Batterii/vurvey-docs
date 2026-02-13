@@ -203,38 +203,43 @@ jobs:
       - name: Check for bug reports and doc fixes
         id: check_bugs
         run: |
-          # Check bug reports
-          if [ -d "bug-reports" ] && [ "$(ls -A bug-reports/*.json 2>/dev/null)" ]; then
-            echo "has_bugs=true" >> $GITHUB_OUTPUT
+          # Check bug reports - collect valid JSON files into an array
+          if [ -d "bug-reports" ] && ls bug-reports/*.json >/dev/null 2>&1; then
+            BUG_REPORTS=$(jq -s '.' bug-reports/*.json 2>/dev/null || echo '[]')
+            BUG_COUNT=$(echo "$BUG_REPORTS" | jq 'length')
 
-            BUG_REPORTS=$(ls bug-reports/*.json | while read file; do
-              cat "$file"
-            done | jq -s '.')
-
-            echo "bug_reports<<EOF" >> $GITHUB_OUTPUT
-            echo "$BUG_REPORTS" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-
-            echo "Found $(ls bug-reports/*.json | wc -l) bug report(s)"
+            if [ "$BUG_COUNT" -gt 0 ]; then
+              echo "has_bugs=true" >> $GITHUB_OUTPUT
+              echo "bug_reports<<EOF" >> $GITHUB_OUTPUT
+              echo "$BUG_REPORTS" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+              echo "Found $BUG_COUNT bug report(s)"
+            else
+              echo "has_bugs=false" >> $GITHUB_OUTPUT
+              echo "bug_reports=[]" >> $GITHUB_OUTPUT
+              echo "Bug report files found but contained no valid entries"
+            fi
           else
             echo "has_bugs=false" >> $GITHUB_OUTPUT
             echo "bug_reports=[]" >> $GITHUB_OUTPUT
             echo "No bug reports found"
           fi
 
-          # Check doc fixes
-          if [ -d "doc-fixes" ] && [ "$(ls -A doc-fixes/*.json 2>/dev/null)" ]; then
-            echo "has_doc_fixes=true" >> $GITHUB_OUTPUT
+          # Check doc fixes - collect valid JSON files into an array
+          if [ -d "doc-fixes" ] && ls doc-fixes/*.json >/dev/null 2>&1; then
+            DOC_FIXES=$(jq -s '.' doc-fixes/*.json 2>/dev/null || echo '[]')
+            FIX_COUNT=$(echo "$DOC_FIXES" | jq 'length')
 
-            DOC_FIXES=$(ls doc-fixes/*.json | while read file; do
-              cat "$file"
-            done | jq -s '.')
-
-            echo "doc_fixes<<EOF" >> $GITHUB_OUTPUT
-            echo "$DOC_FIXES" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-
-            echo "Found $(ls doc-fixes/*.json | wc -l) doc fix report(s)"
+            if [ "$FIX_COUNT" -gt 0 ]; then
+              echo "has_doc_fixes=true" >> $GITHUB_OUTPUT
+              echo "doc_fixes<<EOF" >> $GITHUB_OUTPUT
+              echo "$DOC_FIXES" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+              echo "Found $FIX_COUNT doc fix report(s)"
+            else
+              echo "has_doc_fixes=false" >> $GITHUB_OUTPUT
+              echo "doc_fixes=[]" >> $GITHUB_OUTPUT
+            fi
           else
             echo "has_doc_fixes=false" >> $GITHUB_OUTPUT
             echo "doc_fixes=[]" >> $GITHUB_OUTPUT

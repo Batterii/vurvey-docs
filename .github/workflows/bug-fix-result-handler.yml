@@ -74,6 +74,7 @@ jobs:
           EOF
 
           gh issue create \
+            --repo ${{ github.repository }} \
             --title "[Bug Fixed] $BUG_TITLE ($SOURCE_REPO)" \
             --body "$(cat /tmp/issue-body.md)" \
             --label "documentation" \
@@ -109,7 +110,6 @@ jobs:
             }')
 
           gh api repos/${{ github.repository }}/dispatches \
-            -f event_type=doc-fix-request \
             --input - << EOF
           {
             "event_type": "doc-fix-request",
@@ -165,6 +165,7 @@ jobs:
           EOF
 
           gh issue create \
+            --repo ${{ github.repository }} \
             --title "[Escalation] Failed fix: $BUG_TITLE ($SOURCE_REPO)" \
             --body "$(cat /tmp/escalation-body.md)" \
             --label "bug" \
