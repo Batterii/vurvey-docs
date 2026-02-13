@@ -139,6 +139,9 @@ Click the **Tools** button (sliders icon, tooltip: "Select a search tool") to gi
 | **YouTube** | YouTube videos, comments, and channel content |
 | **X/Twitter** | Posts, trending topics, and public conversations on X |
 | **Instagram** | Instagram posts, reels, and visual content trends |
+| **Google Trends** | Search trends, trending topics, and regional interest data |
+| **Google Maps** | Location-based data, business reviews, and geographic insights |
+| **Amazon** | Product listings, reviews, and pricing data |
 
 You can also toggle all tools on or off using the **Turn on/off tools** option at the bottom of the dropdown.
 
@@ -209,11 +212,11 @@ Click the **upload button** (to the left of the text input) to attach files dire
 
 | File Type | Formats | Size Limit | What the AI Can Do |
 |-----------|---------|------------|-------------------|
-| **Documents** | PDF, DOCX, PPTX, TXT | Up to 50 MB | Read text, extract key points, summarize, compare across documents |
-| **Spreadsheets** | XLSX, CSV | Up to 50 MB | Analyze data, identify trends, generate charts, calculate statistics |
-| **Images** | PNG, JPG, GIF, WEBP | Up to 20 MB | Describe visual content, analyze design elements, read text in images, compare product photos |
-| **Videos** | MP4, MOV | Up to 100 MB | Transcribe audio, summarize content, identify key moments |
-| **Audio** | MP3, WAV, M4A | Up to 100 MB | Transcribe speech, summarize discussions, extract quotes |
+| **Documents** | PDF, DOC, DOCX, PPTX, TXT, JSON | Up to 50 MB | Read text, extract key points, summarize, compare across documents |
+| **Spreadsheets** | XLSX, CSV | Up to 25 MB | Analyze data, identify trends, generate charts, calculate statistics |
+| **Images** | PNG, JPG, GIF, WEBP | Up to 10 MB | Describe visual content, analyze design elements, read text in images, compare product photos |
+| **Videos** | MP4, MOV, AVI | Up to 100 MB | Transcribe audio, summarize content, identify key moments |
+| **Audio** | MP3, WAV, M4A, OGG, AAC, WEBM, FLAC | Up to 25 MB | Transcribe speech, summarize discussions, extract quotes |
 
 ### File Attachment Tips
 
