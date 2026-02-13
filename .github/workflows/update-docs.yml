@@ -348,8 +348,10 @@ jobs:
     steps:
       - name: Filter frontend bug reports
         id: filter_bugs
+        env:
+          BUG_REPORTS: ${{ needs.remediate.outputs.bug_reports }}
         run: |
-          FRONTEND_BUGS=$(echo '${{ needs.remediate.outputs.bug_reports }}' | jq '[.[] | select(.target_repo == "vurvey-web-manager")]')
+          FRONTEND_BUGS=$(echo "$BUG_REPORTS" | jq -c '[.[] | select(.target_repo == "vurvey-web-manager")]')
           BUG_COUNT=$(echo "$FRONTEND_BUGS" | jq 'length')
 
           if [ "$BUG_COUNT" -gt "0" ]; then
@@ -370,12 +372,8 @@ jobs:
           token: ${{ secrets.VURVEY_REPO_TOKEN }}
           repository: batterii/vurvey-web-manager
           event-type: bug-fix-request
-          client-payload: |
-            {
-              "source": "vurvey-docs-qa-remediation",
-              "workflow_run_id": "${{ github.run_id }}",
-              "bug_reports": ${{ steps.filter_bugs.outputs.frontend_bugs }}
-            }
+          client-payload: >-
+            {"source":"vurvey-docs-qa-remediation","workflow_run_id":"${{ github.run_id }}","bug_reports":${{ steps.filter_bugs.outputs.frontend_bugs }}}
 
   # Dispatch bug reports to vurvey-api
   dispatch-backend-bugs:
@@ -386,8 +384,10 @@ jobs:
     steps:
       - name: Filter backend bug reports
         id: filter_bugs
+        env:
+          BUG_REPORTS: ${{ needs.remediate.outputs.bug_reports }}
         run: |
-          BACKEND_BUGS=$(echo '${{ needs.remediate.outputs.bug_reports }}' | jq '[.[] | select(.target_repo == "vurvey-api")]')
+          BACKEND_BUGS=$(echo "$BUG_REPORTS" | jq -c '[.[] | select(.target_repo == "vurvey-api")]')
           BUG_COUNT=$(echo "$BACKEND_BUGS" | jq 'length')
 
           if [ "$BUG_COUNT" -gt "0" ]; then
@@ -408,12 +408,8 @@ jobs:
           token: ${{ secrets.VURVEY_REPO_TOKEN }}
           repository: batterii/vurvey-api
           event-type: bug-fix-request
-          client-payload: |
-            {
-              "source": "vurvey-docs-qa-remediation",
-              "workflow_run_id": "${{ github.run_id }}",
-              "bug_reports": ${{ steps.filter_bugs.outputs.backend_bugs }}
-            }
+          client-payload: >-
+            {"source":"vurvey-docs-qa-remediation","workflow_run_id":"${{ github.run_id }}","bug_reports":${{ steps.filter_bugs.outputs.backend_bugs }}}
 
   # Dispatch doc fixes back to self
   dispatch-doc-fixes:
@@ -428,12 +424,8 @@ jobs:
           token: ${{ secrets.VURVEY_REPO_TOKEN }}
           repository: batterii/vurvey-docs
           event-type: doc-fix-request
-          client-payload: |
-            {
-              "source": "vurvey-docs-qa-remediation",
-              "workflow_run_id": "${{ github.run_id }}",
-              "doc_fixes": ${{ needs.remediate.outputs.doc_fixes }}
-            }
+          client-payload: >-
+            {"source":"vurvey-docs-qa-remediation","workflow_run_id":"${{ github.run_id }}","doc_fixes":${{ needs.remediate.outputs.doc_fixes }}}
 
   build:
     runs-on: ubuntu-latest
