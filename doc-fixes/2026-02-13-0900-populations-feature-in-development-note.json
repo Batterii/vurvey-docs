@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-02-13T09:00:00Z",
+  "qa_test": "People: Page content present & People: Populations route loads",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/people.md",
+  "section": "Populations",
+  "change_summary": "Added warning banner noting that Populations feature is currently in development and may not be available in all workspaces",
+  "lines_changed": "37-44",
+  "verified_against": "Screenshot shows 'Stay tuned! We're working on unveiling the new populations feature in your workspace' empty state message",
+  "confidence": 0.98,
+  "reasoning": "Documentation describes Populations as a fully functional feature with cards, charts, and analytics. However, the actual UI on staging shows an empty state with 'Stay tuned!' message indicating the feature is still being developed. Added a warning banner to inform users that this feature may not be available yet."
+}
