@@ -38,6 +38,10 @@ The **Molds** tab is only visible to enterprise workspaces. It lets you create r
 
 ![Populations](/screenshots/people/02-populations.png)
 
+::: warning Feature in Development
+The Populations feature is currently being developed and may not be available in all workspaces. If you see a "Stay tuned!" message, this feature is not yet enabled for your workspace. Contact your account manager for more information.
+:::
+
 Populations are AI-generated audience groups that represent different consumer segments. Use them to simulate focus group discussions, test campaign questions before launch, or fill gaps when you don't have enough real participants.
 
 ### Why Use Populations?
