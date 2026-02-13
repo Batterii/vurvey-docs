@@ -2,7 +2,7 @@
 
 Connect Vurvey with your favorite tools and services to enhance your workflows. Vurvey uses Composio to provide seamless integrations with 100+ popular platforms.
 
-![Integrations page](/vurvey-docs/screenshots/integrations/01-integrations-main.png)
+![Integrations page](/screenshots/integrations/01-integrations-main.png)
 
 ## Overview
 
