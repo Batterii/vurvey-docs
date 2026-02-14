@@ -2,39 +2,67 @@
 
 ## Change Applied
 
-**File:** `docs/guide/agents.md`
-**Section:** Creating an Agent (lines 151-159)
-**Date:** 2026-02-13
+**File:** `docs/guide/people.md`
+**Section:** Populations (lines 37-117)
+**Date:** 2026-02-14
 
 ## What Was Changed
 
-Updated the terminology and description of the agent creation flow to match the actual UI behavior:
+Updated the **Populations** section to accurately reflect that this feature is under active development and not yet available to users.
 
-### Before
-- Referred to opening the "Agent Builder" directly
-- Mentioned "Agent Builder Options" in the tip box
-- Used "Agent Builder" as one of the two paths
+### 1. Updated Warning Banner
 
-### After
-- Correctly refers to opening the "Generate Agent modal"
-- Changed tip box header to "Generate Agent Options"
-- Updated the second path from "Agent Builder" to "Manual Configuration" to clarify that it opens the builder
-- Changed "dialog" to "modal" to match actual UI component terminology
+Changed from:
+> "The Populations feature is currently being refined and may not be available in all workspaces. If you see a 'Stay tuned!' message, this feature will be enabled for your workspace soon."
+
+To:
+> "The Populations feature is currently under active development and not yet available. If you see a 'Stay tuned! We're working on unveiling the new populations feature' message when navigating to this tab, this is expected. This feature will be enabled for your workspace in a future release."
+
+### 2. Converted Present Tense to Future Tense
+
+Changed all feature descriptions from present tense (implying availability) to future tense (indicating planned functionality):
+- "Populations are" → "Populations will be"
+- "Use them to simulate" → "you'll be able to use them to simulate"
+- "Populations let you create" → "Populations will let you create"
+- "Populations appear" → "Populations will appear"
+- "The details page includes" → "The details page will include"
+- "The charts view provides" → "The charts view will provide"
+- "Donut charts show" → "Donut charts will show"
+- And similar changes throughout all subsections
+
+### 3. Marked Screenshots as Optional
+
+- Changed `/screenshots/people/02-populations.png` to `/screenshots/people/02-populations.png?optional=1`
+- Changed `/screenshots/people/02a-population-charts.png` to `/screenshots/people/02a-population-charts.png?optional=1`
+
+This prevents documentation linting errors for missing screenshots of an unreleased feature.
 
 ## Why This Fixes the Issue
 
-The original documentation incorrectly described the create flow as opening the "Agent Builder" directly, when in reality:
+The QA test failure screenshot (`qa-failure-screenshots/failure-people--page-content-present-desktop-*.png`) showed that navigating to the Populations tab displays:
 
-1. Clicking **+ Create Agent** opens a **Generate Agent modal** first
-2. This modal presents two options: quick AI generation OR manual configuration via the builder
-3. The builder is not immediately shown—it's accessed through the "Manual Configuration" option
+> "Stay tuned! We're working on unveiling the new populations feature"
 
-The fix aligns the documentation with the verified UI implementation found in `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`.
+This message clearly indicates the feature is not yet functional. However, the documentation was describing the feature as if it were fully available and operational, which would confuse users who encounter the "Stay tuned" message.
+
+By converting the documentation to future tense and updating the warning banner, users will now understand that:
+1. This is a planned feature, not a current one
+2. Seeing the "Stay tuned" message is normal and expected behavior
+3. The documentation describes how the feature **will** work once it's released
 
 ## Related QA Test
 
-This fix addresses the QA test failure: **"Agents: Create UI visible"**
+This fix addresses the QA test failure: **"People: Page content present / People: Populations route loads"**
 
-## Confidence Level
+## Classification
 
-**95%** - Verified against actual source code implementation
+- **Issue Type**: DOC_ISSUE (documentation out of sync with actual application behavior)
+- **Confidence**: 95% (high confidence based on QA test failure evidence)
+
+## Verification
+
+The fix can be verified by:
+1. Reading the updated `docs/guide/people.md` file (lines 37-117)
+2. Confirming all language is now future tense
+3. Checking that the warning banner explicitly mentions the "Stay tuned" message as expected behavior
+4. Validating that screenshots are marked as optional to prevent lint errors

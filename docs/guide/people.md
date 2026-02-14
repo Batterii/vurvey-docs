@@ -37,16 +37,16 @@ The **Molds** tab is only visible to enterprise workspaces. It lets you create r
 ## Populations
 
 ::: warning Feature In Development
-The Populations feature is currently being refined and may not be available in all workspaces. If you see a "Stay tuned!" message, this feature will be enabled for your workspace soon.
+The Populations feature is currently under active development and not yet available. If you see a "Stay tuned! We're working on unveiling the new populations feature" message when navigating to this tab, this is expected. This feature will be enabled for your workspace in a future release.
 :::
 
-![Populations](/screenshots/people/02-populations.png)
+![Populations](/screenshots/people/02-populations.png?optional=1)
 
-Populations are AI-generated audience groups that represent different consumer segments. Use them to simulate focus group discussions, test campaign questions before launch, or fill gaps when you don't have enough real participants.
+Populations will be AI-generated audience groups that represent different consumer segments. Once available, you'll be able to use them to simulate focus group discussions, test campaign questions before launch, or fill gaps when you don't have enough real participants.
 
 ### Why Use Populations?
 
-Imagine you're launching a new skincare line and want to hear from 200 premium beauty consumers — but your panel only has 50. Populations let you create AI representations of your target audience so you can:
+Imagine you're launching a new skincare line and want to hear from 200 premium beauty consumers — but your panel only has 50. Populations will let you create AI representations of your target audience so you can:
 
 - **Test campaign questions** before sending them to real participants
 - **Get diverse perspectives** across age, location, and lifestyle
@@ -55,7 +55,7 @@ Imagine you're launching a new skincare line and want to hear from 200 premium b
 
 ### Browsing Your Populations
 
-Populations appear in a card grid. Each card shows the population name, member count, and when it was last updated. Use the search bar to filter by name, or sort by most recently updated.
+Populations will appear in a card grid. Each card will show the population name, member count, and when it was last updated. You'll be able to use the search bar to filter by name, or sort by most recently updated.
 
 Click the three-dot menu on any card to view, edit, duplicate, or delete a population.
 
@@ -63,9 +63,9 @@ Click the three-dot menu on any card to view, edit, duplicate, or delete a popul
 
 Click any population card to see detailed analytics about that audience group.
 
-![Population Charts](/screenshots/people/02a-population-charts.png)
+![Population Charts](/screenshots/people/02a-population-charts.png?optional=1)
 
-The details page includes:
+The details page will include:
 
 - **Persona Carousel** — Browse representative personas with their avatar, name, and key demographics
 - **Charts View** — Visual breakdowns of your population by demographics, preferences, and behaviors (donut charts, bar charts, treemaps, and more)
@@ -75,11 +75,11 @@ Use the category pills to filter which demographic facets are displayed. Hover o
 
 ### Understanding Population Analytics
 
-The charts view provides rich visual data about your population. Here's how to read each chart type:
+The charts view will provide rich visual data about your population. Here's how to read each chart type:
 
 #### Donut Charts
 
-Donut charts show the proportional breakdown of a single attribute (e.g., age range, gender, location). Each colored segment represents one value. Hover over any segment to see the exact count and percentage.
+Donut charts will show the proportional breakdown of a single attribute (e.g., age range, gender, location). Each colored segment will represent one value. Hover over any segment to see the exact count and percentage.
 
 **What to look for:**
 - **Dominant segments** — large segments may indicate your population skews toward certain demographics
@@ -88,7 +88,7 @@ Donut charts show the proportional breakdown of a single attribute (e.g., age ra
 
 #### Bar Charts
 
-Bar charts compare values across categories (e.g., product preferences, interest areas). Bars are typically sorted from highest to lowest.
+Bar charts will compare values across categories (e.g., product preferences, interest areas). Bars will typically be sorted from highest to lowest.
 
 **What to look for:**
 - **Relative sizes** — quickly see which attributes are most common in your population
@@ -97,7 +97,7 @@ Bar charts compare values across categories (e.g., product preferences, interest
 
 #### Treemaps
 
-Treemaps display hierarchical data as nested rectangles. Larger rectangles represent more common attributes. They're especially useful for visualizing many categories at once.
+Treemaps will display hierarchical data as nested rectangles. Larger rectangles will represent more common attributes. They're especially useful for visualizing many categories at once.
 
 **What to look for:**
 - **Dominant categories** — the largest rectangles are the most common values
@@ -105,12 +105,12 @@ Treemaps display hierarchical data as nested rectangles. Larger rectangles repre
 - **Groupings** — related values may cluster together visually
 
 ::: tip Comparing Populations
-To compare two populations, open each in separate browser tabs and look at the same chart type side by side. This is useful for understanding how different target audiences differ in demographics or preferences.
+To compare two populations, open each in separate browser tabs and look at the same chart type side by side. This will be useful for understanding how different target audiences differ in demographics or preferences.
 :::
 
 ### Creating Populations
 
-Populations are typically created during campaign setup or through the Agent Builder. The Populations tab is primarily for viewing and managing existing populations.
+Populations will typically be created during campaign setup or through the Agent Builder. The Populations tab will be primarily for viewing and managing existing populations.
 
 ::: tip Best Practice
 Keep populations focused on specific demographics or use cases. Use clear names like "US Millennials - Urban - Tech Enthusiasts" so your team can quickly find the right audience.
