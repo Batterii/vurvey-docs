@@ -36,46 +36,46 @@ The **Molds** tab is only visible to enterprise workspaces. It lets you create r
 
 ## Populations
 
-::: warning Feature In Development
-The Populations feature is currently being refined and may not be available in all workspaces. If you see a "Stay tuned!" message, this feature will be enabled for your workspace soon.
+::: danger Feature Not Yet Available
+The Populations feature is not yet available. When released, it will allow you to create AI-generated audience groups. If you see a "Stay tuned!" message in your workspace, this feature is still being developed.
 :::
 
 ![Populations](/screenshots/people/02-populations.png)
 
-Populations are AI-generated audience groups that represent different consumer segments. Use them to simulate focus group discussions, test campaign questions before launch, or fill gaps when you don't have enough real participants.
+Populations will be AI-generated audience groups that represent different consumer segments. When available, you'll be able to use them to simulate focus group discussions, test campaign questions before launch, or fill gaps when you don't have enough real participants.
 
-### Why Use Populations?
+### Why Use Populations? (When Available)
 
-Imagine you're launching a new skincare line and want to hear from 200 premium beauty consumers — but your panel only has 50. Populations let you create AI representations of your target audience so you can:
+Imagine you're launching a new skincare line and want to hear from 200 premium beauty consumers — but your panel only has 50. Populations will let you create AI representations of your target audience so you can:
 
 - **Test campaign questions** before sending them to real participants
 - **Get diverse perspectives** across age, location, and lifestyle
 - **Validate concepts quickly** without waiting for recruitment
 - **Reduce costs** by using AI for initial rounds of feedback
 
-### Browsing Your Populations
+### Browsing Your Populations (Planned Feature)
 
-Populations appear in a card grid. Each card shows the population name, member count, and when it was last updated. Use the search bar to filter by name, or sort by most recently updated.
+When available, populations will appear in a card grid. Each card will show the population name, member count, and when it was last updated. You'll be able to use the search bar to filter by name, or sort by most recently updated.
 
-Click the three-dot menu on any card to view, edit, duplicate, or delete a population.
+You'll be able to click the three-dot menu on any card to view, edit, duplicate, or delete a population.
 
-### Population Details
+### Population Details (Planned Feature)
 
-Click any population card to see detailed analytics about that audience group.
+When available, you'll be able to click any population card to see detailed analytics about that audience group.
 
 ![Population Charts](/screenshots/people/02a-population-charts.png)
 
-The details page includes:
+The details page will include:
 
 - **Persona Carousel** — Browse representative personas with their avatar, name, and key demographics
 - **Charts View** — Visual breakdowns of your population by demographics, preferences, and behaviors (donut charts, bar charts, treemaps, and more)
 - **Table View** — A detailed list of all personas with sortable columns
 
-Use the category pills to filter which demographic facets are displayed. Hover over any chart element for exact counts and percentages.
+You'll be able to use the category pills to filter which demographic facets are displayed. Hovering over any chart element will show exact counts and percentages.
 
-### Understanding Population Analytics
+### Understanding Population Analytics (Planned Feature)
 
-The charts view provides rich visual data about your population. Here's how to read each chart type:
+When available, the charts view will provide rich visual data about your population. Here's how to read each chart type:
 
 #### Donut Charts
 
@@ -108,9 +108,9 @@ Treemaps display hierarchical data as nested rectangles. Larger rectangles repre
 To compare two populations, open each in separate browser tabs and look at the same chart type side by side. This is useful for understanding how different target audiences differ in demographics or preferences.
 :::
 
-### Creating Populations
+### Creating Populations (Planned Feature)
 
-Populations are typically created during campaign setup or through the Agent Builder. The Populations tab is primarily for viewing and managing existing populations.
+When available, populations will typically be created during campaign setup or through the Agent Builder. The Populations tab will be primarily for viewing and managing existing populations.
 
 ::: tip Best Practice
 Keep populations focused on specific demographics or use cases. Use clear names like "US Millennials - Urban - Tech Enthusiasts" so your team can quickly find the right audience.
