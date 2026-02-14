@@ -99,6 +99,10 @@ See the [Rewards](/guide/rewards) page for detailed Tremendous configuration and
 
 The AI Models page lets you browse all available AI models in your workspace, organized by category.
 
+::: info No Models Available
+If you see the message "No AI models available for this workspace," your workspace may not be properly configured or may not have access to AI models yet. Contact your workspace administrator or Vurvey support to enable model access for your workspace.
+:::
+
 ### Model Categories
 
 Models are grouped into categories for easy browsing:

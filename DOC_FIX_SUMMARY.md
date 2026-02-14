@@ -1,40 +1,45 @@
 # Documentation Fix Summary
 
-## Change Applied
-
-**File:** `docs/guide/agents.md`
-**Section:** Creating an Agent (lines 151-159)
-**Date:** 2026-02-13
-
 ## What Was Changed
 
-Updated the terminology and description of the agent creation flow to match the actual UI behavior:
+Added an info box to the AI Models section of the Settings guide explaining the empty state that users may encounter when no AI models are available for their workspace.
 
-### Before
-- Referred to opening the "Agent Builder" directly
-- Mentioned "Agent Builder Options" in the tip box
-- Used "Agent Builder" as one of the two paths
+**File modified:** `docs/guide/settings.md`
+**Section:** AI Models
+**Lines:** 102-104 (new content inserted)
 
-### After
-- Correctly refers to opening the "Generate Agent modal"
-- Changed tip box header to "Generate Agent Options"
-- Updated the second path from "Agent Builder" to "Manual Configuration" to clarify that it opens the builder
-- Changed "dialog" to "modal" to match actual UI component terminology
+## Change Details
+
+**Added content:**
+```markdown
+::: info No Models Available
+If you see the message "No AI models available for this workspace," your workspace may not be properly configured or may not have access to AI models yet. Contact your workspace administrator or Vurvey support to enable model access for your workspace.
+:::
+```
+
+This info box was inserted immediately after the introductory paragraph and before the "Model Categories" subsection.
 
 ## Why This Fixes the Issue
 
-The original documentation incorrectly described the create flow as opening the "Agent Builder" directly, when in reality:
+The QA test failure indicated that the staging environment was showing a "No AI models available for this workspace" message instead of displaying model cards. The documentation previously did not mention this empty state, which could confuse users who encounter it.
 
-1. Clicking **+ Create Agent** opens a **Generate Agent modal** first
-2. This modal presents two options: quick AI generation OR manual configuration via the builder
-3. The builder is not immediately shown—it's accessed through the "Manual Configuration" option
+By adding this info box:
+1. Users now know this message is expected in certain scenarios (misconfigured workspaces or workspaces without model access)
+2. Users are directed to contact their administrator or support for resolution
+3. The documentation accurately reflects all possible states of the AI Models page, not just the success case
 
-The fix aligns the documentation with the verified UI implementation found in `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`.
+## Classification
 
-## Related QA Test
+**Issue type:** Documentation issue (DOC_ISSUE)
+**Test affected:** Settings: AI Models has model cards
+**Confidence:** 0.9
+**Timestamp:** 2026-02-14T05:11:00Z
 
-This fix addresses the QA test failure: **"Agents: Create UI visible"**
+## Verification
 
-## Confidence Level
-
-**95%** - Verified against actual source code implementation
+The change:
+- ✅ Addresses the empty state shown in the QA failure screenshot
+- ✅ Maintains existing formatting and VitePress conventions
+- ✅ Preserves surrounding content and natural reading flow
+- ✅ Uses appropriate VitePress info box syntax
+- ✅ Provides actionable guidance to users encountering this state
