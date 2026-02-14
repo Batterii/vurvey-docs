@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-02-14T03:45:00Z",
+  "qa_test": "People: Page content present / People: Populations route loads",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/people.md",
+  "section": "Populations",
+  "change_summary": "Updated Populations section to clearly indicate feature is not yet available. Changed warning box from 'Feature In Development' to 'Feature Not Yet Available (danger)'. Added '(When Available)', '(Planned Feature)' qualifiers throughout section to set correct expectations. Changed present-tense descriptions to future-tense.",
+  "lines_changed": "37-114 (multiple subsections updated)",
+  "verified_against": "Screenshot shows 'Stay tuned! We're working on unveiling the new populations feature in your workspace' message on /audience route",
+  "confidence": 0.95,
+  "rationale": "QA tests expect functional Populations UI with table/grid/cards. Screenshots show 'coming soon' message. Documentation describes feature in present tense as if it's available, but includes small warning. Fix: Make warning more prominent and rewrite section to clearly indicate this is planned functionality, not current capability."
+}
