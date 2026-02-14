@@ -2,39 +2,41 @@
 
 ## Change Applied
 
-**File:** `docs/guide/agents.md`
-**Section:** Creating an Agent (lines 151-159)
-**Date:** 2026-02-13
+Added a warning banner to the Populations section of the People guide to inform users that the feature is currently in development.
 
 ## What Was Changed
 
-Updated the terminology and description of the agent creation flow to match the actual UI behavior:
+**File:** `docs/guide/people.md`
+**Section:** Populations (lines 39-41)
+**Change Type:** Added warning banner
 
-### Before
-- Referred to opening the "Agent Builder" directly
-- Mentioned "Agent Builder Options" in the tip box
-- Used "Agent Builder" as one of the two paths
+### Content Added
 
-### After
-- Correctly refers to opening the "Generate Agent modal"
-- Changed tip box header to "Generate Agent Options"
-- Updated the second path from "Agent Builder" to "Manual Configuration" to clarify that it opens the builder
-- Changed "dialog" to "modal" to match actual UI component terminology
+```markdown
+::: warning Feature In Development
+The Populations feature is currently being refined and may not be available in all workspaces. If you see a "Stay tuned!" message, this feature will be enabled for your workspace soon.
+:::
+```
 
 ## Why This Fixes the Issue
 
-The original documentation incorrectly described the create flow as opening the "Agent Builder" directly, when in reality:
+The documentation previously described Populations as a fully functional feature with cards, charts, and analytics capabilities. However, the actual staging environment displays an empty state with a "Stay tuned! We're working on unveiling the new populations feature in your workspace" message, indicating the feature is still under development.
 
-1. Clicking **+ Create Agent** opens a **Generate Agent modal** first
-2. This modal presents two options: quick AI generation OR manual configuration via the builder
-3. The builder is not immediately shown—it's accessed through the "Manual Configuration" option
+This warning banner:
+1. Sets accurate expectations for users before they read the detailed feature documentation
+2. Explains why users might see a "Stay tuned!" message instead of the described functionality
+3. Reassures users that the feature will be enabled soon
+4. Prevents confusion when documentation describes features not yet visible in their workspace
 
-The fix aligns the documentation with the verified UI implementation found in `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`.
+## Verification
 
-## Related QA Test
+- The warning uses VitePress's standard `:::warning` syntax
+- It appears immediately before the Populations section content (after the heading and before the screenshot)
+- The warning references the specific "Stay tuned!" message users will encounter
+- Surrounding content (section navigation table, overview, detailed feature descriptions) remains unchanged
 
-This fix addresses the QA test failure: **"Agents: Create UI visible"**
+## Classification
 
-## Confidence Level
-
-**95%** - Verified against actual source code implementation
+- **Issue Type:** DOC_ISSUE (documentation-UI mismatch)
+- **Confidence:** 0.98 (high confidence based on screenshot verification)
+- **QA Tests Affected:** "People: Page content present & People: Populations route loads"
