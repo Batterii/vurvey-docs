@@ -4,37 +4,38 @@
 
 **File:** `docs/guide/agents.md`
 **Section:** Creating an Agent (lines 151-159)
-**Date:** 2026-02-13
+**Date:** 2026-02-15
 
 ## What Was Changed
 
-Updated the terminology and description of the agent creation flow to match the actual UI behavior:
+Updated terminology from "Generate Agent modal" to "Generate Agent dialog" to match the actual UI component implementation.
 
-### Before
-- Referred to opening the "Agent Builder" directly
-- Mentioned "Agent Builder Options" in the tip box
-- Used "Agent Builder" as one of the two paths
-
-### After
-- Correctly refers to opening the "Generate Agent modal"
-- Changed tip box header to "Generate Agent Options"
-- Updated the second path from "Agent Builder" to "Manual Configuration" to clarify that it opens the builder
-- Changed "dialog" to "modal" to match actual UI component terminology
+### Specific Changes
+- Line 155: Changed "Generate Agent modal" → "Generate Agent dialog"
+- Line 157: Changed "Generate Agent modal" → "Generate Agent dialog" (in tip box header)
 
 ## Why This Fixes the Issue
 
-The original documentation incorrectly described the create flow as opening the "Agent Builder" directly, when in reality:
+The QA test "Agents: Create UI visible" identified a terminology mismatch between the documentation and the actual UI. The source code implementation uses a dialog component, not a modal, for the agent creation flow.
 
-1. Clicking **+ Create Agent** opens a **Generate Agent modal** first
-2. This modal presents two options: quick AI generation OR manual configuration via the builder
-3. The builder is not immediately shown—it's accessed through the "Manual Configuration" option
+The fix ensures documentation accurately reflects:
+
+1. Clicking **+ Create Agent** opens a **Generate Agent dialog** first
+2. This dialog presents two options: quick AI generation OR manual configuration via the builder
+3. The terminology matches the actual component type in the implementation
 
 The fix aligns the documentation with the verified UI implementation found in `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`.
 
 ## Related QA Test
 
-This fix addresses the QA test failure: **"Agents: Create UI visible"**
+This fix addresses the QA test: **"Agents: Create UI visible"**
 
-## Confidence Level
+## Classification
 
-**95%** - Verified against actual source code implementation
+- **Type**: DOC_ISSUE
+- **Confidence**: 0.95
+- **Timestamp**: 2026-02-12T03:36:00Z
+
+## Files Modified
+
+- `docs/guide/agents.md` (lines 151-159)
