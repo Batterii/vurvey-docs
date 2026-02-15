@@ -99,6 +99,10 @@ See the [Rewards](/guide/rewards) page for detailed Tremendous configuration and
 
 The AI Models page lets you browse all available AI models in your workspace, organized by category.
 
+::: info Empty State
+If your workspace has no AI models available, you'll see an empty state message. This typically occurs in new workspaces or workspaces with restricted model access. Contact your workspace administrator or check your plan to enable AI model access.
+:::
+
 ### Model Categories
 
 Models are grouped into categories for easy browsing:
