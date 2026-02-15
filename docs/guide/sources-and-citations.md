@@ -16,6 +16,11 @@ In consumer insights and market research, every finding needs to be traceable. I
 
 Vurvey's citation system gives you that traceability. When the AI uses your data to answer a question, it can show you exactly which sources informed its response.
 
+::: tip Powered By Quick Explainer
+**Powered By** lists sources that could be directly attributed to claims in the final answer.  
+The AI may analyze far more selected data than what appears in Powered By, especially for broad thematic synthesis.
+:::
+
 ## How AI Uses Your Data
 
 Vurvey uses **Omni Mode** by default — the AI automatically decides which tools and sources to use based on your question. You can also fine-tune what the AI has access to using the **chat toolbar** buttons:
@@ -88,9 +93,35 @@ Follow this decision tree to pick the best sources:
 5. **Are you exploring broadly?** → Select multiple sources, but expect less precise citations
 6. **Not sure where to start?** → Start with one source and broaden if the AI says it can't find relevant information
 
-## How Citations Appear
+## How Source References Appear
 
-When the AI uses your data to answer a question, look for the **Citations** button below the response. Clicking it reveals:
+When the AI uses your data to answer a question, look for source references below the response. In many responses, this appears as a **Powered By** section plus optional inline citations.
+
+### Powered By Section
+
+The **Powered By** section is an expandable list of sources attributed to the answer. It helps you see where the response is grounded.
+
+Typical source types include:
+
+| Source Type | What It Is | How It Appears |
+|---|---|---|
+| **Video response** | A respondent's video answer from a campaign | Campaign name, question, respondent tag |
+| **Question summary** | Aggregated summary for a campaign question | Question text with a link to results |
+| **Dataset file** | Uploaded documents (PDF, DOCX, etc.) | Dataset name, filename, page number |
+| **Dataset video/audio** | Media uploaded to datasets | Dataset name and media title |
+| **Web source** | External page used in analysis | Site name and URL |
+
+### What Powered By Actually Means
+
+The AI may analyze a broad set of selected data, but **Powered By** only shows sources that could be directly attributed to statements in the final response.
+
+- The AI can read many sources to form a synthesis
+- Only a subset may be attributable at sentence-level
+- Fewer listed sources does **not** mean less data was analyzed
+
+Think of this as the difference between all research reviewed vs. the specific citations shown in a final report.
+
+### Citations Button
 
 - **Which sources were used** -- the specific campaigns, datasets, or files the AI drew from
 - **Where specific claims came from** -- connections between individual statements and their source materials
@@ -116,6 +147,31 @@ Expanding the citations section shows:
 | **Source name** | Which campaign, dataset, or file was referenced |
 | **Relevant excerpt** | The specific passage or data point used |
 | **Context** | Where in the source material the information appears |
+
+### Relevance Indicators
+
+In the source list, each item may include a relevance indicator (colored dots/bars). This reflects how closely that source matches claims in the response.
+
+- Higher relevance: stronger direct match between source content and response claims
+- Lower relevance: still informative, but more loosely connected
+
+## Why Source Counts Vary
+
+You may see 2 sources in one response and 25 in another. This is expected.
+
+More sources usually appear when:
+
+- You ask fact-specific questions tied to documents
+- The answer references explicit quotes, pages, or sections
+- The response is less synthesized and more point-by-point
+
+Fewer sources usually appear when:
+
+- You ask for high-level thematic synthesis across many responses
+- The AI summarizes patterns and trends across large datasets
+- The response blends many inputs into strategic takeaways
+
+Low source count is not a quality signal by itself. It is mostly an attribution signal.
 
 ## How Semantic Search Works
 
@@ -174,6 +230,16 @@ For each quote, include:
 - The exact words they used
 - Which question they were answering
 - Any demographic context available
+```
+
+### Ask for Claim-by-Claim Attribution
+
+```text
+For each key claim, include:
+- the supporting source
+- a short evidence excerpt
+- confidence (high/medium/low)
+If a claim is synthesized and not directly attributable to one source, label it as synthesized.
 ```
 
 ### Request Quantitative Breakdowns
@@ -274,6 +340,7 @@ When the AI provides specific percentages or statistics, always verify them agai
 - **Check file status**: Make sure your dataset files show "Success" status -- files still processing can't be searched
 - **Verify Sources are active**: Check that you've clicked the Sources button in the toolbar and selected actual sources
 - **Rephrase your question**: Try using more specific terms that relate to your source content
+- **Shift from broad synthesis to targeted asks**: "What did respondents say about [specific topic]?" is easier to attribute than "Summarize everything"
 
 ### The AI cited the wrong source
 
@@ -297,6 +364,12 @@ When the AI provides specific percentages or statistics, always verify them agai
 - **Ask for source attribution**: "For each claim, tell me which specific file or campaign response it came from"
 - **Run the same query twice** to check consistency -- if results vary significantly, narrow your sources
 
+### Many sources shown, but no inline citation numbers
+
+- This usually means the system found relevant sources but couldn't map each sentence to a specific source
+- In this case, treat Powered By as a bibliography of informing sources
+- Ask for a narrower, claim-level response to increase inline citation coverage
+
 ### AI says it can't find relevant information
 
 - **Check source selection**: Make sure you've clicked the Sources button in the toolbar and selected sources
@@ -316,6 +389,12 @@ Citations point to real sources in your data, but always verify important claims
 
 **Q: Why do I get different citations for the same question?**
 The AI's search process has some variability. If you ask the same question twice, it may surface different relevant passages. This is normal -- your data may contain multiple relevant sections, and the AI samples from them.
+
+**Q: The AI only showed a few sources. Did it ignore most of my dataset?**
+Usually no. The AI can analyze all selected content, then cite only the subset that can be directly tied to specific statements.
+
+**Q: Why do I sometimes see many sources but no superscript citation numbers?**
+That means relevant sources were identified, but sentence-level claim mapping was not confident enough for inline attribution.
 
 **Q: Can I export citations with my conversation?**
 When you copy or export a conversation, the citation references are included in the output. This makes it easy to share evidence-backed findings with stakeholders.
