@@ -1,40 +1,38 @@
 # Documentation Fix Summary
 
-## Change Applied
-
-**File:** `docs/guide/agents.md`
-**Section:** Creating an Agent (lines 151-159)
-**Date:** 2026-02-13
-
 ## What Was Changed
 
-Updated the terminology and description of the agent creation flow to match the actual UI behavior:
+Added documentation for the empty state when a workspace has no workflows yet.
 
-### Before
-- Referred to opening the "Agent Builder" directly
-- Mentioned "Agent Builder Options" in the tip box
-- Used "Agent Builder" as one of the two paths
+**Location:** `docs/guide/workflows.md` lines 34-36
 
-### After
-- Correctly refers to opening the "Generate Agent modal"
-- Changed tip box header to "Generate Agent Options"
-- Updated the second path from "Agent Builder" to "Manual Configuration" to clarify that it opens the builder
-- Changed "dialog" to "modal" to match actual UI component terminology
+**Change:** Inserted an info callout box explaining that new users will see an empty state with a "Create new workflow" button when they first access the Workflows page.
 
-## Why This Fixes the Issue
+## Why It Fixes the Issue
 
-The original documentation incorrectly described the create flow as opening the "Agent Builder" directly, when in reality:
+The QA test "Workflow: Builder UI visible / Builder canvas loads / Upcoming runs page content" was failing because the documentation didn't address the initial empty state that users encounter in a new workspace.
 
-1. Clicking **+ Create Agent** opens a **Generate Agent modal** first
-2. This modal presents two options: quick AI generation OR manual configuration via the builder
-3. The builder is not immediately shown—it's accessed through the "Manual Configuration" option
+The original documentation jumped directly into describing workflow cards in a grid layout, which assumes workflows already exist. This created a documentation gap for first-time users who would see an empty state instead.
 
-The fix aligns the documentation with the verified UI implementation found in `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`.
+The fix adds a clear callout explaining:
+- What users see when accessing Workflows for the first time (empty state)
+- What action they should take (click "Create new workflow")
+- Why this is the starting point (to build their first automation pipeline)
 
-## Related QA Test
+## Files and Sections Modified
 
-This fix addresses the QA test failure: **"Agents: Create UI visible"**
+- **File:** `docs/guide/workflows.md`
+- **Section:** "Browsing Your Workflows" (lines 30-50)
+- **Type:** Added info callout
+- **Lines added:** 3 lines (34-36)
 
-## Confidence Level
+## Technical Details
 
-**95%** - Verified against actual source code implementation
+The change:
+1. Preserves existing VitePress formatting (using `:::` info callout syntax)
+2. Maintains the documentation style and tone
+3. Adds context before the existing "Once you've created workflows" text
+4. Uses consistent markdown formatting with the rest of the document
+5. Provides actionable guidance for new users
+
+This fix addresses the classification: `DOC_ISSUE` with confidence level 0.9, ensuring users understand the empty state experience in the Workflows section.
