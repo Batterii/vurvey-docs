@@ -31,7 +31,11 @@ Access **Workflows** from the main sidebar (look for the beta badge). The sectio
 
 ![Workflows Main](/screenshots/workflows/01-workflows-main.png)
 
-Workflows appear as cards in a grid layout. Each card shows:
+::: info Getting Started
+When you first access Workflows in a new workspace, you'll see an empty state with a **Create new workflow** button. This is your starting point — click it to build your first automation pipeline.
+:::
+
+Once you've created workflows, they appear as cards in a grid layout. Each card shows:
 
 - **Name** — the workflow title
 - **Creator** — who built it ("by Jane Smith")
