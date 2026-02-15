@@ -152,16 +152,16 @@ Click the three-dot menu on any agent card to access quick actions:
 
 ## Creating an Agent
 
-Click **+ Create Agent** in the top-right corner of the gallery to open the Generate Agent modal. You can choose to generate an agent quickly using AI, or manually configure one in the full builder.
+Click **+ Create Agent** in the top-right corner of the gallery to open the **Generate Agent** modal. You can choose to generate an agent quickly using AI, or manually configure one in the full builder.
 
-::: tip Generate Agent Options
-The Generate Agent modal offers two paths:
-- **Generate Agent** — Quick AI-powered agent creation from a name and objective
-- **Manual Configuration** — Opens the step-by-step guided builder with complete control over all settings
+::: tip Generate Agent Modal
+The modal that opens is titled **"Generate Agent"** and offers two paths:
+- **Generate Agent** — Quick AI-powered agent creation from a name and objective (click the "Generate" button to create the agent using AI)
+- **Manual Configuration** — Opens the step-by-step guided builder with complete control over all settings (available via additional options in the modal)
 :::
 
 ::: tip Classic Builder Available
-If you prefer the original builder experience, click **Use Classic Builder** in the top navigation bar at any time.
+If you prefer the original builder experience, click **Use Classic Builder** in the top navigation bar at any time. Note: The Classic Builder (V1) may require specific permissions, while the Guided Builder (V2) availability depends on your workspace's feature settings.
 :::
 
 ### Builder Navigation
@@ -279,42 +279,44 @@ This step lets you fine-tune how your agent operates by adding knowledge, rules,
 
 Choose which AI model powers your agent:
 
-- **Gemini 3 Flash** (Recommended) — Fastest responses, latest generation, great for most everyday tasks
-- **Gemini 3 Pro** — Latest generation with deeper reasoning, can analyze images and video
+- **Gemini Flash** (Recommended) — Fastest responses, optimized for most everyday tasks
+- **Gemini Pro** — Advanced reasoning capabilities, can analyze images and video
 - **Claude Sonnet** — Excellent at staying in character and following nuanced instructions
-- **GPT-5** — Latest OpenAI model with enhanced reasoning capabilities
 - **GPT-4o** — Strong general knowledge across a wide range of topics
-- **Gemini 2.5 Flash/Pro** (Legacy) — Previous generation models, still available for compatibility
+- **Other models** — Additional models may be available depending on your workspace plan
+
+::: info Model Availability
+Available models depend on your workspace plan and may change as new AI models are released. Check the [Settings → AI Models](/guide/settings#ai-models) page to see the complete list of models in your workspace.
+:::
 
 ::: tip Which Model Should You Pick?
-Start with **Gemini 3 Flash** for most agents — it's the latest generation, fast, and handles the majority of tasks well. Switch to **Claude Sonnet** when personality consistency matters most (like consumer persona agents that need to stay in character). Use **Gemini 3 Pro** when your agent needs to analyze visual content. Choose **GPT-5** for tasks requiring the latest reasoning improvements.
+Start with **Gemini Flash** for most agents — it's fast and handles the majority of tasks well. Switch to **Claude Sonnet** when personality consistency matters most (like consumer persona agents that need to stay in character). Use **Gemini Pro** when your agent needs to analyze visual content. Choose **GPT-4o** for broad general knowledge tasks.
 :::
 
 **Detailed Model Comparison:**
 
-| Feature | Gemini 3 Flash | Gemini 3 Pro | Claude Sonnet | GPT-5 | GPT-4o |
-|---------|-------------|------------|---------------|-------|--------|
-| **Speed** | Fastest | Moderate | Moderate | Moderate | Moderate |
-| **Generation** | Latest (3.x) | Latest (3.x) | Current | Latest | Current |
-| **Persona consistency** | Good | Good | Excellent | Good | Good |
-| **Analytical depth** | Good | Excellent | Excellent | Excellent | Excellent |
-| **Visual understanding** | Basic | Excellent | Good | Excellent | Excellent |
-| **Instruction following** | Good | Good | Excellent | Excellent | Good |
-| **Creative writing** | Good | Good | Excellent | Good | Good |
-| **Best for** | Quick Q&A, high-volume tasks | Image/video analysis, complex reasoning | Character agents, nuanced rules | Advanced reasoning, latest capabilities | General knowledge, broad topics |
+| Feature | Gemini Flash | Gemini Pro | Claude Sonnet | GPT-4o |
+|---------|-------------|------------|---------------|--------|
+| **Speed** | Fastest | Moderate | Moderate | Moderate |
+| **Persona consistency** | Good | Good | Excellent | Good |
+| **Analytical depth** | Good | Excellent | Excellent | Excellent |
+| **Visual understanding** | Basic | Excellent | Good | Excellent |
+| **Instruction following** | Good | Good | Excellent | Good |
+| **Creative writing** | Good | Good | Excellent | Good |
+| **Best for** | Quick Q&A, high-volume tasks | Image/video analysis, complex reasoning | Character agents, nuanced rules | General knowledge, broad topics |
 
 ::: details When to Switch Models — Real Scenarios
 **Scenario 1: Your persona agent keeps breaking character**
-→ Switch from Gemini 3 Flash to **Claude**. Claude excels at maintaining consistent personas even under adversarial questioning.
+→ Switch to **Claude Sonnet**. Claude excels at maintaining consistent personas even under adversarial questioning.
 
 **Scenario 2: You need the agent to analyze product images**
-→ Switch to **Gemini 3 Pro**. It has the strongest visual understanding and can describe images in detail.
+→ Switch to **Gemini Pro**. It has strong visual understanding and can describe images in detail.
 
 **Scenario 3: Responses are too slow for your workshop**
-→ Switch to **Gemini 3 Flash**. When running a live session with 20+ questions, speed matters more than depth.
+→ Switch to **Gemini Flash**. When running a live session with 20+ questions, speed matters more than depth.
 
 **Scenario 4: The agent gives shallow competitive analysis**
-→ Switch to **Gemini 3 Pro** or **Claude**. Both offer deeper reasoning for analytical tasks.
+→ Switch to **Gemini Pro** or **Claude Sonnet**. Both offer deeper reasoning for analytical tasks.
 :::
 
 #### Tools
@@ -951,8 +953,8 @@ Agents with the **Web Search** tool enabled can search the web for current infor
 **How often should I update agent datasets?**
 It depends on how quickly your data changes. For product catalogs and pricing, update monthly or whenever changes occur. For market research data, update quarterly. For brand guidelines that rarely change, annual updates are sufficient. Set a calendar reminder so datasets don't go stale.
 
-**What's the difference between Gemini 3 Flash and Pro for agents?**
-**Gemini 3 Flash** is faster and cheaper, suitable for most everyday interactions. **Gemini 3 Pro** offers deeper analytical reasoning and better image/video understanding. Choose Flash for speed and volume, Pro for complex analysis and visual content. Both are the latest generation models (3.x) with significant improvements over the legacy 2.5 versions.
+**What's the difference between Gemini Flash and Pro for agents?**
+**Gemini Flash** is faster, suitable for most everyday interactions. **Gemini Pro** offers deeper analytical reasoning and better image/video understanding. Choose Flash for speed and volume, Pro for complex analysis and visual content.
 
 **Can I use my own images for avatars?**
 Yes — in the Appearance step, you can upload any image as the agent's avatar. Use JPG or PNG format. The image will be displayed as a square thumbnail, so centered, square-cropped images work best.

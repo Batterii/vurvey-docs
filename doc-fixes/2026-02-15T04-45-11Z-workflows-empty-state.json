@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-02-15T04:45:11Z",
+  "qa_test": "Workflow: Builder UI visible / Builder canvas loads / Upcoming runs page content",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/workflows.md",
+  "section": "Browsing Your Workflows",
+  "change_summary": "Added documentation for empty state when no workflows exist yet in a workspace",
+  "lines_changed": "34-50",
+  "verified_against": "qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771128843558.png",
+  "confidence": 0.90
+}

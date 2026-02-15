@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-02-15T04:45:11Z",
+  "qa_test": "Settings: AI Models has model cards",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/settings.md",
+  "section": "AI Models",
+  "change_summary": "Added documentation for empty state when no AI models are available in a workspace",
+  "lines_changed": "100-108",
+  "verified_against": "qa-failure-screenshots/failure-settings--ai-models-has-model-cards-desktop-1771129092831.png",
+  "confidence": 0.90
+}

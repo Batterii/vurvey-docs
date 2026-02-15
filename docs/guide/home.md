@@ -187,7 +187,20 @@ Most users never need to change the model manually. However, if you notice respo
 
 ## How Omni Mode Works
 
-You don't need to pick a "mode" manually — Vurvey uses **Omni Mode** by default, which intelligently decides which tools to use based on your question and what you've enabled in the toolbar:
+You don't need to pick a "mode" manually — Vurvey uses **Omni Mode** by default, which intelligently decides which tools to use based on your question and what you've enabled in the toolbar.
+
+::: info Chat Modes
+Vurvey operates in different chat modes depending on what capabilities you enable:
+- **Conversation mode** — Basic chat with no additional tools
+- **Smart Sources mode** — AI intelligently retrieves information from your connected datasets and campaigns
+- **Smart Tools mode** — AI uses curated tool groups automatically
+- **Omni mode** (default) — Full capabilities: all sources, all tools, and image generation
+- **Manual Tools mode** — You select specific tools for the AI to use
+
+The mode automatically adjusts based on your toolbar selections.
+:::
+
+
 
 | What you've enabled | How the AI behaves |
 |---|---|
