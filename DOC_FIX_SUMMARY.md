@@ -1,40 +1,32 @@
 # Documentation Fix Summary
 
-## Change Applied
-
-**File:** `docs/guide/agents.md`
-**Section:** Creating an Agent (lines 151-159)
-**Date:** 2026-02-13
-
 ## What Was Changed
 
-Updated the terminology and description of the agent creation flow to match the actual UI behavior:
+Modified `docs/guide/agents.md` line 155 to clarify the exact title of the modal that opens when clicking the create button.
 
-### Before
-- Referred to opening the "Agent Builder" directly
-- Mentioned "Agent Builder Options" in the tip box
-- Used "Agent Builder" as one of the two paths
+**Before:**
+```markdown
+Click **+ Create Agent** in the top-right corner of the gallery to open the Generate Agent modal.
+```
 
-### After
-- Correctly refers to opening the "Generate Agent modal"
-- Changed tip box header to "Generate Agent Options"
-- Updated the second path from "Agent Builder" to "Manual Configuration" to clarify that it opens the builder
-- Changed "dialog" to "modal" to match actual UI component terminology
+**After:**
+```markdown
+Click **+ Create Agent** in the top-right corner of the gallery to open a modal titled **Generate Agent**.
+```
 
 ## Why This Fixes the Issue
 
-The original documentation incorrectly described the create flow as opening the "Agent Builder" directly, when in reality:
+The change makes it explicitly clear that:
+1. The create button opens a **modal** (a dialog/overlay)
+2. That modal's title is specifically **"Generate Agent"** (not "Agent Builder" or any other variation)
 
-1. Clicking **+ Create Agent** opens a **Generate Agent modal** first
-2. This modal presents two options: quick AI generation OR manual configuration via the builder
-3. The builder is not immediately shown—it's accessed through the "Manual Configuration" option
+This eliminates potential confusion about the modal's name and matches the actual UI implementation verified in `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:140`.
 
-The fix aligns the documentation with the verified UI implementation found in `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`.
+## Files and Sections Modified
 
-## Related QA Test
-
-This fix addresses the QA test failure: **"Agents: Create UI visible"**
-
-## Confidence Level
-
-**95%** - Verified against actual source code implementation
+- **File:** `docs/guide/agents.md`
+- **Section:** "Creating an Agent"
+- **Lines:** 155
+- **Classification:** DOC_ISSUE
+- **Confidence:** 0.95
+- **QA Test:** Agents: Create UI visible
