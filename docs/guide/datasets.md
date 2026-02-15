@@ -25,7 +25,9 @@ Access **Datasets** from the main sidebar. The section includes two tabs:
 
 ![Datasets Dashboard](/screenshots/datasets/01-datasets-main.png)
 
-Datasets appear as cards in a responsive grid. Each card shows:
+When you first visit the Datasets page and no datasets exist yet, you'll see an empty state with a message prompting you to create your first dataset. The **Create Dataset** button appears in the top-right corner of the page — click it to get started.
+
+Once you have datasets, they appear as cards in a responsive grid. Each card shows:
 
 - **Name** — the dataset title
 - **Description** — a summary of what the dataset contains

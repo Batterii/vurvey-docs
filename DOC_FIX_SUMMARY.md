@@ -2,39 +2,37 @@
 
 ## Change Applied
 
-**File:** `docs/guide/agents.md`
-**Section:** Creating an Agent (lines 151-159)
-**Date:** 2026-02-13
+**File:** `docs/guide/datasets.md`
+**Section:** Browsing Your Datasets (lines 24-30)
+**Date:** 2026-02-15
 
 ## What Was Changed
 
-Updated the terminology and description of the agent creation flow to match the actual UI behavior:
+Added documentation for the empty state in the "Browsing Your Datasets" section.
 
-### Before
-- Referred to opening the "Agent Builder" directly
-- Mentioned "Agent Builder Options" in the tip box
-- Used "Agent Builder" as one of the two paths
+Specifically, added two sentences after the screenshot reference (line 26) to explain what users see when they first visit the Datasets page with no datasets created yet:
 
-### After
-- Correctly refers to opening the "Generate Agent modal"
-- Changed tip box header to "Generate Agent Options"
-- Updated the second path from "Agent Builder" to "Manual Configuration" to clarify that it opens the builder
-- Changed "dialog" to "modal" to match actual UI component terminology
+> When you first visit the Datasets page and no datasets exist yet, you'll see an empty state with a message prompting you to create your first dataset. The **Create Dataset** button appears in the top-right corner of the page — click it to get started.
 
 ## Why This Fixes the Issue
 
-The original documentation incorrectly described the create flow as opening the "Agent Builder" directly, when in reality:
+The original documentation jumped directly into describing the card-based grid view that appears **when datasets already exist**, but didn't address the first-time user experience when the page is empty. This left new users without guidance on:
 
-1. Clicking **+ Create Agent** opens a **Generate Agent modal** first
-2. This modal presents two options: quick AI generation OR manual configuration via the builder
-3. The builder is not immediately shown—it's accessed through the "Manual Configuration" option
+1. What they would see on an empty Datasets page
+2. Where to find the "Create Dataset" button to get started
 
-The fix aligns the documentation with the verified UI implementation found in `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`.
+The fix adds explicit documentation for this empty state scenario, clarifying that:
+- There's an empty state message on first visit
+- The "Create Dataset" button is in the top-right corner
 
 ## Related QA Test
 
-This fix addresses the QA test failure: **"Agents: Create UI visible"**
+This fix addresses the QA test: **"Datasets: Create flow opens / Detail view loads"**
+
+## Verification
+
+This fix was verified against the source code reference: `vurvey-web-manager/src/datasets/containers/all-datasets-page/index.tsx:20`, which confirms the empty state behavior and button placement.
 
 ## Confidence Level
 
-**95%** - Verified against actual source code implementation
+**85%** - Verified against actual source code implementation
