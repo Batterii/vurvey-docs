@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-02-15T04:45:11Z",
+  "qa_test": "People: Page content present",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/people.md",
+  "section": "Populations",
+  "change_summary": "Clarified that empty state with 'Stay tuned' message is expected behavior when Populations feature is not yet enabled for a workspace",
+  "lines_changed": "37-51",
+  "verified_against": "qa-failure-screenshots/failure-people--page-content-present-desktop-1771128528021.png",
+  "confidence": 0.95
+}

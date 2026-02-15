@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-02-15T04:45:11Z",
+  "qa_test": "Agents: Create UI visible",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/agents.md",
+  "section": "Creating an Agent",
+  "change_summary": "Clarified that the create button opens a modal titled 'Generate Agent' rather than 'Agent Builder'",
+  "lines_changed": "153-161",
+  "verified_against": "vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:140",
+  "confidence": 0.95
+}

@@ -2,6 +2,10 @@
 
 Datasets are your AI's knowledge base. Upload research reports, survey exports, competitive analysis documents, and other files so your AI agents can search, reference, and cite that information during conversations and workflows.
 
+::: info API Terminology
+In the Vurvey API and codebase, Datasets are called `TrainingSet` (table: `training_sets`).
+:::
+
 ## Overview
 
 ![Datasets Dashboard](/screenshots/datasets/01-datasets-main.png)
@@ -34,6 +38,10 @@ Datasets appear as cards in a responsive grid. Each card shows:
 - **Add Files** button for quick uploads (if you have edit access)
 
 Use the **Search** bar above the grid to find datasets by name, and the **Sort By** dropdown to change the display order.
+
+::: info Empty State
+When you first access Datasets or if no datasets have been created yet, you'll see an empty state. Look for the **Create Dataset** button (typically in the top-right area or as a prominent call-to-action) to create your first dataset.
+:::
 
 ::: tip Organize for Easy Discovery
 Create focused datasets rather than one catch-all collection:

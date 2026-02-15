@@ -14,7 +14,11 @@ In the Vurvey API and codebase, Settings pages are part of `workspace-settings`.
 
 ## Navigation
 
-Access **Settings** from the workspace dropdown menu in the top-right corner of the app (click your workspace avatar). The Settings section has multiple tabs:
+Access **Settings** from the workspace dropdown menu in the top-right corner of the app (click your workspace avatar).
+
+**Route:** `/:workspaceId/workspace/settings`
+
+The Settings section has multiple tabs:
 
 | Tab | Description |
 |-----|-------------|
@@ -98,6 +102,10 @@ See the [Rewards](/guide/rewards) page for detailed Tremendous configuration and
 ![AI Models Browser](/screenshots/settings/02-ai-models.png)
 
 The AI Models page lets you browse all available AI models in your workspace, organized by category.
+
+::: info No Models Available
+If you see the message **"No AI models available for this workspace,"** this means your workspace plan does not currently have AI models enabled, or model provisioning is still in progress. Contact your workspace administrator or Vurvey support to enable AI model access.
+:::
 
 ### Model Categories
 

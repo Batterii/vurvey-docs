@@ -6,6 +6,10 @@ Workflows is currently in beta. Features may evolve and some functionality may b
 
 Workflows let you automate multi-step research processes by chaining AI agents together into reusable pipelines. Feed in your datasets and campaign data, define what each agent should do, and let the system run — on demand or on a schedule.
 
+::: info API Terminology
+In the Vurvey API and codebase, Workflows are called `AiOrchestration`, and Workflow Steps are called `AiPersonaTask`.
+:::
+
 ## Overview
 
 ![Workflows Main](/screenshots/workflows/01-workflows-main.png)
@@ -43,6 +47,10 @@ Once you've created workflows, they appear as cards in a grid layout. Each card 
 - **Assigned agents** — avatar icons for up to 7 agents, with a "+N more" indicator if there are additional ones
 
 Use the **Search** bar to find workflows by name, and **Sort By** to change the display order.
+
+::: info Empty State
+When you first access Workflows or if no workflows have been created yet, you'll see an empty state. Click **Create new workflow** to build your first automation pipeline.
+:::
 
 ::: tip Naming Convention
 Use a consistent pattern like "[Project]-[Purpose]-[Version]" — for example, "Q4-Campaign-Analysis-v2." This makes it much easier to find workflows as your library grows.

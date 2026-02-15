@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-02-15T04:45:11Z",
+  "qa_test": "Datasets: Create flow opens / Detail view loads",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/datasets.md",
+  "section": "Browsing Your Datasets",
+  "change_summary": "Added documentation for empty state when no datasets exist, clarifying where to find Create Dataset button",
+  "lines_changed": "28-46",
+  "verified_against": "vurvey-web-manager/src/datasets/containers/all-datasets-page/index.tsx:20",
+  "confidence": 0.85
+}
