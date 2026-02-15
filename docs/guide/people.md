@@ -36,8 +36,8 @@ The **Molds** tab is only visible to enterprise workspaces. It lets you create r
 
 ## Populations
 
-::: warning Feature In Development
-The Populations feature is currently being refined and may not be available in all workspaces. If you see a "Stay tuned!" message, this feature will be enabled for your workspace soon.
+::: warning Feature Availability
+The Populations feature may not be enabled for all workspaces. If you see a "Stay tuned!" message, this is expected behavior—the feature has not been activated for your workspace yet. Contact your account manager or support team if you'd like to discuss enabling Populations.
 :::
 
 ![Populations](/screenshots/people/02-populations.png)

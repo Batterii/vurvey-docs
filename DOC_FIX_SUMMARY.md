@@ -1,40 +1,31 @@
 # Documentation Fix Summary
 
-## Change Applied
-
-**File:** `docs/guide/agents.md`
-**Section:** Creating an Agent (lines 151-159)
-**Date:** 2026-02-13
-
 ## What Was Changed
 
-Updated the terminology and description of the agent creation flow to match the actual UI behavior:
+Updated the warning box in the Populations section of `docs/guide/people.md` (lines 37-41) to clarify that seeing a "Stay tuned!" message is **expected behavior** when the Populations feature is not enabled for a workspace.
 
-### Before
-- Referred to opening the "Agent Builder" directly
-- Mentioned "Agent Builder Options" in the tip box
-- Used "Agent Builder" as one of the two paths
+## Why It Fixes the Issue
 
-### After
-- Correctly refers to opening the "Generate Agent modal"
-- Changed tip box header to "Generate Agent Options"
-- Updated the second path from "Agent Builder" to "Manual Configuration" to clarify that it opens the builder
-- Changed "dialog" to "modal" to match actual UI component terminology
+**Before:** The warning suggested that the feature "will be enabled for your workspace soon," which:
+- Implied the feature would automatically be activated
+- Set incorrect expectations about timing
+- Didn't acknowledge this as normal/expected state
 
-## Why This Fixes the Issue
+**After:** The warning now:
+- Explicitly states the "Stay tuned!" message is expected behavior
+- Clarifies the feature has not been activated (not "in development")
+- Provides actionable guidance (contact account manager/support)
+- Removes ambiguous promise of "soon"
 
-The original documentation incorrectly described the create flow as opening the "Agent Builder" directly, when in reality:
+This addresses the QA test failure where the page showed the "Stay tuned" empty state, which was being flagged but is actually correct behavior for workspaces without the feature enabled.
 
-1. Clicking **+ Create Agent** opens a **Generate Agent modal** first
-2. This modal presents two options: quick AI generation OR manual configuration via the builder
-3. The builder is not immediately shown—it's accessed through the "Manual Configuration" option
+## Files and Sections Modified
 
-The fix aligns the documentation with the verified UI implementation found in `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`.
+- **File:** `docs/guide/people.md`
+- **Section:** Populations (lines 37-41)
+- **Change type:** Clarification of expected behavior
+- **Warning box title:** Changed from "Feature In Development" to "Feature Availability"
 
 ## Related QA Test
 
-This fix addresses the QA test failure: **"Agents: Create UI visible"**
-
-## Confidence Level
-
-**95%** - Verified against actual source code implementation
+This fix addresses the QA test: **"People: Page content present"** which was detecting the empty state but the documentation wasn't clear that this was expected.
