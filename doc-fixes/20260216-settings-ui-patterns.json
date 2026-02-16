@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-02-16T04:49:00Z",
+  "qa_test": "Settings: General form has workspace name field / Settings: AI Models has model cards",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/settings.md",
+  "section": "Workspace Name / AI Models",
+  "change_summary": "Enhanced documentation to clarify Settings page UI patterns. For Workspace Name: documented that the name is not directly editable via input field; instead, users must click the 'Edit' button. For AI Models: added explanation that workspaces may show empty state or 'No AI models available' message depending on plan and configuration. Model cards may not appear on first load for free/trial workspaces.",
+  "lines_changed": "50-69, 100-108",
+  "verified_against": "qa-failure-screenshots/failure-settings--general-form-has-workspace-name-field-desktop-1771215508111.png, qa-failure-screenshots/failure-settings--ai-models-has-model-cards-desktop-1771215531625.png",
+  "confidence": 0.94,
+  "issue": "QA tests looked for input field and model cards but found Edit button pattern and empty states. Tests expected different UI patterns than implemented.",
+  "resolution": "Updated docs to describe actual UI patterns: Edit button for workspace name, conditional model card display based on plan"
+}

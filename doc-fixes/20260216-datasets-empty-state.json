@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-02-16T04:47:00Z",
+  "qa_test": "Datasets: Create flow opens",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/datasets.md",
+  "section": "Browsing Your Datasets / Creating a Dataset",
+  "change_summary": "Enhanced documentation of Datasets empty state behavior. Clarified that when no datasets exist, the page shows an empty message icon with no grid or cards. The 'Create Dataset' button location varies based on whether datasets exist. Added guidance that in empty state, users should look in the top-right corner for the create button or '+' icon.",
+  "lines_changed": "41-44, 54-61",
+  "verified_against": "qa-failure-screenshots/failure-datasets--create-flow-opens-desktop-1771215154893.png",
+  "confidence": 0.92,
+  "issue": "QA test couldn't find 'create' button in expected location. Empty state UI differs from populated state UI.",
+  "resolution": "Updated docs to describe empty state accurately and explain button location varies"
+}

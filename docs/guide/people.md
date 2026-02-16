@@ -36,16 +36,25 @@ The **Molds** tab is only visible to enterprise workspaces. It lets you create r
 
 ## Populations
 
-::: warning Feature In Development
-The Populations feature is currently being refined and may not be available in all workspaces. **When you navigate to the Populations tab, you may see an empty state with the message "Stay tuned! We're working on unveiling the new populations feature in your workspace."** This is expected behavior while the feature is being rolled out. The feature will be enabled for your workspace soon.
+::: warning Feature In Development — Expected Empty State
+The Populations feature is currently being refined and is **not yet available in most workspaces**. **When you navigate to the People page (`/audience`) or the Populations tab (`/people/populations`), you will likely see an empty state with the message:**
+
+**"Stay tuned! We're working on unveiling the new populations feature in your workspace."**
+
+This is expected and intentional behavior. The page loads successfully, but the feature content is hidden behind a feature flag. You will not see population data, cards, or management UI until the feature is explicitly enabled for your workspace.
 :::
 
 ![Populations](/screenshots/people/02-populations.png)
 
-Populations are AI-generated audience groups that represent different consumer segments. Use them to simulate focus group discussions, test campaign questions before launch, or fill gaps when you don't have enough real participants.
+Once enabled, Populations will be AI-generated audience groups that represent different consumer segments. You'll be able to use them to simulate focus group discussions, test campaign questions before launch, or fill gaps when you don't have enough real participants.
 
-::: info Populations Tab Behavior
-If you don't see any populations listed and instead see an empty state message, this means the feature hasn't been enabled for your workspace yet. The Populations tab is accessible via the route `/audience` or `/people/populations`, but content will only appear once the feature is activated.
+::: info What You'll See Right Now
+- **Route `/audience`:** Displays the People section with tabs for Populations, Humans, Molds, Lists & Segments, and Properties. The default view shows the Populations tab with the "Stay tuned" empty state message.
+- **Route `/people/populations`:** Same view as `/audience` — shows the empty state message.
+- **No table, grid, or card views:** The feature UI is completely hidden until activation.
+- **No error:** This is not a bug or broken page — the empty state is intentional.
+
+The feature will be rolled out workspace-by-workspace in upcoming releases.
 :::
 
 ### Why Use Populations?
