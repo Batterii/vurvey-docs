@@ -1,38 +1,26 @@
 # Documentation Fix Summary
 
-## What Was Changed
+## What was changed
 
-Added documentation for the empty state when a workspace has no workflows yet.
+Removed duplicate empty state documentation in the "Browsing Your Workflows" section of `docs/guide/workflows.md`.
 
-**Location:** `docs/guide/workflows.md` lines 34-36
+## Why it fixes the issue
 
-**Change:** Inserted an info callout box explaining that new users will see an empty state with a "Create new workflow" button when they first access the Workflows page.
+The documentation had two separate info boxes explaining the empty state when no workflows exist:
+1. Lines 38-40: A "Getting Started" info box explaining the empty state
+2. Lines 51-53: A duplicate "Empty State" info box with nearly identical content
 
-## Why It Fixes the Issue
+The duplicate info box at lines 51-53 was removed because:
+- It repeated information already provided in the first info box
+- It disrupted the flow of the section by appearing after the main workflow card content
+- The first info box (lines 38-40) is better positioned immediately after the screenshot and serves as a proper introduction to the section
 
-The QA test "Workflow: Builder UI visible / Builder canvas loads / Upcoming runs page content" was failing because the documentation didn't address the initial empty state that users encounter in a new workspace.
+## Which file and section were modified
 
-The original documentation jumped directly into describing workflow cards in a grid layout, which assumes workflows already exist. This created a documentation gap for first-time users who would see an empty state instead.
+**File:** `docs/guide/workflows.md`
 
-The fix adds a clear callout explaining:
-- What users see when accessing Workflows for the first time (empty state)
-- What action they should take (click "Create new workflow")
-- Why this is the starting point (to build their first automation pipeline)
+**Section:** "Browsing Your Workflows" (starting at line 34)
 
-## Files and Sections Modified
+**Lines changed:** Removed lines 51-53 (the duplicate empty state info box)
 
-- **File:** `docs/guide/workflows.md`
-- **Section:** "Browsing Your Workflows" (lines 30-50)
-- **Type:** Added info callout
-- **Lines added:** 3 lines (34-36)
-
-## Technical Details
-
-The change:
-1. Preserves existing VitePress formatting (using `:::` info callout syntax)
-2. Maintains the documentation style and tone
-3. Adds context before the existing "Once you've created workflows" text
-4. Uses consistent markdown formatting with the rest of the document
-5. Provides actionable guidance for new users
-
-This fix addresses the classification: `DOC_ISSUE` with confidence level 0.9, ensuring users understand the empty state experience in the Workflows section.
+The section now has a single, well-placed empty state explanation that appears at the beginning of the "Browsing Your Workflows" section, providing clear guidance to new users without redundancy.

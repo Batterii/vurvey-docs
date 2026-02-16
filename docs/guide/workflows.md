@@ -48,10 +48,6 @@ Once you've created workflows, they appear as cards in a grid layout. Each card 
 
 Use the **Search** bar to find workflows by name, and **Sort By** to change the display order.
 
-::: info Empty State
-When you first access Workflows or if no workflows have been created yet, you'll see an empty state. Click **Create new workflow** to build your first automation pipeline.
-:::
-
 ::: tip Naming Convention
 Use a consistent pattern like "[Project]-[Purpose]-[Version]" — for example, "Q4-Campaign-Analysis-v2." This makes it much easier to find workflows as your library grows.
 :::
