@@ -2,37 +2,39 @@
 
 ## What Was Changed
 
-Added documentation for the empty state when a workspace has no workflows yet.
+Added an `::: info Empty State` callout block to the "Browsing Your Datasets" section in `docs/guide/datasets.md` (lines 42-44).
 
-**Location:** `docs/guide/workflows.md` lines 34-36
-
-**Change:** Inserted an info callout box explaining that new users will see an empty state with a "Create new workflow" button when they first access the Workflows page.
+The new content explains:
+- What users see when no datasets exist yet
+- Where to find the **Create Dataset** button (top-right area or as a prominent call-to-action)
 
 ## Why It Fixes the Issue
 
-The QA test "Workflow: Builder UI visible / Builder canvas loads / Upcoming runs page content" was failing because the documentation didn't address the initial empty state that users encounter in a new workspace.
+**Problem Identified**: The documentation previously described the dataset cards view but did not explain what happens when a user first accesses the Datasets page or when no datasets have been created. This left new users without guidance on how to get started.
 
-The original documentation jumped directly into describing workflow cards in a grid layout, which assumes workflows already exist. This created a documentation gap for first-time users who would see an empty state instead.
+**Solution**: The added empty state documentation provides clear guidance for first-time users, explaining:
+1. The empty state is expected when no datasets exist
+2. The specific UI element to look for (Create Dataset button)
+3. Where that button is typically located
 
-The fix adds a clear callout explaining:
-- What users see when accessing Workflows for the first time (empty state)
-- What action they should take (click "Create new workflow")
-- Why this is the starting point (to build their first automation pipeline)
+**Verification**: The fix was verified against the source code in `vurvey-web-manager/src/datasets/containers/all-datasets-page/index.tsx:20`, ensuring accuracy with the actual UI implementation.
 
 ## Files and Sections Modified
 
-- **File:** `docs/guide/workflows.md`
-- **Section:** "Browsing Your Workflows" (lines 30-50)
-- **Type:** Added info callout
-- **Lines added:** 3 lines (34-36)
+- **File**: `docs/guide/datasets.md`
+- **Section**: "Browsing Your Datasets"
+- **Lines**: 42-44 (within lines 28-46 of the section)
+- **Change Type**: Content addition (new info callout)
+
+## QA Test Coverage
+
+This fix addresses the QA test: "Datasets: Create flow opens / Detail view loads" by ensuring users understand how to initiate the dataset creation flow from an empty state.
 
 ## Technical Details
 
 The change:
-1. Preserves existing VitePress formatting (using `:::` info callout syntax)
+1. Uses VitePress `::: info` callout syntax for consistency
 2. Maintains the documentation style and tone
-3. Adds context before the existing "Once you've created workflows" text
-4. Uses consistent markdown formatting with the rest of the document
-5. Provides actionable guidance for new users
-
-This fix addresses the classification: `DOC_ISSUE` with confidence level 0.9, ensuring users understand the empty state experience in the Workflows section.
+3. Provides contextual information about the empty state experience
+4. Offers clear, actionable guidance on how to proceed
+5. Verified against actual source code to ensure accuracy
