@@ -40,7 +40,7 @@ Datasets appear as cards in a responsive grid. Each card shows:
 Use the **Search** bar above the grid to find datasets by name, and the **Sort By** dropdown to change the display order.
 
 ::: info Empty State
-When you first access Datasets or if no datasets have been created yet, you'll see an empty state. Look for the **Create Dataset** button (typically in the top-right area or as a prominent call-to-action) to create your first dataset.
+When no datasets exist, the page displays an empty state message with an icon instead of the grid view. There are no dataset cards visible until you create your first dataset. In this empty state, look for the **Create Dataset** button or **+** icon in the top-right corner of the page.
 :::
 
 ::: tip Organize for Easy Discovery
@@ -52,7 +52,12 @@ Create focused datasets rather than one catch-all collection:
 
 ## Creating a Dataset
 
-Click **Create Dataset** to open the creation dialog.
+To create a new dataset, click the **Create Dataset** button. The button location depends on whether you already have datasets:
+
+- **When datasets exist** — find the button near the top of the page above the grid.
+- **When no datasets exist** — look in the **top-right corner** for the button or a **+** icon.
+
+Once clicked, the creation dialog opens:
 
 <img
   :src="'/screenshots/datasets/02-create-modal.png'"
