@@ -2,37 +2,45 @@
 
 ## What Was Changed
 
-Added documentation for the empty state when a workspace has no workflows yet.
+Updated terminology in `docs/guide/agents.md` from "modal" to "dialog" to match the actual UI component.
 
-**Location:** `docs/guide/workflows.md` lines 34-36
+## Specific Changes
 
-**Change:** Inserted an info callout box explaining that new users will see an empty state with a "Create new workflow" button when they first access the Workflows page.
+**File:** `docs/guide/agents.md`
+**Section:** Creating an Agent
+**Lines Modified:** 153, 157, 161
+
+### Before:
+- "open the **Generate Agent** modal"
+- "::: tip Generate Agent Modal"
+- "available via additional options in the modal"
+
+### After:
+- "open the **Generate Agent** dialog"
+- "::: tip Generate Agent Dialog"
+- "available via additional options in the dialog"
 
 ## Why It Fixes the Issue
 
-The QA test "Workflow: Builder UI visible / Builder canvas loads / Upcoming runs page content" was failing because the documentation didn't address the initial empty state that users encounter in a new workspace.
+According to the QA test verification (`Agents: Create UI visible`), the actual UI component that appears when clicking "+ Create Agent" is implemented as a dialog component, not a modal. The source verification reference (`vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`) shows this is the "Generate Agent" dialog.
 
-The original documentation jumped directly into describing workflow cards in a grid layout, which assumes workflows already exist. This created a documentation gap for first-time users who would see an empty state instead.
-
-The fix adds a clear callout explaining:
-- What users see when accessing Workflows for the first time (empty state)
-- What action they should take (click "Create new workflow")
-- Why this is the starting point (to build their first automation pipeline)
+The documentation previously used "modal" inconsistently throughout the section, which could confuse users expecting to see a "modal" when the UI actually shows a "dialog". This fix ensures the documentation accurately reflects the UI terminology users will see.
 
 ## Files and Sections Modified
 
-- **File:** `docs/guide/workflows.md`
-- **Section:** "Browsing Your Workflows" (lines 30-50)
-- **Type:** Added info callout
-- **Lines added:** 3 lines (34-36)
+- **File:** `docs/guide/agents.md`
+- **Section:** "Creating an Agent" (lines 151-161)
+- **Type:** Terminology correction
+- **Classification:** DOC_ISSUE
+- **Confidence:** 0.95
 
 ## Technical Details
 
 The change:
-1. Preserves existing VitePress formatting (using `:::` info callout syntax)
-2. Maintains the documentation style and tone
-3. Adds context before the existing "Once you've created workflows" text
-4. Uses consistent markdown formatting with the rest of the document
-5. Provides actionable guidance for new users
+1. Maintains VitePress formatting and markdown structure
+2. Preserves all existing content and only updates the terminology
+3. Aligns documentation with actual UI implementation
+4. Ensures consistency across all three references in the section
+5. Verified against source code reference: `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`
 
-This fix addresses the classification: `DOC_ISSUE` with confidence level 0.9, ensuring users understand the empty state experience in the Workflows section.
+This fix addresses a documentation accuracy issue where the UI terminology didn't match what users would actually see when clicking the "+ Create Agent" button.
