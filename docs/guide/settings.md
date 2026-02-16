@@ -51,9 +51,13 @@ Enable session timeout for workspaces handling sensitive consumer data. Set a re
 
 Customize your workspace by giving it a unique name. This name is visible to all members of your workspace and appears in the top-left corner of the app.
 
+::: info UI Pattern: Edit Button
+The workspace name is not directly editable via an input field. Instead, you must click the **Edit** button to modify it.
+:::
+
 **To update:**
 1. Click **Edit** next to the current workspace name
-2. Enter the new name
+2. Enter the new name in the dialog or form that appears
 3. Click **Save**
 
 ::: warning Unique Names
@@ -103,8 +107,12 @@ See the [Rewards](/guide/rewards) page for detailed Tremendous configuration and
 
 The AI Models page lets you browse all available AI models in your workspace, organized by category.
 
-::: info No Models Available
-If you see the message **"No AI models available for this workspace,"** this means your workspace plan does not currently have AI models enabled, or model provisioning is still in progress. Contact your workspace administrator or Vurvey support to enable AI model access.
+::: info Model Card Display
+Depending on your workspace plan and configuration, the AI Models page may show:
+- **Model cards** organized by category (available on paid/enterprise plans with AI access enabled)
+- **Empty state or "No AI models available" message** (free/trial workspaces, or plans without AI access)
+
+Model cards may not appear on first load for workspaces on free or trial plans. If you see **"No AI models available for this workspace,"** this means your workspace plan does not currently have AI models enabled, or model provisioning is still in progress. Contact your workspace administrator or Vurvey support to enable AI model access.
 :::
 
 ### Model Categories

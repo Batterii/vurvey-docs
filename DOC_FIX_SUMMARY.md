@@ -1,38 +1,47 @@
 # Documentation Fix Summary
 
-## What Was Changed
+## Changes Made
 
-Added documentation for the empty state when a workspace has no workflows yet.
+Fixed documentation in `docs/guide/settings.md` to clarify UI patterns that were causing QA test failures.
 
-**Location:** `docs/guide/workflows.md` lines 34-36
+### 1. Workspace Name Section (lines 50-65)
 
-**Change:** Inserted an info callout box explaining that new users will see an empty state with a "Create new workflow" button when they first access the Workflows page.
+**What was changed:**
+- Added explicit info box clarifying that the workspace name is not directly editable via input field
+- Added note that users must click the "Edit" button to modify the name
+- Updated step 2 to mention "dialog or form that appears" for clarity
 
-## Why It Fixes the Issue
+**Why this fixes the issue:**
+The QA test `Settings: General form has workspace name field` was failing because it expected to find a direct input field for the workspace name, but the actual UI implements an Edit button pattern. The documentation now explicitly states this UI pattern upfront, preventing confusion about how the workspace name editing works.
 
-The QA test "Workflow: Builder UI visible / Builder canvas loads / Upcoming runs page content" was failing because the documentation didn't address the initial empty state that users encounter in a new workspace.
+### 2. AI Models Section (lines 110-116)
 
-The original documentation jumped directly into describing workflow cards in a grid layout, which assumes workflows already exist. This created a documentation gap for first-time users who would see an empty state instead.
+**What was changed:**
+- Replaced single-purpose info box with enhanced "Model Card Display" info box
+- Added explicit explanation that the page may show different UI states depending on plan/configuration
+- Documented that model cards are shown on paid/enterprise plans
+- Documented that empty state/"No AI models available" message appears on free/trial workspaces
+- Added clarification that model cards may not appear on first load for free/trial workspaces
 
-The fix adds a clear callout explaining:
-- What users see when accessing Workflows for the first time (empty state)
-- What action they should take (click "Create new workflow")
-- Why this is the starting point (to build their first automation pipeline)
+**Why this fixes the issue:**
+The QA test `Settings: AI Models has model cards` was failing because it expected model cards to always be present, but the actual UI conditionally displays either model cards OR an empty state depending on the workspace plan and configuration. The documentation now clearly explains this conditional behavior, setting correct expectations for different workspace types.
 
-## Files and Sections Modified
+## Files Modified
 
-- **File:** `docs/guide/workflows.md`
-- **Section:** "Browsing Your Workflows" (lines 30-50)
-- **Type:** Added info callout
-- **Lines added:** 3 lines (34-36)
+- `docs/guide/settings.md`
+  - Lines 54-56: Added UI Pattern info box for Workspace Name
+  - Line 60: Enhanced instruction wording
+  - Lines 110-116: Replaced and enhanced Model Card Display info box
 
-## Technical Details
+## Verified Against
 
-The change:
-1. Preserves existing VitePress formatting (using `:::` info callout syntax)
-2. Maintains the documentation style and tone
-3. Adds context before the existing "Once you've created workflows" text
-4. Uses consistent markdown formatting with the rest of the document
-5. Provides actionable guidance for new users
+- QA failure screenshot: `qa-failure-screenshots/failure-settings--general-form-has-workspace-name-field-desktop-1771215508111.png`
+- QA failure screenshot: `qa-failure-screenshots/failure-settings--ai-models-has-model-cards-desktop-1771215531625.png`
 
-This fix addresses the classification: `DOC_ISSUE` with confidence level 0.9, ensuring users understand the empty state experience in the Workflows section.
+## Resolution
+
+The documentation now accurately describes:
+1. The Edit button pattern for workspace name changes (not a direct input field)
+2. The conditional display of AI model cards based on workspace plan and configuration
+
+These changes align the documentation with the actual implemented UI patterns, preventing future QA test failures and setting correct user expectations.
