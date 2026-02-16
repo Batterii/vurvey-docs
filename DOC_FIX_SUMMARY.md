@@ -2,37 +2,45 @@
 
 ## What Was Changed
 
-Added documentation for the empty state when a workspace has no workflows yet.
+Updated the "Creating an Agent" section in `docs/guide/agents.md` (lines 153-162) to accurately describe the Generate Agent modal workflow.
 
-**Location:** `docs/guide/workflows.md` lines 34-36
+**Location:** `docs/guide/agents.md` lines 153-162
 
-**Change:** Inserted an info callout box explaining that new users will see an empty state with a "Create new workflow" button when they first access the Workflows page.
+**Change:** Replaced the description of a two-path modal approach with the actual UI structure: a Generate Agent modal containing three fields (Agent Name, Agent Objective, and Agent Type dropdown), followed by AI-powered agent generation and guided builder refinement.
 
 ## Why It Fixes the Issue
 
-The QA test "Workflow: Builder UI visible / Builder canvas loads / Upcoming runs page content" was failing because the documentation didn't address the initial empty state that users encounter in a new workspace.
+The QA test "Agents: Create UI visible" was failing because:
+- The test expected "Agent Builder" text, but the actual modal is titled **"Generate Agent"**
+- The documentation described an outdated modal structure with two paths ("Generate Agent" vs "Manual Configuration")
 
-The original documentation jumped directly into describing workflow cards in a grid layout, which assumes workflows already exist. This created a documentation gap for first-time users who would see an empty state instead.
+The actual UI workflow is:
+1. User clicks **+ Create Agent**
+2. A modal titled **"Generate Agent"** opens with three fields:
+   - **Agent Name** - text input for naming the agent
+   - **Agent Objective** - text input describing what the agent should do
+   - **Agent Type** - dropdown to select Assistant, Consumer Persona, Product, or Visual Generator
+3. User clicks **Generate** button to create the agent using AI
+4. The generated agent opens in the guided builder for review and refinement
 
-The fix adds a clear callout explaining:
-- What users see when accessing Workflows for the first time (empty state)
-- What action they should take (click "Create new workflow")
-- Why this is the starting point (to build their first automation pipeline)
+The fix ensures the documentation matches the actual UI implementation verified in the QA failure screenshot.
 
 ## Files and Sections Modified
 
-- **File:** `docs/guide/workflows.md`
-- **Section:** "Browsing Your Workflows" (lines 30-50)
-- **Type:** Added info callout
-- **Lines added:** 3 lines (34-36)
+- **File:** `docs/guide/agents.md`
+- **Section:** "Creating an Agent"
+- **Lines changed:** 155-162
+- **Classification:** DOC_ISSUE
+- **Confidence:** 0.95
+- **Verified against:** `qa-failure-screenshots/failure-agents--create-ui-visible-desktop-1771214851189.png`
 
 ## Technical Details
 
 The change:
-1. Preserves existing VitePress formatting (using `:::` info callout syntax)
-2. Maintains the documentation style and tone
-3. Adds context before the existing "Once you've created workflows" text
-4. Uses consistent markdown formatting with the rest of the document
-5. Provides actionable guidance for new users
+1. Maintains VitePress `:::` tip callout formatting
+2. Accurately describes the three-field modal structure
+3. Clarifies that AI generation happens first, then guided builder refinement
+4. Removes reference to a "Manual Configuration" path that doesn't exist in this modal
+5. Preserves the existing note about the Classic Builder (which remains valid)
 
-This fix addresses the classification: `DOC_ISSUE` with confidence level 0.9, ensuring users understand the empty state experience in the Workflows section.
+This fix addresses the QA test failure and ensures users understand the correct agent creation workflow starting with the Generate Agent modal.
