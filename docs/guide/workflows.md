@@ -35,8 +35,8 @@ Access **Workflows** from the main sidebar (look for the beta badge). The sectio
 
 ![Workflows Main](/screenshots/workflows/01-workflows-main.png)
 
-::: info Getting Started
-When you first access Workflows in a new workspace, you'll see an empty state with a **Create new workflow** button. This is your starting point — click it to build your first automation pipeline.
+::: info Empty State
+When you first access Workflows or when no workflows exist yet, you'll see an empty state message instead of the workflow grid. The workflow builder, canvas, and grid of workflow cards are not visible in this state — only the **Create new workflow** button appears in the top-right corner. This is normal and expected behavior for a workspace without any workflows.
 :::
 
 Once you've created workflows, they appear as cards in a grid layout. Each card shows:
@@ -47,10 +47,6 @@ Once you've created workflows, they appear as cards in a grid layout. Each card 
 - **Assigned agents** — avatar icons for up to 7 agents, with a "+N more" indicator if there are additional ones
 
 Use the **Search** bar to find workflows by name, and **Sort By** to change the display order.
-
-::: info Empty State
-When you first access Workflows or if no workflows have been created yet, you'll see an empty state. Click **Create new workflow** to build your first automation pipeline.
-:::
 
 ::: tip Naming Convention
 Use a consistent pattern like "[Project]-[Purpose]-[Version]" — for example, "Q4-Campaign-Analysis-v2." This makes it much easier to find workflows as your library grows.
@@ -541,6 +537,10 @@ Most well-designed workflows use **3–5 agents**. If you're using more than 7, 
 ![Upcoming Runs](/screenshots/workflows/03-upcoming-runs.png)
 
 The **Upcoming Runs** tab shows all scheduled workflow executions, organized by date. Each entry displays the workflow name, scheduled time, and current status.
+
+::: info Empty State
+When no workflows have schedules configured, the Upcoming Runs tab displays an empty state message. This is normal and expected — scheduled runs only appear here after you set up a schedule using the **Schedule** button on a workflow.
+:::
 
 Use the **Search** bar to filter by workflow name. Runs are grouped under date headers like "Today," "Tomorrow," and specific future dates.
 
