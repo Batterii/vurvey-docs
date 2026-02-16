@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-02-16T04:45:00Z",
+  "qa_test": "Agents: Create UI visible",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/agents.md",
+  "section": "Creating an Agent",
+  "change_summary": "Updated documentation to correctly describe the Generate Agent modal title and workflow. The modal is titled 'Generate Agent' (not 'Agent Builder'), and includes Agent Name, Agent Objective, and Agent Type dropdown fields. Clarified that users generate agents via AI first, then can refine them in the guided builder.",
+  "lines_changed": "155-162",
+  "verified_against": "qa-failure-screenshots/failure-agents--create-ui-visible-desktop-1771214851189.png",
+  "confidence": 0.95,
+  "issue": "QA test expected 'Agent Builder' text but modal title is 'Generate Agent'. Documentation described outdated modal structure.",
+  "resolution": "Updated docs to match actual UI: Generate Agent modal with AI-powered agent creation workflow"
+}

@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-02-16T04:48:00Z",
+  "qa_test": "Workflow: Builder UI visible / Workflow: Builder canvas loads / Workflow: Upcoming runs page content",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/workflows.md",
+  "section": "Browsing Your Workflows / Upcoming Runs",
+  "change_summary": "Clarified empty state behavior for Workflows section. When no workflows exist, the page shows an empty state with no grid, cards, builder, or canvas visible. Added explanation that 'Create new workflow' button appears in top-right corner. Also documented that Upcoming Runs tab shows empty state when no workflows have schedules, which is normal and expected.",
+  "lines_changed": "37-52, 541-547",
+  "verified_against": "qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png",
+  "confidence": 0.93,
+  "issue": "QA tests expected builder/canvas/upcoming runs content but saw empty states. Tests failed to recognize empty state as valid UI pattern.",
+  "resolution": "Updated docs to explicitly document empty state behavior as expected when no workflows or schedules exist"
+}

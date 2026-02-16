@@ -35,8 +35,13 @@ Access **Workflows** from the main sidebar (look for the beta badge). The sectio
 
 ![Workflows Main](/screenshots/workflows/01-workflows-main.png)
 
-::: info Getting Started
-When you first access Workflows in a new workspace, you'll see an empty state with a **Create new workflow** button. This is your starting point — click it to build your first automation pipeline.
+::: info Empty State — Getting Started
+When you first access the Workflows section in a new workspace or if no workflows have been created yet, you will see an **empty state page**. This page displays:
+- An empty message icon (typically a speech bubble or workflow graphic)
+- **No grid or cards visible**
+- **No builder UI, canvas, or table**
+
+This is expected behavior when there are no workflows yet. The page successfully loads, but shows an empty state rather than an empty list. To create your first workflow, look for the **"Create new workflow"** button or a "+" icon in the top-right corner of the Workflows page header.
 :::
 
 Once you've created workflows, they appear as cards in a grid layout. Each card shows:
@@ -47,10 +52,6 @@ Once you've created workflows, they appear as cards in a grid layout. Each card 
 - **Assigned agents** — avatar icons for up to 7 agents, with a "+N more" indicator if there are additional ones
 
 Use the **Search** bar to find workflows by name, and **Sort By** to change the display order.
-
-::: info Empty State
-When you first access Workflows or if no workflows have been created yet, you'll see an empty state. Click **Create new workflow** to build your first automation pipeline.
-:::
 
 ::: tip Naming Convention
 Use a consistent pattern like "[Project]-[Purpose]-[Version]" — for example, "Q4-Campaign-Analysis-v2." This makes it much easier to find workflows as your library grows.
@@ -541,6 +542,10 @@ Most well-designed workflows use **3–5 agents**. If you're using more than 7, 
 ![Upcoming Runs](/screenshots/workflows/03-upcoming-runs.png)
 
 The **Upcoming Runs** tab shows all scheduled workflow executions, organized by date. Each entry displays the workflow name, scheduled time, and current status.
+
+::: info Empty State
+If no workflows have scheduled runs, the Upcoming Runs tab will show an empty state. This is normal — it simply means none of your workflows currently have active schedules. Once you set up a schedule for a workflow, upcoming runs will appear here.
+:::
 
 Use the **Search** bar to filter by workflow name. Runs are grouped under date headers like "Today," "Tomorrow," and specific future dates.
 

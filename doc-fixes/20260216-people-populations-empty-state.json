@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-02-16T04:46:00Z",
+  "qa_test": "People: Page content present / People: Populations route loads",
+  "classification": "DOC_ISSUE",
+  "doc_file": "docs/guide/people.md",
+  "section": "Populations",
+  "change_summary": "Significantly expanded documentation of Populations feature empty state. Clarified that the 'Stay tuned! We're working on unveiling the new populations feature in your workspace' message is expected and intentional for workspaces where the feature hasn't been enabled. The page loads successfully but shows an empty state, not an error. Added detailed explanation of routes /audience and /people/populations behavior.",
+  "lines_changed": "38-49",
+  "verified_against": "qa-failure-screenshots/failure-people--page-content-present-desktop-1771214960763.png",
+  "confidence": 0.98,
+  "issue": "QA test expected table/grid/cards but page shows feature flag empty state message. Test incorrectly flagged this as a code bug when it's expected behavior.",
+  "resolution": "Updated docs to clearly state empty state is expected and intentional until feature is enabled for workspace"
+}
