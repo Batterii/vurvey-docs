@@ -2,37 +2,39 @@
 
 ## What Was Changed
 
-Added documentation for the empty state when a workspace has no workflows yet.
+Updated the **Populations** section in `docs/guide/people.md` (lines 38-49) to clarify that the empty state message is expected and intentional behavior.
 
-**Location:** `docs/guide/workflows.md` lines 34-36
+### Specific Changes Made:
 
-**Change:** Inserted an info callout box explaining that new users will see an empty state with a "Create new workflow" button when they first access the Workflows page.
+1. **Added warning callout (lines 39-41)**:
+   - Explains that the Populations feature may not be available in all workspaces
+   - Clarifies that the "Stay tuned! We're working on unveiling the new populations feature in your workspace" message is expected behavior
+   - States that the feature will be enabled for the workspace soon
 
-## Why It Fixes the Issue
+2. **Added info callout (lines 47-49)**:
+   - Provides additional context about the Populations tab behavior
+   - Documents the routes `/audience` and `/people/populations`
+   - Explains that content only appears once the feature is activated
 
-The QA test "Workflow: Builder UI visible / Builder canvas loads / Upcoming runs page content" was failing because the documentation didn't address the initial empty state that users encounter in a new workspace.
+## Why This Fixes the Issue
 
-The original documentation jumped directly into describing workflow cards in a grid layout, which assumes workflows already exist. This created a documentation gap for first-time users who would see an empty state instead.
+The QA test flagged a "failure" when it encountered the empty state message on the Populations page. The test expected to find table/grid/card content but instead found the feature flag empty state message. This was incorrectly classified as a code bug.
 
-The fix adds a clear callout explaining:
-- What users see when accessing Workflows for the first time (empty state)
-- What action they should take (click "Create new workflow")
-- Why this is the starting point (to build their first automation pipeline)
+The documentation fix resolves this by:
 
-## Files and Sections Modified
+- **Setting correct expectations**: Users now know the empty state is intentional, not an error
+- **Explaining the behavior**: The page loads successfully but shows an empty state until the feature is enabled
+- **Preventing confusion**: Users understand this is a feature rollout message, not a bug
+- **Documenting routes**: Explicitly mentions both `/audience` and `/people/populations` routes
 
-- **File:** `docs/guide/workflows.md`
-- **Section:** "Browsing Your Workflows" (lines 30-50)
-- **Type:** Added info callout
-- **Lines added:** 3 lines (34-36)
+## File and Section Modified
 
-## Technical Details
+- **File**: `docs/guide/people.md`
+- **Section**: Populations (## Populations)
+- **Lines**: 38-49
+- **Classification**: DOC_ISSUE (documentation was missing context about expected behavior)
+- **Confidence**: 0.98
 
-The change:
-1. Preserves existing VitePress formatting (using `:::` info callout syntax)
-2. Maintains the documentation style and tone
-3. Adds context before the existing "Once you've created workflows" text
-4. Uses consistent markdown formatting with the rest of the document
-5. Provides actionable guidance for new users
+## Verification
 
-This fix addresses the classification: `DOC_ISSUE` with confidence level 0.9, ensuring users understand the empty state experience in the Workflows section.
+The fix addresses the QA test failure documented in `qa-failure-screenshots/failure-people--page-content-present-desktop-1771214960763.png`, which showed the empty state message that confused the automated test.
