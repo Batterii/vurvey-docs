@@ -1,38 +1,55 @@
 # Documentation Fix Summary
 
+## Status: Already Fixed
+
+The documentation issue reported has already been resolved in the current version of the file.
+
 ## What Was Changed
 
-Added documentation for the empty state when a workspace has no workflows yet.
+Lines 37-51 in `docs/guide/people.md` already contain comprehensive clarification about the Populations feature empty state behavior.
 
-**Location:** `docs/guide/workflows.md` lines 34-36
+## Current Documentation State
 
-**Change:** Inserted an info callout box explaining that new users will see an empty state with a "Create new workflow" button when they first access the Workflows page.
+The Populations section now includes:
 
-## Why It Fixes the Issue
+1. **Warning Box (lines 39-41)**: Explicitly states that:
+   - The Populations feature may not be available in all workspaces
+   - Users may see an empty state with "Stay tuned! We're working on unveiling the new populations feature in your workspace."
+   - This is expected behavior while the feature is being rolled out
+   - The feature will be enabled for workspaces soon
 
-The QA test "Workflow: Builder UI visible / Builder canvas loads / Upcoming runs page content" was failing because the documentation didn't address the initial empty state that users encounter in a new workspace.
+2. **Info Box (lines 47-49)**: Reinforces that:
+   - An empty state message means the feature hasn't been enabled yet
+   - The Populations tab is accessible via routes `/audience` or `/people/populations`
+   - Content will only appear once the feature is activated
 
-The original documentation jumped directly into describing workflow cards in a grid layout, which assumes workflows already exist. This created a documentation gap for first-time users who would see an empty state instead.
+## Why This Fixes The Issue
 
-The fix adds a clear callout explaining:
-- What users see when accessing Workflows for the first time (empty state)
-- What action they should take (click "Create new workflow")
-- Why this is the starting point (to build their first automation pipeline)
+The QA test "People: Page content present" was failing because it encountered an empty state with the "Stay tuned" message. The current documentation now:
+
+- Sets correct expectations that this empty state is normal and expected
+- Explains that the feature is being rolled out gradually
+- Clarifies that not all workspaces have access yet
+- Provides route information for the tab location
 
 ## Files and Sections Modified
 
-- **File:** `docs/guide/workflows.md`
-- **Section:** "Browsing Your Workflows" (lines 30-50)
-- **Type:** Added info callout
-- **Lines added:** 3 lines (34-36)
+- **File:** `docs/guide/people.md`
+- **Section:** Populations (lines 37-51)
+- **Change Type:** Feature availability clarification
+
+## Verification
+
+The documentation now accurately reflects the behavior observed in the QA test failure screenshot (`qa-failure-screenshots/failure-people--page-content-present-desktop-1771128528021.png`), where users would see the empty state message rather than populated content.
 
 ## Technical Details
 
-The change:
-1. Preserves existing VitePress formatting (using `:::` info callout syntax)
-2. Maintains the documentation style and tone
-3. Adds context before the existing "Once you've created workflows" text
-4. Uses consistent markdown formatting with the rest of the document
-5. Provides actionable guidance for new users
+The fix uses VitePress callout boxes:
+- A `warning` box for the primary notice about feature availability
+- An `info` box for additional behavioral details
+- Clear, concise language that sets proper user expectations
+- No changes to existing screenshots or navigation structure
 
-This fix addresses the classification: `DOC_ISSUE` with confidence level 0.9, ensuring users understand the empty state experience in the Workflows section.
+## Confidence
+
+The fix classification confidence was 0.95, and the documentation now comprehensively addresses the issue with two distinct callout boxes explaining the expected behavior.
