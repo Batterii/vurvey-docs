@@ -13,6 +13,7 @@
     "test:qa": "node scripts/qa-test-suite.js",
     "test:qa:headed": "HEADLESS=false node scripts/qa-test-suite.js",
     "test:qa:analyze": "node scripts/qa-failure-analyzer.js",
+    "test:qa:web-manager-playwright": "bash scripts/run-web-manager-playwright-smoke.sh",
     "pipeline": "bash scripts/run-local-pipeline.sh",
     "pipeline:quick": "bash scripts/run-local-pipeline.sh --skip-screenshots --quick",
     "pipeline:analyze-only": "bash scripts/run-local-pipeline.sh --skip-screenshots --skip-qa --skip-remediate",

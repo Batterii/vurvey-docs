@@ -101,6 +101,18 @@ jobs:
           npm run test:qa -- --deep || echo "QA tests completed with some failures"
         continue-on-error: true
 
+      - name: Run web-manager Playwright smoke tests
+        env:
+          VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
+          VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
+          VURVEY_URL: ${{ env.VURVEY_URL }}
+          QA_WEB_MANAGER_DIR: 'vurvey-web-manager'
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "Running web-manager Playwright smoke tests..."
+          npm run test:qa:web-manager-playwright || echo "web-manager Playwright smoke tests completed with some failures"
+        continue-on-error: true
+
       - name: Analyze QA failures
         id: analyze_qa
         continue-on-error: true
@@ -315,6 +327,8 @@ jobs:
           cp qa-output/qa-analysis-input.json /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-analysis-input.json"
           cp qa-output/qa-failure-analysis.md /tmp/qa-artifacts/ 2>/dev/null || echo "No qa-failure-analysis.md"
           cp qa-output/test-fixes-needed.md /tmp/qa-artifacts/ 2>/dev/null || echo "No test-fixes-needed.md"
+          cp -r vurvey-web-manager/test-results /tmp/qa-artifacts/ 2>/dev/null || echo "No web-manager test-results"
+          cp -r vurvey-web-manager/playwright-report /tmp/qa-artifacts/ 2>/dev/null || echo "No web-manager playwright-report"
           ls -laR /tmp/qa-artifacts/
 
       - name: Upload analysis artifacts

@@ -95,6 +95,13 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      - name: Checkout vurvey-web-manager (for Playwright QA smoke tests)
+        uses: actions/checkout@v4
+        with:
+          repository: batterii/vurvey-web-manager
+          path: vurvey-web-manager
+          token: ${{ secrets.VURVEY_REPO_TOKEN }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -115,7 +122,18 @@ jobs:
           VURVEY_URL: https://staging.vurvey.dev
           HEADLESS: 'true'
           QA_DEEP: 'true'
+          QA_WEB_MANAGER_DIR: vurvey-web-manager
         run: npm run test:qa -- --deep
+        continue-on-error: true
+
+      - name: Run web-manager Playwright smoke tests
+        env:
+          VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
+          VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
+          VURVEY_URL: https://staging.vurvey.dev
+          QA_WEB_MANAGER_DIR: vurvey-web-manager
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm run test:qa:web-manager-playwright
         continue-on-error: true
 
       - name: Upload QA artifacts
@@ -126,6 +144,8 @@ jobs:
           path: |
             qa-output/
             qa-failure-screenshots/
+            vurvey-web-manager/test-results/
+            vurvey-web-manager/playwright-report/
           retention-days: 7
 
   remediate:

@@ -1107,17 +1107,10 @@ async function testSectionEntryPoints(page, workspaceId) {
   }
   await recordTest("Campaigns: Buttons present", await elementExists(page, "button"), "Create UI varies; ensuring at least buttons exist", {selector: "button"});
   if (!config.quick) {
-    const opened =
-      (await clickByText(page, {text: "create campaign"}, {timeout: 3000})) ||
-      (await clickByText(page, {text: "create"}, {timeout: 3000})) ||
-      false;
-    await recordTest("Campaigns: Create flow opens", opened, opened ? "Clicked create" : "Could not click create", {selector: "text:create"});
-    if (opened) {
-      const hasDialog = await elementExists(page, '[role="dialog"], [class*="modal" i], [class*="drawer" i]', 6000);
-      await recordTest("Campaigns: Create UI visible", hasDialog, hasDialog ? "Dialog detected" : "No dialog detected", {selector: "dialog/modal"});
-      await page.keyboard.press("Escape").catch(() => {});
-      await wait(500);
-    }
+    const hasCreateButton =
+      (await elementExists(page, '[data-testid="create-campaign-button"]', 4000)) ||
+      (await clickByText(page, {selector: "button, [role=\"button\"]", text: "create campaign"}, {timeout: 1200}));
+    await recordTest("Campaigns: Create button visible", hasCreateButton, hasCreateButton ? "Create campaign button detected" : "Create campaign button not found", {selector: "data-testid:create-campaign-button"});
 
     for (const r of ["/campaigns/templates", "/campaigns/usage", "/campaigns/magic-reels"]) {
       const nav = await gotoWorkspaceRoute(page, workspaceId, r);
@@ -1191,36 +1184,30 @@ async function testSectionEntryPoints(page, workspaceId) {
     (await page.evaluate(() => (document.body?.innerText || "").toLowerCase().includes("workflow")));
   await recordTest("Workflow: Flows page loads", hasWorkflowShell, hasWorkflowShell ? "Workflow flows UI detected" : "Workflow flows UI not detected", {selector: "tablist/flow/card/button or text:workflow"});
   if (!config.quick) {
-    // The builder is usually under /workflow/flows; try to open a create/builder UI.
-    let opened =
-      (await clickByText(page, {text: "create flow"}, {timeout: 2500})) ||
-      (await clickByText(page, {text: "new flow"}, {timeout: 2500})) ||
-      (await clickByText(page, {text: "create"}, {timeout: 2500})) ||
-      (await clickByText(page, {text: "new"}, {timeout: 2500})) ||
-      false;
-
-    // Fallback: open first existing flow card/row if create isn't available.
-    let openedVia = opened ? "create/new" : "existing flow";
-    if (!opened) {
-      opened = await page.evaluate(() => {
-        const candidates = [
-          ...Array.from(document.querySelectorAll("a[href*='/workflow/'], a[href*='/flows/']")),
-          ...Array.from(document.querySelectorAll("[class*='card' i], [role='row']")),
-        ];
-        const isVisible = (el) => {
-          const st = window.getComputedStyle(el);
-          if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
-          const r = el.getBoundingClientRect();
-          return r.width > 0 && r.height > 0;
-        };
-        const el = candidates.find(isVisible);
-        if (!el) return false;
-        el.click();
-        return true;
+    // Prefer non-mutating interaction: open an existing flow card only.
+    const opened = await page.evaluate(() => {
+      const candidates = [
+        ...Array.from(document.querySelectorAll("a[href*='/workflow/'], a[href*='/flows/']")),
+        ...Array.from(document.querySelectorAll("[data-testid='workflow-card'], [class*='workflowCard' i], [class*='card' i], [role='row']")),
+      ];
+      const skip = ["/flows", "/templates", "/upcoming", "/conversations"];
+      const isVisible = (el) => {
+        const st = window.getComputedStyle(el);
+        if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      };
+      const el = candidates.find((candidate) => {
+        if (!isVisible(candidate)) return false;
+        const href = (candidate.getAttribute("href") || "").toLowerCase();
+        return !skip.some((s) => href.endsWith(s));
       });
-    }
+      if (!el) return false;
+      el.click();
+      return true;
+    });
 
-    await recordTest("Workflow: Builder entrypoint opens", opened, opened ? `Opened via ${openedVia}` : "Could not open builder via create or existing flow", {selector: "text:create/new or first flow card"});
+    await recordTest("Workflow: Builder entrypoint opens", opened, opened ? "Opened existing workflow" : "No existing workflow cards found (skipped non-mutating open)", {selector: "existing workflow card"});
     if (opened) {
       const hasBuilder = await elementExists(page, '[class*="canvas" i], [class*="builder" i], [class*="reactflow" i], [role="dialog"], [class*="modal" i]', 12000);
       await recordTest("Workflow: Builder UI visible", hasBuilder, hasBuilder ? "Builder detected" : "No builder detected", {selector: "canvas/builder"});
@@ -2508,51 +2495,403 @@ async function testCampaignDeep(page, workspaceId) {
       });
 
       if (hasTemplateContent) {
-        // Try clicking "Use Template" button or a template card
-        let templateInteracted = await clickByText(
-          page,
-          {selector: '[data-testid="use-template-button"], button, [role="button"]', text: "use template"},
-          {timeout: 4000},
-        );
-
-        if (!templateInteracted) {
-          // Fallback: click a template card directly
-          templateInteracted = await page.evaluate(() => {
-            const cards = Array.from(
-              document.querySelectorAll('[class*="template" i][class*="card" i], [data-testid*="template" i]'),
-            );
-            const isVisible = (el) => {
-              if (!el) return false;
-              const st = window.getComputedStyle(el);
-              if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
-              const r = el.getBoundingClientRect();
-              return r.width > 0 && r.height > 0;
-            };
-            const el = cards.find(isVisible);
-            if (!el) return false;
-            el.click();
-            return true;
-          });
-        }
-
-        await recordTest("Campaign Deep: Template interaction", templateInteracted, templateInteracted ? "Template card/button clicked" : "Could not interact with template", {
+        const hasUseTemplateButton = await elementExists(page, '[data-testid="use-template-button"], button', 4000);
+        await recordTest("Campaign Deep: Template action controls present", hasUseTemplateButton, hasUseTemplateButton ? "Template action controls detected" : "No template action controls detected", {
           selector: '[data-testid="use-template-button"]',
         });
+      }
+    }
+  }
+}
 
-        if (templateInteracted) {
+function qaResourceName(kind) {
+  const ts = Date.now().toString(36);
+  const rand = Math.random().toString(36).slice(2, 7);
+  return `QA-AUTO-${kind.toUpperCase()}-${ts}-${rand}`;
+}
+
+async function testResourceLifecycleCleanup(page, workspaceId) {
+  if (config.quick) return;
+  currentSection = "Resource Cleanup";
+
+  const warnCleanup = (resource, details) => {
+    recordWarning(`Cleanup: ${resource}`, details);
+  };
+
+  // Dataset create -> delete
+  {
+    const datasetName = qaResourceName("dataset");
+    const nav = await gotoWorkspaceRoute(page, workspaceId, "/datasets");
+    if (!nav.ok) {
+      warnCleanup("Dataset lifecycle", nav.error || "Could not navigate");
+    } else {
+      const openCreate =
+        (await elementExists(page, '[data-testid="create-dataset-button"]', 3000) &&
+          (await page.evaluate(() => {
+            const b = document.querySelector('[data-testid="create-dataset-button"]');
+            if (!b) return false;
+            b.click();
+            return true;
+          }))) ||
+        (await clickByText(page, {text: "create dataset"}, {timeout: 2500}));
+      if (!openCreate) {
+        warnCleanup("Dataset create flow", "Create dataset action unavailable; skipping dataset lifecycle cleanup");
+      } else {
+        const hasNameInput = await elementExists(page, '[data-testid="dataset-name-input"]', 7000);
+        const hasDescInput = await elementExists(page, '[data-testid="dataset-description-input"]', 3000);
+        if (!hasNameInput) {
+          warnCleanup("Dataset create form", "Dataset name field not found; skipping dataset cleanup");
+        } else if (!hasDescInput) {
+          warnCleanup("Dataset create form", "Dataset description field not found; continuing with name-only create");
+        }
+
+        if (hasNameInput) {
+          await page.click('[data-testid="dataset-name-input"]', {clickCount: 3}).catch(() => {});
+          await page.type('[data-testid="dataset-name-input"]', datasetName, {delay: 12}).catch(() => {});
+        }
+        if (hasDescInput) {
+          await page.click('[data-testid="dataset-description-input"]', {clickCount: 3}).catch(() => {});
+          await page.type('[data-testid="dataset-description-input"]', "QA automation cleanup test dataset", {delay: 10}).catch(() => {});
+        }
+
+        const submitCreate = hasNameInput
+          ? await page.evaluate(() => {
+            const btn = document.querySelector('[data-testid="create-dataset-submit-button"]');
+            if (!btn) return false;
+            const st = window.getComputedStyle(btn);
+            if (st.display === "none" || st.visibility === "hidden" || st.opacity === "0") return false;
+            btn.click();
+            return true;
+          })
+          : false;
+        if (!submitCreate) {
+          warnCleanup("Dataset create submit", `Could not submit '${datasetName}'; skipping delete assertion`);
+        }
+
+        if (submitCreate) {
+          await waitForNetworkIdle(page, 12000);
+          await waitForLoadersGone(page, 12000);
+
+          const backBtnExists = await elementExists(page, '[data-testid="back-to-datasets"]', 3000);
+          if (backBtnExists) {
+            await page.click('[data-testid="back-to-datasets"]').catch(() => {});
+            await waitForNetworkIdle(page, 8000);
+            await waitForLoadersGone(page, 8000);
+          } else {
+            await gotoWorkspaceRoute(page, workspaceId, "/datasets");
+          }
+
+          const searchSel = (await elementExists(page, '[data-testid="datasets-search-input"]', 3000))
+            ? '[data-testid="datasets-search-input"]'
+            : 'input[type="search"], input[placeholder*="search" i]';
+
+          const typedSearch = await typeIntoFirst(page, [searchSel], datasetName);
           await wait(1000);
-          await waitForNetworkIdle(page, 5000);
-          const hasCreationFlow =
-            (await elementExists(page, '[role="dialog"], [class*="modal" i], [class*="drawer" i]', 5000)) ||
-            (await pageTextIncludes(page, "create")) ||
-            (await pageTextIncludes(page, "use template"));
+          await waitForLoadersGone(page, 5000);
 
-          await recordTest("Campaign Deep: Template triggers creation flow", hasCreationFlow, hasCreationFlow ? "Creation flow detected" : "No creation flow detected", {
-            selector: "dialog/modal",
-          });
+          const foundCard = await page.evaluate((name) => {
+            const cards = Array.from(document.querySelectorAll('[data-testid="dataset-card"], [class*="datasetCard" i], [class*="trainingSet" i]'));
+            return cards.some((c) => (c.textContent || "").includes(name));
+          }, datasetName);
+          if (!foundCard) {
+            warnCleanup("Dataset discovery", `Created dataset '${datasetName}' not found in list; skipping delete assertion`);
+          } else {
+            let deleted = false;
+            const menuOpened = await page.evaluate(() => {
+              const menu = document.querySelector('[data-testid="dataset-card-menu"]');
+              if (!menu) return false;
+              menu.click();
+              return true;
+            });
+            if (menuOpened) {
+              await wait(300);
+              deleted = await page.evaluate(() => {
+                const del = document.querySelector('[data-testid="delete-dataset-option"]');
+                if (!del) return false;
+                del.click();
+                return true;
+              });
+              if (deleted) {
+                await waitForNetworkIdle(page, 12000);
+                await waitForLoadersGone(page, 12000);
+              }
+            }
 
-          await page.keyboard.press("Escape").catch(() => {});
-          await wait(500);
+            await recordTest("Cleanup: Dataset delete action", deleted, deleted ? `Delete initiated for '${datasetName}'` : `Could not trigger delete for '${datasetName}'`, {
+              selector: "dataset-card-menu/delete-dataset-option",
+            });
+
+            if (typedSearch) {
+              await typeIntoFirst(page, [searchSel], datasetName);
+              await wait(900);
+            }
+            const stillPresent = await page.evaluate((name) => {
+              const cards = Array.from(document.querySelectorAll('[data-testid="dataset-card"], [class*="datasetCard" i], [class*="trainingSet" i]'));
+              return cards.some((c) => (c.textContent || "").includes(name));
+            }, datasetName);
+            await recordTest("Cleanup: Dataset removed", !stillPresent, !stillPresent ? "Dataset no longer visible" : "Dataset still visible after delete", {
+              selector: "dataset-card",
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Workflow create -> delete
+  {
+    const workflowName = qaResourceName("workflow");
+    const nav = await gotoWorkspaceRoute(page, workspaceId, "/workflow/flows");
+    if (!nav.ok) {
+      warnCleanup("Workflow lifecycle", nav.error || "Could not navigate");
+    } else {
+      const openCreate =
+        (await elementExists(page, '[data-testid="create-workflow-button"]', 3000) && await page.evaluate(() => {
+          const b = document.querySelector('[data-testid="create-workflow-button"]');
+          if (!b) return false;
+          b.click();
+          return true;
+        })) ||
+        (await clickByText(page, {text: "create workflow"}, {timeout: 2500}));
+
+      if (!openCreate) {
+        warnCleanup("Workflow create flow", "Create workflow action unavailable; skipping workflow lifecycle cleanup");
+      }
+
+      if (openCreate) {
+        const hasNameInput = await elementExists(page, '[data-testid="workflow-name-input"]', 6000);
+        const hasObjInput = await elementExists(page, '[data-testid="workflow-objective-input"]', 4000);
+        if (!hasNameInput || !hasObjInput) {
+          warnCleanup("Workflow create form", "Workflow create fields not fully available; skipping workflow cleanup");
+        }
+
+        if (hasNameInput) {
+          await page.click('[data-testid="workflow-name-input"]', {clickCount: 3}).catch(() => {});
+          await page.type('[data-testid="workflow-name-input"]', workflowName, {delay: 12}).catch(() => {});
+        }
+        if (hasObjInput) {
+          await page.click('[data-testid="workflow-objective-input"]', {clickCount: 3}).catch(() => {});
+          await page.type('[data-testid="workflow-objective-input"]', "QA automation cleanup workflow objective", {delay: 8}).catch(() => {});
+        }
+
+        const submitted = (hasNameInput && hasObjInput)
+          ? await page.evaluate(() => {
+            const btn = document.querySelector('[data-testid="create-workflow-submit-button"]');
+            if (!btn) return false;
+            btn.click();
+            return true;
+          })
+          : false;
+        if (!submitted) {
+          warnCleanup("Workflow create submit", `Could not submit '${workflowName}'; skipping delete assertion`);
+        }
+
+        if (submitted) {
+          await waitForNetworkIdle(page, 12000);
+          await waitForLoadersGone(page, 12000);
+
+          const clickedBack =
+            (await page.evaluate(() => {
+              const back = document.querySelector('[data-testid="workflow-back-button"]');
+              if (!back) return false;
+              back.click();
+              return true;
+            })) ||
+            (await clickByText(page, {selector: '[data-testid="workflow-back-button"], button, [role="button"]', text: "back"}, {timeout: 2000}));
+
+          if (!clickedBack) {
+            warnCleanup("Workflow post-create navigation", "Could not click workflow back button; using direct route navigation");
+          }
+
+          await waitForNetworkIdle(page, 8000);
+          await waitForLoadersGone(page, 8000);
+          if (!(await currentPathname(page)).includes("/workflow/flows")) {
+            await gotoWorkspaceRoute(page, workspaceId, "/workflow/flows");
+          }
+
+          const searchSel = '[data-testid="workflows-search-input"]';
+          const typed = await typeIntoFirst(page, [searchSel, 'input[type="search"], input[placeholder*="search" i]'], workflowName);
+          await wait(900);
+          await waitForLoadersGone(page, 5000);
+          const found = await page.evaluate((name) => {
+            const cards = Array.from(document.querySelectorAll('[data-testid="workflow-card"], [class*="workflowCard" i], [class*="card" i]'));
+            return cards.some((c) => (c.textContent || "").includes(name));
+          }, workflowName);
+          if (!found) {
+            warnCleanup("Workflow discovery", `Created workflow '${workflowName}' not found in list; skipping delete assertion`);
+          } else {
+            let deleted = false;
+            const menuOpened = await page.evaluate(() => {
+              const menu = document.querySelector('[data-testid="workflow-card-menu-trigger"]');
+              if (!menu) return false;
+              menu.click();
+              return true;
+            });
+            if (menuOpened) {
+              await wait(300);
+              const clickDelete = await page.evaluate(() => {
+                const del = document.querySelector('[data-testid="workflow-card-delete-button"]');
+                if (!del) return false;
+                del.click();
+                return true;
+              });
+              if (clickDelete) {
+                await wait(300);
+                const confirmDelete = await page.evaluate(() => {
+                  const btn = document.querySelector('[data-testid="workflow-confirm-delete-button"]');
+                  if (!btn) return false;
+                  btn.click();
+                  return true;
+                });
+                deleted = Boolean(confirmDelete);
+                if (deleted) {
+                  await waitForNetworkIdle(page, 12000);
+                  await waitForLoadersGone(page, 12000);
+                }
+              }
+            }
+
+            await recordTest("Cleanup: Workflow delete action", deleted, deleted ? `Delete initiated for '${workflowName}'` : `Could not trigger delete for '${workflowName}'`, {
+              selector: "workflow-card-menu-trigger/workflow-card-delete-button",
+            });
+
+            if (typed) {
+              await typeIntoFirst(page, [searchSel, 'input[type="search"], input[placeholder*="search" i]'], workflowName);
+              await wait(900);
+            }
+            const stillPresent = await page.evaluate((name) => {
+              const cards = Array.from(document.querySelectorAll('[data-testid="workflow-card"], [class*="workflowCard" i], [class*="card" i]'));
+              return cards.some((c) => (c.textContent || "").includes(name));
+            }, workflowName);
+            await recordTest("Cleanup: Workflow removed", !stillPresent, !stillPresent ? "Workflow no longer visible" : "Workflow still visible after delete", {
+              selector: "workflow-card",
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Campaign create -> delete
+  {
+    const campaignName = qaResourceName("campaign");
+    const nav = await gotoWorkspaceRoute(page, workspaceId, "/campaigns");
+    if (!nav.ok) {
+      warnCleanup("Campaign lifecycle", nav.error || "Could not navigate");
+    } else {
+      const openCreate =
+        (await elementExists(page, '[data-testid="create-campaign-button"]', 4000) && await page.evaluate(() => {
+          const b = document.querySelector('[data-testid="create-campaign-button"]');
+          if (!b) return false;
+          b.click();
+          return true;
+        })) ||
+        (await clickByText(page, {text: "create campaign"}, {timeout: 2500}));
+
+      if (!openCreate) {
+        warnCleanup("Campaign create flow", "Create campaign action unavailable; skipping campaign lifecycle cleanup");
+      }
+
+      if (openCreate) {
+        const hasNameInput = await elementExists(page, '[data-testid="campaign-name-input"]', 10000);
+        if (!hasNameInput) {
+          warnCleanup("Campaign create form", "Campaign name field not found; skipping campaign cleanup");
+        } else {
+          await page.click('[data-testid="campaign-name-input"]', {clickCount: 3}).catch(() => {});
+          await page.type('[data-testid="campaign-name-input"]', campaignName, {delay: 12}).catch(() => {});
+          await wait(900);
+          const clickedBack =
+            (await page.evaluate(() => {
+              const back = document.querySelector('[data-testid="campaign-back-button"]');
+              if (!back) return false;
+              back.click();
+              return true;
+            })) ||
+            (await clickByText(page, {selector: '[data-testid="campaign-back-button"], button, [role="button"]', text: "back"}, {timeout: 5000}));
+
+          if (!clickedBack) {
+            warnCleanup("Campaign post-create navigation", "Could not click campaign back button; using direct route navigation");
+          }
+
+          await waitForNetworkIdle(page, 10000);
+          await waitForLoadersGone(page, 10000);
+          if (!(await currentPathname(page)).includes("/campaigns")) {
+            await gotoWorkspaceRoute(page, workspaceId, "/campaigns");
+          }
+
+          const searchSel = (await elementExists(page, '[data-testid="search-campaigns-input"]', 3000))
+            ? '[data-testid="search-campaigns-input"]'
+            : 'input[type="search"], input[placeholder*="search" i]';
+          const typed = await typeIntoFirst(page, [searchSel], campaignName);
+          await wait(900);
+          await waitForLoadersGone(page, 5000);
+
+          const found = await page.evaluate((name) => {
+            const cards = Array.from(document.querySelectorAll('[data-testid="campaign-card"], [class*="campaignCard" i], [class*="card" i]'));
+            return cards.some((c) => (c.textContent || "").includes(name));
+          }, campaignName);
+          if (!found) {
+            warnCleanup("Campaign discovery", `Created campaign '${campaignName}' not found in list; skipping delete assertion`);
+          } else {
+            let deleted = false;
+            const menuOpened = await page.evaluate(() => {
+              const menu = document.querySelector('[data-testid="campaign-options-button"]');
+              if (!menu) return false;
+              menu.click();
+              return true;
+            });
+
+            if (menuOpened) {
+              await wait(300);
+              const deleteClicked = await page.evaluate(() => {
+                const del = document.querySelector('[data-testid="campaign-delete-button"]');
+                if (!del) return false;
+                del.click();
+                return true;
+              });
+              if (deleteClicked) {
+                await wait(300);
+
+                const typedName =
+                  (await typeIntoFirst(page, ['[data-testid="delete-survey-input"]'], campaignName)) !== null ||
+                  (await page.evaluate((name) => {
+                    const input = document.querySelector('[data-testid="delete-survey-input"]');
+                    if (!input) return false;
+                    input.value = name;
+                    input.dispatchEvent(new Event("input", {bubbles: true}));
+                    return true;
+                  }, campaignName));
+
+                const confirmDelete = await page.evaluate(() => {
+                  const btn = document.querySelector('[data-testid="delete-survey-button"]');
+                  if (!btn) return false;
+                  btn.click();
+                  return true;
+                });
+                deleted = Boolean(typedName && confirmDelete);
+                if (deleted) {
+                  await waitForNetworkIdle(page, 12000);
+                  await waitForLoadersGone(page, 12000);
+                }
+              }
+            }
+
+            await recordTest("Cleanup: Campaign delete action", deleted, deleted ? `Delete initiated for '${campaignName}'` : `Could not trigger delete for '${campaignName}'`, {
+              selector: "campaign-options-button/campaign-delete-button",
+            });
+
+            if (typed) {
+              await typeIntoFirst(page, [searchSel], campaignName);
+              await wait(900);
+            }
+            const stillPresent = await page.evaluate((name) => {
+              const cards = Array.from(document.querySelectorAll('[data-testid="campaign-card"], [class*="campaignCard" i], [class*="card" i]'));
+              return cards.some((c) => (c.textContent || "").includes(name));
+            }, campaignName);
+            await recordTest("Cleanup: Campaign removed", !stillPresent, !stillPresent ? "Campaign no longer visible" : "Campaign still visible after delete", {
+              selector: "campaign-card",
+            });
+          }
         }
       }
     }
@@ -3116,6 +3455,7 @@ async function main() {
       ["Integrations", testIntegrations],
       ["Admin", testAdmin],
       ["Campaign Deep", testCampaignDeep],
+      ["Resource Cleanup", testResourceLifecycleCleanup],
     ];
     for (const [name, fn] of newDomainTests) {
       try {
