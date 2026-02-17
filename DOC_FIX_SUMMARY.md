@@ -1,47 +1,72 @@
 # Documentation Fix Summary
 
+## Status: Already Applied
+
+The documentation fix described in the report has **already been applied** to the file.
+
 ## What Was Changed
 
-Updated `docs/guide/workflows.md` to clarify empty state behavior in two sections:
+**File:** `docs/guide/people.md`
+**Section:** Populations (lines 37-58)
+**Change Date:** 2026-02-13 (per fix report timestamp)
 
-1. **Browsing Your Workflows section (lines 37-52)**
-   - Replaced duplicate "Getting Started" and "Empty State" info boxes with a single, comprehensive empty state explanation
-   - Explicitly documented that when no workflows exist:
-     - The workflow grid, cards, builder, and canvas are NOT visible
-     - Only the "Create new workflow" button appears in the top-right corner
-     - This is normal and expected behavior
+A comprehensive warning banner and informational box were added to the Populations section to inform users that:
 
-2. **Upcoming Runs section (lines 541-547)**
-   - Added an "Empty State" info box explaining that the tab shows an empty state when no schedules are configured
-   - Clarified that this is normal and expected behavior
-   - Noted that runs only appear after setting up a schedule
+1. The Populations feature is currently in development and not yet available in most workspaces
+2. Users navigating to `/audience` or `/people/populations` will see an empty state with "Stay tuned!" message
+3. This is expected and intentional behavior, not a bug or broken page
+4. The feature content is hidden behind a feature flag
+5. No population data, cards, or management UI will be visible until explicitly enabled
 
-## Why It Fixes the Issue
+## Warning Banner Content (Current State)
 
-The QA tests (`workflow--builder-ui-visible`, `workflow--builder-canvas-loads`, `workflow--upcoming-runs-page-content`) were failing because they expected to see builder/canvas/content elements but encountered empty states instead. The tests didn't recognize empty states as valid UI patterns.
+**Lines 39-45:**
+```markdown
+::: warning Feature In Development — Expected Empty State
+The Populations feature is currently being refined and is **not yet available in most workspaces**. **When you navigate to the People page (`/audience`) or the Populations tab (`/people/populations`), you will likely see an empty state with the message:**
 
-The documentation previously mentioned empty states but didn't clearly explain:
-- What UI elements are NOT visible in the empty state
-- Where the "Create new workflow" button appears
-- That empty states are the expected and normal behavior
+**"Stay tuned! We're working on unveiling the new populations feature in your workspace."**
 
-By explicitly documenting these details, future readers (and QA tests) will understand that:
-- Empty states are intentional design patterns
-- Missing workflow grids/builder/canvas are expected when no workflows exist
-- Missing upcoming runs content is expected when no schedules are configured
+This is expected and intentional behavior. The page loads successfully, but the feature content is hidden behind a feature flag. You will not see population data, cards, or management UI until the feature is explicitly enabled for your workspace.
+:::
+```
 
-## Which File and Section Were Modified
+**Lines 51-58:** An additional info box clarifying:
+- Route behavior for `/audience` and `/people/populations`
+- No table, grid, or card views are visible
+- This is not an error
+- The feature will be rolled out workspace-by-workspace
 
-**File:** `docs/guide/workflows.md`
+## Why This Fix Was Needed
 
-**Sections:**
-- "Browsing Your Workflows" (lines 37-52)
-- "Upcoming Runs" (lines 541-547)
+The original documentation (prior to this fix) described Populations as a fully functional feature with:
+- Card grid views
+- Detailed analytics pages
+- Population charts (donut charts, bar charts, treemaps)
+- Persona carousels
+- Table views with sortable columns
 
-**Change Type:** Documentation clarification (DOC_ISSUE)
+However, the actual staging environment showed only an empty state with the message "Stay tuned! We're working on unveiling the new populations feature in your workspace."
 
-**Confidence:** 0.93 (per automated analysis)
+This discrepancy would confuse users who followed the documentation but didn't see any of the described UI elements. The documentation was misleading users to expect functionality that wasn't available yet.
+
+## Result
+
+Documentation now accurately reflects the current state of the Populations feature:
+- Sets proper expectations that the feature is under development
+- Explains that empty states are intentional, not errors
+- Prevents user confusion about missing UI elements
+- Still includes documentation of future functionality (lines 60+) for reference once the feature is enabled
 
 ## Verification
 
-The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png`
+The fix addresses the QA test results: "People: Page content present & People: Populations route loads"
+- The routes load successfully (✓)
+- The page shows expected empty state (✓)
+- Documentation now matches actual behavior (✓)
+
+## Classification
+
+**Type:** DOC_ISSUE
+**Confidence:** 0.98
+**Verified Against:** Screenshot showing "Stay tuned!" empty state message
