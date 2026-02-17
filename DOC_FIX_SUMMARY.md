@@ -1,47 +1,45 @@
 # Documentation Fix Summary
 
+## Status: Already Applied
+
+The requested documentation fix has already been applied to the file.
+
 ## What Was Changed
 
-Updated `docs/guide/workflows.md` to clarify empty state behavior in two sections:
+**File**: `docs/guide/people.md`
+**Section**: Populations (lines 37-58)
+**Date Applied**: 2026-02-15T04:45:11Z
 
-1. **Browsing Your Workflows section (lines 37-52)**
-   - Replaced duplicate "Getting Started" and "Empty State" info boxes with a single, comprehensive empty state explanation
-   - Explicitly documented that when no workflows exist:
-     - The workflow grid, cards, builder, and canvas are NOT visible
-     - Only the "Create new workflow" button appears in the top-right corner
-     - This is normal and expected behavior
+## Changes Made
 
-2. **Upcoming Runs section (lines 541-547)**
-   - Added an "Empty State" info box explaining that the tab shows an empty state when no schedules are configured
-   - Clarified that this is normal and expected behavior
-   - Noted that runs only appear after setting up a schedule
+The Populations section now includes comprehensive clarification that the empty state with "Stay tuned!" message is **expected and intentional behavior**:
 
-## Why It Fixes the Issue
+### Warning Box (lines 39-45)
+- Added prominent warning with title "Feature In Development — Expected Empty State"
+- Explicitly states the feature is "not yet available in most workspaces"
+- Shows the exact message users will see: "Stay tuned! We're working on unveiling the new populations feature in your workspace."
+- Clarifies: "This is expected and intentional behavior"
+- Explains the page loads successfully but content is hidden behind a feature flag
 
-The QA tests (`workflow--builder-ui-visible`, `workflow--builder-canvas-loads`, `workflow--upcoming-runs-page-content`) were failing because they expected to see builder/canvas/content elements but encountered empty states instead. The tests didn't recognize empty states as valid UI patterns.
+### Info Box (lines 51-58)
+- Provides detailed breakdown of what users see right now
+- Lists specific routes (`/audience` and `/people/populations`)
+- Confirms "No error: This is not a bug or broken page — the empty state is intentional"
+- Notes the feature will be rolled out workspace-by-workspace
 
-The documentation previously mentioned empty states but didn't clearly explain:
-- What UI elements are NOT visible in the empty state
-- Where the "Create new workflow" button appears
-- That empty states are the expected and normal behavior
+## Why This Fixes the Issue
 
-By explicitly documenting these details, future readers (and QA tests) will understand that:
-- Empty states are intentional design patterns
-- Missing workflow grids/builder/canvas are expected when no workflows exist
-- Missing upcoming runs content is expected when no schedules are configured
+The QA test "People: Page content present" was detecting the empty state and flagging it as a potential issue. The clarified documentation now:
 
-## Which File and Section Were Modified
+1. **Prevents user confusion** by setting clear expectations upfront
+2. **Explains the technical reason** (feature flag not enabled)
+3. **Distinguishes normal behavior from errors** by explicitly stating this is not a bug
+4. **Provides context** about the phased rollout approach
 
-**File:** `docs/guide/workflows.md`
-
-**Sections:**
-- "Browsing Your Workflows" (lines 37-52)
-- "Upcoming Runs" (lines 541-547)
-
-**Change Type:** Documentation clarification (DOC_ISSUE)
-
-**Confidence:** 0.93 (per automated analysis)
+Users and QA testers reading this documentation will now understand that seeing the "Stay tuned!" message is correct, expected behavior for workspaces where the Populations feature has not yet been enabled.
 
 ## Verification
 
-The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png`
+The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-people--page-content-present-desktop-1771128528021.png`
+
+The documentation now accurately reflects what users experience when accessing the People/Populations section in workspaces without the feature flag enabled.
