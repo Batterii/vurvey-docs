@@ -1241,89 +1241,116 @@ async function captureAgents(page) {
     console.log('  ⚠ Could not capture a full benchmark run state');
   }
 
-  if (reachedEditView) {
-    await gotoWithRetry(page, agentsUrl, { label: 'agents-return-from-edit', retries: 1 });
-    await waitForLoaders(page);
-    await closeRightSideDrawer(page, 'after-return-from-edit');
+  // --- Capture builder steps from the Edit Agent flow (not the Create modal). ---
+  // The builder-v2 VIEW page has an "Edit Agent" button that opens the multi-step
+  // builder flow (Objective → Facets → Optional Settings → Identity → Appearance → Review).
+  // The "Create Agent" button on the gallery now opens a simple "Generate Agent" modal
+  // which does not have multi-step navigation.
+  let capturedBuilderSteps = false;
+  if (reachedEditView && benchmarkBuilderId) {
+    try {
+      // Navigate fresh to the builder-v2 VIEW page to ensure a clean state
+      // (the benchmark modal may have left overlays or changed page state).
+      const benchmarkBuilderUrl = getWorkspaceUrl(`/agents/builder-v2/${benchmarkBuilderId}`);
+      const reachedView = await gotoWithRetry(page, benchmarkBuilderUrl, {
+        label: 'agents-builder-for-edit',
+        retries: 2,
+      });
+
+      if (reachedView) {
+        await waitForNetworkIdle(page);
+        await waitForLoaders(page);
+
+        // Wait for the VIEW page to fully render with the agent credential section.
+        await waitForBodyTextAny(page, ['deactivate', 'activate', 'edit'], 8000);
+
+        // Click "Edit" to enter the multi-step builder flow.
+        // The builder-v2 VIEW page shows an "Edit" button (may also say "Edit Agent").
+        const editClicked =
+          (await clickButtonByText(page, 'edit agent', 3000)) ||
+          (await clickButtonByText(page, 'edit', 3000)) ||
+          (await clickFirstVisible(page, [
+            'button[data-testid*="edit" i]',
+            'button[aria-label*="edit" i]',
+          ]));
+        if (editClicked) {
+          await delay(TIMING.postClickDelay);
+          await waitForNetworkIdle(page);
+          await waitForLoaders(page);
+
+          // Wait for the builder flow navigation to appear (step buttons with aria-labels).
+          const flowNavReady = await waitForBodyTextAny(
+            page,
+            ['objective', 'facets'],
+            8000
+          );
+          if (!flowNavReady) {
+            console.log('  ⚠ Builder flow navigation did not appear after clicking Edit Agent');
+          }
+
+          // The first step (Objective) is already active after clicking Edit Agent.
+          await takeScreenshot(page, '05-builder-objective', 'agents');
+
+          // Navigate through remaining builder steps using direct URL navigation.
+          // Each step maps to /agents/builder-v2/{id}/{stepSlug} per
+          // useAgentBuilderNavigation in the frontend source.
+          const steps = [
+            { slug: 'facets', shot: '06-builder-facets' },
+            { slug: 'instructions', shot: '07-builder-instructions' },
+            { slug: 'identity', shot: '08-builder-identity' },
+            { slug: 'appearance', shot: '09-builder-appearance' },
+            { slug: 'review', shot: '10-builder-review' }
+          ];
+
+          for (const step of steps) {
+            const stepUrl = getWorkspaceUrl(`/agents/builder-v2/${benchmarkBuilderId}/${step.slug}`);
+            await gotoWithRetry(page, stepUrl, {
+              label: `agents-builder-step-${step.slug}`,
+              retries: 1,
+            });
+            await waitForLoaders(page);
+            await takeScreenshot(page, step.shot, 'agents');
+          }
+
+          capturedBuilderSteps = true;
+        } else {
+          console.log('  ⚠ Could not find "Edit Agent" button on builder-v2 view');
+        }
+      }
+    } catch (e) {
+      console.log(`  ⚠ Could not capture builder steps from edit view: ${e.message}`);
+    }
   }
 
-  // Reset to a clean gallery state before opening the Create Agent modal.
-  await gotoWithRetry(page, agentsUrl, { label: 'agents-clean-before-create', retries: 1 });
-  await waitForLoaders(page);
-  await closeRightSideDrawer(page, 'before-create-agent');
+  if (!capturedBuilderSteps) {
+    console.log('  ⚠ Builder step screenshots not captured (edit flow unavailable)');
+  }
 
-  // Try opening Agent Builder and capturing step screenshots (best-effort).
+  // Return to gallery from builder/edit view.
+  await gotoWithRetry(page, agentsUrl, { label: 'agents-return-from-edit', retries: 1 });
+  await waitForLoaders(page);
+  await closeRightSideDrawer(page, 'after-return-from-edit');
+
+  // Capture the "Generate Agent" modal (the current Create Agent flow).
   try {
     const opened =
       (await clickButtonByText(page, 'create agent', 4000)) ||
       (await clickButtonByText(page, 'create', 4000));
 
-    if (!opened) {
-      console.log('  ⚠ Could not open Agent Builder');
-      return;
-    }
-
-    await delay(TIMING.postClickDelay);
-    await waitForNetworkIdle(page);
-    await waitForLoaders(page);
-    await takeScreenshot(page, '05a-agent-type-selection', 'agents');
-
-    // Check if there's a type selection screen first
-    const hasTypeSelection = await waitForContent(page, [
-      '[class*="typeSelection" i]',
-      '[class*="agentType" i]',
-      '[class*="moldSelection" i]',
-    ], 3000);
-    if (hasTypeSelection) {
-      await closeRightSideDrawer(page, 'type-selection-screenshot');
-      // Click first type option to proceed
-      const typeClicked = await clickFirstVisible(page, [
-        '[class*="typeCard" i]',
-        '[class*="typeOption" i]',
-        '[class*="moldCard" i]',
-      ]) || await clickButtonByText(page, 'assistant', 3000);
-      if (typeClicked) {
-        await delay(TIMING.postClickDelay);
-        await waitForNetworkIdle(page);
-        await waitForLoaders(page);
-      }
-    }
-
-    await closeRightSideDrawer(page, 'builder-objective-screenshot');
-    await takeScreenshot(page, '05-builder-objective', 'agents');
-
-    // Builder uses circular icon buttons with aria-label attributes for step nav.
-    // "Instructions" step is labeled "Optional Settings" in the UI.
-    const steps = [
-      { ariaLabel: 'Facets', shot: '06-builder-facets' },
-      { ariaLabel: 'Optional Settings', shot: '07-builder-instructions' },
-      { ariaLabel: 'Identity', shot: '08-builder-identity' },
-      { ariaLabel: 'Appearance', shot: '09-builder-appearance' },
-      { ariaLabel: 'Review', shot: '10-builder-review' }
-    ];
-
-    for (const step of steps) {
-      // Primary: click the step's circular nav button via aria-label
-      // Fallback: click Next/Continue text button at bottom of page
-      const moved =
-        (await clickByAriaLabel(page, step.ariaLabel, 3000)) ||
-        (await clickButtonByText(page, 'next', 2500)) ||
-        (await clickButtonByText(page, 'continue', 2500));
-      if (!moved) {
-        console.log(`  ⚠ Could not navigate to builder step: ${step.ariaLabel}`);
-        continue;
-      }
-      await delay(TIMING.builderStepWait);
+    if (opened) {
+      await delay(TIMING.postClickDelay);
       await waitForNetworkIdle(page);
       await waitForLoaders(page);
-      await takeScreenshot(page, step.shot, 'agents');
+      await takeScreenshot(page, '05a-create-agent-modal', 'agents');
+    } else {
+      console.log('  ⚠ Could not open Create Agent modal');
     }
-
-    // Return to Agents list
-    await gotoWithRetry(page, agentsUrl, { label: 'agents-return' });
   } catch (e) {
-    console.log(`  Could not capture agent builder: ${e.message}`);
+    console.log(`  Could not capture Create Agent modal: ${e.message}`);
   }
+
+  // Return to Agents list
+  await gotoWithRetry(page, agentsUrl, { label: 'agents-return' });
   return true;
 }
 

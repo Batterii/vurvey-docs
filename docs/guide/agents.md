@@ -170,7 +170,7 @@ When you click **+ Create Agent**, a modal opens with the title **"Generate Agen
 After generating, you can refine the agent using the full guided builder by clicking through to edit the agent details.
 :::
 
-![Generate Agent Modal](/screenshots/agents/05a-agent-type-selection.png)
+![Generate Agent Modal](/screenshots/agents/05a-create-agent-modal.png)
 
 ::: tip Classic Builder Available
 If you prefer the original builder experience, click **Use Classic Builder** in the top navigation bar at any time. Note: The Classic Builder (V1) may require specific permissions, while the Guided Builder (V2) availability depends on your workspace's feature settings.
