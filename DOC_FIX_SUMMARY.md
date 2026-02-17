@@ -2,46 +2,50 @@
 
 ## What Was Changed
 
-Updated `docs/guide/workflows.md` to clarify empty state behavior in two sections:
+**Status**: Already Fixed - No changes required
 
-1. **Browsing Your Workflows section (lines 37-52)**
-   - Replaced duplicate "Getting Started" and "Empty State" info boxes with a single, comprehensive empty state explanation
-   - Explicitly documented that when no workflows exist:
-     - The workflow grid, cards, builder, and canvas are NOT visible
-     - Only the "Create new workflow" button appears in the top-right corner
-     - This is normal and expected behavior
+Verified that `docs/guide/agents.md` correctly describes the "+ Create Agent" button behavior.
 
-2. **Upcoming Runs section (lines 541-547)**
-   - Added an "Empty State" info box explaining that the tab shows an empty state when no schedules are configured
-   - Clarified that this is normal and expected behavior
-   - Noted that runs only appear after setting up a schedule
+## Why No Changes Were Needed
 
-## Why It Fixes the Issue
+The documentation in `docs/guide/agents.md` (lines 159-168) already correctly states that clicking **+ Create Agent** opens the **"Generate Agent"** modal, not an "Agent Builder" interface.
 
-The QA tests (`workflow--builder-ui-visible`, `workflow--builder-canvas-loads`, `workflow--upcoming-runs-page-content`) were failing because they expected to see builder/canvas/content elements but encountered empty states instead. The tests didn't recognize empty states as valid UI patterns.
+**Current (Correct) Text at line 161:**
+```
+Click **+ Create Agent** in the top-right corner of the gallery to open the **Generate Agent** modal.
+```
 
-The documentation previously mentioned empty states but didn't clearly explain:
-- What UI elements are NOT visible in the empty state
-- Where the "Create new workflow" button appears
-- That empty states are the expected and normal behavior
+**Supporting tip box (lines 163-168):**
+```
+::: tip Generate Agent Modal
+When you click **+ Create Agent**, a modal opens with the title **"Generate Agent"**. This modal offers an AI-powered way to create agents:
+- Enter an **Agent Name** (e.g., "Research Assistant")
+- Describe the **Agent Objective** (what the agent should accomplish)
+- Select an **Agent Type** from the dropdown (Assistant, Consumer Persona, Product, or Visual Generator)
+- Click the **Generate** button to let AI create the agent configuration automatically
+```
 
-By explicitly documenting these details, future readers (and QA tests) will understand that:
-- Empty states are intentional design patterns
-- Missing workflow grids/builder/canvas are expected when no workflows exist
-- Missing upcoming runs content is expected when no schedules are configured
+## Which File and Section Were Verified
 
-## Which File and Section Were Modified
+**File:** `docs/guide/agents.md`
 
-**File:** `docs/guide/workflows.md`
+**Section:** "Creating an Agent" (lines 159-168)
 
-**Sections:**
-- "Browsing Your Workflows" (lines 37-52)
-- "Upcoming Runs" (lines 541-547)
+**Change Type:** Documentation verification (DOC_ISSUE)
 
-**Change Type:** Documentation clarification (DOC_ISSUE)
+**Fix Report Timestamp:** 2026-02-15T04:45:11Z
 
-**Confidence:** 0.93 (per automated analysis)
+**Confidence:** 0.95 (per automated analysis)
 
 ## Verification
 
-The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png`
+The fix was verified against source code reference: `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:140`
+
+The documentation correctly reflects that:
+- ✅ The "+ Create Agent" button opens a "Generate Agent" modal
+- ✅ The modal title is "Generate Agent" (not "Agent Builder")
+- ✅ This is consistent with the actual UI implementation
+
+## Conclusion
+
+This documentation issue was likely fixed in a previous commit between 2026-02-15 and 2026-02-17. The current state of the documentation is accurate and requires no further changes.
