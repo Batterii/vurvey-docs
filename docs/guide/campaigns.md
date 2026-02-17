@@ -932,6 +932,8 @@ Magic Reels are AI-powered video highlight compilations created from your campai
 
 ### Editing a Reel
 
+![Magic Reel Editor](/screenshots/campaigns/05a-magic-reel-editor.png)
+
 After creating a reel (AI-generated or manual), you can:
 
 | Action | Description |

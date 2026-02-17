@@ -14,7 +14,7 @@
  *   VURVEY_EMAIL        required
  *   VURVEY_PASSWORD     required
  *   VURVEY_URL          default: https://staging.vurvey.dev
- *   VURVEY_WORKSPACE_ID optional fallback workspace id
+ *   VURVEY_WORKSPACE_ID preferred workspace id for route/UI checks
  *   HEADLESS            default: true
  */
 
@@ -42,7 +42,7 @@ const config = {
   email: process.env.VURVEY_EMAIL,
   password: process.env.VURVEY_PASSWORD,
   baseUrl: process.env.VURVEY_URL || "https://staging.vurvey.dev",
-  fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193',
+  preferredWorkspaceId: process.env.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193',
   headless: process.env.HEADLESS !== "false",
   timeoutMs: 30000,
 };
@@ -236,7 +236,8 @@ async function main() {
       baseUrl: config.baseUrl,
       email: config.email,
       password: config.password,
-      fallbackWorkspaceId: config.fallbackWorkspaceId,
+      fallbackWorkspaceId: config.preferredWorkspaceId,
+      preferredWorkspaceId: config.preferredWorkspaceId,
       timeoutMs: config.timeoutMs,
     });
     console.log(`  Logged in. Workspace: ${workspaceId}`);

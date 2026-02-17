@@ -188,11 +188,12 @@ export async function gotoWorkspaceRoute(page, workspaceId, route, {baseUrl, ret
  * @param {string} config.email
  * @param {string} config.password
  * @param {string|null} [config.fallbackWorkspaceId]
+ * @param {string|null} [config.preferredWorkspaceId]
  * @param {number} [config.timeoutMs]
  * @returns {Promise<string>} workspaceId
  */
 export async function login(page, config) {
-  const {baseUrl, email, password, fallbackWorkspaceId = null, timeoutMs = 30000} = config;
+  const {baseUrl, email, password, fallbackWorkspaceId = null, preferredWorkspaceId = fallbackWorkspaceId, timeoutMs = 30000} = config;
 
   await page.goto(baseUrl, {waitUntil: "domcontentloaded", timeout: timeoutMs});
   await wait(1500);
@@ -252,8 +253,23 @@ export async function login(page, config) {
     workspaceId = fallbackWorkspaceId;
   }
 
+  if (!workspaceId && preferredWorkspaceId) {
+    workspaceId = preferredWorkspaceId;
+  }
+
   if (!workspaceId) {
     throw new Error(`Could not extract workspace ID from URL: ${page.url()}`);
+  }
+
+  if (preferredWorkspaceId) {
+    workspaceId = preferredWorkspaceId;
+    try {
+      await page.goto(`${baseUrl}/${workspaceId}/agents`, {waitUntil: "domcontentloaded", timeout: timeoutMs});
+      await waitForNetworkIdle(page, 12000);
+      await waitForLoadersGone(page, 15000);
+    } catch {
+      // Keep the configured workspace id even if this verification navigation flakes.
+    }
   }
 
   return workspaceId;

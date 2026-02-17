@@ -15,7 +15,7 @@
  *   VURVEY_EMAIL        required
  *   VURVEY_PASSWORD     required
  *   VURVEY_URL          default: https://staging.vurvey.dev
- *   VURVEY_WORKSPACE_ID optional fallback workspace id
+ *   VURVEY_WORKSPACE_ID preferred workspace id for QA navigation
  *   HEADLESS            default: true (set HEADLESS=false for headed)
  *   QA_TIMEOUT_MS       default: 30000
  */
@@ -42,6 +42,7 @@ const config = {
   email: process.env.VURVEY_EMAIL,
   password: process.env.VURVEY_PASSWORD,
   baseUrl: process.env.VURVEY_URL || "https://staging.vurvey.dev",
+  preferredWorkspaceId: process.env.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193',
   fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193',
   headless: process.env.HEADLESS !== "false",
   quick: Boolean(args.quick),
@@ -604,7 +605,11 @@ async function resolveWorkspaceIdAfterLogin(page) {
     if (await tryNavigateToWorkspace(page, config.baseUrl, id)) return id;
   }
 
-  // 7) Fallback if provided.
+  // 7) Configured preference/fallback.
+  if (config.preferredWorkspaceId) {
+    recordWarning("Auth: Workspace ID", `Could not extract from UI; using configured workspace ${config.preferredWorkspaceId}`);
+    return config.preferredWorkspaceId;
+  }
   if (config.fallbackWorkspaceId) {
     recordWarning("Auth: Workspace ID", `Could not extract from UI; using fallback ${config.fallbackWorkspaceId}`);
     return config.fallbackWorkspaceId;
@@ -676,8 +681,21 @@ async function login(page) {
   await waitForLoadersGone(page, 15000);
 
   // If we're on a workspace picker page, resolve by clicking a workspace link and re-check.
-  const workspaceId = await resolveWorkspaceIdAfterLogin(page);
-  if (workspaceId && (gotWorkspaceInUrl || extractUuidFromUrl(page.url()))) {
+  let workspaceId = await resolveWorkspaceIdAfterLogin(page);
+
+  if (config.preferredWorkspaceId) {
+    const resolved = workspaceId || "none";
+    if (workspaceId !== config.preferredWorkspaceId) {
+      recordWarning(
+        "Auth: Workspace override",
+        `Resolved workspace ${resolved}; forcing configured workspace ${config.preferredWorkspaceId}`
+      );
+    }
+    workspaceId = config.preferredWorkspaceId;
+    await tryNavigateToWorkspace(page, config.baseUrl, workspaceId);
+  }
+
+  if (workspaceId && (gotWorkspaceInUrl || extractUuidFromUrl(page.url()) || config.preferredWorkspaceId)) {
     log(`Login successful. Workspace: ${workspaceId}`, "pass");
     return workspaceId;
   }

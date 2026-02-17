@@ -12,7 +12,8 @@
  * Environment variables:
  *   VURVEY_EMAIL    - Login email
  *   VURVEY_PASSWORD - Login password
- *   VURVEY_URL      - Base URL (default: https://staging.vurvey.com)
+ *   VURVEY_URL      - Base URL (default: https://staging.vurvey.dev)
+ *   VURVEY_WORKSPACE_ID - Preferred workspace id for viewport runs
  *   HEADLESS        - Run headless (default: true)
  */
 
@@ -26,7 +27,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const config = {
   email: process.env.VURVEY_EMAIL,
   password: process.env.VURVEY_PASSWORD,
-  baseUrl: process.env.VURVEY_URL || 'https://staging.vurvey.com',
+  baseUrl: process.env.VURVEY_URL || 'https://staging.vurvey.dev',
+  preferredWorkspaceId: process.env.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193',
   headless: process.env.HEADLESS !== 'false',
   timeout: 30000,
 };
@@ -313,10 +315,18 @@ async function login(page) {
 
   const url = page.url();
   const workspaceMatch = url.match(/\/([a-f0-9-]{36})/);
+  const resolvedWorkspaceId = workspaceMatch ? workspaceMatch[1] : null;
+  const targetWorkspaceId = config.preferredWorkspaceId || resolvedWorkspaceId;
 
-  if (workspaceMatch) {
-    log(`Login successful. Workspace: ${workspaceMatch[1]}`, 'pass');
-    return workspaceMatch[1];
+  if (targetWorkspaceId && targetWorkspaceId !== resolvedWorkspaceId) {
+    log(`Switching to configured workspace: ${targetWorkspaceId}`, 'info');
+    await page.goto(`${config.baseUrl}/${targetWorkspaceId}/agents`, { waitUntil: 'networkidle2', timeout: config.timeout });
+    await waitForNetworkIdle(page);
+  }
+
+  if (targetWorkspaceId) {
+    log(`Login successful. Workspace: ${targetWorkspaceId}`, 'pass');
+    return targetWorkspaceId;
   }
 
   throw new Error('Could not extract workspace ID from URL');

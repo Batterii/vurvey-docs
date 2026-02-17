@@ -11,6 +11,10 @@
  *   VURVEY_EMAIL       - Login email (required)
  *   VURVEY_PASSWORD    - Login password (required)
  *   VURVEY_URL         - Base URL (default: https://staging.vurvey.dev)
+ *   VURVEY_WORKSPACE_ID - Preferred workspace ID for all captures (default: DEMO workspace)
+ *   VURVEY_BENCHMARK_AGENT_BUILDER_ID - Agent builder-v2 ID used for benchmark captures
+ *   VURVEY_AGENT_BUILDER_ID - Optional fallback agent ID for builder-v2 captures
+ *   VURVEY_MAGIC_REEL_ID - Reel ID used for reel editor capture
  *   HEADLESS           - Run headless (default: true)
  *   CAPTURE_PARALLEL   - Number of parallel page workers (default: 4, set to 1 for sequential)
  *   CAPTURE_ONLY       - Comma-separated section names to run (e.g. "agents,people")
@@ -47,7 +51,12 @@ const CONFIG = {
     email: process.env.VURVEY_EMAIL,
     password: process.env.VURVEY_PASSWORD
   },
+  workspaceIdOverride: process.env.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193',
   fallbackWorkspaceId: process.env.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193',
+  benchmarkAgentBuilderId: process.env.VURVEY_BENCHMARK_AGENT_BUILDER_ID || 'b06c8939-4fc1-40e7-830e-099f3439a70a',
+  benchmarkAgentName: process.env.VURVEY_BENCHMARK_AGENT_NAME || 'Devils Advocate',
+  fallbackAgentBuilderId: process.env.VURVEY_AGENT_BUILDER_ID || null,
+  magicReelId: process.env.VURVEY_MAGIC_REEL_ID || '9e00f530-2f5d-4c5d-803e-2e131e1f80c4',
   strict: process.env.CAPTURE_STRICT === 'true',
   screenshotsDir: path.join(__dirname, '..', 'docs', 'public', 'screenshots'),
   artifactsDir: path.join(__dirname, '..', 'qa-output', 'capture-screenshots'),
@@ -151,6 +160,25 @@ async function waitForContent(page, selectors, timeout = TIMING.contentWaitTimeo
     } catch (e) {
       continue;
     }
+  }
+  return false;
+}
+
+async function waitForBodyTextAny(page, phrases, timeout = TIMING.contentWaitTimeout) {
+  const normalized = (phrases || [])
+    .map((p) => String(p || '').trim().toLowerCase())
+    .filter(Boolean);
+  if (!normalized.length) return false;
+
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    try {
+      const bodyText = await page.evaluate(() => (document.body?.innerText || '').toLowerCase());
+      if (normalized.some((p) => bodyText.includes(p))) return true;
+    } catch {
+      // Ignore transient context errors during navigation and keep polling.
+    }
+    await delay(250);
   }
   return false;
 }
@@ -293,18 +321,41 @@ async function closeRightSideDrawer(page, context = '') {
 
     // Then attempt an explicit close button click inside the right panel.
     await page.evaluate(() => {
-      const buttons = Array.from(
-        document.querySelectorAll('button, [role="button"], [aria-label*="close" i], [title*="close" i]')
-      );
-      const closeBtn = buttons.find((el) => {
+      const drawers = Array.from(
+        document.querySelectorAll(
+          '[class*="drawer" i], [class*="slideout" i], [class*="sidepanel" i], [class*="side-panel" i], [data-testid*="drawer" i]'
+        )
+      ).filter((el) => {
         const style = window.getComputedStyle(el);
         if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
         const rect = el.getBoundingClientRect();
-        if (rect.width < 16 || rect.height < 16) return false;
-        const label = `${el.getAttribute('aria-label') || ''} ${el.getAttribute('title') || ''} ${el.textContent || ''}`.toLowerCase();
-        return rect.left > window.innerWidth * 0.6 && (label.includes('close') || label.includes('dismiss') || label.includes('cancel'));
+        return rect.width > 260 && rect.height > 280 && rect.left > window.innerWidth * 0.6;
       });
-      if (closeBtn) closeBtn.click();
+
+      for (const drawer of drawers) {
+        const drawerRect = drawer.getBoundingClientRect();
+        const buttons = Array.from(drawer.querySelectorAll('button, [role="button"]'));
+        const closeBtn = buttons.find((el) => {
+          const style = window.getComputedStyle(el);
+          if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+          const rect = el.getBoundingClientRect();
+          if (rect.width < 14 || rect.height < 14) return false;
+
+          const label = `${el.getAttribute('aria-label') || ''} ${el.getAttribute('title') || ''} ${el.textContent || ''}`.trim().toLowerCase();
+          const nearTopRight = rect.top <= drawerRect.top + 92 && rect.left >= drawerRect.right - 120;
+          return (
+            label.includes('close') ||
+            label.includes('dismiss') ||
+            label.includes('cancel') ||
+            label === 'x' ||
+            nearTopRight
+          );
+        });
+        if (closeBtn) {
+          closeBtn.click();
+          return;
+        }
+      }
     }).catch(() => {});
 
     await delay(220);
@@ -613,12 +664,23 @@ async function login(page) {
   await waitForNetworkIdle(page);
   await waitForLoaders(page);
 
-  // Extract workspace ID from URL
+  // Extract workspace ID from URL/session and then apply workspace override.
   const currentUrl = page.url();
   workspaceId = await resolveWorkspaceId(page);
 
   if (workspaceId) console.log(`  ✓ Resolved workspace ID: ${workspaceId}`);
   else console.log(`  ⚠ Could not resolve workspace ID from URL/session. Current URL: ${currentUrl}`);
+
+  if (CONFIG.workspaceIdOverride) {
+    if (workspaceId && workspaceId !== CONFIG.workspaceIdOverride) {
+      console.log(`  ⚠ Switching from resolved workspace ${workspaceId} to configured workspace ${CONFIG.workspaceIdOverride}`);
+    }
+    workspaceId = CONFIG.workspaceIdOverride;
+    const workspaceHomeUrl = getWorkspaceUrl('/');
+    await gotoWithRetry(page, workspaceHomeUrl, { label: 'workspace-override-home', retries: 1 });
+    await waitForNetworkIdle(page);
+    await waitForLoaders(page);
+  }
 
   await takeScreenshot(page, '03-after-login', 'home');
 
@@ -841,15 +903,9 @@ async function captureAgents(page) {
     '[class*="assistant"]'
   ]);
 
+  // Use the same loaded gallery view for both "gallery" and "search/filter" doc shots.
   await takeScreenshot(page, '01-agents-gallery', 'agents');
-
-  // Try search interaction
-  const searchInput = await page.$('input[type="search"], input[placeholder*="search" i], input[placeholder*="Search" i]');
-  if (searchInput) {
-    await searchInput.click();
-    await delay(TIMING.preScreenshotDelay);
-    await takeScreenshot(page, '02-agents-search', 'agents');
-  }
+  await takeScreenshot(page, '02-agents-search', 'agents');
 
   // Try to capture agent filters (sort, type, model, status)
   try {
@@ -869,32 +925,326 @@ async function captureAgents(page) {
     console.log('  Could not capture agent filters');
   }
 
-  // Try clicking an agent card to show detail drawer
+  const captureBenchmarkFromEditView = async () => {
+    const benchmarkBlockedPhrases = [
+      'add facet values before running a benchmark',
+      'server connection required for benchmark',
+    ];
+
+    const isBenchmarkBlocked = async (timeout = 2500) =>
+      waitForBodyTextAny(page, benchmarkBlockedPhrases, timeout);
+
+    const closeBenchmarkModal = async () => {
+      await page.keyboard.press('Escape').catch(() => {});
+      await delay(300);
+      await page.evaluate(() => {
+        const candidates = Array.from(
+          document.querySelectorAll(
+            '[role="dialog"] button, [role="dialog"] [role="button"], [class*="modal" i] button, [class*="modal" i] [role="button"]'
+          )
+        );
+        const closeButton = candidates.find((el) => {
+          const style = window.getComputedStyle(el);
+          if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+          const label = `${el.getAttribute('aria-label') || ''} ${el.getAttribute('title') || ''} ${el.textContent || ''}`.trim().toLowerCase();
+          return label === 'x' || label.includes('close') || label.includes('dismiss');
+        });
+        if (closeButton) closeButton.click();
+      }).catch(() => {});
+      await delay(300);
+    };
+
+    const openBenchmarkModal = async () => {
+      const evaluateClicked =
+        (await clickButtonByText(page, 'evaluate', 5000)) ||
+        (await clickFirstVisible(page, [
+          'button[aria-label*="evaluate" i]',
+          '[class*="evaluate" i] button',
+          '[class*="evaluate" i]',
+        ]));
+
+      if (!evaluateClicked) {
+        return false;
+      }
+
+      await delay(TIMING.postClickDelay);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+      return await waitForBodyTextAny(
+        page,
+        ['agent benchmark', 'simulated interview', 'start benchmark'],
+        10000
+      );
+    };
+
+    // Open Agent Benchmark via Evaluate button and capture key states.
+    let benchmarkOpened = false;
+    let capturedStartState = false;
+    const maxModalAttempts = 4;
+    for (let modalAttempt = 1; modalAttempt <= maxModalAttempts; modalAttempt++) {
+      benchmarkOpened = await openBenchmarkModal();
+      if (!benchmarkOpened) break;
+
+      // Let transient banners settle; if still blocked, re-open the modal.
+      await delay(1200);
+      await waitForLoaders(page, 5000);
+
+      const blockedAtOpen = await isBenchmarkBlocked(1800);
+      if (blockedAtOpen && modalAttempt < maxModalAttempts) {
+        console.log(`  ⚠ Benchmark modal blocked at open (attempt ${modalAttempt}/${maxModalAttempts}); reopening...`);
+        await closeBenchmarkModal();
+        await delay(900);
+        continue;
+      }
+
+      await takeScreenshot(page, '04c-agent-benchmark-start', 'agents');
+      capturedStartState = true;
+      break;
+    }
+
+    if (!benchmarkOpened) {
+      console.log('  ⚠ Evaluate action did not open Agent Benchmark modal');
+      return { started: false, results: false, reason: 'no-modal' };
+    }
+
+    if (!capturedStartState) {
+      // Fallback: preserve at least one start-state shot for docs diagnostics.
+      await takeScreenshot(page, '04c-agent-benchmark-start', 'agents');
+    }
+
+    let benchmarkInProgress = false;
+    const maxStartAttempts = 3;
+    let startedAtLeastOnce = false;
+
+    for (let attempt = 1; attempt <= maxStartAttempts; attempt++) {
+      const startBenchmarkClicked =
+        (await clickButtonByText(page, 'start benchmark', 6000)) ||
+        (await clickButtonByText(page, 'start', 3000));
+
+      if (!startBenchmarkClicked) {
+        console.log('  ⚠ Could not start benchmark run');
+        return { started: false, results: false, reason: 'no-start-button' };
+      }
+
+      await delay(TIMING.postClickDelay);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+
+      const benchmarkBlocked = await isBenchmarkBlocked(4000);
+      if (benchmarkBlocked) {
+        if (attempt < maxStartAttempts) {
+          console.log(`  ⚠ Benchmark start blocked (attempt ${attempt}/${maxStartAttempts}); retrying...`);
+          await closeBenchmarkModal();
+          await delay(1000);
+          const reopened = await openBenchmarkModal();
+          if (!reopened) {
+            return { started: false, results: false, reason: 'reopen-failed' };
+          }
+          await delay(2500);
+          continue;
+        }
+        console.log('  ⚠ Benchmark cannot start for this agent (facet/server prerequisite not met)');
+        return { started: false, results: false, reason: 'blocked' };
+      }
+
+      benchmarkInProgress = await page
+        .waitForFunction(() => {
+          const text = (document.body?.innerText || '').toLowerCase();
+          const hasEvaluator = text.includes('evaluator');
+          const hasStartButton = Array.from(document.querySelectorAll('button, [role="button"]')).some((el) => {
+            const style = window.getComputedStyle(el);
+            if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+            return (el.textContent || '').toLowerCase().includes('start benchmark');
+          });
+          return hasEvaluator || !hasStartButton;
+        }, { timeout: 45000 })
+        .then(() => true)
+        .catch(() => false);
+
+      if (benchmarkInProgress) {
+        startedAtLeastOnce = true;
+        break;
+      }
+
+      if (attempt < maxStartAttempts) {
+        console.log(`  ⚠ Benchmark run state not detected (attempt ${attempt}/${maxStartAttempts}); retrying...`);
+        await delay(2500);
+      }
+    }
+
+    if (benchmarkInProgress) {
+      // Avoid capturing the transient "Evaluator is thinking..." placeholder frame.
+      await delay(5500);
+      await page.waitForFunction(() => {
+        const text = (document.body?.innerText || '').toLowerCase();
+        return !text.includes('evaluator is thinking');
+      }, { timeout: 30000 }).catch(() => {});
+      await waitForLoaders(page, 5000);
+      await takeScreenshot(page, '04d-agent-benchmark-run', 'agents');
+    } else {
+      console.log('  ⚠ Benchmark run state did not appear');
+      return { started: false, results: false, reason: 'no-run-state' };
+    }
+
+    const benchmarkResultsReady = await waitForBodyTextAny(
+      page,
+      ['score breakdown', 'evaluation feedback', 'out of 100', 'excellent'],
+      180000
+    );
+    if (benchmarkResultsReady) {
+      await page.waitForFunction(() => {
+        const body = document.body?.innerText || '';
+        const text = body.toLowerCase();
+        const hasScore = text.includes('score breakdown') || text.includes('out of 100');
+        const hasFeedbackSection = text.includes('evaluation feedback');
+        const hasAction = text.includes('run again') || text.includes('view conversation');
+        const metrics = ['objective alignment', 'tool usage', 'robustness', 'edge cases'];
+        const metricCount = metrics.filter((m) => text.includes(m)).length;
+        const feedbackTail = body.split(/evaluation feedback/i)[1] || '';
+        const feedbackLoaded = feedbackTail.replace(/\s+/g, ' ').trim().length > 80;
+        return hasScore && hasFeedbackSection && hasAction && metricCount >= 3 && feedbackLoaded;
+      }, { timeout: 90000 }).catch(() => {});
+
+      // Give charts and long feedback text a final render window before capture.
+      await delay(1500);
+      await waitForLoaders(page, 8000);
+      await takeScreenshot(page, '04e-agent-benchmark-results', 'agents');
+      return { started: startedAtLeastOnce, results: true, reason: null };
+    } else {
+      console.log('  ⚠ Benchmark results were not ready within timeout');
+      return { started: startedAtLeastOnce, results: false, reason: 'results-timeout' };
+    }
+  };
+
+  // Capture the detail drawer from the gallery card.
   try {
-    const agentCard = await page.$('[data-testid="agent-card"], [class*="agentCard"], [class*="personaCard"]');
-    if (agentCard) {
-      await agentCard.click();
+    const clickedAgent = await page.evaluate(() => {
+      const selectorSets = [
+        '[data-testid="agent-card"]',
+        '[class*="agentCard"]',
+        '[class*="personaCard"]',
+      ];
+      let cards = [];
+      for (const sel of selectorSets) {
+        cards = Array.from(document.querySelectorAll(sel));
+        if (cards.length) break;
+      }
+      const target = cards.find((el) => {
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+        const rect = el.getBoundingClientRect();
+        return rect.width > 80 && rect.height > 80;
+      });
+      if (!target) return false;
+      target.click();
+      return true;
+    });
+
+    if (clickedAgent) {
       await delay(TIMING.postClickDelay);
       await waitForNetworkIdle(page);
       await waitForLoaders(page);
       await takeScreenshot(page, '04-agent-detail-drawer', 'agents');
 
-      // Try to capture the chat interface within the drawer
-      try {
-        const chatInput = await page.$('[class*="drawer" i] textarea, [class*="drawer" i] [class*="chatInput" i]');
-        if (chatInput) {
-          await takeScreenshot(page, '04a-agent-drawer-chat', 'agents');
-        }
-      } catch (e) {
-        console.log('  Could not capture agent drawer chat');
+      const chatInput = await page.$('[class*="drawer" i] textarea, [class*="drawer" i] [class*="chatInput" i]');
+      if (chatInput) {
+        await takeScreenshot(page, '04a-agent-drawer-chat', 'agents');
       }
-
-      // Close the drawer
-      await page.keyboard.press('Escape').catch(() => {});
-      await delay(300);
+    } else {
+      console.log('  ⚠ Could not find any clickable agent card for detail drawer capture');
     }
   } catch (e) {
-    console.log('  Could not capture agent detail drawer');
+    console.log(`  ⚠ Could not capture agent detail drawer: ${e.message}`);
+  }
+
+  await closeRightSideDrawer(page, 'after-detail-drawer');
+
+  // Use a known benchmark-ready agent in DEMO for edit and benchmark captures.
+  let reachedEditView = false;
+  let benchmarkStateCaptured = false;
+  const benchmarkBuilderId = CONFIG.benchmarkAgentBuilderId || CONFIG.fallbackAgentBuilderId;
+
+  if (benchmarkBuilderId) {
+    const benchmarkBuilderUrl = getWorkspaceUrl(`/agents/builder-v2/${benchmarkBuilderId}`);
+    const reachedBenchmarkBuilder = await gotoWithRetry(page, benchmarkBuilderUrl, {
+      label: 'agents-benchmark-builder',
+      retries: 1,
+    });
+
+    if (reachedBenchmarkBuilder) {
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+      const onEditView =
+        page.url().includes('/agents/builder-v2/') ||
+        page.url().includes('/agents/builder/') ||
+        (await waitForBodyTextAny(page, ['vurvey ai agent credential', 'agent credential', 'deactivate'], 8000));
+
+      if (onEditView) {
+        reachedEditView = true;
+        const expectedAgentName = String(CONFIG.benchmarkAgentName || '').trim().toLowerCase();
+
+        const waitForBenchmarkAgentIdentity = async (timeout = 18000) => {
+          return await page.waitForFunction((expected) => {
+            const body = (document.body?.innerText || '').toLowerCase();
+            const hasCredentialShell = body.includes('vurvey ai agent credential') || body.includes('agent credential');
+            if (!hasCredentialShell) return false;
+
+            if (expected) {
+              return body.includes(expected);
+            }
+
+            // Fallback for environments that don't configure an expected name.
+            return body.includes('agent credential') && !body.includes('untitled agent');
+          }, { timeout }, expectedAgentName)
+            .then(() => true)
+            .catch(() => false);
+        };
+
+        let agentIdentityReady = await waitForBenchmarkAgentIdentity(14000);
+        if (!agentIdentityReady) {
+          // Agent details can hydrate several seconds after the credential shell.
+          await delay(2200);
+          await waitForLoaders(page, 8000);
+          agentIdentityReady = await waitForBenchmarkAgentIdentity(12000);
+        }
+
+        if (!agentIdentityReady) {
+          console.log('  ⚠ Benchmark agent identity not ready; reloading credential route once');
+          const reloadOk = await gotoWithRetry(page, benchmarkBuilderUrl, {
+            label: 'agents-benchmark-builder-reload',
+            retries: 1,
+          });
+          if (reloadOk) {
+            await waitForNetworkIdle(page);
+            await waitForLoaders(page, 8000);
+            await waitForBenchmarkAgentIdentity(18000);
+          }
+        }
+
+        await takeScreenshot(page, '04b-agent-edit-credential', 'agents');
+        const benchmarkResult = await captureBenchmarkFromEditView();
+        benchmarkStateCaptured = Boolean(benchmarkResult?.started);
+        if (!benchmarkStateCaptured) {
+          console.log(`  ⚠ Could not capture benchmark run state (${benchmarkResult?.reason || 'unknown'})`);
+        }
+      } else {
+        console.log(`  ⚠ Benchmark agent route opened but credential view was not detected: ${benchmarkBuilderUrl}`);
+      }
+    } else {
+      console.log(`  ⚠ Could not open configured benchmark agent route: ${benchmarkBuilderUrl}`);
+    }
+  } else {
+    console.log('  ⚠ No benchmark agent builder ID configured');
+  }
+
+  if (!benchmarkStateCaptured) {
+    console.log('  ⚠ Could not capture a full benchmark run state');
+  }
+
+  if (reachedEditView) {
+    await gotoWithRetry(page, agentsUrl, { label: 'agents-return-from-edit', retries: 1 });
+    await waitForLoaders(page);
+    await closeRightSideDrawer(page, 'after-return-from-edit');
   }
 
   // Reset to a clean gallery state before opening the Create Agent modal.
@@ -916,7 +1266,6 @@ async function captureAgents(page) {
     await delay(TIMING.postClickDelay);
     await waitForNetworkIdle(page);
     await waitForLoaders(page);
-    await closeRightSideDrawer(page, 'create-agent-modal-screenshot');
     await takeScreenshot(page, '05a-agent-type-selection', 'agents');
 
     // Check if there's a type selection screen first
@@ -1426,7 +1775,32 @@ async function captureCampaigns(page) {
     try {
       const subUrl = getWorkspaceUrl(subPage.path);
       if (await gotoWithRetry(page, subUrl, { label: `campaigns-${subPage.name}` })) {
+        if (subPage.path === '/campaigns/magic-reels') {
+          await waitForContent(page, [
+            'input[placeholder*="search reels" i]',
+            'button',
+            'table tbody tr',
+            '[class*="reel" i]',
+          ], 10000);
+        }
         await takeScreenshot(page, subPage.name, 'campaigns');
+
+        if (subPage.path === '/campaigns/magic-reels' && CONFIG.magicReelId) {
+          const reelEditorUrl = getWorkspaceUrl(`/reel/${CONFIG.magicReelId}`);
+          const openedReelEditor = await gotoWithRetry(page, reelEditorUrl, { label: 'campaigns-magic-reel-editor', retries: 1 });
+          if (openedReelEditor) {
+            await waitForBodyTextAny(
+              page,
+              ['save & publish', 'add video', 'reel duration', 'published'],
+              15000
+            );
+            await waitForLoaders(page, 10000);
+            await delay(600);
+            await takeScreenshot(page, '05a-magic-reel-editor', 'campaigns');
+          } else {
+            console.log(`  ⚠ Could not open reel editor route for reel ${CONFIG.magicReelId}`);
+          }
+        }
       }
     } catch (e) {
       console.log(`  Could not capture ${subPage.name}: ${e.message}`);
@@ -1976,12 +2350,20 @@ async function main() {
       workspaceId = await resolveWorkspaceId(loginPage);
       if (workspaceId) {
         console.log(`  ✓ Found workspace ID: ${workspaceId}`);
+      } else if (CONFIG.workspaceIdOverride) {
+        workspaceId = CONFIG.workspaceIdOverride;
+        console.log(`  ✓ Using configured workspace ID: ${workspaceId}`);
       } else if (CONFIG.fallbackWorkspaceId) {
         workspaceId = CONFIG.fallbackWorkspaceId;
         console.log(`  ✓ Using fallback workspace ID: ${workspaceId}`);
       } else {
         throw new Error('Could not determine workspace ID. Set VURVEY_WORKSPACE_ID env var as fallback.');
       }
+    }
+
+    if (CONFIG.workspaceIdOverride && workspaceId !== CONFIG.workspaceIdOverride) {
+      workspaceId = CONFIG.workspaceIdOverride;
+      console.log(`  ✓ Enforcing configured workspace ID: ${workspaceId}`);
     }
 
     // Close the login page – we no longer need it.

@@ -132,6 +132,10 @@ At the bottom of the drawer, you'll find a **live chat interface** where you can
 
 ![Agent Drawer Chat](/screenshots/agents/04a-agent-drawer-chat.png)
 
+Click **Edit** in the drawer to open the full credential/edit view for that agent.
+
+![Agent Edit Credential View](/screenshots/agents/04b-agent-edit-credential.png)
+
 ::: tip Test Before You Share
 Before sharing an agent with your team, test it with a few representative questions:
 1. Does it stay in character and maintain its persona?
@@ -495,7 +499,7 @@ Here are some examples of descriptions that produce great avatars:
 
 ### Step 6: Review
 
-<!-- Screenshot placeholder: agents/10-builder-review.png — will be captured by automated screenshots -->
+![Agent Review Credential Card](/screenshots/agents/04b-agent-edit-credential.png)
 
 The final step brings everything together so you can review your agent's complete configuration before going live.
 
@@ -511,6 +515,12 @@ Use the benchmark chat to send test questions and verify your agent works as exp
 - Does it reference your connected datasets?
 - Does it follow your rules?
 - How does it handle edge cases or off-topic questions?
+
+![Agent Benchmark - Start](/screenshots/agents/04c-agent-benchmark-start.png)
+
+![Agent Benchmark - In Progress](/screenshots/agents/04d-agent-benchmark-run.png)
+
+![Agent Benchmark - Results](/screenshots/agents/04e-agent-benchmark-results.png)
 
 **Recommended test questions by agent type:**
 
