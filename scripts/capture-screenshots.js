@@ -1883,34 +1883,27 @@ async function captureDatasets(page) {
   // Navigate back to datasets and try to open a dataset detail view
   try {
     if (await gotoWithRetry(page, datasetsUrl, { label: 'datasets-return' })) {
+      // Wait for dataset cards to re-appear on All Datasets tab
+      await waitForContent(page, [
+        '[data-testid="dataset-card"]',
+        '[class*="datasetCard"]',
+        '[class*="trainingSet"]',
+      ], 5000);
+
       // Click the first dataset card to open detail view
+      // Dataset cards are <div> elements with onClick handlers (not <a> tags)
       const datasetClicked = await page.evaluate(() => {
-        const selectors = [
-          '[data-testid="dataset-card"] a',
-          '[class*="datasetCard"] a',
-          '[class*="trainingSet"] a',
-          'a[href*="/datasets/"]',
-          'a[href*="/training-set/"]',
-        ];
-        for (const sel of selectors) {
-          const el = document.querySelector(sel);
-          if (el) {
-            el.click();
-            return true;
-          }
+        // Primary: click the data-testid card directly
+        const card = document.querySelector('[data-testid="dataset-card"]');
+        if (card) {
+          card.click();
+          return true;
         }
-        // Fallback: click any dataset card
-        const cards = document.querySelectorAll('[class*="datasetCard"], [class*="trainingSet"], [class*="card" i]');
-        for (const card of cards) {
-          const link = card.querySelector('a');
-          if (link) {
-            link.click();
-            return true;
-          }
-          if (card.onclick) {
-            card.click();
-            return true;
-          }
+        // Fallback: click any element with dataset card class
+        const classCards = document.querySelectorAll('[class*="datasetCard"], [class*="trainingSet"]');
+        for (const c of classCards) {
+          c.click();
+          return true;
         }
         return false;
       });
@@ -1975,53 +1968,42 @@ async function captureWorkflows(page) {
 
   await takeScreenshot(page, '01-workflows-main', 'workflows');
 
-  // Try to click into an existing workflow for detail view
+  // Try to open a workflow detail (Build tab) by clicking a workflow card
+  // Workflow cards are <div> elements with onClick handlers (not <a> tags)
   let workflowDetailCaptured = false;
   try {
-    const workflowClicked = await page.evaluate(() => {
-      const selectors = [
-        '[data-testid="workflow-card"] a',
-        '[class*="workflowCard"] a',
-        'a[href*="/workflow/"]',
-        'a[href*="/orchestration/"]',
-      ];
-      for (const sel of selectors) {
-        const el = document.querySelector(sel);
-        if (el && !el.href?.includes('/flows') && !el.href?.includes('/templates') && !el.href?.includes('/upcoming') && !el.href?.includes('/conversations')) {
-          el.click();
-          return true;
-        }
-      }
-      // Fallback: click first card
-      const cards = document.querySelectorAll('[class*="workflowCard"], [class*="orchestrationCard"]');
-      for (const card of cards) {
-        const link = card.querySelector('a');
-        if (link) {
-          link.click();
-          return true;
-        }
+    const cardClicked = await page.evaluate(() => {
+      const card = document.querySelector('[data-testid="workflow-card"]');
+      if (card) {
         card.click();
+        return true;
+      }
+      // Fallback: click any element with workflow card class
+      const classCards = document.querySelectorAll('[class*="workflowCard"], [class*="orchestration"]');
+      for (const c of classCards) {
+        c.click();
         return true;
       }
       return false;
     });
 
-    if (workflowClicked) {
+    if (cardClicked) {
+      console.log('  Clicked workflow card, waiting for detail page...');
       await delay(TIMING.postClickDelay);
       await waitForNetworkIdle(page);
       await waitForLoaders(page);
 
-      // Check if we got a workflow detail/builder view
+      // Wait for the ReactFlow canvas or builder content (Build tab)
       const hasCanvas = await waitForContent(page, [
         '[class*="reactFlow" i]',
+        '[class*="react-flow" i]',
         '[class*="canvas" i]',
         '[class*="builder" i]',
-        '[class*="workflowDetail" i]',
-        'canvas',
-      ], 5000);
+        '[class*="topBar" i]',
+      ], 8000);
 
       if (hasCanvas) {
-        await takeScreenshot(page, '06-workflow-detail', 'workflows');
+        await takeScreenshot(page, '06-workflow-build-tab', 'workflows');
         workflowDetailCaptured = true;
 
         // Try to capture a node being edited
@@ -2039,7 +2021,30 @@ async function captureWorkflows(page) {
         } catch (e) {
           console.log('  Could not capture node editor');
         }
+
+        // Click the "View" tab to show completed workflow results
+        try {
+          const viewClicked =
+            (await clickFirstVisible(page, ['[data-testid="workflow-view-tab-button"]'], 3000)) ||
+            (await clickButtonByText(page, 'View', 3000));
+          if (viewClicked) {
+            await delay(TIMING.postClickDelay);
+            await waitForNetworkIdle(page);
+            await waitForLoaders(page);
+            await takeScreenshot(page, '06a-workflow-view-tab', 'workflows');
+          } else {
+            console.log('  View tab not clickable (workflow may not have completed runs)');
+          }
+        } catch (e) {
+          console.log(`  Could not capture View tab: ${e.message}`);
+        }
+      } else {
+        console.log('  Workflow detail loaded but no canvas/builder found');
+        await takeScreenshot(page, '06-workflow-build-tab', 'workflows');
+        workflowDetailCaptured = true;
       }
+    } else {
+      console.log('  No workflow cards found on main page');
     }
   } catch (e) {
     console.log(`  Could not capture workflow detail: ${e.message}`);
