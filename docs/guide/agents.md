@@ -158,13 +158,13 @@ Click the three-dot menu on any agent card to access quick actions:
 
 ## Creating an Agent
 
-Click **+ Create Agent** in the top-right corner of the gallery to open the **Generate Agent** modal. You can choose to generate an agent quickly using AI, or manually configure one using the full guided builder.
+Click **+ Create Agent** in the top-right corner of the gallery to open the **Generate Agent** modal. This modal provides a streamlined AI-powered workflow to create agents quickly.
 
 ::: tip Generate Agent Modal
-When you click **+ Create Agent**, a modal opens with the title **"Generate Agent"** (not "Agent Builder"). This modal offers a streamlined way to create agents using AI generation:
+When you click **+ Create Agent**, a modal opens with the title **"Generate Agent"**. This modal offers an AI-powered way to create agents:
 - Enter an **Agent Name** (e.g., "Research Assistant")
 - Describe the **Agent Objective** (what the agent should accomplish)
-- Select an **Agent Type** from the dropdown (e.g., "The Collaborator" or other templates)
+- Select an **Agent Type** from the dropdown (Assistant, Consumer Persona, Product, or Visual Generator)
 - Click the **Generate** button to let AI create the agent configuration automatically
 
 After generating, you can refine the agent using the full guided builder by clicking through to edit the agent details.
