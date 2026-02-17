@@ -2,46 +2,36 @@
 
 ## What Was Changed
 
-Updated `docs/guide/workflows.md` to clarify empty state behavior in two sections:
+Updated terminology in `docs/guide/agents.md` at line 153 from "agent builder" to "Generate Agent dialog" to accurately reflect the actual UI workflow.
 
-1. **Browsing Your Workflows section (lines 37-52)**
-   - Replaced duplicate "Getting Started" and "Empty State" info boxes with a single, comprehensive empty state explanation
-   - Explicitly documented that when no workflows exist:
-     - The workflow grid, cards, builder, and canvas are NOT visible
-     - Only the "Create new workflow" button appears in the top-right corner
-     - This is normal and expected behavior
-
-2. **Upcoming Runs section (lines 541-547)**
-   - Added an "Empty State" info box explaining that the tab shows an empty state when no schedules are configured
-   - Clarified that this is normal and expected behavior
-   - Noted that runs only appear after setting up a schedule
+**Specific change:**
+- **Before**: "**Edit Agent** — Open the agent builder to make changes (requires Edit permission)"
+- **After**: "**Edit Agent** — Open the Generate Agent dialog to make changes (requires Edit permission)"
 
 ## Why It Fixes the Issue
 
-The QA tests (`workflow--builder-ui-visible`, `workflow--builder-canvas-loads`, `workflow--upcoming-runs-page-content`) were failing because they expected to see builder/canvas/content elements but encountered empty states instead. The tests didn't recognize empty states as valid UI patterns.
+The documentation previously stated that clicking **Edit Agent** opens "the agent builder" directly. However, the actual UI flow shows that clicking this action opens the **Generate Agent** modal/dialog first, as verified in the source code at `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`.
 
-The documentation previously mentioned empty states but didn't clearly explain:
-- What UI elements are NOT visible in the empty state
-- Where the "Create new workflow" button appears
-- That empty states are the expected and normal behavior
+The corrected text now reads "Generate Agent dialog" which matches the user's actual experience. When users click **Edit Agent**, they first encounter the "Generate Agent" modal as the initial entry point, not the full builder interface.
 
-By explicitly documenting these details, future readers (and QA tests) will understand that:
-- Empty states are intentional design patterns
-- Missing workflow grids/builder/canvas are expected when no workflows exist
-- Missing upcoming runs content is expected when no schedules are configured
+This fix ensures the documentation accurately describes the UI flow that users experience when editing agents.
 
 ## Which File and Section Were Modified
 
-**File:** `docs/guide/workflows.md`
+**File:** `docs/guide/agents.md`
 
-**Sections:**
-- "Browsing Your Workflows" (lines 37-52)
-- "Upcoming Runs" (lines 541-547)
+**Section:** "Agent Card Actions" (within the "Viewing Agent Details" section)
 
-**Change Type:** Documentation clarification (DOC_ISSUE)
+**Lines Changed:** 151-159 (specifically line 153)
 
-**Confidence:** 0.93 (per automated analysis)
+**Change Type:** DOC_ISSUE - Terminology correction to match actual UI
+
+**Confidence:** 0.95 (per automated analysis)
 
 ## Verification
 
-The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png`
+The fix was verified against:
+- **Source code reference**: `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136`
+- **QA test**: "Agents: Create UI visible"
+- **Classification**: DOC_ISSUE
+- **Timestamp**: 2026-02-12T03:36:00Z

@@ -150,7 +150,7 @@ Click the three-dot menu on any agent card to access quick actions:
 
 - **Start Conversation** — Open a new chat with this agent
 - **Share** — Control who can access this agent (requires Manage permission)
-- **Edit Agent** — Open the agent builder to make changes (requires Edit permission)
+- **Edit Agent** — Open the Generate Agent dialog to make changes (requires Edit permission)
 - **View Agent** — Open a read-only view (when you don't have Edit permission)
 - **Delete Agent** — Permanently remove the agent (requires Delete permission)
 
