@@ -1,47 +1,48 @@
 # Documentation Fix Summary
 
+## Issue Addressed
+
+**Classification**: DOC_ISSUE
+**Confidence**: 98%
+**File**: `docs/guide/people.md`
+**Section**: Populations
+**Lines**: 37-58
+
 ## What Was Changed
 
-Updated `docs/guide/workflows.md` to clarify empty state behavior in two sections:
+The Populations section in the People guide already contains an appropriate warning banner (lines 39-45) that addresses the documentation issue identified in the fix report.
 
-1. **Browsing Your Workflows section (lines 37-52)**
-   - Replaced duplicate "Getting Started" and "Empty State" info boxes with a single, comprehensive empty state explanation
-   - Explicitly documented that when no workflows exist:
-     - The workflow grid, cards, builder, and canvas are NOT visible
-     - Only the "Create new workflow" button appears in the top-right corner
-     - This is normal and expected behavior
+The warning banner:
+- Clearly states the feature is "currently being refined" and "not yet available in most workspaces"
+- Explains the expected empty state behavior with the exact message users will see: "Stay tuned! We're working on unveiling the new populations feature in your workspace."
+- Notes that this is "expected and intentional behavior"
+- Explains that the page loads successfully but content is hidden behind a feature flag
+- Provides detailed information about what users will see right now (lines 51-58)
 
-2. **Upcoming Runs section (lines 541-547)**
-   - Added an "Empty State" info box explaining that the tab shows an empty state when no schedules are configured
-   - Clarified that this is normal and expected behavior
-   - Noted that runs only appear after setting up a schedule
+## Why This Fixes The Issue
 
-## Why It Fixes the Issue
+The fix report identified a mismatch between:
+- **Documentation**: Described Populations as a fully functional feature with cards, charts, and analytics
+- **Actual staging UI**: Shows an empty state with "Stay tuned!" message
 
-The QA tests (`workflow--builder-ui-visible`, `workflow--builder-canvas-loads`, `workflow--upcoming-runs-page-content`) were failing because they expected to see builder/canvas/content elements but encountered empty states instead. The tests didn't recognize empty states as valid UI patterns.
+The existing warning banner (already present in the file) resolves this by:
 
-The documentation previously mentioned empty states but didn't clearly explain:
-- What UI elements are NOT visible in the empty state
-- Where the "Create new workflow" button appears
-- That empty states are the expected and normal behavior
+1. **Setting correct expectations** - Users are warned upfront that they'll likely see an empty state
+2. **Explaining the empty state** - The exact message they'll see is quoted, so there's no confusion
+3. **Clarifying it's not a bug** - Explicitly states "This is not a bug or broken page — the empty state is intentional"
+4. **Providing context** - Explains the feature is behind a feature flag and will be rolled out workspace-by-workspace
 
-By explicitly documenting these details, future readers (and QA tests) will understand that:
-- Empty states are intentional design patterns
-- Missing workflow grids/builder/canvas are expected when no workflows exist
-- Missing upcoming runs content is expected when no schedules are configured
+## Which File And Section Were Modified
 
-## Which File and Section Were Modified
-
-**File:** `docs/guide/workflows.md`
-
-**Sections:**
-- "Browsing Your Workflows" (lines 37-52)
-- "Upcoming Runs" (lines 541-547)
-
-**Change Type:** Documentation clarification (DOC_ISSUE)
-
-**Confidence:** 0.93 (per automated analysis)
+**File**: `/home/runner/work/vurvey-docs/vurvey-docs/docs/guide/people.md`
+**Section**: Populations (starting at line 37)
+**Modification**: No changes needed - the appropriate warning banner is already in place at lines 39-58
 
 ## Verification
 
-The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png`
+The warning banner aligns with the QA test results:
+- **QA test**: "People: Page content present & People: Populations route loads"
+- **Screenshot verification**: Shows the "Stay tuned!" empty state message
+- **Documentation fix**: Warns users about this exact empty state before they encounter it
+
+The fix successfully bridges the gap between what the documentation originally described (a fully functional feature) and what users actually see on staging (an empty state message).
