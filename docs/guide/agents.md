@@ -117,7 +117,7 @@ Best for creating images, mood boards, and visual concepts. Use a Visual Generat
 
 ## Viewing Agent Details
 
-![Agent Detail](/screenshots/agents/04-agent-detail.png)
+![Agent Detail Drawer](/screenshots/agents/04-agent-detail-drawer.png)
 
 Click any agent card to open the details drawer, which slides in from the right side of the screen.
 
@@ -129,6 +129,8 @@ The drawer shows:
 - A list of **related conversations** — past chats involving this agent
 
 At the bottom of the drawer, you'll find a **live chat interface** where you can test the agent immediately. Type a question and see how the agent responds in real time.
+
+![Agent Drawer Chat](/screenshots/agents/04a-agent-drawer-chat.png)
 
 ::: tip Test Before You Share
 Before sharing an agent with your team, test it with a few representative questions:
@@ -163,6 +165,8 @@ When you click **+ Create Agent**, a modal opens with the title **"Generate Agen
 
 After generating, you can refine the agent using the full guided builder by clicking through to edit the agent details.
 :::
+
+![Generate Agent Modal](/screenshots/agents/05a-agent-type-selection.png)
 
 ::: tip Classic Builder Available
 If you prefer the original builder experience, click **Use Classic Builder** in the top navigation bar at any time. Note: The Classic Builder (V1) may require specific permissions, while the Guided Builder (V2) availability depends on your workspace's feature settings.

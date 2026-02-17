@@ -13,6 +13,7 @@
  *   VURVEY_URL         - Base URL (default: https://staging.vurvey.dev)
  *   HEADLESS           - Run headless (default: true)
  *   CAPTURE_PARALLEL   - Number of parallel page workers (default: 4, set to 1 for sequential)
+ *   CAPTURE_ONLY       - Comma-separated section names to run (e.g. "agents,people")
  */
 
 import puppeteer from 'puppeteer';
@@ -55,6 +56,10 @@ const CONFIG = {
   timeout: 90000,
   retries: 3,
   parallel: Math.max(1, parseInt(process.env.CAPTURE_PARALLEL, 10) || 4),
+  captureOnly: (process.env.CAPTURE_ONLY || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
 };
 
 // Store extracted workspace ID after login
@@ -192,6 +197,32 @@ async function waitForLoaders(page, timeout = TIMING.loaderTimeout) {
   console.log('  ⚠ Loader timeout (continuing)');
 }
 
+async function hasRenderableMainContent(page) {
+  try {
+    return await page.evaluate(() => {
+      const root =
+        document.querySelector('main, [role="main"], #root main, [class*="main-content" i], [class*="page-content" i]') ||
+        document.body;
+      const clone = root.cloneNode(true);
+      clone
+        .querySelectorAll('nav, aside, [class*="sidebar" i], [aria-label*="navigation" i]')
+        .forEach((el) => el.remove());
+
+      const text = (clone.innerText || '').replace(/\s+/g, ' ').trim();
+      const hasStructuredContent = !!clone.querySelector(
+        'table, form, textarea, canvas, [contenteditable="true"], [data-testid*="card"], [class*="card" i], [class*="grid" i], [class*="list" i], [class*="chat" i], [class*="message" i]'
+      );
+      const iconOnly = !!clone.querySelector('svg, [class*="icon" i]') && text.length < 40 && !hasStructuredContent;
+
+      if (iconOnly) return false;
+      return hasStructuredContent || text.length >= 80;
+    });
+  } catch {
+    // If DOM probing fails, do not block the capture.
+    return true;
+  }
+}
+
 async function takeScreenshot(page, name, subdir = '') {
   const dir = subdir ? path.join(CONFIG.screenshotsDir, subdir) : CONFIG.screenshotsDir;
   ensureDir(dir);
@@ -204,6 +235,19 @@ async function takeScreenshot(page, name, subdir = '') {
     // Ignore loader wait issues (context destroyed, etc).
   }
   await delay(TIMING.preScreenshotDelay);
+
+  if (await pageHasGlobalError(page)) {
+    console.log(`  ⚠ Skipping screenshot (${subdir}/${name}.png): page is in a global error state`);
+    await takeArtifactScreenshot(page, `skip-global-${subdir}-${name}`);
+    return null;
+  }
+
+  const hasContent = await hasRenderableMainContent(page);
+  if (!hasContent) {
+    console.log(`  ⚠ Skipping screenshot (${subdir}/${name}.png): insufficient page content`);
+    await takeArtifactScreenshot(page, `skip-empty-${subdir}-${name}`);
+    return null;
+  }
 
   try {
     await page.screenshot({ path: filepath, fullPage: false });
@@ -1687,14 +1731,21 @@ async function captureBranding(page) {
 
   // Branding routes are under /workspace/branding/
   const brandingUrl = getWorkspaceUrl('/workspace/branding');
-  if (!(await gotoWithRetry(page, brandingUrl, { label: 'branding' }))) return false;
+  if (!(await gotoWithRetry(page, brandingUrl, { label: 'branding' }))) {
+    console.log('  ⚠ Branding route is unavailable for this workspace. Skipping branding captures.');
+    return true;
+  }
 
-  await waitForContent(page, [
+  const hasBrandingContent = await waitForContent(page, [
     'form',
     'input',
     '[class*="brand" i]',
     '[class*="form" i]',
   ]);
+  if (!hasBrandingContent) {
+    console.log('  ⚠ Branding page loaded without expected content. Skipping branding captures.');
+    return true;
+  }
 
   await takeScreenshot(page, '01-brand-settings', 'branding');
 
@@ -1723,7 +1774,10 @@ async function captureForecast(page) {
   console.log('\n Capturing Forecast...');
 
   const forecastUrl = getWorkspaceUrl('/forecast');
-  if (!(await gotoWithRetry(page, forecastUrl, { label: 'forecast' }))) return false;
+  if (!(await gotoWithRetry(page, forecastUrl, { label: 'forecast' }))) {
+    console.log('  ⚠ Forecast route is unavailable for this workspace. Skipping forecast capture.');
+    return true;
+  }
 
   // Check if we were redirected (feature flag off)
   const currentUrl = page.url();
@@ -1732,12 +1786,16 @@ async function captureForecast(page) {
     return true; // Not a failure, just gated
   }
 
-  await waitForContent(page, [
+  const hasForecastContent = await waitForContent(page, [
     '[class*="forecast" i]',
     '[class*="chart" i]',
     'canvas',
     'table',
   ]);
+  if (!hasForecastContent) {
+    console.log('  ⚠ Forecast page loaded without expected content. Skipping forecast capture.');
+    return true;
+  }
 
   await takeScreenshot(page, '01-forecast-main', 'forecast');
   return true;
@@ -1882,18 +1940,28 @@ async function main() {
       ["integrations", captureIntegrations],
     ];
 
+    const selectedCaptures = CONFIG.captureOnly.length
+      ? allCaptures.filter(([name]) => CONFIG.captureOnly.includes(name))
+      : allCaptures;
+
+    if (!selectedCaptures.length) {
+      throw new Error(
+        `No matching capture sections for CAPTURE_ONLY=${process.env.CAPTURE_ONLY}`
+      );
+    }
+
     /** @type {{name: string, ok: boolean}[]} */
     let captureResults;
 
     if (CONFIG.parallel <= 1) {
       // Sequential fallback – single worker processes everything.
-      captureResults = await runWorker(browser, allCaptures, 'worker-1');
+      captureResults = await runWorker(browser, selectedCaptures, 'worker-1');
     } else {
       // Distribute captures across workers. Groups are load-balanced so the
       // heaviest sections (people, agents) each get their own worker.
-      const workerGroups = distributeCaptures(allCaptures, CONFIG.parallel);
+      const workerGroups = distributeCaptures(selectedCaptures, CONFIG.parallel);
 
-      console.log(`\n  Distributing ${allCaptures.length} sections across ${workerGroups.length} workers...`);
+      console.log(`\n  Distributing ${selectedCaptures.length} sections across ${workerGroups.length} workers...`);
       for (let i = 0; i < workerGroups.length; i++) {
         console.log(`    Worker ${i + 1}: ${workerGroups[i].map(([n]) => n).join(', ')}`);
       }
