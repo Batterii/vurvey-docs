@@ -259,6 +259,60 @@ async function takeScreenshot(page, name, subdir = '') {
   return filepath;
 }
 
+async function hasOpenRightSideDrawer(page) {
+  try {
+    return await page.evaluate(() => {
+      const candidates = Array.from(
+        document.querySelectorAll(
+          '[class*="drawer" i], [class*="slideout" i], [class*="sidepanel" i], [class*="side-panel" i], [data-testid*="drawer" i]'
+        )
+      );
+      return candidates.some((el) => {
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+        const rect = el.getBoundingClientRect();
+        if (rect.width < 260 || rect.height < 280) return false;
+        // Treat only right-edge panels as drawers so centered modals are ignored.
+        return rect.left > window.innerWidth * 0.6;
+      });
+    });
+  } catch {
+    return false;
+  }
+}
+
+async function closeRightSideDrawer(page, context = '') {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const open = await hasOpenRightSideDrawer(page);
+    if (!open) return true;
+
+    console.log(`  ⚠ Closing open right drawer${context ? ` (${context})` : ''} [attempt ${attempt}/3]`);
+    // Try escape first (most drawer implementations support it).
+    await page.keyboard.press('Escape').catch(() => {});
+    await delay(220);
+
+    // Then attempt an explicit close button click inside the right panel.
+    await page.evaluate(() => {
+      const buttons = Array.from(
+        document.querySelectorAll('button, [role="button"], [aria-label*="close" i], [title*="close" i]')
+      );
+      const closeBtn = buttons.find((el) => {
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+        const rect = el.getBoundingClientRect();
+        if (rect.width < 16 || rect.height < 16) return false;
+        const label = `${el.getAttribute('aria-label') || ''} ${el.getAttribute('title') || ''} ${el.textContent || ''}`.toLowerCase();
+        return rect.left > window.innerWidth * 0.6 && (label.includes('close') || label.includes('dismiss') || label.includes('cancel'));
+      });
+      if (closeBtn) closeBtn.click();
+    }).catch(() => {});
+
+    await delay(220);
+  }
+
+  return !(await hasOpenRightSideDrawer(page));
+}
+
 async function clickButtonByText(page, text, timeout = 8000) {
   const startTime = Date.now();
   const norm = String(text).trim().toLowerCase();
@@ -843,6 +897,11 @@ async function captureAgents(page) {
     console.log('  Could not capture agent detail drawer');
   }
 
+  // Reset to a clean gallery state before opening the Create Agent modal.
+  await gotoWithRetry(page, agentsUrl, { label: 'agents-clean-before-create', retries: 1 });
+  await waitForLoaders(page);
+  await closeRightSideDrawer(page, 'before-create-agent');
+
   // Try opening Agent Builder and capturing step screenshots (best-effort).
   try {
     const opened =
@@ -857,6 +916,8 @@ async function captureAgents(page) {
     await delay(TIMING.postClickDelay);
     await waitForNetworkIdle(page);
     await waitForLoaders(page);
+    await closeRightSideDrawer(page, 'create-agent-modal-screenshot');
+    await takeScreenshot(page, '05a-agent-type-selection', 'agents');
 
     // Check if there's a type selection screen first
     const hasTypeSelection = await waitForContent(page, [
@@ -865,7 +926,7 @@ async function captureAgents(page) {
       '[class*="moldSelection" i]',
     ], 3000);
     if (hasTypeSelection) {
-      await takeScreenshot(page, '05a-agent-type-selection', 'agents');
+      await closeRightSideDrawer(page, 'type-selection-screenshot');
       // Click first type option to proceed
       const typeClicked = await clickFirstVisible(page, [
         '[class*="typeCard" i]',
@@ -879,6 +940,7 @@ async function captureAgents(page) {
       }
     }
 
+    await closeRightSideDrawer(page, 'builder-objective-screenshot');
     await takeScreenshot(page, '05-builder-objective', 'agents');
 
     // Builder uses circular icon buttons with aria-label attributes for step nav.
