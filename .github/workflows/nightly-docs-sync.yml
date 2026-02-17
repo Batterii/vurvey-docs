@@ -413,24 +413,8 @@ jobs:
           client-payload: >-
             {"source":"vurvey-docs-site","workflow_run_id":"${{ github.run_id }}","bug_reports":${{ steps.filter_bugs.outputs.backend_bugs }}}
 
-  # Dispatch doc fixes back to vurvey-docs itself via claude-doc-fix workflow
-  dispatch-doc-fixes:
-    needs: sync-documentation
-    if: needs.sync-documentation.outputs.has_doc_fixes == 'true' && inputs.skip_bug_dispatch != true
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Dispatch doc-fix-request
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          event-type: doc-fix-request
-          client-payload: >-
-            {"source":"nightly-docs-sync","workflow_run_id":"${{ github.run_id }}","doc_fixes":${{ needs.sync-documentation.outputs.doc_fixes }}}
-
   notify-on-failure:
-    needs: [sync-documentation, dispatch-frontend-bugs, dispatch-backend-bugs, dispatch-doc-fixes]
+    needs: [sync-documentation, dispatch-frontend-bugs, dispatch-backend-bugs]
     if: failure()
     runs-on: ubuntu-latest
     steps:
@@ -442,7 +426,6 @@ jobs:
           echo "  sync-documentation:     ${{ needs.sync-documentation.result }}"
           echo "  dispatch-frontend-bugs: ${{ needs.dispatch-frontend-bugs.result }}"
           echo "  dispatch-backend-bugs:  ${{ needs.dispatch-backend-bugs.result }}"
-          echo "  dispatch-doc-fixes:     ${{ needs.dispatch-doc-fixes.result }}"
           echo ""
           echo "QA failures found: ${{ needs.sync-documentation.outputs.qa_failure_count || '0' }}"
           echo "Bug reports: ${{ needs.sync-documentation.outputs.has_bug_reports }}"

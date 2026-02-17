@@ -2,10 +2,6 @@
 
 Reels are curated video compilations created from campaign responses, reviews, or media library content. Use Reels to showcase customer feedback, create highlight videos, or share insights with stakeholders.
 
-:::info API Terminology
-In the codebase, Reels are stored as `Reel` objects with associated `Clip` items. The video compilation process is called "transcoding" and produces multiple formats (VP8/WebM and H264/MP4).
-:::
-
 ## Overview
 
 Reels provide:

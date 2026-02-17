@@ -6,10 +6,6 @@ Workflows is currently in beta. Features may evolve and some functionality may b
 
 Workflows let you automate multi-step research processes by chaining AI agents together into reusable pipelines. Feed in your datasets and campaign data, define what each agent should do, and let the system run — on demand or on a schedule.
 
-::: info API Terminology
-In the Vurvey API and codebase, Workflows are called `AiOrchestration`, and Workflow Steps are called `AiPersonaTask`.
-:::
-
 ## Overview
 
 ![Workflows Main](/screenshots/workflows/01-workflows-main.png)

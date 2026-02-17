@@ -49,8 +49,7 @@ This is expected and intentional behavior. The page loads successfully, but the 
 Once enabled, Populations will be AI-generated audience groups that represent different consumer segments. You'll be able to use them to simulate focus group discussions, test campaign questions before launch, or fill gaps when you don't have enough real participants.
 
 ::: info What You'll See Right Now
-- **Route `/audience`:** Displays the People section with tabs for Populations, Humans, Molds, Lists & Segments, and Properties. The default view shows the Populations tab with the "Stay tuned" empty state message.
-- **Route `/people/populations`:** Same view as `/audience` — shows the empty state message.
+- **People page:** Displays the People section with tabs for Populations, Humans, Molds, Lists & Segments, and Properties. The default view shows the Populations tab with the "Stay tuned" empty state message.
 - **No table, grid, or card views:** The feature UI is completely hidden until activation.
 - **No error:** This is not a bug or broken page — the empty state is intentional.
 

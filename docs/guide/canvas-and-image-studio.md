@@ -83,12 +83,9 @@ Image Studio features a five-panel layout:
 
 ## AI Image Operations
 
-Image Studio offers five core AI-powered operations, each calling a dedicated backend endpoint:
+Image Studio offers five core AI-powered operations:
 
 ### 1. Enhance Image
-
-**Endpoint:** `POST /rest/enhance`
-**Technology:** Replicate AI
 
 Enhances image quality, sharpness, and color balance automatically.
 
@@ -115,9 +112,6 @@ Enhances image quality, sharpness, and color balance automatically.
 :::
 
 ### 2. Upscale Image
-
-**Endpoint:** `POST /rest/upscale`
-**Technology:** Recraft AI via Replicate
 
 Increases image resolution and dimensions using AI interpolation.
 
@@ -149,9 +143,6 @@ Upscaling to 4x can produce very large files (10+ MB). Only use 4x when you genu
 :::
 
 ### 3. Edit Image (Change/Replace Content)
-
-**Endpoint:** `POST /rest/imgeditor`
-**Technology:** Mask-based AI editing
 
 Modifies specific parts of an image based on a text prompt and drawn mask.
 
@@ -188,9 +179,6 @@ For best results, mask slightly beyond the edges of what you want to change. The
 
 ### 4. Remove Selection
 
-**Endpoint:** `POST /rest/imgeditor` (empty prompt)
-**Technology:** Same as Edit Image, with inpainting
-
 Removes selected areas from an image and fills them naturally with AI-generated content.
 
 **How it works:**
@@ -215,9 +203,6 @@ For cleanest results, remove objects with simple, uniform backgrounds. Removing 
 :::
 
 ### 5. Convert to Video
-
-**Mutation:** `startVideoGeneration`
-**Technology:** Google Veo 3.1
 
 Transforms a static image into a short video clip with motion and animation.
 

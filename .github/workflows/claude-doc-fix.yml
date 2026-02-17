@@ -19,54 +19,9 @@ env:
   NODE_VERSION: "22"
 
 jobs:
-  prepare-matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-      fix_count: ${{ steps.set-matrix.outputs.fix_count }}
-    steps:
-      - name: Build doc fix matrix
-        id: set-matrix
-        env:
-          DOC_FIXES_PAYLOAD: ${{ toJson(github.event.client_payload.doc_fixes) }}
-          MANUAL_DOC_FIX: ${{ inputs.doc_fix_json }}
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          if [ "$EVENT_NAME" = "repository_dispatch" ]; then
-            FIXES="$DOC_FIXES_PAYLOAD"
-          else
-            # Manual input: wrap single object in array if needed
-            if echo "$MANUAL_DOC_FIX" | jq -e 'type == "array"' > /dev/null 2>&1; then
-              FIXES="$MANUAL_DOC_FIX"
-            else
-              FIXES=$(echo "$MANUAL_DOC_FIX" | jq -c '[.]')
-            fi
-          fi
-
-          # Count fixes
-          FIX_COUNT=$(echo "$FIXES" | jq 'length')
-          echo "fix_count=$FIX_COUNT" >> $GITHUB_OUTPUT
-
-          if [ "$FIX_COUNT" -eq 0 ]; then
-            echo "No doc fixes to process"
-            echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          # Build matrix with index for each fix
-          MATRIX=$(echo "$FIXES" | jq -c '{include: [to_entries[] | {index: .key, fix: .value}]}')
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
-          echo "Processing $FIX_COUNT doc fix(es)"
-
   fix-docs:
-    needs: prepare-matrix
-    if: needs.prepare-matrix.outputs.fix_count != '0'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      max-parallel: 3
-      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -87,52 +42,113 @@ jobs:
       - name: Install Claude Code CLI
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Extract doc fix report
-        id: doc_fix
+      - name: Parse doc fixes
+        id: parse_fixes
         env:
-          FIX_JSON: ${{ toJson(matrix.fix) }}
-          FIX_INDEX: ${{ matrix.index }}
+          DOC_FIXES_PAYLOAD: ${{ toJson(github.event.client_payload.doc_fixes) }}
+          MANUAL_DOC_FIX: ${{ inputs.doc_fix_json }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          echo "$FIX_JSON" > /tmp/doc-fix-report.json
+          if [ "$EVENT_NAME" = "repository_dispatch" ]; then
+            FIXES="$DOC_FIXES_PAYLOAD"
+          else
+            # Manual input: wrap single object in array if needed
+            if echo "$MANUAL_DOC_FIX" | jq -e 'type == "array"' > /dev/null 2>&1; then
+              FIXES="$MANUAL_DOC_FIX"
+            else
+              FIXES=$(echo "$MANUAL_DOC_FIX" | jq -c '[.]')
+            fi
+          fi
 
-          TITLE=$(echo "$FIX_JSON" | jq -r '.title // "unknown-fix"' | tr -cd '[:alnum:]-' | head -c 40)
-          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-          BRANCH_NAME="docs-fix/${TIMESTAMP}-${FIX_INDEX}-${TITLE}"
+          FIX_COUNT=$(echo "$FIXES" | jq 'length')
+          echo "fix_count=$FIX_COUNT" >> $GITHUB_OUTPUT
 
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
-          echo "fix_title=$TITLE" >> $GITHUB_OUTPUT
-          echo "Processing doc fix $FIX_INDEX: $TITLE"
+          if [ "$FIX_COUNT" -eq 0 ]; then
+            echo "No doc fixes to process"
+            exit 0
+          fi
 
-      - name: Check for existing PR
+          # Write fixes to file for later steps
+          echo "$FIXES" > /tmp/all-doc-fixes.json
+          echo "Processing $FIX_COUNT doc fix(es) in a single batch"
+
+      - name: Check for existing automated PR
+        if: steps.parse_fixes.outputs.fix_count != '0'
         id: check_existing
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FIX_TITLE: ${{ steps.doc_fix.outputs.fix_title }}
         run: |
-          EXISTING_PR=$(gh pr list --state open --search "[Auto-Doc-Fix] $FIX_TITLE" --json number --jq 'length')
+          # Check for ANY open automated doc fix or nightly PR
+          EXISTING_AUTO=$(gh pr list --state open --search "[Auto-Doc-Fix]" --json number,headRefName --jq '.[0]')
+          EXISTING_NIGHTLY=$(gh pr list --state open --search "[Automated] Nightly" --json number,headRefName --jq '.[0]')
+          EXISTING_QA=$(gh pr list --state open --search "[QA Remediation]" --json number,headRefName --jq '.[0]')
 
-          if [ "$EXISTING_PR" -gt 0 ]; then
-            echo "skip=true" >> $GITHUB_OUTPUT
-            echo "Skipping: PR already exists for this doc fix"
+          if [ -n "$EXISTING_AUTO" ] && [ "$EXISTING_AUTO" != "null" ]; then
+            EXISTING_BRANCH=$(echo "$EXISTING_AUTO" | jq -r '.headRefName')
+            EXISTING_PR_NUM=$(echo "$EXISTING_AUTO" | jq -r '.number')
+            echo "Found existing Auto-Doc-Fix PR #$EXISTING_PR_NUM on branch $EXISTING_BRANCH"
+            echo "existing_branch=$EXISTING_BRANCH" >> $GITHUB_OUTPUT
+            echo "existing_pr=$EXISTING_PR_NUM" >> $GITHUB_OUTPUT
+            echo "has_existing=true" >> $GITHUB_OUTPUT
+          elif [ -n "$EXISTING_NIGHTLY" ] && [ "$EXISTING_NIGHTLY" != "null" ]; then
+            echo "Nightly PR already open — doc fixes are likely already included. Skipping."
+            echo "has_existing=skip" >> $GITHUB_OUTPUT
+          elif [ -n "$EXISTING_QA" ] && [ "$EXISTING_QA" != "null" ]; then
+            echo "QA Remediation PR already open — doc fixes are likely already included. Skipping."
+            echo "has_existing=skip" >> $GITHUB_OUTPUT
           else
-            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "No existing automated PR found, will create new one"
+            echo "has_existing=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create fix branch
-        if: steps.check_existing.outputs.skip != 'true'
+      - name: Create or checkout fix branch
+        if: steps.parse_fixes.outputs.fix_count != '0' && steps.check_existing.outputs.has_existing != 'skip'
+        id: branch
         env:
-          BRANCH_NAME: ${{ steps.doc_fix.outputs.branch_name }}
+          HAS_EXISTING: ${{ steps.check_existing.outputs.has_existing }}
+          EXISTING_BRANCH: ${{ steps.check_existing.outputs.existing_branch }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH_NAME"
 
-      - name: Generate fix prompt
-        if: steps.check_existing.outputs.skip != 'true'
+          if [ "$HAS_EXISTING" = "true" ] && [ -n "$EXISTING_BRANCH" ]; then
+            echo "Pushing to existing branch: $EXISTING_BRANCH"
+            git fetch origin "$EXISTING_BRANCH"
+            git checkout "$EXISTING_BRANCH"
+            echo "branch_name=$EXISTING_BRANCH" >> $GITHUB_OUTPUT
+          else
+            TIMESTAMP=$(date +%Y%m%d)
+            BRANCH_NAME="automated/doc-fixes-${TIMESTAMP}"
+            echo "Creating new branch: $BRANCH_NAME"
+            git checkout -b "$BRANCH_NAME"
+            echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Apply all doc fixes via Claude Code
+        if: steps.parse_fixes.outputs.fix_count != '0' && steps.check_existing.outputs.has_existing != 'skip'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FIX_COUNT: ${{ steps.parse_fixes.outputs.fix_count }}
         run: |
-          FIX_REPORT=$(cat /tmp/doc-fix-report.json)
+          echo "Processing $FIX_COUNT doc fix(es) sequentially..."
 
-          cat << 'PROMPT_HEADER' > /tmp/doc-fix-prompt.md
+          APPLIED=0
+          SKIPPED=0
+          ERRORS=0
+
+          for i in $(seq 0 $(($FIX_COUNT - 1))); do
+            echo ""
+            echo "=========================================="
+            echo "Processing fix $((i+1)) of $FIX_COUNT"
+            echo "=========================================="
+
+            FIX=$(jq -c ".[$i]" /tmp/all-doc-fixes.json)
+            TITLE=$(echo "$FIX" | jq -r '.title // "Documentation fix"')
+            echo "Title: $TITLE"
+
+            echo "$FIX" > /tmp/current-fix.json
+
+            cat << 'PROMPT_HEADER' > /tmp/doc-fix-prompt.md
           # Documentation Fix Agent
 
           You are an autonomous documentation-fixing agent for the Vurvey documentation site (VitePress/Markdown).
@@ -146,9 +162,9 @@ jobs:
           ```json
           PROMPT_HEADER
 
-          echo "$FIX_REPORT" >> /tmp/doc-fix-prompt.md
+            echo "$FIX" >> /tmp/doc-fix-prompt.md
 
-          cat << 'PROMPT_FOOTER' >> /tmp/doc-fix-prompt.md
+            cat << 'PROMPT_FOOTER' >> /tmp/doc-fix-prompt.md
           ```
 
           ## Instructions
@@ -163,69 +179,67 @@ jobs:
 
           - Make ONLY the changes needed to fix this specific documentation issue
           - Preserve existing formatting and style (Markdown, VitePress conventions)
-          - Keep the `/vurvey-docs/` base path prefix for absolute asset paths
+          - Use `/screenshots/...` paths (NOT `/vurvey-docs/screenshots/...`) for assets
           - Use `?optional=1` query param on screenshot references if needed
           - Don't restructure or rewrite sections beyond the identified fix
           - Don't change file names or move content unless the fix specifically requires it
-          - If `qa_failure` data is provided, ensure the fix addresses the test failure
 
           ## VitePress Conventions
 
           - Documentation lives in `docs/guide/*.md`
           - Screenshots under `docs/public/screenshots/{section}/*.png`
           - Sidebar config in `docs/.vitepress/config.js`
-          - All absolute paths need `/vurvey-docs/` prefix
-
-          ## When Done
-
-          Create a file `DOC_FIX_SUMMARY.md` with:
-          - What was changed
-          - Why it fixes the issue
-          - Which file and section were modified
 
           Start fixing now.
           PROMPT_FOOTER
 
-      - name: Run Claude Code to fix docs
-        if: steps.check_existing.outputs.skip != 'true'
-        id: claude_fix
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          echo "Running Claude Code to fix documentation..."
+            set +e
+            claude -p "$(cat /tmp/doc-fix-prompt.md)" \
+              --model claude-sonnet-4-5-20250929 \
+              --dangerously-skip-permissions \
+              --max-turns 15 \
+              --output-format json \
+              2>&1 | tee /tmp/claude-fix-log-$i.txt
+            CLAUDE_EXIT=$?
+            set -e
 
-          PROMPT_CONTENT=$(cat /tmp/doc-fix-prompt.md)
+            if [ $CLAUDE_EXIT -eq 0 ]; then
+              APPLIED=$((APPLIED + 1))
+              echo "Fix $((i+1)) applied successfully"
 
-          set +e
-          claude -p "$PROMPT_CONTENT" \
-            --model claude-sonnet-4-5-20250929 \
-            --dangerously-skip-permissions \
-            --max-turns 15 \
-            --output-format json \
-            2>&1 | tee /tmp/claude-fix-log.txt
-          CLAUDE_EXIT=$?
-          set -e
+              # Stage and commit this individual fix
+              git add -A
+              git reset -- /tmp/ 2>/dev/null || true
 
-          if [ -f /tmp/claude-fix-log.txt ]; then
-            if grep -qi "error\|failed\|unable to" /tmp/claude-fix-log.txt | head -5; then
-              echo "claude_status=warning" >> $GITHUB_OUTPUT
+              if ! git diff --staged --quiet; then
+                git commit -m "docs: $TITLE
+
+          Automated fix generated by Claude Doc Fix Agent.
+          Source: ${SOURCE:-qa-pipeline}
+          Fix index: $i"
+              else
+                echo "No file changes for fix $((i+1)), skipping commit"
+                SKIPPED=$((SKIPPED + 1))
+              fi
             else
-              echo "claude_status=success" >> $GITHUB_OUTPUT
+              ERRORS=$((ERRORS + 1))
+              echo "Fix $((i+1)) had errors (exit code: $CLAUDE_EXIT)"
             fi
+          done
 
-            COST=$(grep -o '"total_cost":[0-9.]*' /tmp/claude-fix-log.txt | head -1 | cut -d':' -f2 || echo "unknown")
-            echo "cost=$COST" >> $GITHUB_OUTPUT
-          fi
-
-          echo "Claude Code exit code: $CLAUDE_EXIT"
+          echo ""
+          echo "=========================================="
+          echo "Batch complete: $APPLIED applied, $SKIPPED skipped, $ERRORS errors"
+          echo "=========================================="
+          echo "applied=$APPLIED" >> $GITHUB_ENV
+          echo "skipped=$SKIPPED" >> $GITHUB_ENV
+          echo "errors=$ERRORS" >> $GITHUB_ENV
 
       - name: Validate docs
-        if: steps.check_existing.outputs.skip != 'true'
+        if: steps.parse_fixes.outputs.fix_count != '0' && steps.check_existing.outputs.has_existing != 'skip'
         id: validate
         run: |
           echo "Validating documentation..."
-
-          # Run docs lint (non-blocking)
           npm run lint:docs 2>&1 | tee /tmp/lint-log.txt || {
             echo "lint_passed=false" >> $GITHUB_OUTPUT
             echo "Docs lint had warnings/errors (non-blocking)"
@@ -234,52 +248,44 @@ jobs:
           echo "lint_passed=true" >> $GITHUB_OUTPUT
 
       - name: Check for changes
-        if: steps.check_existing.outputs.skip != 'true'
+        if: steps.parse_fixes.outputs.fix_count != '0' && steps.check_existing.outputs.has_existing != 'skip'
         id: check_changes
         run: |
-          git add -A
-          git reset -- /tmp/ 2>/dev/null || true
-
-          if git diff --staged --quiet; then
+          # Check if we have any commits beyond what's on main
+          COMMIT_COUNT=$(git rev-list --count main..HEAD 2>/dev/null || echo "0")
+          if [ "$COMMIT_COUNT" -gt 0 ]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "$COMMIT_COUNT commit(s) ready to push"
+          else
             echo "changes=false" >> $GITHUB_OUTPUT
             echo "No changes made"
-          else
-            echo "changes=true" >> $GITHUB_OUTPUT
-            echo "Changes detected:"
-            git diff --staged --stat
           fi
 
-      - name: Commit and push changes
-        if: steps.check_existing.outputs.skip != 'true' && steps.check_changes.outputs.changes == 'true'
+      - name: Push changes
+        if: steps.check_changes.outputs.changes == 'true'
         env:
-          BRANCH_NAME: ${{ steps.doc_fix.outputs.branch_name }}
-          WORKFLOW_RUN_ID: ${{ github.event.client_payload.workflow_run_id }}
-          FIX_INDEX: ${{ matrix.index }}
-        run: |
-          FIX_TITLE=$(cat /tmp/doc-fix-report.json | jq -r '.title // "Documentation fix"')
+          BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
+        run: git push origin "$BRANCH_NAME"
 
-          git commit -m "docs: $FIX_TITLE
-
-          Automated fix generated by Claude Doc Fix Agent.
-
-          Source: ${SOURCE:-qa-pipeline}
-          Workflow run: ${WORKFLOW_RUN_ID:-manual}
-          Fix index: $FIX_INDEX"
-
-          git push origin "$BRANCH_NAME"
-
-      - name: Create Pull Request
-        if: steps.check_existing.outputs.skip != 'true' && steps.check_changes.outputs.changes == 'true'
+      - name: Create or update Pull Request
+        if: steps.check_changes.outputs.changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_NAME: ${{ steps.doc_fix.outputs.branch_name }}
+          BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
+          HAS_EXISTING: ${{ steps.check_existing.outputs.has_existing }}
+          EXISTING_PR: ${{ steps.check_existing.outputs.existing_pr }}
           LINT_STATUS: ${{ steps.validate.outputs.lint_passed }}
+          FIX_COUNT: ${{ steps.parse_fixes.outputs.fix_count }}
+          WORKFLOW_RUN_ID: ${{ github.event.client_payload.workflow_run_id }}
         run: |
-          FIX_REPORT=$(cat /tmp/doc-fix-report.json)
-          FIX_TITLE=$(echo "$FIX_REPORT" | jq -r '.title // "Documentation fix"')
-          DOC_FILE=$(echo "$FIX_REPORT" | jq -r '.documentation_file // "unknown"')
-          SECTION=$(echo "$FIX_REPORT" | jq -r '.section // "unknown"')
-          SOURCE=$(echo "$FIX_REPORT" | jq -r '.source // "unknown"')
+          # Build fix summary from all fixes
+          FIX_SUMMARY=""
+          for i in $(seq 0 $(($FIX_COUNT - 1))); do
+            TITLE=$(jq -r ".[$i].title // \"Fix $((i+1))\"" /tmp/all-doc-fixes.json)
+            DOC_FILE=$(jq -r ".[$i].documentation_file // \"unknown\"" /tmp/all-doc-fixes.json)
+            FIX_SUMMARY="${FIX_SUMMARY}- **${TITLE}** (\`${DOC_FILE}\`)
+          "
+          done
 
           # Build validation status
           if [ "$LINT_STATUS" = "true" ]; then
@@ -291,21 +297,21 @@ jobs:
           fi
 
           cat << EOF > /tmp/pr-body.md
-          ## Automated Documentation Fix
+          ## Automated Documentation Fixes
 
           This PR was automatically generated by the Claude Doc Fix Agent.
+          All fixes are batched into this single PR for easier review.
 
-          ### Fix Details
+          ### Fixes Included ($FIX_COUNT total)
 
-          - **File:** \`$DOC_FILE\`
-          - **Section:** $SECTION
-          - **Source:** $SOURCE
+          $FIX_SUMMARY
 
-          ### Fix Report
+          ### Stats
 
-          \`\`\`json
-          $FIX_REPORT
-          \`\`\`
+          - **Applied:** ${applied:-0}
+          - **Skipped (no changes):** ${skipped:-0}
+          - **Errors:** ${errors:-0}
+          - **Source workflow run:** ${WORKFLOW_RUN_ID:-manual}
 
           ### Validation
 
@@ -313,7 +319,7 @@ jobs:
 
           ### Verification Checklist
 
-          - [ ] Documentation change is accurate
+          - [ ] Documentation changes are accurate
           - [ ] Formatting and links are correct
           - [ ] Content reads naturally in context
           - [ ] No unintended side effects
@@ -322,45 +328,40 @@ jobs:
           *Generated by Claude Doc Fix Agent*
           EOF
 
-          gh pr create \
-            --title "[Auto-Doc-Fix] $FIX_TITLE" \
-            --body "$(cat /tmp/pr-body.md)" \
-            --head "$BRANCH_NAME" \
-            --label "documentation" \
-            --label "automated" \
-            --label "needs-review"
+          if [ "$HAS_EXISTING" = "true" ] && [ -n "$EXISTING_PR" ]; then
+            # Update existing PR body
+            echo "Updating existing PR #$EXISTING_PR"
+            gh pr edit "$EXISTING_PR" --body "$(cat /tmp/pr-body.md)"
+          else
+            # Create new PR
+            gh pr create \
+              --title "[Auto-Doc-Fix] Batched documentation fixes" \
+              --body "$(cat /tmp/pr-body.md)" \
+              --head "$BRANCH_NAME" \
+              --label "documentation" \
+              --label "automated" \
+              --label "needs-review"
+          fi
+
+      - name: Log if skipped
+        if: steps.check_existing.outputs.has_existing == 'skip'
+        run: |
+          echo "Skipped processing: An automated nightly or QA remediation PR is already open."
+          echo "Doc fixes are likely already included in that PR."
 
       - name: Log if no changes
-        if: steps.check_existing.outputs.skip != 'true' && steps.check_changes.outputs.changes != 'true'
+        if: steps.parse_fixes.outputs.fix_count != '0' && steps.check_existing.outputs.has_existing != 'skip' && steps.check_changes.outputs.changes != 'true'
         run: |
-          echo "No documentation changes were made for this fix."
-          echo "The doc fix agent did not produce any file modifications."
+          echo "No documentation changes were made for any of the fixes."
           echo "This may require manual investigation."
 
-      - name: Upload fix log
+      - name: Upload fix logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: doc-fix-log-${{ matrix.index }}
+          name: doc-fix-logs
           path: |
-            /tmp/claude-fix-log.txt
+            /tmp/claude-fix-log-*.txt
             /tmp/lint-log.txt
-            /tmp/doc-fix-report.json
+            /tmp/all-doc-fixes.json
           retention-days: 7
-
-  summarize:
-    needs: [prepare-matrix, fix-docs]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Summary
-        env:
-          FIX_COUNT: ${{ needs.prepare-matrix.outputs.fix_count }}
-          SOURCE: ${{ github.event.client_payload.source }}
-          FIX_RESULT: ${{ needs.fix-docs.result }}
-        run: |
-          echo "## Doc Fix Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Source:** ${SOURCE:-manual}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Fixes processed:** ${FIX_COUNT:-0}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Result:** ${FIX_RESULT}" >> $GITHUB_STEP_SUMMARY

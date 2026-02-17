@@ -2,10 +2,6 @@
 
 Datasets are your AI's knowledge base. Upload research reports, survey exports, competitive analysis documents, and other files so your AI agents can search, reference, and cite that information during conversations and workflows.
 
-::: info API Terminology
-In the Vurvey API and codebase, Datasets are called `TrainingSet` (table: `training_sets`).
-:::
-
 ## Overview
 
 ![Datasets Dashboard](/screenshots/datasets/01-datasets-main.png)

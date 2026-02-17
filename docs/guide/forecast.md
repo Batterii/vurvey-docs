@@ -2,10 +2,6 @@
 
 Vurvey's Forecast feature uses AI-powered analytics to predict trends and patterns in your data. It provides multiple tools for model validation, comparison, and discovery of insights.
 
-:::info API Terminology
-In the codebase, Forecast is enabled via the `forecastEnabled` workspace setting. This feature is currently in beta and may require specific workspace configuration.
-:::
-
 ![Forecast main interface](/screenshots/forecast/01-forecast-main.png?optional=1)
 
 ## Overview

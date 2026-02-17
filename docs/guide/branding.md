@@ -2,10 +2,6 @@
 
 Branding in Vurvey lets you configure your company's brand profile, manage feedback questions, collect video reviews, and create branded reels from customer testimonials. Think of it as your brand's home base within the platform — the place where you define who you are, what you stand for, and how you engage with your audience.
 
-::: info API Terminology
-In the Vurvey API, branding features are represented as `Brand` models. The frontend's "Branding" section maps to the backend's `brands` table and related GraphQL operations.
-:::
-
 ## Why Use Branding?
 
 Whether you're collecting product feedback from customers, creating video testimonials for marketing, or building a library of authentic consumer responses, the Branding section centralizes all brand-related activities:

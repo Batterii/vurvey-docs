@@ -9,10 +9,6 @@ The rewards system lets you:
 - Support multiple currencies (USD, EUR, CAD, THB, CNY, SEK, GBP)
 - Track reward disbursement status per campaign
 
-::: info API Term: Tremendous
-In the Vurvey API and codebase, reward configuration is stored on the `Workspace` model via Tremendous API credentials. Campaign-level reward amounts are part of the `Survey` (Campaign) launch configuration.
-:::
-
 ## Setup
 
 Rewards are configured in **Settings → General Settings → Tremendous Rewards Configuration**.

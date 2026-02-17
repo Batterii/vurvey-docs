@@ -8,15 +8,9 @@ The Settings section is where you configure workspace-level options, manage team
 
 Settings control how your entire workspace operates. From session timeouts and workspace branding to team member roles and AI model selection, this is your workspace's control center.
 
-::: info API Term: Workspace
-In the Vurvey API and codebase, Settings pages are part of `workspace-settings`. This documentation uses "workspace" and "Settings" interchangeably when referring to these configuration pages.
-:::
-
 ## Navigation
 
 Access **Settings** from the workspace dropdown menu in the top-right corner of the app (click your workspace avatar).
-
-**Route:** `/:workspaceId/workspace/settings`
 
 The Settings section has multiple tabs:
 

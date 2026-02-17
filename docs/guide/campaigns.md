@@ -39,10 +39,6 @@ A colored badge on each card indicates where the campaign is in its lifecycle:
 | **Blocked** | Teal | Temporarily paused |
 | **Archived** | Teal | Inactive but preserved for reference |
 
-::: info API Terminology
-In the Vurvey API and codebase, these statuses are represented in uppercase: `DRAFT`, `OPEN`, `BLOCKED`, `CLOSED`, `ARCHIVED`.
-:::
-
 ::: tip Status Best Practices
 - Keep campaigns in **Draft** until you've tested them with Preview mode
 - **Close** campaigns once you've met your response goals

@@ -98,7 +98,7 @@ Create and manage reusable campaign templates available to all workspaces.
 
 ### Features
 - **Template library**: Browse all global templates
-- **CRUD operations**: Create, edit, delete templates
+- **Manage templates**: Create, edit, and delete templates
 - **Survey linking**: Associate templates with base surveys
 - **Category organization**: Group templates by type
 - **Preview**: View template structure before deployment
@@ -124,7 +124,7 @@ Create and manage reusable campaign templates available to all workspaces.
 Configure Single Sign-On authentication providers for enterprise workspaces.
 
 ### Features
-- **Provider CRUD**: Create, update, delete SSO configurations
+- **Manage providers**: Create, update, and delete SSO configurations
 - **Domain management**: Associate domains with providers
 - **Active/inactive toggle**: Enable/disable providers
 - **Multiple SSO methods**: SAML, OAuth2, OpenID Connect
@@ -361,9 +361,9 @@ Internal team member management and role assignments.
 
 ### Features
 - **Employee listing**: All Vurvey staff members
-- **CRUD operations**: Create, delete employees
+- **Manage employees**: Create and delete employees
 - **Role management**: Change employee roles
-- **Permission sync**: Synchronize with OpenFGA
+- **Permission sync**: Permissions updated automatically
 - **Audit trail**: Track employee actions
 
 ### Workflows
@@ -386,7 +386,7 @@ Internal team member management and role assignments.
 3. Select new role
 4. Confirm change
 5. Permissions updated immediately
-6. OpenFGA synced automatically
+6. Permissions synced automatically
 
 **Delete employee:**
 1. Select employee in table
