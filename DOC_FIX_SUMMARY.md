@@ -2,46 +2,43 @@
 
 ## What Was Changed
 
-Updated `docs/guide/workflows.md` to clarify empty state behavior in two sections:
+Updated the "Creating an Agent" section in `docs/guide/agents.md` (lines 157-169) to clarify the agent creation flow and use consistent terminology.
 
-1. **Browsing Your Workflows section (lines 37-52)**
-   - Replaced duplicate "Getting Started" and "Empty State" info boxes with a single, comprehensive empty state explanation
-   - Explicitly documented that when no workflows exist:
-     - The workflow grid, cards, builder, and canvas are NOT visible
-     - Only the "Create new workflow" button appears in the top-right corner
-     - This is normal and expected behavior
+### Specific Changes:
 
-2. **Upcoming Runs section (lines 541-547)**
-   - Added an "Empty State" info box explaining that the tab shows an empty state when no schedules are configured
-   - Clarified that this is normal and expected behavior
-   - Noted that runs only appear after setting up a schedule
+1. **Line 157**: Changed description to emphasize that the "Generate Agent" dialog appears **first** before any builder interface
+   - Before: "to open the **Generate Agent** modal"
+   - After: "The **Generate Agent** dialog opens first, offering a quick AI-powered creation flow"
+
+2. **Line 159-160**: Updated tip heading and clarified the sequence
+   - Before: "::: tip Generate Agent Modal" with "(not 'Agent Builder')"
+   - After: "::: tip Generate Agent Dialog" with "(before the guided builder opens)"
+
+3. **Line 169**: Updated screenshot caption for consistency
+   - Before: "![Generate Agent Modal]"
+   - After: "![Generate Agent Dialog]"
+
+4. **Terminology**: Changed "modal" to "dialog" throughout this section to match the actual UI component name used in the codebase
 
 ## Why It Fixes the Issue
 
-The QA tests (`workflow--builder-ui-visible`, `workflow--builder-canvas-loads`, `workflow--upcoming-runs-page-content`) were failing because they expected to see builder/canvas/content elements but encountered empty states instead. The tests didn't recognize empty states as valid UI patterns.
+The original documentation was mostly correct but needed clarification in two areas:
 
-The documentation previously mentioned empty states but didn't clearly explain:
-- What UI elements are NOT visible in the empty state
-- Where the "Create new workflow" button appears
-- That empty states are the expected and normal behavior
+1. **Sequence clarity**: The documentation now explicitly states that the Generate Agent dialog appears "first" before the guided builder, matching the actual UI flow where users see this dialog immediately upon clicking "+ Create Agent"
 
-By explicitly documenting these details, future readers (and QA tests) will understand that:
-- Empty states are intentional design patterns
-- Missing workflow grids/builder/canvas are expected when no workflows exist
-- Missing upcoming runs content is expected when no schedules are configured
+2. **Terminology alignment**: Changed from "modal" to "dialog" to match the actual component naming in `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx`
+
+3. **Removed ambiguity**: The parenthetical note "(not 'Agent Builder')" was replaced with "(before the guided builder opens)" which is more informative about the sequence rather than just stating what it's not called
 
 ## Which File and Section Were Modified
 
-**File:** `docs/guide/workflows.md`
+- **File**: `docs/guide/agents.md`
+- **Section**: "Creating an Agent" (lines 155-169)
+- **Lines changed**: 157, 159-160, 169
+- **Classification**: DOC_ISSUE
+- **Confidence**: 0.95
+- **Verified against**: vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:136
 
-**Sections:**
-- "Browsing Your Workflows" (lines 37-52)
-- "Upcoming Runs" (lines 541-547)
+## QA Test Coverage
 
-**Change Type:** Documentation clarification (DOC_ISSUE)
-
-**Confidence:** 0.93 (per automated analysis)
-
-## Verification
-
-The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png`
+This fix addresses the QA test: "Agents: Create UI visible" by ensuring the documentation accurately describes the initial UI that appears when creating an agent.

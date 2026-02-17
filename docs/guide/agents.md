@@ -154,10 +154,10 @@ Click the three-dot menu on any agent card to access quick actions:
 
 ## Creating an Agent
 
-Click **+ Create Agent** in the top-right corner of the gallery to open the **Generate Agent** modal. You can choose to generate an agent quickly using AI, or manually configure one using the full guided builder.
+Click **+ Create Agent** in the top-right corner of the gallery. The **Generate Agent** dialog opens first, offering a quick AI-powered creation flow. You can generate an agent using AI, or manually configure one using the full guided builder.
 
-::: tip Generate Agent Modal
-When you click **+ Create Agent**, a modal opens with the title **"Generate Agent"** (not "Agent Builder"). This modal offers a streamlined way to create agents using AI generation:
+::: tip Generate Agent Dialog
+When you click **+ Create Agent**, the **Generate Agent** dialog appears first (before the guided builder opens). This dialog offers a streamlined way to create agents using AI generation:
 - Enter an **Agent Name** (e.g., "Research Assistant")
 - Describe the **Agent Objective** (what the agent should accomplish)
 - Select an **Agent Type** from the dropdown (e.g., "The Collaborator" or other templates)
@@ -166,7 +166,7 @@ When you click **+ Create Agent**, a modal opens with the title **"Generate Agen
 After generating, you can refine the agent using the full guided builder by clicking through to edit the agent details.
 :::
 
-![Generate Agent Modal](/screenshots/agents/05a-agent-type-selection.png)
+![Generate Agent Dialog](/screenshots/agents/05a-agent-type-selection.png)
 
 ::: tip Classic Builder Available
 If you prefer the original builder experience, click **Use Classic Builder** in the top navigation bar at any time. Note: The Classic Builder (V1) may require specific permissions, while the Guided Builder (V2) availability depends on your workspace's feature settings.
