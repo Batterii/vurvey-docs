@@ -67,7 +67,7 @@ The workspace name is not editable directly via an input field on the main setti
 :::
 
 ::: warning Unique Names
-Workspace names must be unique across your organization. If you're part of an enterprise account with multiple workspaces, choose descriptive names like "Beauty Research - Q1 2025" or "Product Team - EMEA" to avoid confusion.
+Workspace names must be unique across your organization. If you're part of an enterprise account with multiple workspaces, choose descriptive names like "Beauty Research - Q1 2026" or "Product Team - EMEA" to avoid confusion.
 :::
 
 ### Workspace Avatar

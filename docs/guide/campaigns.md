@@ -131,7 +131,7 @@ Whether you choose Manual, From Template, or From Objectives, you'll end up in t
 After clicking **Create Campaign** and choosing your mode, you'll first be asked to give your campaign a name. Choose something descriptive that helps you and your team identify the study later.
 
 **Good names:**
-- "Q1 2025 Skincare Packaging Concept Test"
+- "Q1 2026 Skincare Packaging Concept Test"
 - "Gen Z Snack Preferences — Wave 3"
 - "Post-Purchase Experience Survey — Premium Line"
 

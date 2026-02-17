@@ -210,7 +210,7 @@ The specific version gives your agent clear context, scope, and expected outputs
 |-----------|-------------|----------------|
 | Assistant | "Analyze data" | "Review open-ended survey responses from our Q3 brand perception study, categorize sentiment by product line, and flag responses that mention competitor brands — present findings in a table format with supporting quotes" |
 | Consumer Persona | "Be a young shopper" | "Represent a 22-year-old college student in Austin, TX who shops primarily through TikTok and Instagram recommendations, is budget-conscious but willing to splurge on skincare, and values brand transparency above all else" |
-| Product | "Know about our products" | "Serve as the expert on our 2024 Clean Beauty skincare line (12 SKUs), including ingredient lists, pricing, positioning vs. competitors like CeraVe and The Ordinary, and key clinical study results" |
+| Product | "Know about our products" | "Serve as the expert on our 2026 Clean Beauty skincare line (12 SKUs), including ingredient lists, pricing, positioning vs. competitors like CeraVe and The Ordinary, and key clinical study results" |
 | Visual Generator | "Make images" | "Generate photorealistic product lifestyle images showing our new beverage line in modern kitchen settings, targeting a warm and inviting aesthetic consistent with our brand palette of earth tones and soft lighting" |
 
 ::: warning Common Objective Mistakes
@@ -391,7 +391,7 @@ Connect knowledge sources to give your agent specialized expertise. For example,
 | **Purpose** | Gives the agent information | Constrains the agent's behavior |
 | **Think of it as** | "Here's what you should know" | "Here's what you must/must not do" |
 | **Format** | Facts, context, background | Instructions, boundaries, requirements |
-| **Example** | "Our flagship product launched in March 2024 and is available in 12 countries" | "Never mention pricing — redirect pricing questions to the sales team" |
+| **Example** | "Our flagship product launched in March 2026 and is available in 12 countries" | "Never mention pricing — redirect pricing questions to the sales team" |
 | **Effect** | Informs responses | Shapes behavior |
 
 **More knowledge examples:**
@@ -399,7 +399,7 @@ Connect knowledge sources to give your agent specialized expertise. For example,
 - "The competitive landscape includes three main players: BrandA (premium), BrandB (mid-range), and BrandC (value)"
 - "Our Q3 NPS score was 72, up from 65 in Q2. Key drivers were product quality and customer service"
 - "The company was founded in 2018 and has grown from 5 to 200 employees. We're headquartered in Austin, TX"
-- "Our sustainability commitment includes 100% recyclable packaging by 2025 and carbon-neutral shipping"
+- "Our sustainability commitment includes 100% recyclable packaging by 2026 and carbon-neutral shipping"
 
 **More rules examples:**
 - "When asked about competitors, provide objective comparisons without disparaging other brands"
@@ -657,9 +657,9 @@ Create 5–6 diverse Consumer Persona agents to simulate a focus group. This pat
 **How to run a simulated focus group:**
 1. Create all 5–6 agents with distinct, well-defined facets
 2. Connect the same product concept dataset to all agents
-3. Open a conversation and use `@agentname` to bring them all in
-4. Ask the same question to each agent and compare responses
-5. Follow up with probing questions based on their initial reactions
+3. Open a conversation and ask the first agent using `@agentname`
+4. Ask the same question to each additional agent in separate messages
+5. Compare responses and follow up with probing questions based on their initial reactions
 
 ### The Analysis Team
 
@@ -841,7 +841,7 @@ Always include at least one agent configured to be skeptical or critical. This "
 
 ### Working with Multiple Agents
 
-- **Use `@agentname` mentions** in chat to bring multiple agents into a single conversation
+- **Use `@agentname` in separate messages** to switch which agent responds within one conversation
 - **Create complementary pairs** — An optimist and a skeptic, or a consumer and a business expert
 - **Build agent teams** — Chain agents in workflows where one agent's output feeds into the next
 - **Create a moderator** — Set up an Assistant agent whose job is to synthesize insights from other agents
@@ -934,7 +934,7 @@ Each conversation is independent. Within a single chat session, the agent mainta
 **Knowledge** is information you want the agent to have (positive guidance). **Rules** are constraints it must follow (boundaries like "never do X").
 
 **Can agents work together in a conversation?**
-Yes — use `@agentname` to bring multiple agents into one chat. They'll respond in turn and can build on each other's answers.
+Yes — you can use different agents in one conversation by mentioning one `@agentname` per message. Each message gets one agent response, and later agents can build on earlier responses.
 
 **Can I test an agent without making it available to my team?**
 Absolutely. Use the benchmark chat in the Review step, or save the agent as a Draft without activating it.

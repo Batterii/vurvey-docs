@@ -83,7 +83,7 @@ export default defineConfig({
 
     footer: {
       message: 'Documentation auto-updated nightly',
-      copyright: 'Copyright 2024 Vurvey Labs'
+      copyright: `Copyright ${new Date().getFullYear()} Vurvey Labs`
     },
 
     search: {

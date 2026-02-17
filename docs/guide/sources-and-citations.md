@@ -403,7 +403,7 @@ When you copy or export a conversation, the citation references are included in 
 The AI uses semantic search to find passages that are conceptually similar to your question. It weighs relevance, recency, and specificity. More focused source selections lead to more relevant citations.
 
 **Q: Do labels on dataset files affect citation quality?**
-Yes. Well-labeled files help the AI narrow its search. If you label files with categories like "product: skincare" or "quarter: Q4-2024," the AI can more efficiently find relevant content.
+Yes. Well-labeled files help the AI narrow its search. If you label files with categories like "product: skincare" or "quarter: Q4-2026," the AI can more efficiently find relevant content.
 
 **Q: Can I cite a specific respondent?**
 When the AI cites campaign data, it can reference individual responses. However, respondent identity depends on what data was collected -- anonymous campaigns won't include personal identifiers.

@@ -31,7 +31,7 @@ Use the left sidebar to move between sections:
 | Analyze your own data | Home | Click the Sources button, select your campaigns/datasets, then ask |
 | Search the web for trends | Home | Click the **Tools** button to enable web research, then ask your question |
 | Combine internal data with web research | Home | Enable both **Sources** and **Tools** in the toolbar |
-| Get multiple AI perspectives | Home | Type `@AgentName` in your message to bring in additional agents |
+| Get multiple AI perspectives | Home | Send separate messages with one `@AgentName` each, then compare responses in the same conversation |
 | Generate images | Home | Click the **Images** button, then describe what you want |
 
 ### Creating and Managing Content

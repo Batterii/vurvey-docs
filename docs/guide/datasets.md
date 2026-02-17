@@ -50,7 +50,7 @@ This is expected when there are no datasets. To create your first dataset, look 
 
 ::: tip Organize for Easy Discovery
 Create focused datasets rather than one catch-all collection:
-- "Q4-2024-Brand-Tracking" instead of "All Research"
+- "Q4-2026-Brand-Tracking" instead of "All Research"
 - "Competitor-Analysis-Beauty" instead of "Competitive Intel"
 - "Product-A-Launch-Study" instead of "Studies"
 :::
@@ -323,7 +323,7 @@ Labels help you organize files within a dataset using simple **key: value** pair
 ```
 category: skincare
 region: north-america
-quarter: Q4-2024
+quarter: Q4-2026
 source: focus-group
 status: reviewed
 ```
@@ -359,7 +359,7 @@ Here are complete labeling schemes for common research scenarios. Use these as s
 ```
 product-line: skincare | haircare | makeup | fragrance
 study-type: concept-test | usage-attitudes | brand-tracking | claims-test
-quarter: Q1-2025 | Q2-2025 | Q3-2025 | Q4-2025
+quarter: Q1-2026 | Q2-2026 | Q3-2026 | Q4-2026
 region: north-america | europe | asia-pacific | latin-america
 source: online-survey | focus-group | in-depth-interview | social-listening
 status: draft | reviewed | final
@@ -385,7 +385,7 @@ brand: own-brand | competitor-a | competitor-b | private-label
 competitor: competitor-a | competitor-b | competitor-c | competitor-d
 intel-type: pricing | messaging | product-launch | campaign | partnership
 confidence: confirmed | rumored | speculative
-date-collected: 2025-01 | 2025-02 | 2025-03
+date-collected: 2026-01 | 2026-02 | 2026-03
 source: press-release | website | social-media | industry-report | field-observation
 ```
 
@@ -420,7 +420,7 @@ Create one dataset per research project or initiative.
 
 | Dataset Name | Contents |
 |-------------|----------|
-| Holiday-Campaign-2025 | All research files related to the 2025 holiday campaign |
+| Holiday-Campaign-2026 | All research files related to the 2026 holiday campaign |
 | Product-A-Relaunch | Consumer testing, competitive analysis, and concept boards for the relaunch |
 | Brand-Health-Tracker | Ongoing brand tracking survey data and reports |
 
@@ -432,9 +432,9 @@ Organize research chronologically for easy time-based comparisons.
 
 | Dataset Name | Contents |
 |-------------|----------|
-| Q1-2025-Research | All research completed in January–March 2025 |
-| Q2-2025-Research | All research completed in April–June 2025 |
-| Q3-2025-Research | All research completed in July–September 2025 |
+| Q1-2026-Research | All research completed in January–March 2026 |
+| Q2-2026-Research | All research completed in April–June 2026 |
+| Q3-2026-Research | All research completed in July–September 2026 |
 
 **Best for:** Teams that need to track trends over time or compare insights across periods.
 
@@ -458,7 +458,7 @@ Dedicate a dataset to each competitor for focused competitive intelligence.
 |-------------|----------|
 | Competitor-A-Intel | Press releases, product info, ad creative, pricing data |
 | Competitor-B-Intel | Campaign analysis, social listening exports, market share data |
-| Market-Landscape-2025 | Industry reports and category-level data that spans competitors |
+| Market-Landscape-2026 | Industry reports and category-level data that spans competitors |
 
 **Best for:** Teams running ongoing competitive monitoring programs.
 
@@ -498,7 +498,7 @@ Magic Summaries will automatically generate insights and connections across your
 **Scenario:** Your team conducts ongoing consumer research and needs quick access to past findings.
 
 **How to set it up:**
-1. Create datasets organized by project or quarter — e.g., "Q4-2024-Product-Research."
+1. Create datasets organized by project or quarter — e.g., "Q4-2026-Product-Research."
 2. Upload survey exports, interview transcripts, and summary reports.
 3. Label files by topic, segment, and date.
 4. Connect the dataset to an analysis-focused agent, then ask questions like:
@@ -536,7 +536,7 @@ Magic Summaries will automatically generate insights and connections across your
 **Scenario:** Combine industry reports, survey data, and social listening exports into one knowledge base for comprehensive market understanding.
 
 **How to set it up:**
-1. Create a "Market-Analysis-2024" dataset.
+1. Create a "Market-Analysis-2026" dataset.
 2. Upload industry reports, internal survey data, and social listening exports.
 3. Label by source and topic.
 4. Query for market trends:
@@ -641,7 +641,7 @@ Make sure any data you upload complies with your organization's data policies an
 ### Dataset Too Large for Optimal AI Performance
 
 1. If you notice the AI is giving vague or less relevant answers, your dataset may be too large. Check the file count in the stats panel.
-2. Consider splitting into multiple smaller, focused datasets. For example, split "All Research 2024" into "Q1-Research-2024," "Q2-Research-2024," etc.
+2. Consider splitting into multiple smaller, focused datasets. For example, split "All Research 2026" into "Q1-Research-2026," "Q2-Research-2026," etc.
 3. Remove duplicate files — the same report uploaded twice dilutes search quality.
 4. Remove outdated files that are no longer relevant to your current research questions.
 5. Use labels aggressively — even in large datasets, good labels help the AI narrow its search.

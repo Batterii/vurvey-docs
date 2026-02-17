@@ -32,7 +32,7 @@ Click the **Agents** button to choose which AI persona answers your questions. E
 You can also mention an agent by name mid-conversation by typing **@** followed by their name — for example, `@MarketAnalyst, what patterns do you see in this data?`
 
 ::: tip Multi-Agent Conversations
-Mention multiple agents in the same message to get diverse perspectives at once. For example: `@MillennialMom, would you buy this product? @GenZShopper, how about you?`
+Use exactly one `@AgentName` per message. Each user message returns one agent response.
 :::
 
 #### Switching Agents Mid-Conversation
@@ -45,7 +45,7 @@ You can change your active agent at any point in a conversation. When you switch
 - Previous responses from other agents stay in the conversation thread
 
 ::: tip Quick Agent Switching
-If you only need a quick answer from a different agent, use the **@mention** syntax instead of switching your active agent. This keeps your primary agent selected while pulling in a one-time response from another.
+If you only need a quick answer from a different agent, use the **@mention** syntax instead of switching your active agent. This keeps your primary agent selected while routing that single message to the mentioned agent.
 :::
 
 ### Sources
@@ -314,7 +314,7 @@ Start a new conversation when you're switching to a completely different topic. 
 Conversations are auto-named based on your first message. To rename one:
 1. Right-click the conversation in the sidebar (or click the three-dot menu)
 2. Select **Rename**
-3. Type a descriptive name — for example, "Q4 2025 Brand Health Analysis" or "Packaging Redesign Concepts"
+3. Type a descriptive name — for example, "Q4 2026 Brand Health Analysis" or "Packaging Redesign Concepts"
 
 Good naming habits make it easy to find past research when you need it later.
 
@@ -332,12 +332,16 @@ Exported conversations are great for sharing with team members who may not have 
 Use the search field at the top of the conversation sidebar to find past conversations by keyword. The search looks through conversation titles, so descriptive names help you find things quickly.
 
 ::: tip Organizing Your Research
-Develop a naming convention for your conversations. For example: "[Project] - [Topic] - [Date]" like "Spring Launch - Consumer Sentiment - Jan 2025". This makes it easy to filter and find related conversations later.
+Develop a naming convention for your conversations. For example: "[Project] - [Topic] - [Date]" like "Spring Launch - Consumer Sentiment - Jan 2026". This makes it easy to filter and find related conversations later.
 :::
 
 ## Multi-Agent Conversations
 
-One of Vurvey's most powerful features is the ability to bring multiple AI agents into the same conversation. This lets you simulate focus groups, get diverse perspectives, and challenge assumptions — all without scheduling a single meeting.
+One of Vurvey's most powerful features is using different AI agents within the same conversation over multiple turns. This lets you simulate focus groups, get diverse perspectives, and challenge assumptions while keeping a single conversation thread.
+
+::: warning One Request, One Response
+In chat, each user message receives one agent response. Mention only one `@AgentName` per message.
+:::
 
 ### @Mention Syntax
 
@@ -345,24 +349,28 @@ To bring an agent into your conversation, type **@** followed by their name. The
 
 **Syntax examples:**
 - `@MarketAnalyst` — Mentions a single agent
-- `@MillennialMom @GenZShopper @BudgetShopper` — Mentions multiple agents in one message
-- `@BrandStrategist, based on what @MarketAnalyst just said, what positioning do you recommend?` — Chain agent responses together
+- `@BrandStrategist, based on the previous response, what positioning do you recommend?` — Handoff to a different agent on your next turn
+- `@TargetConsumer, react to the summary above in your own words.` — Continue the same conversation with another agent
 
 ### Multi-Agent Patterns
 
 #### Virtual Focus Group
 
-Simulate a consumer focus group by mentioning several persona agents at once:
+Simulate a consumer focus group by asking the same prompt to multiple persona agents in separate turns:
 
-> *"@MillennialMom @GenZShopper @LuxuryBuyer @BudgetShopper — Here's our new packaging design. What's your first impression? Would you pick this up in a store?"*
+1. *"@MillennialMom — Here's our new packaging design. What's your first impression? Would you pick this up in a store?"*
+2. *"@GenZShopper — Same question: what's your first impression of this packaging?"*
+3. *"@LuxuryBuyer — How does this packaging affect perceived quality?"*
+4. *"@BudgetShopper — Does this feel worth the price point?"*
 
-Each agent responds from their unique perspective, giving you a range of reactions in seconds.
+Each message gets one response, but across a few turns you'll collect a full range of perspectives.
 
-#### Expert Debate
+#### Expert Handoff
 
-Have two agents with different expertise discuss a topic:
+Use two agents with different expertise in sequence:
 
-> *"@MarketAnalyst, what does our data say about the premium pricing opportunity? @BrandStrategist, do you agree with that assessment given current market conditions?"*
+1. *"@MarketAnalyst, what does our data say about the premium pricing opportunity?"*
+2. *"@BrandStrategist, do you agree with the analyst's assessment above given current market conditions?"*
 
 The second agent can reference and build on (or challenge) the first agent's response.
 
@@ -370,7 +378,10 @@ The second agent can reference and build on (or challenge) the first agent's res
 
 Use one agent as a moderator to synthesize multiple perspectives:
 
-1. First, get individual responses: *"@PersonaA @PersonaB @PersonaC — What matters most to you when choosing a shampoo brand?"*
+1. First, get individual responses in separate messages:
+   - *"@PersonaA — What matters most to you when choosing a shampoo brand?"*
+   - *"@PersonaB — What matters most to you when choosing a shampoo brand?"*
+   - *"@PersonaC — What matters most to you when choosing a shampoo brand?"*
 2. Then summarize: *"@MarketAnalyst, synthesize these three perspectives. Where do they agree and disagree?"*
 
 #### Iterative Refinement
@@ -382,8 +393,8 @@ Use agents in sequence to refine an idea:
 3. *"@TargetConsumer, which of these taglines resonates with you and why?"*
 
 ::: tip Multi-Agent Best Practices
-- **Limit to 3–4 agents per message** for clearer, more focused responses
-- **Give each agent a specific question** rather than a vague request
+- **Use one `@AgentName` per message** so routing is predictable
+- **Ask each agent a specific question** rather than a vague request
 - **Reference previous responses** to create a flowing dialogue between agents
 - **Use a summarizer agent** at the end to consolidate insights from the group
 :::
@@ -412,8 +423,10 @@ Your team needs to understand how competitors are positioning themselves.
 You have a new product concept and want diverse reactions before live consumer testing.
 
 1. Upload your concept image or description
-2. Ask: *"@MillennialMom, would this product appeal to you? @BudgetShopper, is the value clear? @TrendSetter, would you share this with friends?"*
-3. Then: *"Based on all perspectives, what are the strongest selling points and biggest purchase barriers?"*
+2. Ask: *"@MillennialMom, would this product appeal to you?"*
+3. Ask: *"@BudgetShopper, is the value clear?"*
+4. Ask: *"@TrendSetter, would you share this with friends?"*
+5. Then: *"@MarketAnalyst, based on all responses above, what are the strongest selling points and biggest purchase barriers?"*
 
 ### Product Concept Deep Dive
 
@@ -587,8 +600,8 @@ Web search results depend on what's publicly available. Try rephrasing your sear
 **Can't find a previous conversation?**
 Check the conversation sidebar and use the search field to filter by keyword. If you still can't find it, click **View all** to browse your complete history. Conversations are listed by most recent activity, so scroll down for older ones.
 
-**Multi-agent response isn't coherent?**
-When mentioning multiple agents, each responds independently. If their responses seem disconnected, try a follow-up message asking one agent to synthesize: *"@MarketAnalyst, summarize the key points from everyone's responses above and identify where they agree."*
+**Cross-agent responses feel inconsistent?**
+Use one `@mention` per message and ask each agent in separate turns. Then ask one agent to synthesize: *"@MarketAnalyst, summarize the key points from everyone's responses above and identify where they agree."*
 
 ::: warning Known Limitations
 - The AI may occasionally paraphrase rather than directly quote your data. Always check citations for exact wording.

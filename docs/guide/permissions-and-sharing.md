@@ -236,7 +236,7 @@ Make sure any data you upload complies with your organization's data policies an
 
 ### Keep Things Organized
 
-- **Use clear naming conventions**: Include the project name, date, or version in resource names (e.g., "2024-Q1 Snack Packaging - Consumer Persona" or "Holiday Campaign v3")
+- **Use clear naming conventions**: Include the project name, date, or version in resource names (e.g., "2026-Q1 Snack Packaging - Consumer Persona" or "Holiday Campaign v3")
 - **Label your datasets**: Apply consistent labels to files within datasets so team members can understand what's inside
 - **Archive old work**: When a campaign is complete or an agent is no longer needed, archive it rather than deleting it to preserve the historical record
 - **Create a naming standard**: Agree on a team-wide pattern like "[Year]-[Quarter]-[Project]-[Type]"

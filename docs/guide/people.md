@@ -249,7 +249,7 @@ The list table shows **Name**, **User count**, and **Created** date. Click any l
 - **Combine Lists** — Merge selected lists into a single new list
 
 ::: tip Use Case
-Create a list called "2024 Holiday Research Panel" for a seasonal campaign, or maintain a "VIP Beauty Enthusiasts" list of your most engaged participants who get early access to new studies.
+Create a list called "2026 Holiday Research Panel" for a seasonal campaign, or maintain a "VIP Beauty Enthusiasts" list of your most engaged participants who get early access to new studies.
 :::
 
 ### Working with Segments
@@ -459,7 +459,7 @@ For successful imports, your CSV file must follow these formatting rules:
 | Rule | Details |
 |------|---------|
 | **Encoding** | UTF-8 (most spreadsheet apps export this by default) |
-| **Date format** | YYYY-MM-DD (e.g., 2025-03-15) |
+| **Date format** | YYYY-MM-DD (e.g., 2026-03-15) |
 | **Boolean values** | Use `true` / `false` (not 1/0 or yes/no) |
 | **Multi-select values** | Separate with semicolons: `skincare;haircare;makeup` |
 | **Empty values** | Leave the cell blank — don't use "N/A" or "null" |
@@ -470,10 +470,10 @@ For successful imports, your CSV file must follow these formatting rules:
 
 ```csv
 email,loyalty_tier,purchase_frequency,last_purchase_date,preferred_category,research_opt_in
-jane@example.com,Gold,12,2025-01-15,skincare;haircare,true
-john@example.com,Silver,4,2024-11-20,makeup,true
-sarah@example.com,Bronze,2,2024-08-05,fragrance;skincare,false
-mike@example.com,Gold,8,2025-02-01,haircare,true
+jane@example.com,Gold,12,2026-01-15,skincare;haircare,true
+john@example.com,Silver,4,2026-01-20,makeup,true
+sarah@example.com,Bronze,2,2026-02-05,fragrance;skincare,false
+mike@example.com,Gold,8,2026-02-01,haircare,true
 ```
 
 #### Common CSV Errors and Fixes

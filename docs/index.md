@@ -19,7 +19,7 @@ hero:
 features:
   - icon: 💬
     title: Chat Interface
-    details: Conversational AI interface for research queries with multiple agents, modes, and data sources.
+    details: Conversational AI interface for research queries with agent switching/mentions, modes, and data sources.
     link: /guide/home
   - icon: 🤖
     title: AI Agents
