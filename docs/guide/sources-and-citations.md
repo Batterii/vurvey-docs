@@ -97,6 +97,29 @@ Follow this decision tree to pick the best sources:
 
 When the AI uses your data to answer a question, look for source references below the response. In many responses, this appears as a **Powered By** section plus optional inline citations.
 
+### How Attribution Is Determined (Behind the Scenes)
+
+After you send a prompt, citation behavior follows a consistent flow:
+
+1. **Retrieve and analyze selected data** -- The AI reads all relevant selected content (campaign responses, uploaded files, transcripts, and documents).
+2. **Generate a synthesized response** -- The response may combine patterns and insights from many sources.
+3. **Run citation matching automatically** -- The system tries to map specific response sentences to specific individual sources.
+4. **Render what is attributable** -- The UI shows what could be reliably linked at claim/sentence level.
+
+::: info Important Distinction
+The UI does **not** show a complete list of everything the AI analyzed. It shows the subset of sources that could be attributed for display.
+:::
+
+### Citation Display Outcomes
+
+| Matching outcome | What you usually see | Typical use cases |
+|---|---|---|
+| **Strong sentence-level matches** | Many sources in Powered By + inline citations on claims | Document analysis, fact-specific questions, quote extraction |
+| **Partial matches** | Fewer sources in Powered By + limited inline citations | Thematic analysis, cross-campaign synthesis |
+| **No sentence-level matches** | Sources listed in Powered By as bibliography, but no inline superscripts | Highly synthesized summaries, broad strategic overviews |
+
+This is why citation counts vary so much between responses.
+
 ### Powered By Section
 
 The **Powered By** section is an expandable list of sources attributed to the answer. It helps you see where the response is grounded.
@@ -135,8 +158,9 @@ This gives you a clear audit trail from the AI's conclusion back to your origina
 When citations are available, you can toggle them on or off within the response text. With inline citations enabled:
 
 - Specific claims show a numbered reference (e.g., [1], [2])
-- Clicking a reference jumps to the source detail
+- Hovering or selecting a reference maps it to a source in Powered By
 - You can verify each claim independently
+- Each claim usually shows at most 2-3 citations to keep responses readable
 
 ### Citation Detail View
 
@@ -172,6 +196,10 @@ Fewer sources usually appear when:
 - The response blends many inputs into strategic takeaways
 
 Low source count is not a quality signal by itself. It is mostly an attribution signal.
+
+::: tip Key Takeaway
+Fewer citations does **not** mean less data was analyzed. It usually means the answer was more synthesized and therefore less sentence-attributable.
+:::
 
 ## How Semantic Search Works
 
@@ -391,10 +419,13 @@ Citations point to real sources in your data, but always verify important claims
 The AI's search process has some variability. If you ask the same question twice, it may surface different relevant passages. This is normal -- your data may contain multiple relevant sections, and the AI samples from them.
 
 **Q: The AI only showed a few sources. Did it ignore most of my dataset?**
-Usually no. The AI can analyze all selected content, then cite only the subset that can be directly tied to specific statements.
+Usually no. The AI can analyze all selected content, then cite only the subset that can be directly tied to specific statements. This is especially common for large thematic synthesis across many responses.
 
 **Q: Why do I sometimes see many sources but no superscript citation numbers?**
-That means relevant sources were identified, but sentence-level claim mapping was not confident enough for inline attribution.
+That means relevant sources were identified, but sentence-level claim mapping was not confident enough for inline attribution. In this case, treat Powered By as a bibliography of informing sources rather than a claim-by-claim map.
+
+**Q: Does source count indicate response quality?**
+No. Source count reflects attribution granularity, not quality. A highly synthesized strategic answer may cite fewer sources while still being based on broad analysis.
 
 **Q: Can I export citations with my conversation?**
 When you copy or export a conversation, the citation references are included in the output. This makes it easy to share evidence-backed findings with stakeholders.
