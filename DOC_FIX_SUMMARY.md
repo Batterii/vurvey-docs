@@ -1,47 +1,34 @@
 # Documentation Fix Summary
 
-## What Was Changed
+## Issue Investigated
 
-Updated `docs/guide/workflows.md` to clarify empty state behavior in two sections:
+**Report:** Clarified that the create button opens a modal titled 'Generate Agent' rather than 'Agent Builder'
 
-1. **Browsing Your Workflows section (lines 37-52)**
-   - Replaced duplicate "Getting Started" and "Empty State" info boxes with a single, comprehensive empty state explanation
-   - Explicitly documented that when no workflows exist:
-     - The workflow grid, cards, builder, and canvas are NOT visible
-     - Only the "Create new workflow" button appears in the top-right corner
-     - This is normal and expected behavior
+**File:** `docs/guide/agents.md`
 
-2. **Upcoming Runs section (lines 541-547)**
-   - Added an "Empty State" info box explaining that the tab shows an empty state when no schedules are configured
-   - Clarified that this is normal and expected behavior
-   - Noted that runs only appear after setting up a schedule
+**Section:** Creating an Agent (lines 153-161)
 
-## Why It Fixes the Issue
+**Verified Against:** `vurvey-web-manager/src/agents/components/generate-agent-modal/index.tsx:140`
 
-The QA tests (`workflow--builder-ui-visible`, `workflow--builder-canvas-loads`, `workflow--upcoming-runs-page-content`) were failing because they expected to see builder/canvas/content elements but encountered empty states instead. The tests didn't recognize empty states as valid UI patterns.
+## Findings
 
-The documentation previously mentioned empty states but didn't clearly explain:
-- What UI elements are NOT visible in the empty state
-- Where the "Create new workflow" button appears
-- That empty states are the expected and normal behavior
+Upon reviewing the documentation at the specified location, I found that the text **already correctly describes the modal**:
 
-By explicitly documenting these details, future readers (and QA tests) will understand that:
-- Empty states are intentional design patterns
-- Missing workflow grids/builder/canvas are expected when no workflows exist
-- Missing upcoming runs content is expected when no schedules are configured
+### Current Documentation (Line 161):
+> Click **+ Create Agent** in the top-right corner of the gallery to open the **Generate Agent** modal.
 
-## Which File and Section Were Modified
+### Current Documentation (Lines 163-164 in tip box):
+> When you click **+ Create Agent**, a modal opens with the title **"Generate Agent"**.
 
-**File:** `docs/guide/workflows.md`
+## Conclusion
 
-**Sections:**
-- "Browsing Your Workflows" (lines 37-52)
-- "Upcoming Runs" (lines 541-547)
+The documentation in `docs/guide/agents.md` at lines 159-171 (the "Creating an Agent" section) already correctly and explicitly states that:
 
-**Change Type:** Documentation clarification (DOC_ISSUE)
+1. Clicking "+ Create Agent" opens the "Generate Agent" modal (line 161)
+2. The modal's title is "Generate Agent" (line 164)
 
-**Confidence:** 0.93 (per automated analysis)
+**No changes were necessary.** The documentation is accurate and consistent with the verified source code reference (`generate-agent-modal/index.tsx:140`).
 
-## Verification
+## Status
 
-The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png`
+✅ **Documentation already correct** - No edits required
