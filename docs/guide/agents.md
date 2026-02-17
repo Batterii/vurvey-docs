@@ -2,6 +2,10 @@
 
 Agents are AI-powered team members you create to represent consumer perspectives, provide specialized expertise, or generate visual content. Each agent has its own personality, knowledge base, and communication style — think of them as virtual focus group participants, research assistants, or creative partners that are available around the clock.
 
+::: info API Terminology
+In the Vurvey API and codebase, Agents are called `AiPersona` (table: `ai_personas`).
+:::
+
 ## Why Use Agents?
 
 Whether you're testing a new product concept with a simulated Gen Z beauty enthusiast, getting instant analysis of campaign responses from a research assistant, or generating mood boards for a creative brief, agents let you move faster without sacrificing the depth of insight your team needs.

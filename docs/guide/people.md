@@ -2,6 +2,10 @@
 
 The People section is where you manage everyone involved in your research — from real human participants to AI-generated consumer profiles. Build targeted audiences, organize contacts into segments, and track custom attributes to power smarter campaign targeting.
 
+::: info API Terminology
+In the Vurvey API and codebase, the People domain maps to `Community` (contacts/users) and `Population` (demographic groups). Molds are represented as `PmMold` (Persona Model Mold).
+:::
+
 ## Overview
 
 ![People Section](/screenshots/people/01-people-main.png)
