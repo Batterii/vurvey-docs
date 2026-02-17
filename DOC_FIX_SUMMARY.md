@@ -2,46 +2,31 @@
 
 ## What Was Changed
 
-Updated `docs/guide/workflows.md` to clarify empty state behavior in two sections:
+Updated the "Creating an Agent" section in `docs/guide/agents.md` (lines 155-167) to correctly describe the **Generate Agent** modal workflow.
 
-1. **Browsing Your Workflows section (lines 37-52)**
-   - Replaced duplicate "Getting Started" and "Empty State" info boxes with a single, comprehensive empty state explanation
-   - Explicitly documented that when no workflows exist:
-     - The workflow grid, cards, builder, and canvas are NOT visible
-     - Only the "Create new workflow" button appears in the top-right corner
-     - This is normal and expected behavior
+### Specific Changes:
 
-2. **Upcoming Runs section (lines 541-547)**
-   - Added an "Empty State" info box explaining that the tab shows an empty state when no schedules are configured
-   - Clarified that this is normal and expected behavior
-   - Noted that runs only appear after setting up a schedule
+1. **Modal Title Clarification**: Removed the phrase "(not 'Agent Builder')" since the correct title "Generate Agent" was already stated
+2. **Workflow Description**: Clarified that the modal provides an "AI-powered workflow" rather than just offering a choice between AI generation and manual configuration
+3. **Agent Type Dropdown**: Updated the description to correctly list the actual agent types (Assistant, Consumer Persona, Product, or Visual Generator) instead of referencing templates like "The Collaborator"
+4. **Simplified Language**: Streamlined the introductory paragraph to focus on the AI-powered nature of the modal
 
 ## Why It Fixes the Issue
 
-The QA tests (`workflow--builder-ui-visible`, `workflow--builder-canvas-loads`, `workflow--upcoming-runs-page-content`) were failing because they expected to see builder/canvas/content elements but encountered empty states instead. The tests didn't recognize empty states as valid UI patterns.
+The QA test `"Agents: Create UI visible"` was failing because it expected to find the text "Agent Builder" but the actual modal title is "Generate Agent". The documentation was:
+- Unnecessarily emphasizing what the modal is NOT called
+- Incorrectly describing the Agent Type dropdown as containing templates like "The Collaborator" when it actually contains the four agent types
+- Not accurately reflecting the actual UI workflow
 
-The documentation previously mentioned empty states but didn't clearly explain:
-- What UI elements are NOT visible in the empty state
-- Where the "Create new workflow" button appears
-- That empty states are the expected and normal behavior
-
-By explicitly documenting these details, future readers (and QA tests) will understand that:
-- Empty states are intentional design patterns
-- Missing workflow grids/builder/canvas are expected when no workflows exist
-- Missing upcoming runs content is expected when no schedules are configured
+The fix ensures documentation matches the actual UI implementation by:
+- Accurately describing the modal title as "Generate Agent"
+- Correctly listing the dropdown options (the four agent types)
+- Clarifying the AI-powered generation workflow
 
 ## Which File and Section Were Modified
 
-**File:** `docs/guide/workflows.md`
-
-**Sections:**
-- "Browsing Your Workflows" (lines 37-52)
-- "Upcoming Runs" (lines 541-547)
-
-**Change Type:** Documentation clarification (DOC_ISSUE)
-
-**Confidence:** 0.93 (per automated analysis)
-
-## Verification
-
-The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png`
+**File**: `docs/guide/agents.md`
+**Section**: "Creating an Agent"
+**Lines**: 155-167
+**Classification**: DOC_ISSUE (documentation accuracy)
+**Verification**: Changes based on QA test failure screenshot `qa-failure-screenshots/failure-agents--create-ui-visible-desktop-1771214851189.png`
