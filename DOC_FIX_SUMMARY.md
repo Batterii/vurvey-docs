@@ -1,47 +1,44 @@
 # Documentation Fix Summary
 
+## Status: Already Applied ✓
+
+The requested documentation fix has already been applied to the workflows documentation.
+
 ## What Was Changed
 
-Updated `docs/guide/workflows.md` to clarify empty state behavior in two sections:
+**File**: `docs/guide/workflows.md`
+**Section**: "Browsing Your Workflows" (lines 34-50)
+**Lines**: 38-40
 
-1. **Browsing Your Workflows section (lines 37-52)**
-   - Replaced duplicate "Getting Started" and "Empty State" info boxes with a single, comprehensive empty state explanation
-   - Explicitly documented that when no workflows exist:
-     - The workflow grid, cards, builder, and canvas are NOT visible
-     - Only the "Create new workflow" button appears in the top-right corner
-     - This is normal and expected behavior
+An "Empty State" info box was added to clarify the expected behavior when no workflows exist in a workspace.
 
-2. **Upcoming Runs section (lines 541-547)**
-   - Added an "Empty State" info box explaining that the tab shows an empty state when no schedules are configured
-   - Clarified that this is normal and expected behavior
-   - Noted that runs only appear after setting up a schedule
+## Content Added
 
-## Why It Fixes the Issue
+```markdown
+::: info Empty State
+When you first access Workflows or when no workflows exist yet, you'll see an empty state message instead of the workflow grid. The workflow builder, canvas, and grid of workflow cards are not visible in this state — only the **Create new workflow** button appears in the top-right corner. This is normal and expected behavior for a workspace without any workflows.
+:::
+```
 
-The QA tests (`workflow--builder-ui-visible`, `workflow--builder-canvas-loads`, `workflow--upcoming-runs-page-content`) were failing because they expected to see builder/canvas/content elements but encountered empty states instead. The tests didn't recognize empty states as valid UI patterns.
+## Why This Fixes the Issue
 
-The documentation previously mentioned empty states but didn't clearly explain:
-- What UI elements are NOT visible in the empty state
-- Where the "Create new workflow" button appears
-- That empty states are the expected and normal behavior
+**QA Test**: "Workflow: Builder UI visible / Builder canvas loads / Upcoming runs page content"
+**Issue**: Users may be confused when they first access Workflows and see an empty state instead of the builder interface shown in screenshots.
 
-By explicitly documenting these details, future readers (and QA tests) will understand that:
-- Empty states are intentional design patterns
-- Missing workflow grids/builder/canvas are expected when no workflows exist
-- Missing upcoming runs content is expected when no schedules are configured
-
-## Which File and Section Were Modified
-
-**File:** `docs/guide/workflows.md`
-
-**Sections:**
-- "Browsing Your Workflows" (lines 37-52)
-- "Upcoming Runs" (lines 541-547)
-
-**Change Type:** Documentation clarification (DOC_ISSUE)
-
-**Confidence:** 0.93 (per automated analysis)
+**Fix Addresses**:
+1. **Sets expectations**: Clarifies that the empty state is normal, not a bug
+2. **Describes what's visible**: Only the "Create new workflow" button appears
+3. **Describes what's NOT visible**: Builder, canvas, and workflow grid are intentionally hidden
+4. **Context placement**: Located right at the beginning of "Browsing Your Workflows" section, before the description of workflow cards (which only appear after workflows are created)
 
 ## Verification
 
-The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png`
+- The fix is positioned logically in the documentation flow
+- It appears before the description of workflow cards (which don't exist yet in empty state)
+- It uses VitePress info box formatting (`::: info`)
+- The language is clear and sets proper user expectations
+- It aligns with the QA test failure that identified this gap
+
+## Related Content
+
+A similar empty state note was also added to the "Upcoming Runs" section (lines 541-543) to explain that scheduled runs only appear after schedules are configured.
