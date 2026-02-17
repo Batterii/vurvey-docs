@@ -1,47 +1,51 @@
 # Documentation Fix Summary
 
+## Status: Already Applied ✓
+
+The documentation fix described in the report has already been applied to the file.
+
 ## What Was Changed
 
-Updated `docs/guide/workflows.md` to clarify empty state behavior in two sections:
+The file `docs/guide/datasets.md` was updated to accurately describe the Datasets empty state behavior and the Create Dataset button location.
 
-1. **Browsing Your Workflows section (lines 37-52)**
-   - Replaced duplicate "Getting Started" and "Empty State" info boxes with a single, comprehensive empty state explanation
-   - Explicitly documented that when no workflows exist:
-     - The workflow grid, cards, builder, and canvas are NOT visible
-     - Only the "Create new workflow" button appears in the top-right corner
-     - This is normal and expected behavior
+### Changes Made:
 
-2. **Upcoming Runs section (lines 541-547)**
-   - Added an "Empty State" info box explaining that the tab shows an empty state when no schedules are configured
-   - Clarified that this is normal and expected behavior
-   - Noted that runs only appear after setting up a schedule
+1. **Added Empty State Info Box (lines 42-48)**
+   - Clarified that when no datasets exist, the page shows an empty message icon
+   - Explained that there is **no grid of dataset cards** in the empty state
+   - Noted that the "Create" button is **not visible in the main gallery area initially**
+   - Provided guidance to look in the **top-right corner** for the "Create Dataset" button or "+" icon
 
-## Why It Fixes the Issue
+2. **Updated Creating a Dataset Section (lines 60-62)**
+   - Added explanation that button location **varies based on whether datasets exist**
+   - Specified that with no datasets, users should look in the **top-right corner**
+   - Noted that with existing datasets, the button appears prominently in the header
 
-The QA tests (`workflow--builder-ui-visible`, `workflow--builder-canvas-loads`, `workflow--upcoming-runs-page-content`) were failing because they expected to see builder/canvas/content elements but encountered empty states instead. The tests didn't recognize empty states as valid UI patterns.
+## Why This Fixes the Issue
 
-The documentation previously mentioned empty states but didn't clearly explain:
-- What UI elements are NOT visible in the empty state
-- Where the "Create new workflow" button appears
-- That empty states are the expected and normal behavior
+The QA test "Datasets: Create flow opens" was failing because it couldn't find the 'create' button in the expected location. This was because:
 
-By explicitly documenting these details, future readers (and QA tests) will understand that:
-- Empty states are intentional design patterns
-- Missing workflow grids/builder/canvas are expected when no workflows exist
-- Missing upcoming runs content is expected when no schedules are configured
+- The empty state UI is different from the populated state UI
+- The Create button location changes based on whether datasets exist
+- The documentation didn't describe this variation
 
-## Which File and Section Were Modified
+The fix addresses this by:
+- Explicitly documenting the empty state appearance
+- Explaining where to find the Create button in different UI states
+- Setting accurate expectations for users encountering the empty state
 
-**File:** `docs/guide/workflows.md`
+## Files Modified
 
-**Sections:**
-- "Browsing Your Workflows" (lines 37-52)
-- "Upcoming Runs" (lines 541-547)
+- `docs/guide/datasets.md` - Lines 42-48 (empty state info box) and lines 60-62 (button location guidance)
 
-**Change Type:** Documentation clarification (DOC_ISSUE)
+## Section
 
-**Confidence:** 0.93 (per automated analysis)
+- **Browsing Your Datasets** (empty state info box)
+- **Creating a Dataset** (button location guidance)
 
 ## Verification
 
-The fix was verified against QA failure screenshot: `qa-failure-screenshots/failure-workflow--builder-ui-visible-desktop-1771215280171.png`
+The changes align with the QA failure report which indicated the test couldn't locate the create button. The documentation now accurately reflects that:
+1. Empty state shows no grid/cards
+2. Create button location varies
+3. Users should look in top-right corner when in empty state
