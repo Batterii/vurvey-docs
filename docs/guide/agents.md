@@ -926,7 +926,7 @@ Always include at least one agent configured to be skeptical or critical. This "
 - Reduce the temperature/creativity by using precise rules and factual missions rather than creative ones
 
 ### Agent is too slow to respond
-- Switch to **Gemini 3 Flash** — it's the fastest model option
+- Switch to **Gemini Flash** — it's the fastest model option
 - Disconnect unnecessary datasets — each connected dataset adds search time
 - Disable unused tools, especially **Code Execution** and **Web Search**
 - Simplify the agent's knowledge and rules sections — shorter contexts process faster
