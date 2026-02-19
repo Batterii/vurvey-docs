@@ -122,7 +122,7 @@ Models are grouped into categories for easy browsing:
 
 | Category | Types of Models |
 |----------|-----------------|
-| **Text Generation** | GPT-4o, Claude, Gemini 3 Flash/Pro, and other LLMs |
+| **Text Generation** | GPT-4o, Claude, Gemini Flash/Pro, and other LLMs |
 | **Image Generation** | DALL-E, Stable Diffusion, Imagen, Midjourney |
 | **Video Generation** | Google Veo, Runway, and other video AI models |
 | **Audio** | Text-to-speech and audio generation models |
