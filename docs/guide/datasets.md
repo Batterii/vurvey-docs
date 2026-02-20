@@ -141,7 +141,7 @@ Click **Add Files** to see your upload options:
 
 | Category | Accepted Formats |
 |----------|-----------------|
-| **Documents** | PDF, DOC, DOCX, TXT, MD, JSON |
+| **Documents** | PDF, DOC, DOCX, TXT, JSON |
 | **Spreadsheets** | CSV, XLS, XLSX |
 | **Presentations** | PPTX |
 | **Images** | PNG, JPG, JPEG, GIF, WEBP |
@@ -584,7 +584,7 @@ Make sure any data you upload complies with your organization's data policies an
 ### Upload Failed
 
 1. Verify the file format is in the supported types list above.
-2. Check file size limits — documents up to 50 MB, videos up to 100 MB, audio up to 25 MB, images up to 10 MB.
+2. Check file size limits — PDF/DOC/DOCX/PPTX up to 50 MB, TXT/JSON up to 10 MB, spreadsheets (CSV/XLS/XLSX) up to 25 MB, videos up to 100 MB, audio up to 25 MB, images up to 10 MB.
 3. Try uploading the file again.
 4. If a large file keeps failing, try splitting it into smaller parts.
 

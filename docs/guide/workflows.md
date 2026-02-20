@@ -99,9 +99,9 @@ Your workflow is built from several types of nodes that you connect together. Th
 
 #### Variables Node
 
-Define input parameters that can change each time you run the workflow. For example, you might create a `{{report_period}}` variable that defaults to "last 7 days" but can be overridden to "last 30 days" when needed.
+Define input parameters that can change each time you run the workflow. For example, you might create a `{{ report_period }}` variable that defaults to "last 7 days" but can be overridden to "last 30 days" when needed.
 
-Variables are referenced in agent prompts using the `{{variableName}}` syntax.
+Variables are referenced in agent prompts using the `{{ variableName }}` syntax (with spaces inside the braces).
 
 ::: tip Variable Sets
 Save different combinations of variable values as named sets. Switch between configurations — like "Weekly Report" vs. "Monthly Report" — without editing the workflow itself.
@@ -401,7 +401,7 @@ The workflow detail page header gives you the key actions:
 |-------------|-------------|
 | **Build** tab | Edit the workflow structure |
 | **Run** tab | Watch live execution progress (appears during a run) |
-| **View** tab | Review past executions |
+| **History** button | Access past executions via the History drawer (opens sidebar) |
 | **Edit** button | Change workflow name, description, and parameters |
 | **Save** button | Save your changes (appears when there are unsaved edits) |
 | **Run** button | Execute the workflow |

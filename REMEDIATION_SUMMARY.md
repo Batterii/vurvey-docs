@@ -1,6 +1,6 @@
 # QA Failure Remediation Summary
 
-**Date:** 2026-02-19T04:43:00Z
+**Date:** 2026-02-20T04:41:00Z
 **Failures analyzed:** 1
 **Source:** `qa-output/qa-analysis-input.json`
 
@@ -67,7 +67,7 @@ Update `scripts/qa-test-suite.js` lines 2647-2675 to:
 **Source code location:**
 - Test file: `scripts/qa-test-suite.js` lines 2647-2675
 - Documentation: `docs/guide/campaigns.md` lines 102-119
-- Screenshot: `qa-failure-screenshots/failure-campaign-deep--status-dependent-ui-desktop-1771474889161.png`
+- Screenshot: `qa-failure-screenshots/failure-campaign-deep--status-dependent-ui-desktop-1771560732619.png`
 
 **Confidence:** 0.95 — Verified against both documentation and screenshot evidence. The test design flaw is clear and actionable.
 

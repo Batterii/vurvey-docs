@@ -22,21 +22,18 @@ When you open **Agents** from the left navigation, you'll see the Agent Gallery 
 
 ### Gallery Sections
 
-Agents are organized into collapsible sections by category:
+Agents are organized into collapsible sections by **Agent Type**:
 
-- **Trending** — A dynamic section showing popular Vurvey-created agents from the last 30 days. These are marked with the Vurvey Badge (a sparkle icon). This is not a persistent category but a filtered view of recent platform agents.
-- **Research** — Agents focused on data analysis, survey interpretation, and market research
-- **Creation** — Agents that generate content, visuals, and creative assets
-- **Marketing** — Agents specialized in marketing strategy, campaign analysis, and brand positioning
-- **E-Commerce** — Agents designed for online retail, product optimization, and shopping behavior analysis
-- **vTeam** — Pre-built Vurvey platform agents that provide out-of-the-box capabilities
+- **Trending** — A dynamic section showing popular Vurvey-created agents from the last 30 days. These are marked with the Vurvey Badge (a sparkle icon). This is not a persistent type but a filtered view of recent platform agents.
+- **Assistant** — General-purpose research and analysis agents
+- **Consumer Persona** — Simulated consumer perspectives and persona agents
+- **Product** — Product-specific expertise and knowledge agents
+- **Visual Generator** — Image generation and creative visual agents
 
-The five persistent categories you can assign to your agents are: **Research**, **Creation**, **Marketing**, **E-Commerce**, and **vTeam**.
+The four agent types you can create are: **Assistant**, **Consumer Persona**, **Product**, and **Visual Generator**. When creating an agent, you select its type, which determines both its capabilities and how it appears in the gallery.
 
-Within each category, agents are one of four types: **Assistant**, **Consumer Persona**, **Product**, or **Visual Generator**.
-
-::: tip Categories vs. Agent Types
-Categories (Research, Creation, Marketing, E-Commerce, vTeam) organize how agents appear in the gallery and are assigned when creating an agent. The four agent types you can create are **Assistant**, **Consumer Persona**, **Product**, and **Visual Generator**. A Research-category agent might be an Assistant type, while a Creation-category agent might be a Visual Generator type.
+::: tip Agent Type Organization
+The gallery organizes agents by their **type** (Assistant, Consumer Persona, Product, Visual Generator), not by functional category. Each type section is collapsible, making it easy to browse agents with similar capabilities.
 :::
 
 ### Agent Cards
@@ -279,7 +276,7 @@ You can optionally start from a pre-configured **mold** (template) that provides
 
 ---
 
-### Step 3: Instructions
+### Step 3: Optional Settings
 
 <!-- Screenshot placeholder: agents/07-builder-instructions.png — will be captured by automated screenshots -->
 
