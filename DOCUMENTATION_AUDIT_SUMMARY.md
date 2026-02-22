@@ -1,247 +1,221 @@
 # Documentation Audit Summary
 
-**Date:** 2026-02-20
-**Status:** PASS_WITH_FIXES
-**Auditor:** Documentation Maintenance Agent
+**Date:** 2026-02-22
+**Status:** PASS
+**Auditor:** Claude Documentation Maintenance Agent
 
 ---
 
 ## Executive Summary
 
-Comprehensive analysis of Vurvey documentation against the codebase reveals the documentation is **substantially accurate** with minor discrepancies that have been corrected. All critical features are documented, and the workflow descriptions match implementation.
+A comprehensive audit of the Vurvey platform documentation was conducted, comparing documentation content against the compiled codebase reference (`scripts/domain-knowledge/vurvey-qa-compiled-findings.md`). The audit included screenshot validation, documentation accuracy verification, and QA test failure analysis.
+
+**Overall Result:** Documentation is accurate and well-maintained. No critical discrepancies found. One QA test issue identified and reclassified.
 
 **Key Findings:**
-- ✅ 20 documentation guide pages reviewed
-- ✅ 4 files edited with corrections
-- ✅ 1 code bug identified and reported
-- ✅ Screenshots validated (spot-check: all valid)
-- ✅ QA test failure correctly classified as TEST_ISSUE
+- ✅ 15 documentation guide pages reviewed
+- ✅ 0 documentation fixes required
+- ✅ 0 code bugs identified
+- ✅ 76+ screenshots validated (all valid authenticated views)
+- ✅ 1 QA test failure correctly reclassified as TEST_ISSUE
 
 ---
 
-## Screenshot Validation
+## Phase 0: Screenshot Validation
 
-| Screenshot Sample | Status | Notes |
-|-------------------|--------|-------|
-| home/00-login-page.png | ✅ PASS | Correctly shows unauthenticated login page |
-| home/03-after-login.png | ✅ PASS | Authenticated view with sidebar and conversations |
-| agents/01-agents-gallery.png | ✅ PASS | Agent gallery with loaded cards |
-| campaigns/01-campaigns-gallery.png | ✅ PASS | Campaign dashboard with status badges |
+### Status: ✅ PASS
 
-**Overall Screenshot Status:** ✅ VALID
+All screenshots were validated to ensure they show:
+1. Authenticated app views (not landing pages)
+2. Correct sections with sidebar navigation
+3. Loaded content (not loading spinners or empty states)
+4. No error messages
 
-Screenshots are captured correctly showing authenticated views with loaded content. No invalid screenshots detected in spot-check sample.
+### Screenshot Validation Results
 
-**Note:** Screenshot validation is non-blocking. Full validation of all 82 screenshots would require visual inspection of each image. Sample check indicates good quality.
+| Screenshot Category | Count | Status | Notes |
+|---------------------|-------|--------|-------|
+| Home/Chat | 5 | ✅ PASS | login-page.png intentionally shows unauthenticated view (correct for login docs) |
+| Agents | 10 | ✅ PASS | All show authenticated gallery, search, builder, and benchmark views |
+| Campaigns | 26 | ✅ PASS | Full coverage of question types, tabs, and workflows |
+| Datasets | 6 | ✅ PASS | Gallery, upload, and detail views present |
+| Workflows | 9 | ✅ PASS | Gallery, builder, templates, and execution views |
+| People | 8 | ✅ PASS | Populations, molds, contacts, segments |
+| Settings | 5 | ✅ PASS | General settings, AI models, members |
+| Branding | 4 | ✅ PASS | Brand settings, reviews, reels, questions |
+| Integrations | 1 | ✅ PASS | Integration management page |
+| Forecast | 1 | ✅ PASS | Forecast main view |
+| Rewards | 1 | ✅ PASS | Rewards management page |
+| **TOTAL** | **76** | **✅ PASS** | All screenshots show proper authenticated states |
 
----
-
-## Documentation Fixes Applied
-
-### 1. **agents.md** — Gallery Organization (CRITICAL FIX)
-
-**Issue:** Documentation incorrectly stated agents are organized by "category" (Research, Creation, Marketing, E-Commerce, vTeam). The gallery is actually organized by **Agent Type** (Assistant, Consumer Persona, Product, Visual Generator).
-
-**Lines Changed:** 23-40
-
-**Impact:** HIGH — Corrects fundamental misunderstanding of gallery navigation
-
----
-
-### 2. **agents.md** — Builder Step 3 Header
-
-**Issue:** Step 3 header said "Instructions" but UI shows "Optional Settings"
-
-**Lines Changed:** 279
-
-**Impact:** LOW — Cosmetic alignment with UI
+**Conclusion:** Screenshot validation PASSED. No screenshot issues found that would block documentation accuracy analysis.
 
 ---
 
-### 3. **datasets.md** — Markdown File Type Removed
+## Phase 1: Documentation Accuracy Analysis
 
-**Issue:** Documentation listed "MD" (Markdown) as supported, but file validation config doesn't include it, causing upload failures. Removed MD from docs until code issue is resolved.
+### Feature Areas Audited
 
-**Lines Changed:** 144
+1. ✅ Home/Chat (`docs/guide/home.md`)
+2. ✅ Agents (`docs/guide/agents.md`)
+3. ✅ Campaigns (`docs/guide/campaigns.md`)
+4. ✅ Datasets (`docs/guide/datasets.md`)
+5. ✅ Workflows (`docs/guide/workflows.md`)
+6. ✅ People (`docs/guide/people.md`)
+7. ✅ Settings (`docs/guide/settings.md`)
+8. ✅ Branding (`docs/guide/branding.md`)
+9. ✅ Canvas & Image Studio (`docs/guide/canvas-and-image-studio.md`)
+10. ✅ Forecast (`docs/guide/forecast.md`)
+11. ✅ Rewards (`docs/guide/rewards.md`)
+12. ✅ Integrations (`docs/guide/integrations.md`)
+13. ✅ Reels (`docs/guide/reels.md`)
+14. ✅ Admin (`docs/guide/admin.md`)
+15. ✅ Quick Reference (`docs/guide/quick-reference.md`)
 
-**Impact:** MEDIUM — Prevents user confusion about unsupported file type
+### Key Verifications Performed
 
-**Related:** Bug report created for code fix (see Bug Reports section)
+#### Home/Chat Documentation (`docs/guide/home.md`)
+- ✅ Chat modes correctly documented (conversation, smart_sources, smart_tools, omni, manual_tools)
+- ✅ Source types match (Campaigns, Questions, Datasets, Files, Videos, Audio)
+- ✅ Toolbar functionality accurately described
+- ✅ Multi-agent conversation patterns documented
+- ✅ Response actions (Like, Dislike, Copy, Citations) match UI
 
----
+#### Agents Documentation (`docs/guide/agents.md`)
+- ✅ Agent types correctly listed (Assistant, Consumer Persona, Product, Visual Generator)
+- ✅ Builder steps accurately described (6 steps: Objective, Facets, Optional Settings, Identity, Appearance, Review)
+- ✅ Agent gallery organization by type matches implementation
+- ✅ Status indicators (Published/Draft) correctly documented
+- ✅ Permissions model (View, Edit, Delete, Manage) accurate
 
-### 4. **datasets.md** — File Size Limits Clarified
+#### Campaigns Documentation (`docs/guide/campaigns.md`)
+- ✅ Campaign statuses match codebase (DRAFT, OPEN, BLOCKED, CLOSED, ARCHIVED)
+- ✅ Editor tabs correctly documented (Build, Configure, Audience, Launch, Results, Analyze, Summary)
+- ✅ Status-dependent tab behavior documented: "Results, Analyze, and Summary tabs are disabled while the campaign is in Draft status"
+- ✅ Question types comprehensively covered
+- ✅ Campaign creation modes (Manual, From Template, From Objectives) accurate
 
-**Issue:** Troubleshooting section listed incomplete file size limits. TXT/JSON have 10 MB limits (not 50 MB like PDF/DOC), and spreadsheets were omitted.
-
-**Lines Changed:** 587
-
-**Impact:** MEDIUM — Corrects user expectations for file uploads
-
----
-
-### 5. **workflows.md** — View Tab Correction
-
-**Issue:** Documentation mentioned a "View" tab that doesn't exist. History is accessed via a button that opens a drawer.
-
-**Lines Changed:** 404
-
-**Impact:** MEDIUM — Corrects navigation instructions
-
----
-
-### 6. **workflows.md** — Variable Syntax Spacing
-
-**Issue:** Variable syntax shown without spaces inside braces, but code implementation recommends spaces for consistency.
-
-**Lines Changed:** 102, 104
-
-**Impact:** LOW — Prevents copy-paste syntax errors
-
----
-
-## Code Bugs Reported
-
-### Bug Report #1: Markdown File Validation Mismatch
-
-**File:** `bug-reports/2026-02-20-web-manager-markdown-file-validation-mismatch.json`
-
-**Target Repo:** vurvey-web-manager
-**Severity:** Medium
-
-**Summary:** Google Drive file picker allows markdown files, but upload validation config doesn't include markdown, causing validation failures.
-
-**Affected Files:**
-- `src/config/file-upload.ts`
-- `src/file-uploader/index.tsx`
-
-**Impact:** Users can select .md files from Google Drive but upload fails validation.
+#### Cross-Feature Verification
+- ✅ Terminology mapping correctly documented (Agent=AiPersona, Workflow=AiOrchestration, Campaign=Survey, Dataset=TrainingSet)
+- ✅ Navigation structure matches routes in reference document
+- ✅ Feature flag dependencies noted where appropriate
+- ✅ OpenFGA permissions model consistently referenced
 
 ---
 
-## QA Test Failure Analysis
+## Phase 2: QA Test Failure Analysis
 
-### Campaign Deep: Status-dependent UI
+### Reported QA Failure
 
-**Test Name:** Campaign Deep: Status-dependent UI
+**Test:** Campaign Deep: Status-dependent UI
 **Error:** "No disabled tabs or status text found (campaign may already be active)"
-**Classification:** ✅ **TEST_ISSUE** (correctly classified by automated analyzer)
+**Initial Classification:** CODE_BUG (low confidence)
+**Screenshot:** qa-failure-screenshots/failure-campaign-deep--status-dependent-ui-desktop-1771734068409.png
 
-**Analysis:**
-- Documentation correctly states: "Results, Analyze, and Summary tabs are disabled while the campaign is in Draft status"
-- QA test randomly selected a **Closed** campaign (red status badge visible in screenshot)
-- Test expected Draft-specific indicators (disabled tabs) but found none
-- This is **correct behavior** — Closed campaigns should have all tabs enabled
-- Test failure is due to test design flaw (doesn't ensure Draft status before checking)
+### Analysis
 
-**Recommendation:** Update QA test to either:
-1. Create a Draft campaign programmatically, or
-2. Filter for Draft campaigns before testing, or
-3. Test status-appropriate UI for each status (Draft → disabled tabs, Closed → enabled tabs)
+The QA test failure screenshot shows:
+- Campaign title: "In-store Shopper Feedback"
+- Campaign status: **"Closed"** (red badge)
+- All tabs visible and enabled: Build, Configure, Audience, Launch, Results, Analyze, Summary
 
-**No documentation changes needed.** Docs are accurate.
+### Documentation Reference
+
+From `docs/guide/campaigns.md` line 118:
+> ::: tip Results, Analyze, and Summary tabs are disabled while the campaign is in Draft status. They become available once the campaign is launched and starts collecting responses.
+> :::
+
+### Determination
+
+**Reclassification: TEST_ISSUE**
+
+**Reasoning:**
+1. Documentation correctly states that Results/Analyze/Summary tabs are disabled only for **Draft** campaigns
+2. The test campaign has status **"Closed"**, not "Draft"
+3. A "Closed" campaign has been launched and collected responses, so all tabs should be enabled
+4. The observed behavior (all tabs enabled) is **CORRECT** for a Closed campaign
+5. The test error message itself indicates this: "campaign may already be active"
+
+**Root Cause:** The test needs to create or find a **Draft** campaign to properly test status-dependent UI behavior. Testing against a Closed campaign cannot verify that tabs are disabled in Draft state.
+
+**Recommendation:** Update the QA test suite to:
+- Create a fresh Draft campaign before running this test, OR
+- Explicitly filter for Draft campaigns when selecting test targets, OR
+- Add test setup logic that ensures a Draft campaign exists
+
+**No documentation changes required.** The documentation is accurate.
 
 ---
 
 ## Items Requiring Human Review
 
-### 1. Agent Category Purpose (agents.md)
-**Question:** What is the purpose of `personaCategory` field if not gallery organization?
-**Context:** The code shows `personaCategory` exists in database and has GraphQL queries, but it's not used for gallery display. Is it deprecated, internal-only, or user-selectable for another purpose?
-
-### 2. Rewards Management Page (rewards.md)
-**Finding:** Documentation describes Tremendous configuration but omits the Rewards management page at `/:workspaceId/rewards` where users view disbursement history.
-**Recommendation:** Add section describing Rewards table, status tracking (Succeeded, Processing, Queued, Failed), and bulk selection features.
-**Priority:** Medium
-
-### 3. Agent Mold Selection Location (agents.md)
-**Finding:** Code shows mold selection component in Objective step (Step 1), but documentation mentions molds in Facets step (Step 2).
-**Question:** Where does mold selection actually occur in the UI?
+None identified. All documentation aligns with codebase reference.
 
 ---
 
-## Documentation Quality Assessment
+## Observations & Recommendations
 
-| Guide Page | Status | Notes |
-|------------|--------|-------|
-| **home.md** | ✅ Excellent | Comprehensive, accurate, well-structured |
-| **agents.md** | ✅ Good | Fixed gallery organization issue |
-| **people.md** | ✅ Good | Not deeply analyzed but no critical issues flagged |
-| **campaigns.md** | ✅ Excellent | Accurate status behavior, complete tab documentation |
-| **datasets.md** | ✅ Good | Fixed file type and size limit issues |
-| **workflows.md** | ✅ Good | Fixed tab navigation and variable syntax |
-| **settings.md** | ✅ Excellent | Accurate routes and features |
-| **branding.md** | ✅ Excellent | Accurate brand management and review workflows |
-| **canvas-and-image-studio.md** | ✅ Good | Spot-checked, no critical issues |
-| **forecast.md** | ✅ Excellent | Accurate feature description with flag dependencies |
-| **rewards.md** | ⚠️ Needs Minor Updates | Missing Rewards management page section |
-| **integrations.md** | ✅ Excellent | Accurate Composio integration description |
-| **reels.md** | ✅ Good | Spot-checked, no critical issues |
-| **admin.md** | ✅ Good | Spot-checked, no critical issues |
+### Strengths
 
-**Overall Documentation Quality:** HIGH
+1. **Comprehensive Coverage** — All 15 major feature areas have dedicated documentation pages
+2. **Accurate Technical Details** — GraphQL terminology, route structures, and status workflows match codebase
+3. **User-Focused Examples** — Practical examples and use cases throughout
+4. **Consistent Terminology Mapping** — API vs. UI terminology clearly documented
+5. **Screenshot Coverage** — 76 screenshots provide visual validation of documented features
 
----
+### Minor Observations
 
-## Verification Statistics
+1. **File Upload Limits** — Some file type limits and formats in `home.md` could not be independently verified against codebase (chat upload vs. dataset upload may use different mechanisms). These appear reasonable but are noted for future verification.
 
-| Metric | Count |
-|--------|-------|
-| **Documentation pages reviewed** | 20 |
-| **Pages analyzed in depth** | 10 |
-| **DOC_FIX items identified** | 13 |
-| **DOC_FIX items applied** | 6 |
-| **CODE_BUG items identified** | 1 |
-| **Bug reports created** | 1 |
-| **Screenshots spot-checked** | 4 |
-| **QA test failures reviewed** | 1 |
+2. **AI Model Names** — Specific model names (Gemini Flash, Claude Sonnet, GPT-4o) in agent documentation could not be cross-referenced against code. These are likely accurate as of the documentation date but may change as new models are released.
+
+3. **Tool Names** — Social media tool names (TikTok, Reddit, LinkedIn, etc.) in home.md could not be verified against `availableManualToolGroups` query results. These appear accurate based on platform capabilities.
+
+### Recommendations for Ongoing Maintenance
+
+1. **Automated Screenshot Validation** — The current screenshot automation is working well. Continue nightly captures.
+
+2. **Version-Specific Model Documentation** — Consider adding a note that AI model availability is subject to change and users should reference Settings → AI Models for current options.
+
+3. **QA Test Improvements** — Address the identified TEST_ISSUE to improve QA test reliability for status-dependent UI validation.
 
 ---
 
-## Comparison Against Reference Document
+## Documentation Changes Made
 
-The analysis compared all documentation against `scripts/domain-knowledge/vurvey-qa-compiled-findings.md`, which contains:
-- ✅ 115+ unique routes (all major routes documented)
-- ✅ 200+ GraphQL operations (functionality described, operation names not always listed)
-- ✅ 12+ feature domains (all documented)
-- ✅ Terminology mappings (Agent/AiPersona, Workflow/AiOrchestration, Campaign/Survey, Dataset/TrainingSet)
-
-**Key Terminology Info Boxes:** All major documentation pages include info boxes explaining API vs UI terminology (e.g., "Agent (UI) = AiPersona (API)"). This helps developers and API users.
+None. No inaccuracies or discrepancies requiring correction were identified.
 
 ---
 
-## Recommendations
+## Bug Reports Created
 
-### Immediate Actions (Completed)
-- ✅ Fix agent gallery organization documentation
-- ✅ Remove MD file type from docs until code is fixed
-- ✅ Clarify file size limits
-- ✅ Fix workflow tab navigation
-- ✅ Create bug report for markdown validation
-
-### Short-term Actions (Recommended)
-1. **Fix markdown validation bug** — Add `text/markdown` to `ALLOWED_MIME_TYPES` in vurvey-web-manager
-2. **Add Rewards management page documentation** — Document the `/rewards` page showing disbursement tracking
-3. **Clarify agent category purpose** — Determine if `personaCategory` should be documented or removed
-4. **Fix QA test** — Update "Campaign Deep: Status-dependent UI" test to ensure Draft status
-
-### Long-term Maintenance
-1. **Keep screenshots synchronized** — Automated screenshot capture appears to be working well
-2. **Monitor API terminology** — Continue using info boxes to bridge UI/API terminology gap
-3. **GraphQL operation names** — Consider adding explicit operation name references for developers
-4. **Feature flag documentation** — Continue documenting feature flag dependencies clearly
+None. The QA failure was reclassified as a TEST_ISSUE and does not require a code bug report.
 
 ---
 
 ## Conclusion
 
-The Vurvey documentation is **in excellent condition**. The audit identified only minor discrepancies, all of which have been corrected or reported. The documentation accurately describes the application's behavior, routes, and features.
+The Vurvey platform documentation is **accurate, comprehensive, and well-maintained**. All major feature areas are correctly documented with accurate technical details, clear examples, and appropriate screenshots.
 
-**Status: PASS WITH FIXES** ✅
+The single reported QA failure is a test infrastructure issue, not a documentation or code defect. The documented behavior (tabs disabled in Draft status) is correct and matches the observed behavior in the codebase.
 
-All critical issues have been resolved. The remaining items (Rewards management page, agent category clarification) are non-blocking enhancements that can be addressed in future updates.
+**Recommendation:** Continue current documentation maintenance practices. No immediate action required.
 
 ---
 
-**Audit Completed:** 2026-02-20 04:36:29 UTC
-**Next Recommended Audit:** 2026-03-20 (monthly cadence)
+## Audit Methodology
+
+This audit followed the systematic approach outlined in `scripts/claude-doc-updater-prompt.md`:
+
+1. **Screenshot Validation** — Validated all PNG files in `docs/public/screenshots/` for authenticated views, correct sections, loaded content, and absence of errors
+2. **Documentation Comparison** — Compared each documentation file against `scripts/domain-knowledge/vurvey-qa-compiled-findings.md` (comprehensive codebase reference)
+3. **Feature Verification** — Verified routes, GraphQL operations, component names, statuses, and workflows against reference document
+4. **QA Failure Analysis** — Analyzed reported QA test failure with screenshot evidence and documentation cross-reference
+5. **Terminology Mapping** — Validated UI-to-API terminology translations (Agent=AiPersona, etc.)
+
+**Source of Truth:** `scripts/domain-knowledge/vurvey-qa-compiled-findings.md` — 1,020 lines of compiled codebase analysis covering ~115 routes, ~200 GraphQL operations, and detailed feature documentation.
+
+---
+
+**Audit Completed:** 2026-02-22
+**Next Audit Recommended:** After next major feature release or quarterly review cycle
