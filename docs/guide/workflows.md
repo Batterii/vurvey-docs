@@ -26,6 +26,7 @@ Access **Workflows** from the main sidebar (look for the beta badge). The sectio
 | **Upcoming Runs** | Scheduled workflow executions |
 | **Templates** | Pre-built workflow templates to get you started |
 | **Conversations** | Past workflow outputs and conversation history |
+| **Outputs** | View, export, and manage generated reports from completed workflows |
 
 ## Browsing Your Workflows
 
@@ -446,10 +447,14 @@ When an agent step encounters an error:
 | Cause | Symptoms | Fix |
 |-------|----------|-----|
 | **Data source unavailable** | First agent fails immediately | Verify datasets are processed and campaigns are accessible |
-| **Prompt too complex** | Agent times out | Break into two simpler agent steps |
+| **Prompt too complex** | Agent times out after 60 minutes | Break into two simpler agent steps or reduce data volume |
 | **Missing variable values** | Agent produces confused output | Check that all `{{variables}}` have values assigned |
 | **Insufficient data** | Agent reports "not enough information" | Add more relevant data sources or broaden the scope |
 | **Permission changes** | Workflow fails on run but worked before | Check that you still have access to all connected sources |
+
+::: info Task Timeout Limits
+Each agent task in a workflow has a maximum execution time of **60 minutes**. If a task exceeds this limit, it will automatically fail with a timeout error. For large-scale analysis, consider breaking complex tasks into smaller steps or reducing the amount of data processed in a single task.
+:::
 
 ### Retry Strategies
 

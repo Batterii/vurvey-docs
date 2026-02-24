@@ -659,18 +659,20 @@ In the Members step, you choose exactly who will receive the campaign invitation
 
 ### Audience Targeting
 
-When launching, you can target three types of audiences:
+When launching, you can target four types of audiences:
 
 | Audience Type | Description |
 |---------------|-------------|
 | **Populations** | AI-generated consumer profiles for synthetic testing |
 | **Mailing List** | Contacts from your People section (lists, segments, or individual contacts) |
 | **Vurvey Creators** | Vurvey's network of qualified research participants |
+| **People Models** | Synthetic respondents based on custom molds and consumer profiles |
 
 ::: tip Choosing the Right Audience
 - **Populations** — Use for testing and iteration. Free and instant, but responses are AI-generated. Perfect for validating question design before spending budget on real respondents.
 - **Mailing List** — Use when you have an existing customer list or panel. Best for brand-specific research where you need feedback from your actual customers.
 - **Vurvey Creators** — Use when you need fresh perspectives from a large, diverse audience. Best for general market research and reaching demographics you don't have in-house.
+- **People Models** — Use AI-generated personas with specific demographic and psychographic profiles. Ideal for targeted synthetic testing with precise audience characteristics.
 :::
 
 ### Sharing Your Campaign
@@ -742,6 +744,18 @@ The Results tab shows summary statistics — total responses, completion rate, a
 ### Response Cards
 
 Each response appears as a card showing the respondent's name (or anonymous ID), completion date, and a thumbnail preview of their video. Cards are sorted by most recent by default.
+
+### Member Participation Status
+
+When tracking campaign participation, members can have one of three statuses:
+
+| Status | Description |
+|--------|-------------|
+| **Invited** | Campaign invitation sent but not yet started |
+| **Partial** | Started the campaign but has not completed all questions |
+| **Completed** | Finished all questions and submitted responses |
+
+These statuses help you track response progress and identify who needs follow-up reminders.
 
 <!-- Screenshot placeholder: campaigns/09-response-card.png — will be captured by automated screenshots -->
 
