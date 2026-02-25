@@ -64,7 +64,7 @@ const CONFIG = {
   headless: process.env.HEADLESS !== 'false',
   timeout: 90000,
   retries: 3,
-  parallel: Math.max(1, parseInt(process.env.CAPTURE_PARALLEL, 10) || 4),
+  parallel: Math.max(1, parseInt(process.env.CAPTURE_PARALLEL, 10) || 8),
   captureOnly: (process.env.CAPTURE_ONLY || '')
     .split(',')
     .map((s) => s.trim().toLowerCase())
@@ -223,6 +223,39 @@ async function waitForLoaders(page, timeout = TIMING.loaderTimeout) {
     await delay(TIMING.loaderPollInterval);
   }
   console.log('  ⚠ Loader timeout (continuing)');
+}
+
+/**
+ * Wait for visible <img> elements on the page to finish loading.
+ * This prevents capturing screenshots with gray placeholder circles
+ * where avatar/thumbnail images haven't loaded yet.
+ */
+async function waitForImages(page, timeout = 6000) {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    const allLoaded = await page.evaluate(() => {
+      const imgs = Array.from(document.querySelectorAll('img'));
+      // Only check visible images that have a src
+      const visible = imgs.filter((img) => {
+        if (!img.src || img.src.startsWith('data:')) return false;
+        const rect = img.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return false;
+        const st = window.getComputedStyle(img);
+        return st.display !== 'none' && st.visibility !== 'hidden' && st.opacity !== '0';
+      });
+      if (visible.length === 0) return true;
+      const loaded = visible.filter((img) => img.complete && img.naturalWidth > 0);
+      // Consider loaded when at least 80% of visible images are ready
+      return loaded.length >= visible.length * 0.8;
+    }).catch(() => true);
+    if (allLoaded) {
+      console.log('  ✓ Images loaded');
+      return true;
+    }
+    await delay(300);
+  }
+  console.log('  ⚠ Image load timeout (continuing)');
+  return false;
 }
 
 async function hasRenderableMainContent(page) {
@@ -986,6 +1019,9 @@ async function captureAgents(page) {
     '[class*="assistant"]'
   ]);
 
+  // Wait for agent avatar images to finish loading
+  await waitForImages(page, 8000);
+
   await takeScreenshot(page, '01-agents-gallery', 'agents');
 
   // For the search screenshot, type a search term to show the filter in action
@@ -1525,6 +1561,9 @@ async function capturePeople(page) {
     '[class*="list"]'
   ]);
 
+  // Wait for population card avatar images to finish loading
+  await waitForImages(page, 8000);
+
   await takeScreenshot(page, '01-people-main', 'people');
 
   // Sub-pages (try /people first, then /audience).
@@ -1553,6 +1592,8 @@ async function capturePeople(page) {
             '[class*="humans" i]', '[class*="list" i]', '[class*="properties" i]',
           ], 8000);
           await waitForLoaders(page, 5000);
+          // Wait for avatar/profile images on population and human cards
+          await waitForImages(page, 6000);
           await takeScreenshot(page, subPage.name, 'people');
           did = true;
           break;
@@ -1793,6 +1834,9 @@ async function captureCampaigns(page) {
     '[class*="campaign"]'
   ]);
 
+  // Wait for campaign thumbnail images to finish loading
+  await waitForImages(page, 8000);
+
   await takeScreenshot(page, '01-campaigns-gallery', 'campaigns');
 
   // Try to capture a campaign card close-up by clicking the first campaign
@@ -1886,112 +1930,143 @@ async function captureCampaigns(page) {
           if (addQClicked) {
             await delay(TIMING.postClickDelay);
             await takeScreenshot(page, '07-question-type-selector', 'campaigns');
-
-            // Try clicking each question type to capture its editor
-            const questionTypes = [
-              { name: 'video', label: 'Video', shot: '08-question-video' },
-              { name: 'multiple choice', label: 'Multiple Choice', shot: '09-question-multiple-choice' },
-              { name: 'multiselect', label: 'Multiselect', shot: '10-question-multiselect' },
-              { name: 'ranking', label: 'Ranking', shot: '11-question-ranking' },
-              { name: 'star rating', label: 'Star Rating', shot: '12-question-star-rating' },
-              { name: 'opinion slider', label: 'Opinion Slider', shot: '13-question-opinion-slider' },
-              { name: 'short text', label: 'Short Text', shot: '14-question-short-text' },
-              { name: 'long text', label: 'Long Text', shot: '15-question-long-text' },
-              { name: 'number', label: 'Number', shot: '16-question-number' },
-              { name: 'image upload', label: 'Image Upload', shot: '17-question-image-upload' },
-              { name: 'pdf upload', label: 'PDF Upload', shot: '18-question-pdf-upload' },
-              { name: 'video upload', label: 'Video Upload', shot: '19-question-video-upload' },
-              { name: 'scan', label: 'Scan', shot: '20-question-scan-barcode' },
-            ];
-
-            for (const qt of questionTypes) {
-              try {
-                // Dismiss any lingering modal/dialog from a previous iteration
-                await dismissAnyModal(page);
-                await delay(200);
-
-                // Re-open the add question dropdown for each type
-                const reopened =
-                  (await clickButtonByText(page, 'add question', 2000)) ||
-                  (await clickFirstVisible(page, [
-                    '[data-testid*="add-question"]',
-                    '[class*="addQuestion" i]',
-                  ]));
-                if (!reopened) {
-                  console.log(`  ⚠ Could not reopen Add Question dropdown for ${qt.label}`);
-                  break;
-                }
-                await delay(TIMING.postClickDelay);
-
-                // Click the specific question type WITHIN the dropdown/menu container only.
-                // This prevents matching unrelated elements like "Add image or video" links.
-                const dropdownSelectors = [
-                  '[role="menu"]',
-                  '[role="listbox"]',
-                  '[class*="dropdown" i]',
-                  '[class*="popover" i]',
-                  '[class*="menuList" i]',
-                  '[class*="questionType" i]',
-                ];
-                let typeClicked = await clickButtonByTextInContainer(page, qt.name, dropdownSelectors.join(', '), 2500);
-
-                // Fallback: try matching menu items with a data-testid or role="menuitem"
-                if (!typeClicked) {
-                  typeClicked = await page.evaluate((needle) => {
-                    const items = Array.from(document.querySelectorAll('[role="menuitem"], [role="option"]'));
-                    const match = items.find((el) => {
-                      const text = (el.textContent || '').trim().toLowerCase();
-                      return text === needle || text.startsWith(needle);
-                    });
-                    if (!match) return false;
-                    const st = window.getComputedStyle(match);
-                    if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
-                    match.click();
-                    return true;
-                  }, qt.name.toLowerCase());
-                }
-
-                if (typeClicked) {
-                  await delay(TIMING.postClickDelay);
-                  await waitForNetworkIdle(page);
-                  await waitForLoaders(page);
-
-                  // Verify we didn't accidentally open a modal (like "Add Image")
-                  const accidentalModal = await page.evaluate(() => {
-                    const modals = document.querySelectorAll('[role="dialog"], [class*="modal" i]');
-                    return Array.from(modals).some((el) => {
-                      const st = window.getComputedStyle(el);
-                      if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
-                      const text = (el.textContent || '').toLowerCase();
-                      return text.includes('add image') || text.includes('upload an image');
-                    });
-                  }).catch(() => false);
-
-                  if (accidentalModal) {
-                    console.log(`  ⚠ Accidental modal opened for ${qt.label} — dismissing`);
-                    await dismissAnyModal(page);
-                    await delay(200);
-                    continue;
-                  }
-
-                  await takeScreenshot(page, qt.shot, 'campaigns');
-                  console.log(`  ✓ Captured question type: ${qt.label}`);
-                } else {
-                  console.log(`  ⚠ Could not click question type: ${qt.label}`);
-                  // Close dropdown for next attempt
-                  await page.keyboard.press('Escape').catch(() => {});
-                  await delay(200);
-                }
-              } catch (e) {
-                console.log(`  Could not capture question type ${qt.label}: ${e.message}`);
-                await dismissAnyModal(page);
-                await page.keyboard.press('Escape').catch(() => {});
-                await delay(200);
-              }
-            }
+            // Close the dropdown before proceeding
+            await page.keyboard.press('Escape').catch(() => {});
+            await delay(300);
           }
         } catch (e) {
           console.log(`  Could not capture question type selector: ${e.message}`);
+        }
+
+        // Capture each question type by clicking EXISTING questions in the sidebar.
+        // The left sidebar lists all questions with their type labels (e.g. "STAR RATING",
+        // "MULTIPLE CHOICE"). We scan for these, click the first of each unique type,
+        // and screenshot the editor that appears on the right.
+        try {
+          const questionTypeMap = {
+            'video': { shot: '08-question-video', label: 'Video' },
+            'multiple choice': { shot: '09-question-multiple-choice', label: 'Multiple Choice' },
+            'multiselect': { shot: '10-question-multiselect', label: 'Multiselect' },
+            'ranking': { shot: '11-question-ranking', label: 'Ranking' },
+            'star rating': { shot: '12-question-star-rating', label: 'Star Rating' },
+            'opinion slider': { shot: '13-question-opinion-slider', label: 'Opinion Slider' },
+            'short text': { shot: '14-question-short-text', label: 'Short Text' },
+            'long text': { shot: '15-question-long-text', label: 'Long Text' },
+            'number': { shot: '16-question-number', label: 'Number' },
+            'image upload': { shot: '17-question-image-upload', label: 'Image Upload' },
+            'pdf upload': { shot: '18-question-pdf-upload', label: 'PDF Upload' },
+            'video upload': { shot: '19-question-video-upload', label: 'Video Upload' },
+            'scan': { shot: '20-question-scan-barcode', label: 'Scan' },
+          };
+
+          // Discover all questions in the sidebar by scanning for type labels.
+          // Each sidebar question item typically contains a small-caps type label
+          // (e.g., "STAR RATING", "MULTIPLE CHOICE") and the question text below it.
+          const sidebarQuestions = await page.evaluate(() => {
+            const results = [];
+            // Look for all clickable question items in the left sidebar.
+            // The sidebar contains numbered items; each has a type label element.
+            const allEls = Array.from(document.querySelectorAll('*'));
+            // Collect elements whose text matches known question types exactly
+            const typeKeywords = [
+              'video', 'multiple choice', 'multiselect', 'ranking',
+              'star rating', 'opinion slider', 'short text', 'long text',
+              'number', 'image upload', 'pdf upload', 'video upload', 'scan',
+              'introduction',
+            ];
+
+            for (const el of allEls) {
+              // We want small leaf-ish elements that are type labels, not containers
+              if (el.children.length > 3) continue;
+              const raw = (el.textContent || '').trim();
+              const lower = raw.toLowerCase();
+              // Must match a known type exactly (allow some whitespace variations)
+              const matchedType = typeKeywords.find((kw) => lower === kw);
+              if (!matchedType) continue;
+              // Must be visible
+              const st = window.getComputedStyle(el);
+              if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') continue;
+              const rect = el.getBoundingClientRect();
+              if (rect.width === 0 || rect.height === 0) continue;
+              // The type label should be in the left portion of the page (sidebar)
+              if (rect.left > 400) continue;
+
+              // Find the clickable parent question item — walk up to find a substantial
+              // container that represents the full sidebar item
+              let clickTarget = el;
+              let node = el.parentElement;
+              for (let d = 0; d < 8 && node; d++) {
+                const nRect = node.getBoundingClientRect();
+                // Sidebar items are typically 100-300px tall and within left 300px
+                if (nRect.height > 40 && nRect.height < 400 && nRect.left < 300) {
+                  clickTarget = node;
+                }
+                node = node.parentElement;
+              }
+
+              const cRect = clickTarget.getBoundingClientRect();
+              results.push({
+                type: matchedType,
+                x: cRect.x + cRect.width / 2,
+                y: cRect.y + cRect.height / 2,
+                text: raw,
+              });
+            }
+
+            return results;
+          }).catch(() => []);
+
+          console.log(`  Found ${sidebarQuestions.length} question items in sidebar`);
+
+          // Deduplicate: keep only the first occurrence of each question type
+          const seenTypes = new Set();
+          const uniqueQuestions = [];
+          for (const q of sidebarQuestions) {
+            if (q.type === 'introduction') continue; // Skip intro, already captured
+            if (seenTypes.has(q.type)) continue;
+            seenTypes.add(q.type);
+            uniqueQuestions.push(q);
+          }
+
+          console.log(`  Unique question types to capture: ${uniqueQuestions.map((q) => q.type).join(', ') || '(none)'}`);
+
+          for (const q of uniqueQuestions) {
+            const meta = questionTypeMap[q.type];
+            if (!meta) continue;
+
+            try {
+              console.log(`  → Clicking sidebar question: "${q.type}" at (${Math.round(q.x)}, ${Math.round(q.y)})`);
+              await page.mouse.click(q.x, q.y);
+              await delay(TIMING.postClickDelay);
+              await waitForNetworkIdle(page);
+              await waitForLoaders(page);
+
+              // Wait for the editor panel on the right to update
+              await waitForContent(page, [
+                '[class*="questionEditor" i]',
+                '[class*="questionDetail" i]',
+                '[class*="questionContent" i]',
+                'textarea',
+                'input[type="text"]',
+              ]);
+              await delay(300);
+
+              await takeScreenshot(page, meta.shot, 'campaigns');
+              console.log(`  ✓ Captured question type: ${meta.label}`);
+            } catch (e) {
+              console.log(`  Could not capture question type ${meta.label}: ${e.message}`);
+            }
+          }
+
+          // Log which types were NOT found in this campaign
+          const missingTypes = Object.entries(questionTypeMap)
+            .filter(([key]) => !seenTypes.has(key))
+            .map(([, val]) => val.label);
+          if (missingTypes.length > 0) {
+            console.log(`  ℹ Question types not present in this campaign: ${missingTypes.join(', ')}`);
+          }
+        } catch (e) {
+          console.log(`  Could not capture question types from sidebar: ${e.message}`);
         }
       }
     } catch (e) {
@@ -2115,6 +2190,21 @@ async function captureCampaigns(page) {
     try {
       const subUrl = getWorkspaceUrl(subPage.path);
       if (await gotoWithRetry(page, subUrl, { label: `campaigns-${subPage.name}` })) {
+        if (subPage.path === '/campaigns/usage') {
+          // Usage tab loads charts/analytics — wait for content to appear
+          await waitForContent(page, [
+            '[class*="usage" i]',
+            '[class*="chart" i]',
+            '[class*="analytics" i]',
+            '[class*="metric" i]',
+            'canvas',
+            'svg',
+            'table',
+          ], 12000);
+          // Extra settle time for charts/graphs to render
+          await delay(1500);
+          await waitForLoaders(page);
+        }
         if (subPage.path === '/campaigns/magic-reels') {
           await waitForContent(page, [
             'input[placeholder*="search reels" i]',
@@ -2122,6 +2212,9 @@ async function captureCampaigns(page) {
             'table tbody tr',
             '[class*="reel" i]',
           ], 10000);
+          // Wait for reel thumbnails/images to load
+          await waitForImages(page, 8000);
+          await delay(500);
         }
         await takeScreenshot(page, subPage.name, 'campaigns');
 
