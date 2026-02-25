@@ -1990,77 +1990,6 @@ async function testSettings(page, workspaceId) {
   }
 }
 
-async function testBranding(page, workspaceId) {
-  currentSection = "Branding";
-  const nav = await gotoWorkspaceRoute(page, workspaceId, "/branding");
-  if (!nav.ok) {
-    recordWarning("Branding: Page loads", nav.error || "Could not navigate");
-    return;
-  }
-  const hasContent =
-    (await elementExists(page, "form, input, [class*='brand' i], [class*='form' i]", 8000)) ||
-    (await pageTextIncludes(page, "brand"));
-  await recordTest("Branding: Page loads", hasContent, hasContent ? "Branding UI detected" : "No branding UI detected", {selector: "route:/branding"});
-
-  if (!config.quick) {
-    for (const r of ["/branding/reviews", "/branding/reels", "/branding/questions"]) {
-      const subNav = await gotoWorkspaceRoute(page, workspaceId, r);
-      if (!subNav.ok) {
-        recordWarning(`Branding: Route ${r}`, subNav.error || "Could not navigate");
-        continue;
-      }
-      const ok = await elementExists(page, "button, table, [class*='card' i], [class*='list' i], [class*='tab' i]", 8000);
-      await recordTest(`Branding: Route loads (${r})`, ok, ok ? "OK" : "Missing expected UI", {selector: `route:${r}`});
-    }
-
-    // Brand settings form — verify key form fields (name, logo, colors)
-    {
-      const formNav = await gotoWorkspaceRoute(page, workspaceId, "/branding");
-      if (formNav.ok) {
-        const hasNameField = await elementExists(page, '#brand-name, input[name*="name" i], input[placeholder*="name" i]', 6000);
-        const hasLogoArea = await elementExists(page, '#brand-logo-input, [class*="logo" i], [class*="badge" i], [class*="avatar" i]', 4000);
-        const hasColorSection =
-          (await elementExists(page, '#primary-color, [class*="color" i], input[type="color"]', 4000)) ||
-          (await pageTextIncludes(page, "color"));
-        const formFieldCount = [hasNameField, hasLogoArea, hasColorSection].filter(Boolean).length;
-        await recordTest(
-          "Branding: Settings form fields",
-          formFieldCount >= 2,
-          `Found ${formFieldCount}/3 key fields (name: ${hasNameField}, logo: ${hasLogoArea}, colors: ${hasColorSection})`,
-          {selector: "brand form fields"},
-        );
-      }
-    }
-
-    // Reviews tab content — verify review cards or empty state
-    {
-      const reviewsNav = await gotoWorkspaceRoute(page, workspaceId, "/branding/reviews");
-      if (reviewsNav.ok) {
-        const hasReviewContent =
-          (await elementExists(page, '[data-testid="questions-container"], [class*="review" i], [class*="answer" i], [class*="card" i], [class*="question" i]', 8000)) ||
-          (await pageTextIncludes(page, "review")) ||
-          (await pageTextIncludes(page, "no responses")) ||
-          (await pageTextIncludes(page, "unreviewed"));
-        await recordTest("Branding: Reviews tab content", hasReviewContent, hasReviewContent ? "Review cards or empty state detected" : "No review content found", {selector: "route:/branding/reviews content"});
-      }
-    }
-
-    // Reels tab content — verify reel items or empty state
-    {
-      const reelsNav = await gotoWorkspaceRoute(page, workspaceId, "/branding/reels");
-      if (reelsNav.ok) {
-        const hasReelContent =
-          (await elementExists(page, '[class*="reel" i], [class*="video" i], [class*="card" i], [class*="grid" i], table', 8000)) ||
-          (await pageTextIncludes(page, "reel")) ||
-          (await pageTextIncludes(page, "no reels")) ||
-          (await pageTextIncludes(page, "empty")) ||
-          (await pageTextIncludes(page, "create"));
-        await recordTest("Branding: Reels tab content", hasReelContent, hasReelContent ? "Reel items or empty state detected" : "No reel content found", {selector: "route:/branding/reels content"});
-      }
-    }
-  }
-}
-
 async function testForecast(page, workspaceId) {
   currentSection = "Forecast";
   const nav = await gotoWorkspaceRoute(page, workspaceId, "/forecast");
@@ -3676,7 +3605,6 @@ async function main() {
     // New domain tests — each wrapped in try-catch so one failure doesn't block others.
     const newDomainTests = [
       ["Settings", testSettings],
-      ["Branding", testBranding],
       ["Forecast", testForecast],
       ["Rewards", testRewards],
       ["Integrations", testIntegrations],

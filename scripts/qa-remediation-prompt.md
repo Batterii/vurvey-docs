@@ -327,7 +327,6 @@ Use this crosswalk when investigating discrepancies between documentation and so
 | Dataset | `TrainingSet` | Legacy naming in code |
 | People / Audience | `Community` / `Population` | Multiple terms in code |
 | Workflow Step | `AiPersonaTask` | Task within an orchestration |
-| Branding | `Brand` | Brand profile settings |
 | Reels | `Reel` | Video clip compilations |
 | Rewards | `Tremendous` | Tremendous integration for incentives |
 | Integrations | `Composio` | Third-party tool integrations |
@@ -351,7 +350,6 @@ When `vurvey-web-manager/` or `vurvey-api/` are checked out alongside `vurvey-do
 | People | `campaign/containers/PeopleModelsPage/`, `campaign/containers/community/` |
 | Home / Chat | `canvas/`, `context/chat-contexts/` |
 | Settings | `workspace-settings/` |
-| Branding | `branding/` |
 | Canvas & Image Studio | `canvas/` |
 | Forecast | `forecast/` |
 | Rewards | `rewards/` |

@@ -56,7 +56,6 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: 'Settings', link: '/guide/settings' },
-            { text: 'Branding', link: '/guide/branding' },
             { text: 'Canvas & Image Studio', link: '/guide/canvas-and-image-studio' },
             { text: 'Forecast', link: '/guide/forecast' },
             { text: 'Rewards', link: '/guide/rewards' },

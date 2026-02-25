@@ -386,6 +386,73 @@ async function clickButtonByText(page, text, timeout = 8000) {
   return false;
 }
 
+/**
+ * Click a button/menu-item by text, but ONLY within a specific container selector.
+ * Prevents accidental clicks on similarly-named elements elsewhere on the page.
+ */
+async function clickButtonByTextInContainer(page, text, containerSelector, timeout = 5000) {
+  const startTime = Date.now();
+  const norm = String(text).trim().toLowerCase();
+
+  while (Date.now() - startTime < timeout) {
+    const clicked = await page.evaluate((needle, containerSel) => {
+      const containers = Array.from(document.querySelectorAll(containerSel));
+      for (const container of containers) {
+        const st = window.getComputedStyle(container);
+        if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') continue;
+        const els = Array.from(container.querySelectorAll("button, a, [role='button'], [role='menuitem'], li"));
+        const el = els.find((e) => {
+          const elText = (e.textContent || '').trim().toLowerCase();
+          // Use exact match or startsWith to avoid partial matches like "video" matching "Add image or video"
+          return elText === needle || elText.startsWith(needle);
+        });
+        if (!el) continue;
+        const elSt = window.getComputedStyle(el);
+        if (elSt.display === 'none' || elSt.visibility === 'hidden' || elSt.opacity === '0') continue;
+        el.click();
+        return true;
+      }
+      return false;
+    }, norm, containerSelector);
+
+    if (clicked) return true;
+    await delay(250);
+  }
+
+  return false;
+}
+
+/**
+ * Dismiss any open modal/dialog by pressing Escape and waiting for it to close.
+ */
+async function dismissAnyModal(page) {
+  for (let i = 0; i < 3; i++) {
+    const hasModal = await page.evaluate(() => {
+      const modals = document.querySelectorAll(
+        '[role="dialog"], [class*="modal" i], [class*="overlay" i][class*="open" i], [class*="Dialog" i]'
+      );
+      return Array.from(modals).some((el) => {
+        const st = window.getComputedStyle(el);
+        return st.display !== 'none' && st.visibility !== 'hidden' && st.opacity !== '0';
+      });
+    }).catch(() => false);
+
+    if (!hasModal) return true;
+    await page.keyboard.press('Escape').catch(() => {});
+    await delay(400);
+  }
+  return false;
+}
+
+/**
+ * Check if the current page URL includes an expected path segment.
+ * Returns false if the page was silently redirected away.
+ */
+function isOnExpectedRoute(page, expectedPathSegment) {
+  const url = page.url();
+  return url.includes(expectedPathSegment);
+}
+
 async function clickByAriaLabel(page, label, timeout = 5000) {
   const startTime = Date.now();
   const norm = String(label).trim().toLowerCase();
@@ -840,18 +907,34 @@ async function captureHome(page) {
     console.log('  Could not capture tools dropdown');
   }
 
-  // Upload button (+)
+  // Upload/attach button (the + button to the left of the text input)
   try {
     const uploadClicked = await clickFirstVisible(page, [
       'button[aria-label*="upload" i]',
+      'button[aria-label*="attach" i]',
+      'button[aria-label*="add" i]',
       '[data-testid*="upload-button"]',
+      '[data-testid*="attach-button"]',
       '[class*="uploadButton" i]',
+      '[class*="attachButton" i]',
     ]);
     if (uploadClicked) {
       await delay(TIMING.postClickDelay);
-      await takeScreenshot(page, '09-upload-button', 'home');
+      await waitForLoaders(page);
+      // Verify something changed (dropdown/popover appeared)
+      const hasUploadUI = await waitForContent(page, [
+        '[role="menu"]', '[class*="dropdown" i]', '[class*="popover" i]',
+        '[class*="upload" i]', '[class*="attach" i]',
+      ], 3000);
+      if (hasUploadUI) {
+        await takeScreenshot(page, '09-upload-button', 'home');
+      } else {
+        console.log('  ⚠ Upload button clicked but no UI appeared');
+      }
       await page.keyboard.press('Escape').catch(() => {});
       await delay(300);
+    } else {
+      console.log('  ⚠ Could not find upload/attach button');
     }
   } catch (e) {
     console.log('  Could not capture upload button');
@@ -903,9 +986,33 @@ async function captureAgents(page) {
     '[class*="assistant"]'
   ]);
 
-  // Use the same loaded gallery view for both "gallery" and "search/filter" doc shots.
   await takeScreenshot(page, '01-agents-gallery', 'agents');
-  await takeScreenshot(page, '02-agents-search', 'agents');
+
+  // For the search screenshot, type a search term to show the filter in action
+  try {
+    const searchInput = await page.$('input[type="search"], input[placeholder*="search" i], input[placeholder*="Search" i]');
+    if (searchInput) {
+      await searchInput.click();
+      await delay(200);
+      await searchInput.type('Storyteller', { delay: 40 });
+      await delay(TIMING.postClickDelay);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+      await takeScreenshot(page, '02-agents-search', 'agents');
+      // Clear the search to restore gallery
+      await searchInput.click({ clickCount: 3 }); // select all
+      await page.keyboard.press('Backspace');
+      await delay(TIMING.postClickDelay);
+      await waitForNetworkIdle(page);
+      await waitForLoaders(page);
+    } else {
+      // Fallback: capture the same gallery view
+      await takeScreenshot(page, '02-agents-search', 'agents');
+    }
+  } catch (e) {
+    console.log(`  Could not capture search: ${e.message}`);
+    await takeScreenshot(page, '02-agents-search', 'agents');
+  }
 
   // Try to capture agent filters (sort, type, model, status)
   try {
@@ -1295,20 +1402,44 @@ async function captureAgents(page) {
           // Each step maps to /agents/builder-v2/{id}/{stepSlug} per
           // useAgentBuilderNavigation in the frontend source.
           const steps = [
-            { slug: 'facets', shot: '06-builder-facets' },
-            { slug: 'instructions', shot: '07-builder-instructions' },
-            { slug: 'identity', shot: '08-builder-identity' },
-            { slug: 'appearance', shot: '09-builder-appearance' },
-            { slug: 'review', shot: '10-builder-review' }
+            { slug: 'facets', shot: '06-builder-facets', contentHints: ['facet', 'add facet'] },
+            { slug: 'instructions', shot: '07-builder-instructions', contentHints: ['instruction', 'behavior'] },
+            { slug: 'identity', shot: '08-builder-identity', contentHints: ['name', 'biography', 'voice'] },
+            { slug: 'appearance', shot: '09-builder-appearance', contentHints: ['appearance', 'avatar', 'image'] },
+            { slug: 'review', shot: '10-builder-review', contentHints: ['review', 'credential', 'summary'] }
           ];
 
           for (const step of steps) {
             const stepUrl = getWorkspaceUrl(`/agents/builder-v2/${benchmarkBuilderId}/${step.slug}`);
-            await gotoWithRetry(page, stepUrl, {
+            const reached = await gotoWithRetry(page, stepUrl, {
               label: `agents-builder-step-${step.slug}`,
-              retries: 1,
+              retries: 2,
             });
-            await waitForLoaders(page);
+            if (!reached) {
+              console.log(`  ⚠ Could not navigate to builder step: ${step.slug}`);
+              continue;
+            }
+            await waitForNetworkIdle(page);
+            await waitForLoaders(page, 8000);
+
+            // Wait for step-specific content to render (not just the page shell)
+            const hasStepContent = await waitForBodyTextAny(page, step.contentHints, 10000);
+            if (!hasStepContent) {
+              console.log(`  ⚠ Builder step ${step.slug} content not detected — retrying`);
+              // Retry once with a page reload
+              await gotoWithRetry(page, stepUrl, { label: `agents-builder-step-${step.slug}-retry`, retries: 1 });
+              await waitForNetworkIdle(page);
+              await waitForLoaders(page, 10000);
+              await waitForBodyTextAny(page, step.contentHints, 12000);
+            }
+
+            // Verify we have renderable content (not just a loading icon)
+            const hasContent = await hasRenderableMainContent(page);
+            if (!hasContent) {
+              console.log(`  ⚠ Skipping builder step ${step.slug} — no renderable content`);
+              continue;
+            }
+
             await takeScreenshot(page, step.shot, 'agents');
           }
 
@@ -1341,6 +1472,22 @@ async function captureAgents(page) {
       await delay(TIMING.postClickDelay);
       await waitForNetworkIdle(page);
       await waitForLoaders(page);
+
+      // Check if we got a modal (Generate Agent) or navigated to the Classic Builder page
+      const isModal = await page.evaluate(() => {
+        const dialogs = document.querySelectorAll('[role="dialog"], [class*="modal" i]');
+        return Array.from(dialogs).some((el) => {
+          const st = window.getComputedStyle(el);
+          return st.display !== 'none' && st.visibility !== 'hidden' && st.opacity !== '0';
+        });
+      }).catch(() => false);
+
+      if (isModal) {
+        console.log('  ✓ Generate Agent modal detected');
+      } else {
+        console.log('  ⚠ Create Agent opened Classic Builder page instead of modal');
+      }
+
       await takeScreenshot(page, '05a-create-agent-modal', 'agents');
     } else {
       console.log('  ⚠ Could not open Create Agent modal');
@@ -1394,6 +1541,18 @@ async function capturePeople(page) {
       for (const p of subPage.paths) {
         const subUrl = getWorkspaceUrl(p);
         if (await gotoWithRetry(page, subUrl, { label: subPage.name })) {
+          // Verify we actually reached the People section (not redirected to Home)
+          const pathSegment = p.split('/').filter(Boolean).pop(); // e.g. "humans", "lists"
+          if (!isOnExpectedRoute(page, 'people') && !isOnExpectedRoute(page, 'audience')) {
+            console.log(`  ⚠ Redirected away from ${p} — skipping ${subPage.name}`);
+            continue;
+          }
+          // Wait for actual page content (not just any input/button)
+          await waitForContent(page, [
+            'table', '[class*="population" i]', '[class*="crm" i]',
+            '[class*="humans" i]', '[class*="list" i]', '[class*="properties" i]',
+          ], 8000);
+          await waitForLoaders(page, 5000);
           await takeScreenshot(page, subPage.name, 'people');
           did = true;
           break;
@@ -1424,18 +1583,44 @@ async function capturePeople(page) {
   }
 
   try {
-    // Contact profile: click first row on humans page.
+    // Contact profile: click the name link in the first row on humans page.
     for (const p of ['/people/humans', '/audience/community']) {
       const humansUrl = getWorkspaceUrl(p);
       if (!(await gotoWithRetry(page, humansUrl, { label: 'people-humans' }))) continue;
+
+      // Verify we're on the humans page (not redirected to Home)
+      if (!isOnExpectedRoute(page, 'people') && !isOnExpectedRoute(page, 'audience')) {
+        console.log('  ⚠ Redirected away from humans page — skipping contact profile');
+        continue;
+      }
+
+      // Wait for the table to load
+      await waitForContent(page, ['table tbody tr'], 8000);
+
+      // Click the NAME link in the first column, not the action menu button
       const clicked = await page.evaluate(() => {
-        const row = document.querySelector("table tbody tr");
+        const row = document.querySelector('table tbody tr');
         if (!row) return false;
-        const link = row.querySelector("a, button");
-        if (link) {
-          link.click();
+        // Target the first cell's link (the name link)
+        const firstCell = row.querySelector('td:first-child');
+        if (firstCell) {
+          const nameLink = firstCell.querySelector('a');
+          if (nameLink) {
+            nameLink.click();
+            return true;
+          }
+        }
+        // Fallback: click the first <a> tag that looks like a profile link
+        const links = Array.from(row.querySelectorAll('a'));
+        const profileLink = links.find((a) => {
+          const href = a.getAttribute('href') || '';
+          return href.includes('profile') || href.includes('contact') || href.includes('human');
+        });
+        if (profileLink) {
+          profileLink.click();
           return true;
         }
+        // Last resort: click the row itself (may open profile or context menu)
         row.click();
         return true;
       });
@@ -1443,6 +1628,18 @@ async function capturePeople(page) {
       await delay(TIMING.postClickDelay);
       await waitForNetworkIdle(page);
       await waitForLoaders(page);
+
+      // Verify we navigated to a profile page (not just opened a context menu)
+      const hasProfileContent = await waitForContent(page, [
+        '[class*="profile" i]',
+        '[class*="contactDetail" i]',
+        '[class*="humanDetail" i]',
+        '[class*="basicInfo" i]',
+      ], 5000);
+      if (!hasProfileContent) {
+        console.log('  ⚠ Click did not navigate to contact profile — may have opened context menu');
+      }
+
       await takeScreenshot(page, '03a-contact-profile', 'people');
       break;
     }
@@ -1451,19 +1648,63 @@ async function capturePeople(page) {
   }
 
   try {
-    // Segment builder: open create segment.
+    // Segment builder: switch to Segments view first, then open create segment.
     for (const p of ['/people/lists', '/audience/lists']) {
       const listsUrl = getWorkspaceUrl(p);
       if (!(await gotoWithRetry(page, listsUrl, { label: 'people-lists' }))) continue;
+
+      // Verify we're on the right page
+      if (!isOnExpectedRoute(page, 'people') && !isOnExpectedRoute(page, 'audience')) {
+        console.log('  ⚠ Redirected away from lists page — skipping segment builder');
+        continue;
+      }
+
+      // First, try to switch from "Lists" to "Segments" view using the dropdown/toggle
+      const switchedToSegments =
+        (await clickButtonByText(page, 'segments', 2500)) ||
+        (await clickFirstVisible(page, [
+          '[data-testid*="segment-tab"]',
+          '[class*="segmentTab" i]',
+          'button[aria-label*="segment" i]',
+        ]));
+      if (switchedToSegments) {
+        await delay(TIMING.postClickDelay);
+        await waitForLoaders(page);
+      }
+
+      // Now try to open the segment builder
       const opened =
         (await clickButtonByText(page, 'create segment', 2500)) ||
-        (await clickButtonByText(page, 'new segment', 2500)) ||
-        (await clickButtonByText(page, 'create', 2500)) ||
-        (await clickButtonByText(page, 'new', 2500));
-      if (!opened) continue;
+        (await clickButtonByText(page, 'new segment', 2500));
+
+      if (!opened) {
+        // If no segment-specific button found, the "New" button in segments view should work
+        const newClicked = await clickButtonByText(page, 'new', 2500);
+        if (!newClicked) continue;
+      }
+
       await delay(TIMING.postClickDelay);
       await waitForNetworkIdle(page);
       await waitForLoaders(page);
+
+      // Dismiss if we accidentally opened a "New List" dialog instead
+      const isListDialog = await page.evaluate(() => {
+        const dialogs = document.querySelectorAll('[role="dialog"], [class*="modal" i]');
+        return Array.from(dialogs).some((el) => {
+          const st = window.getComputedStyle(el);
+          if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
+          const text = (el.textContent || '').toLowerCase();
+          return text.includes('list name') && !text.includes('segment');
+        });
+      }).catch(() => false);
+
+      if (isListDialog) {
+        console.log('  ⚠ Opened "New List" dialog instead of Segment Builder — dismissing');
+        await dismissAnyModal(page);
+        await delay(300);
+        continue;
+      }
+
       await takeScreenshot(page, '04a-segment-builder', 'people');
       break;
     }
@@ -1602,6 +1843,16 @@ async function captureCampaigns(page) {
         console.log(`  ✓ Opened campaign, survey ID: ${surveyId}`);
       }
 
+      // Wait for campaign detail content to actually render (tab bar, title, etc.)
+      await waitForContent(page, [
+        '[class*="surveyTabs" i]',
+        '[class*="campaignTabs" i]',
+        '[class*="tabNavigation" i]',
+        '[class*="questionEditor" i]',
+        'nav[class*="tab" i]',
+      ], 12000);
+      await waitForLoaders(page, 8000);
+
       await takeScreenshot(page, '02-campaign-detail', 'campaigns');
     }
   } catch (e) {
@@ -1655,6 +1906,10 @@ async function captureCampaigns(page) {
 
             for (const qt of questionTypes) {
               try {
+                // Dismiss any lingering modal/dialog from a previous iteration
+                await dismissAnyModal(page);
+                await delay(200);
+
                 // Re-open the add question dropdown for each type
                 const reopened =
                   (await clickButtonByText(page, 'add question', 2000)) ||
@@ -1662,24 +1917,74 @@ async function captureCampaigns(page) {
                     '[data-testid*="add-question"]',
                     '[class*="addQuestion" i]',
                   ]));
-                if (!reopened) break;
+                if (!reopened) {
+                  console.log(`  ⚠ Could not reopen Add Question dropdown for ${qt.label}`);
+                  break;
+                }
                 await delay(TIMING.postClickDelay);
 
-                // Click the specific question type
-                const typeClicked = await clickButtonByText(page, qt.name, 2500);
+                // Click the specific question type WITHIN the dropdown/menu container only.
+                // This prevents matching unrelated elements like "Add image or video" links.
+                const dropdownSelectors = [
+                  '[role="menu"]',
+                  '[role="listbox"]',
+                  '[class*="dropdown" i]',
+                  '[class*="popover" i]',
+                  '[class*="menuList" i]',
+                  '[class*="questionType" i]',
+                ];
+                let typeClicked = await clickButtonByTextInContainer(page, qt.name, dropdownSelectors.join(', '), 2500);
+
+                // Fallback: try matching menu items with a data-testid or role="menuitem"
+                if (!typeClicked) {
+                  typeClicked = await page.evaluate((needle) => {
+                    const items = Array.from(document.querySelectorAll('[role="menuitem"], [role="option"]'));
+                    const match = items.find((el) => {
+                      const text = (el.textContent || '').trim().toLowerCase();
+                      return text === needle || text.startsWith(needle);
+                    });
+                    if (!match) return false;
+                    const st = window.getComputedStyle(match);
+                    if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
+                    match.click();
+                    return true;
+                  }, qt.name.toLowerCase());
+                }
+
                 if (typeClicked) {
                   await delay(TIMING.postClickDelay);
                   await waitForNetworkIdle(page);
                   await waitForLoaders(page);
+
+                  // Verify we didn't accidentally open a modal (like "Add Image")
+                  const accidentalModal = await page.evaluate(() => {
+                    const modals = document.querySelectorAll('[role="dialog"], [class*="modal" i]');
+                    return Array.from(modals).some((el) => {
+                      const st = window.getComputedStyle(el);
+                      if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
+                      const text = (el.textContent || '').toLowerCase();
+                      return text.includes('add image') || text.includes('upload an image');
+                    });
+                  }).catch(() => false);
+
+                  if (accidentalModal) {
+                    console.log(`  ⚠ Accidental modal opened for ${qt.label} — dismissing`);
+                    await dismissAnyModal(page);
+                    await delay(200);
+                    continue;
+                  }
+
                   await takeScreenshot(page, qt.shot, 'campaigns');
                   console.log(`  ✓ Captured question type: ${qt.label}`);
                 } else {
+                  console.log(`  ⚠ Could not click question type: ${qt.label}`);
                   // Close dropdown for next attempt
                   await page.keyboard.press('Escape').catch(() => {});
                   await delay(200);
                 }
               } catch (e) {
                 console.log(`  Could not capture question type ${qt.label}: ${e.message}`);
+                await dismissAnyModal(page);
                 await page.keyboard.press('Escape').catch(() => {});
                 await delay(200);
               }
@@ -1763,11 +2068,19 @@ async function captureCampaigns(page) {
     try {
       const analyzeUrl = getWorkspaceUrl(`/survey/${surveyId}/analyze`);
       if (await gotoWithRetry(page, analyzeUrl, { label: 'campaign-analyze' })) {
+        // Wait for the table structure first
         await waitForContent(page, [
           '[class*="resultsTable" i]',
           '[class*="analyze" i]',
           'table',
-        ], 5000);
+        ], 8000);
+        // Then wait longer for actual data rows to populate
+        await waitForContent(page, [
+          'table tbody tr',
+          '[class*="tableRow" i]',
+          '[class*="dataRow" i]',
+        ], 15000);
+        await waitForLoaders(page, 8000);
         await takeScreenshot(page, '25-analyze-data-table', 'campaigns');
       }
     } catch (e) {
@@ -1890,22 +2203,39 @@ async function captureDatasets(page) {
         '[class*="trainingSet"]',
       ], 5000);
 
-      // Click the first dataset card to open detail view
+      // Click a dataset card to open detail view — PREFER "Demo-Dataset" by name, then any with files
       // Dataset cards are <div> elements with onClick handlers (not <a> tags)
       const datasetClicked = await page.evaluate(() => {
-        // Primary: click the data-testid card directly
-        const card = document.querySelector('[data-testid="dataset-card"]');
-        if (card) {
-          card.click();
-          return true;
+        const cardSelectors = ['[data-testid="dataset-card"]', '[class*="datasetCard"]', '[class*="trainingSet"]'];
+        let allCards = [];
+        for (const sel of cardSelectors) {
+          allCards = Array.from(document.querySelectorAll(sel));
+          if (allCards.length) break;
         }
-        // Fallback: click any element with dataset card class
-        const classCards = document.querySelectorAll('[class*="datasetCard"], [class*="trainingSet"]');
-        for (const c of classCards) {
-          c.click();
-          return true;
-        }
-        return false;
+        if (!allCards.length) return false;
+
+        // First priority: find "Demo-Dataset" by name
+        const demoDatasetCard = allCards.find((card) => {
+          const text = (card.textContent || '');
+          return text.includes('Demo-Dataset') || text.includes('Demo Dataset');
+        });
+
+        // Second priority: prefer a card that shows a non-zero file count
+        const cardWithFiles = allCards.find((card) => {
+          const text = (card.textContent || '');
+          const countMatch = text.match(/(\d+)\s*(file|document|item)/i);
+          return countMatch && parseInt(countMatch[1], 10) > 0;
+        });
+
+        // Also try to avoid QA automation datasets by checking the name
+        const nonQaCard = allCards.find((card) => {
+          const text = (card.textContent || '').toLowerCase();
+          return !text.includes('qa-auto') && !text.includes('qa automation');
+        });
+
+        const target = demoDatasetCard || cardWithFiles || nonQaCard || allCards[0];
+        target.click();
+        return true;
       });
 
       if (datasetClicked) {
@@ -2006,16 +2336,33 @@ async function captureWorkflows(page) {
         await takeScreenshot(page, '06-workflow-build-tab', 'workflows');
         workflowDetailCaptured = true;
 
-        // Try to capture a node being edited
+        // Try to capture a node being edited (may require double-click)
         try {
-          const nodeClicked = await clickFirstVisible(page, [
-            '[class*="agentTaskNode" i]',
-            '[class*="react-flow__node" i]',
-            '[data-testid*="node"]',
-          ]);
-          if (nodeClicked) {
-            await delay(TIMING.postClickDelay);
+          // First try a single click on a node
+          const nodeEl = await page.$('[class*="agentTaskNode" i], [class*="react-flow__node" i], [data-testid*="node"]');
+          if (nodeEl) {
+            // Try double-click to open the editor (some UIs require it)
+            await nodeEl.click({ clickCount: 2 });
+            await delay(TIMING.postClickDelay * 2);
+            await waitForNetworkIdle(page);
             await waitForLoaders(page);
+
+            // Wait for an editor panel/drawer/sidebar to appear
+            const hasEditorPanel = await waitForContent(page, [
+              '[class*="nodeEditor" i]',
+              '[class*="sidePanel" i]',
+              '[class*="taskEditor" i]',
+              '[class*="drawer" i][class*="open" i]',
+              '[class*="nodeDetail" i]',
+            ], 5000);
+
+            if (!hasEditorPanel) {
+              // Fallback: try single click (some UIs use single click for selection)
+              await nodeEl.click();
+              await delay(TIMING.postClickDelay);
+              await waitForLoaders(page);
+            }
+
             await takeScreenshot(page, '07-workflow-node-editor', 'workflows');
           }
         } catch (e) {
@@ -2050,64 +2397,152 @@ async function captureWorkflows(page) {
     console.log(`  Could not capture workflow detail: ${e.message}`);
   }
 
-  // Workflow Builder (best-effort): open from /workflow/flows and click create/new.
-  if (!workflowDetailCaptured) {
-    try {
-      const flowsUrl = getWorkspaceUrl('/workflow/flows');
-      if (await gotoWithRetry(page, flowsUrl, { label: 'workflow-flows' })) {
-        const opened =
-          (await clickButtonByText(page, 'create flow', 3000)) ||
-          (await clickButtonByText(page, 'new flow', 3000)) ||
-          (await clickButtonByText(page, 'create', 3000)) ||
-          (await clickButtonByText(page, 'new', 3000));
-        if (opened) {
-          await delay(TIMING.postClickDelay);
-          await waitForNetworkIdle(page);
-          await waitForLoaders(page);
-          await takeScreenshot(page, '02-workflow-builder', 'workflows');
-          await page.keyboard.press('Escape').catch(() => {});
-          await delay(400);
-        }
+  // Workflow Create dialog (from gallery) — captures the creation modal.
+  // The actual canvas is captured via 06-workflow-build-tab when clicking an existing card.
+  try {
+    const mainLoaded = await gotoWithRetry(page, workflowUrl, { label: 'workflow-for-create-dialog' });
+    if (mainLoaded) {
+      await waitForContent(page, [
+        '[data-testid="workflow-card"]', '[class*="workflowCard"]',
+        '[class*="flow"]', 'button',
+      ], 5000);
+      const opened =
+        (await clickButtonByText(page, 'create workflow', 3000)) ||
+        (await clickButtonByText(page, 'create flow', 3000)) ||
+        (await clickButtonByText(page, 'new flow', 3000)) ||
+        (await clickButtonByText(page, 'create', 3000));
+      if (opened) {
+        await delay(TIMING.postClickDelay);
+        await waitForNetworkIdle(page);
+        await waitForLoaders(page);
+        await takeScreenshot(page, '02-workflow-builder', 'workflows');
+        await page.keyboard.press('Escape').catch(() => {});
+        await delay(400);
       }
-    } catch (e) {
-      console.log(`  Could not capture workflow builder: ${e.message}`);
     }
+  } catch (e) {
+    console.log(`  Could not capture workflow create dialog: ${e.message}`);
   }
 
-  // Sub-pages - corrected routes from code analysis
+  // Sub-pages - navigate via tab clicks from the main workflow page for reliability.
+  // Direct URL navigation can redirect to Home if the route isn't recognized.
   const subPages = [
-    { path: '/workflow/upcoming', name: '03-upcoming-runs' },    // Fixed route
-    { path: '/workflow/templates', name: '04-workflow-templates' },
-    { path: '/workflow/conversations', name: '05-workflow-conversations' }
+    { path: '/workflow/upcoming', tabText: 'upcoming', name: '03-upcoming-runs' },
+    { path: '/workflow/templates', tabText: 'templates', name: '04-workflow-templates' },
+    { path: '/workflow/conversations', tabText: 'conversations', name: '05-workflow-conversations' }
   ];
 
   for (const subPage of subPages) {
     try {
-      const subUrl = getWorkspaceUrl(subPage.path);
-      if (await gotoWithRetry(page, subUrl, { label: `workflow-${subPage.name}` })) {
-        await takeScreenshot(page, subPage.name, 'workflows');
+      // First try: navigate to main workflow page and click the tab
+      const mainWorkflowLoaded = await gotoWithRetry(page, workflowUrl, { label: `workflow-nav-${subPage.name}` });
+      if (!mainWorkflowLoaded) continue;
+
+      await waitForContent(page, [
+        '[data-testid="workflow-card"]', '[class*="workflowCard"]',
+        '[class*="flow"]', '[class*="orchestration"]',
+      ], 5000);
+
+      // Click the appropriate tab
+      const tabClicked = await clickButtonByText(page, subPage.tabText, 3000);
+      if (tabClicked) {
+        await delay(TIMING.postClickDelay);
+        await waitForNetworkIdle(page);
+        await waitForLoaders(page);
+
+        // Verify we're still in the workflow section
+        if (isOnExpectedRoute(page, 'workflow')) {
+          // Wait for sub-page specific content
+          await waitForContent(page, [
+            'table', '[class*="card" i]', '[class*="template" i]',
+            '[class*="conversation" i]', '[class*="upcoming" i]',
+            '[class*="empty" i]', '[class*="noData" i]',
+          ], 8000);
+          await takeScreenshot(page, subPage.name, 'workflows');
+        } else {
+          console.log(`  ⚠ Tab click for ${subPage.name} redirected away from workflow section`);
+        }
+      } else {
+        // Fallback: try direct URL navigation
+        const subUrl = getWorkspaceUrl(subPage.path);
+        if (await gotoWithRetry(page, subUrl, { label: `workflow-${subPage.name}` })) {
+          if (isOnExpectedRoute(page, 'workflow')) {
+            await waitForContent(page, ['table', '[class*="card" i]', 'button'], 8000);
+            await takeScreenshot(page, subPage.name, 'workflows');
+          } else {
+            console.log(`  ⚠ Direct navigation to ${subPage.path} redirected — skipping ${subPage.name}`);
+          }
+        }
       }
     } catch (e) {
       console.log(`  Could not capture ${subPage.name}: ${e.message}`);
     }
   }
 
-  // Try to capture run history/detail from the conversations page
+  // Try to capture run history/detail from the conversations page.
+  // We scope clicks to the MAIN content area to avoid clicking sidebar conversations.
   try {
-    const conversationsUrl = getWorkspaceUrl('/workflow/conversations');
-    if (await gotoWithRetry(page, conversationsUrl, { label: 'workflow-conversations-detail' })) {
-      // Try clicking first conversation/run to see detail
-      const runClicked = await clickFirstVisible(page, [
-        'table tbody tr',
-        '[class*="conversationItem" i]',
-        '[class*="runItem" i]',
-        'a[href*="/workflow/"]',
-      ]);
-      if (runClicked) {
+    // Navigate to workflow conversations via tab click (more reliable than direct URL)
+    const mainLoaded = await gotoWithRetry(page, workflowUrl, { label: 'workflow-for-run-detail' });
+    if (mainLoaded) {
+      await waitForContent(page, [
+        '[data-testid="workflow-card"]', '[class*="workflowCard"]',
+        '[class*="flow"]', '[class*="orchestration"]',
+      ], 5000);
+      const tabClicked = await clickButtonByText(page, 'conversations', 3000);
+      if (tabClicked) {
         await delay(TIMING.postClickDelay);
         await waitForNetworkIdle(page);
         await waitForLoaders(page);
-        await takeScreenshot(page, '08-workflow-run-detail', 'workflows');
+      }
+
+      if (isOnExpectedRoute(page, 'workflow')) {
+        // Wait for conversation items in the main content area
+        await waitForContent(page, [
+          'table tbody tr',
+          '[class*="conversationItem" i]',
+          '[class*="runItem" i]',
+        ], 8000);
+
+        // Click a conversation item ONLY in the main content area (not sidebar)
+        const runClicked = await page.evaluate(() => {
+          // Target the main content area (exclude sidebar/nav)
+          const main = document.querySelector('main, [role="main"], [class*="mainContent" i], [class*="page-content" i]');
+          const container = main || document.body;
+
+          // Try table rows first
+          const row = container.querySelector('table tbody tr');
+          if (row) {
+            const link = row.querySelector('a');
+            if (link) { link.click(); return true; }
+            row.click();
+            return true;
+          }
+
+          // Try conversation/run item cards
+          const items = container.querySelectorAll('[class*="conversationItem" i], [class*="runItem" i]');
+          for (const item of items) {
+            const st = window.getComputedStyle(item);
+            if (st.display === 'none' || st.visibility === 'hidden') continue;
+            item.click();
+            return true;
+          }
+
+          return false;
+        });
+
+        if (runClicked) {
+          await delay(TIMING.postClickDelay);
+          await waitForNetworkIdle(page);
+          await waitForLoaders(page);
+
+          // Verify we're on a workflow detail page, not a general chat
+          if (isOnExpectedRoute(page, 'workflow')) {
+            await takeScreenshot(page, '08-workflow-run-detail', 'workflows');
+          } else {
+            console.log('  ⚠ Run click navigated outside workflow section — skipping run detail');
+          }
+        }
       }
     }
   } catch (e) {
@@ -2178,62 +2613,8 @@ async function captureSettings(page) {
     console.log(`  Could not capture API management: ${e.message}`);
   }
 
-  // Billing/Plan sub-page (may be accessible via General settings)
-  try {
-    // Some workspaces show billing info within General or as a separate tab
-    if (await gotoWithRetry(page, settingsUrl, { label: 'settings-billing' })) {
-      // Scroll down to see plan card or billing section
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      await delay(TIMING.postClickDelay);
-      await takeScreenshot(page, '05-billing-plan', 'settings');
-    }
-  } catch (e) {
-    console.log(`  Could not capture billing: ${e.message}`);
-  }
-
-  return true;
-}
-
-async function captureBranding(page) {
-  console.log('\n Capturing Branding...');
-
-  // Branding routes are under /workspace/branding/
-  const brandingUrl = getWorkspaceUrl('/workspace/branding');
-  if (!(await gotoWithRetry(page, brandingUrl, { label: 'branding' }))) {
-    console.log('  ⚠ Branding route is unavailable for this workspace. Skipping branding captures.');
-    return true;
-  }
-
-  const hasBrandingContent = await waitForContent(page, [
-    'form',
-    'input',
-    '[class*="brand" i]',
-    '[class*="form" i]',
-  ]);
-  if (!hasBrandingContent) {
-    console.log('  ⚠ Branding page loaded without expected content. Skipping branding captures.');
-    return true;
-  }
-
-  await takeScreenshot(page, '01-brand-settings', 'branding');
-
-  // Sub-pages
-  const subPages = [
-    { path: '/workspace/branding/reviews', name: '02-reviews' },
-    { path: '/workspace/branding/reels', name: '03-reels' },
-    { path: '/workspace/branding/questions', name: '04-questions' },
-  ];
-
-  for (const subPage of subPages) {
-    try {
-      const subUrl = getWorkspaceUrl(subPage.path);
-      if (await gotoWithRetry(page, subUrl, { label: `branding-${subPage.name}` })) {
-        await takeScreenshot(page, subPage.name, 'branding');
-      }
-    } catch (e) {
-      console.log(`  Could not capture ${subPage.name}: ${e.message}`);
-    }
-  }
+  // Billing/Plan info is already visible in General Settings (01-general-settings.png)
+  // so we no longer capture a separate duplicate screenshot for it.
 
   return true;
 }
@@ -2350,7 +2731,7 @@ async function main() {
   console.log(`Parallel workers: ${CONFIG.parallel}`);
 
   // Ensure screenshot directories exist
-  const dirs = ['home', 'agents', 'people', 'campaigns', 'datasets', 'workflows', 'settings', 'branding', 'forecast', 'rewards', 'integrations'];
+  const dirs = ['home', 'agents', 'people', 'campaigns', 'datasets', 'workflows', 'settings', 'forecast', 'rewards', 'integrations'];
   dirs.forEach(dir => ensureDir(path.join(CONFIG.screenshotsDir, dir)));
   ensureDir(CONFIG.artifactsDir);
 
@@ -2410,7 +2791,6 @@ async function main() {
       ["datasets", captureDatasets],
       ["workflows", captureWorkflows],
       ["settings", captureSettings],
-      ["branding", captureBranding],
       ["forecast", captureForecast],
       ["rewards", captureRewards],
       ["integrations", captureIntegrations],
@@ -2494,7 +2874,6 @@ function distributeCaptures(captures, numWorkers) {
     workflows: 4,  // detail view + node editor + run history
     datasets: 3,   // detail view + upload dialog
     settings: 2,   // sub-pages + billing
-    branding: 2,   // 4 sub-pages
     forecast: 1,
     rewards: 1,
     integrations: 1,

@@ -43,13 +43,6 @@ The most common way to create Reels is from campaign video responses:
 4. Click **Create Reel**
 5. Reel editor opens with selected videos as clips
 
-### From Branding Reviews
-
-1. Go to **Branding** → **Reviews**
-2. Browse video feedback responses
-3. Select videos to include
-4. Click **Create Reel from Selected**
-
 ### From Mentions (Enterprise)
 
 1. Navigate to **Mentions** → **Reviews**
@@ -251,8 +244,8 @@ Reel deletion is permanent and cannot be undone. The source videos remain in the
 
 ### Product Review Compilation
 
-1. Go to Branding → Reviews
-2. Select product-related feedback videos
+1. Collect product-related feedback videos from campaign results
+2. Select relevant video responses
 3. Create reel
 4. Edit clips to 10-20 seconds each
 5. Order from problem → solution → satisfaction
@@ -372,7 +365,7 @@ A: No, reels currently support video clips only. Use Datasets for other content 
 A: No. Deleting a reel only removes the compilation. Source videos remain in their original locations (campaigns, media library, etc.).
 
 **Q: Can I add custom branding or watermarks?**
-A: Custom branding is available in the Branding settings. Watermarks applied at the workspace level appear on all reels.
+A: Custom branding options may be available at the workspace level. Contact your administrator for details.
 
 **Q: How do I create a reel from multiple campaigns?**
 A: Use the Media Library option when adding clips. You can select videos from any campaign or source.
@@ -386,6 +379,5 @@ A: Subtitle accuracy depends on audio quality, accents, and background noise. Cl
 ## Related Features
 
 - [Campaigns](/guide/campaigns) - Source videos from campaign responses
-- [Branding](/guide/branding) - Manage brand profile and reviews
 - [Datasets](/guide/datasets) - Store and organize video content
 - [Permissions & Sharing](/guide/permissions-and-sharing) - Control who can view/edit reels

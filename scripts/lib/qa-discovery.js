@@ -32,7 +32,7 @@ function extractCandidateRoutesFromText(text) {
   // Pull out string literals that look like route paths.
   // This is intentionally conservative: we only want core app sections.
   const out = [];
-  const re = /['"`](\/(?:agents|audience|people|campaigns|datasets|workflow|workspace|settings|branding|forecast|rewards|mentions|admin|integrations|canvas|survey|reel|me)(?:\/[a-z0-9\-_/.:]+)?)['"`]/gi;
+  const re = /['"`](\/(?:agents|audience|people|campaigns|datasets|workflow|workspace|settings|forecast|rewards|mentions|admin|integrations|canvas|survey|reel|me)(?:\/[a-z0-9\-_/.:]+)?)['"`]/gi;
   for (const m of text.matchAll(re)) out.push(m[1]);
   return out;
 }

@@ -54,7 +54,6 @@ function mapToDocFile(test) {
     {patterns: ["chat", "home", "home/chat"], file: "docs/guide/home.md"},
     {patterns: ["people", "audience", "population"], file: "docs/guide/people.md"},
     {patterns: ["setting", "workspace"], file: "docs/guide/settings.md"},
-    {patterns: ["brand"], file: "docs/guide/branding.md"},
     {patterns: ["reward"], file: "docs/guide/rewards.md"},
     {patterns: ["login", "auth"], file: "docs/guide/login.md"},
     {patterns: ["canvas", "image studio"], file: "docs/guide/canvas-and-image-studio.md"},

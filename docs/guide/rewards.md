@@ -2,6 +2,8 @@
 
 Vurvey integrates with **Tremendous** to enable automated participant incentives for your campaigns. Configure reward settings at the workspace level, then assign reward amounts per campaign during the launch flow.
 
+![Rewards page](/screenshots/rewards/01-rewards-main.png)
+
 ## Overview
 
 The rewards system lets you:

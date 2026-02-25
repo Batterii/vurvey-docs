@@ -15,7 +15,7 @@
 5. [Datasets/Training Sets](#5-datasetstraining-sets)
 6. [Workspace Settings](#6-workspace-settings)
 7. [Authentication](#7-authentication)
-8. [Canvas & Branding](#8-canvas--branding)
+8. [Canvas & Image Studio](#8-canvas--image-studio)
 9. [Navigation & Routing](#9-navigation--routing)
 10. [Shared UI Components](#10-shared-ui-components)
 11. [Workspace Backend](#11-workspace-backend)
@@ -688,7 +688,7 @@
 
 ---
 
-## 8. Canvas & Branding
+## 8. Canvas & Image Studio
 
 ### Canvas
 
@@ -710,46 +710,16 @@ The "Canvas" is the main AI chat interface (not a design canvas).
 
 **Video Config Options**: Duration (4/6/8s), Aspect Ratio (16:9/9:16), Sample Count (1-4), Person Generation toggle, Negative Prompt, Seed
 
-### Branding
-
-### Routes
-
-| Route | Component | Notes |
-|-------|-----------|-------|
-| `/:workspaceId/branding` | `BrandSettingsPage` | Main brand settings |
-| `/:workspaceId/branding/reviews` | `ReviewsPage` | Video review responses |
-| `/:workspaceId/branding/reels` | `BrandReels` | Brand reels management |
-| `/:workspaceId/branding/questions` | `BrandQuestions` | Feedback questions (OpenFGA guarded) |
-
-### GraphQL Operations
-
-#### Brand Mutations
-| Operation | Purpose |
-|-----------|---------|
-| `UPDATE_BRAND` | Update name, description, colors, categories, countries |
-| `CREATE_BRAND_LOGO` / `CREATE_BRAND_BANNER` | Asset uploads |
-| `ADD_BRAND_BENEFIT` / `REMOVE_BRAND_BENEFIT` | Benefits management |
-| `CREATE_FEEDBACK_QUESTION` / `UPDATE_QUESTION` / `DELETE_QUESTION` | Feedback questions |
-| `CREATE_REEL` / `PUBLISH_REEL` / `SHARE_REEL_WITH_BRAND` | Reel creation from reviews |
-
 ### Test Scenarios
 
-1. Edit brand name, description, logo, banner
-2. Set brand colors (primary, secondary, tertiary, quaternary)
-3. Configure categories, benefits, activities, countries
-4. Create/edit/delete/reorder feedback questions
-5. Review video answers and create reels
-6. Image Studio: enhance, upscale, edit, remove selection
-7. Image Studio: convert image to video
-8. Perlin sphere animation configuration
+1. Image Studio: enhance, upscale, edit, remove selection
+2. Image Studio: convert image to video
+3. Perlin sphere animation configuration
 
 ### Edge Cases
 
-1. **Unique URL constraint** - `brands_url_unique` shows specific toast
-2. **Question deletion blocked** if answers exist
-3. **Review -> Reel flow** auto-publishes and shares to brand
-4. **Image Studio history** - URL-based state management for browser navigation
-5. **Video generation status** - PENDING -> PROCESSING -> COMPLETED/FAILED with polling
+1. **Image Studio history** - URL-based state management for browser navigation
+2. **Video generation status** - PENDING -> PROCESSING -> COMPLETED/FAILED with polling
 
 ---
 
@@ -784,7 +754,6 @@ The "Canvas" is the main AI chat interface (not a design canvas).
 | Item | Link | Condition |
 |------|------|-----------|
 | Manage Users | `/workspace/members` | Always |
-| Brand Profile | `/branding` | Always |
 | Rewards | `/rewards` | Always |
 | Settings | `/workspace/settings` | Always |
 | Switch Workspace | Modal/dropdown | workspaces.length > 1 |
