@@ -482,7 +482,6 @@
 |-------|-----------|-------|
 | `/:workspaceId/datasets` | `AllDatasetsPage` | Grid display with pagination (OpenFGA guarded) |
 | `/:workspaceId/datasets/dataset/:trainingSetId` | `DatasetPage` | Detail view (OpenFGA guarded) |
-| `/:workspaceId/datasets/magic-summaries` | `MagicSummariesPage` | AI insights placeholder |
 | `/:workspaceId/datasets/labels` | `ManageKeys` | Label management (admin only) |
 
 ### GraphQL Operations

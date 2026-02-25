@@ -231,11 +231,21 @@ async function waitForLoaders(page, timeout = TIMING.loaderTimeout) {
  * where avatar/thumbnail images haven't loaded yet.
  */
 async function waitForImages(page, timeout = 6000) {
+  // First, scroll to trigger any lazy-loaded images, then scroll back
+  await page.evaluate(() => {
+    window.scrollTo(0, document.body.scrollHeight);
+  }).catch(() => {});
+  await delay(300);
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+  }).catch(() => {});
+  await delay(200);
+
   const start = Date.now();
   while (Date.now() - start < timeout) {
-    const allLoaded = await page.evaluate(() => {
+    const status = await page.evaluate(() => {
+      // Check <img> elements
       const imgs = Array.from(document.querySelectorAll('img'));
-      // Only check visible images that have a src
       const visible = imgs.filter((img) => {
         if (!img.src || img.src.startsWith('data:')) return false;
         const rect = img.getBoundingClientRect();
@@ -243,18 +253,66 @@ async function waitForImages(page, timeout = 6000) {
         const st = window.getComputedStyle(img);
         return st.display !== 'none' && st.visibility !== 'hidden' && st.opacity !== '0';
       });
-      if (visible.length === 0) return true;
-      const loaded = visible.filter((img) => img.complete && img.naturalWidth > 0);
-      // Consider loaded when at least 80% of visible images are ready
-      return loaded.length >= visible.length * 0.8;
-    }).catch(() => true);
-    if (allLoaded) {
-      console.log('  ✓ Images loaded');
+      const loadedImgs = visible.filter((img) => img.complete && img.naturalWidth > 0);
+
+      // Also check CSS background-image elements (avatars, thumbnails often use these)
+      const bgCandidates = Array.from(document.querySelectorAll(
+        '[class*="avatar" i], [class*="thumbnail" i], [class*="profileImage" i], ' +
+        '[class*="image" i], [class*="photo" i], [class*="picture" i]'
+      ));
+      let bgTotal = 0;
+      let bgLoaded = 0;
+      for (const el of bgCandidates) {
+        const st = window.getComputedStyle(el);
+        const bg = st.backgroundImage;
+        if (!bg || bg === 'none' || !bg.includes('url(')) continue;
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) continue;
+        if (st.display === 'none' || st.visibility === 'hidden') continue;
+        bgTotal++;
+        // Background images don't have a native "complete" check.
+        // If the element has a background-image URL set, it's likely loaded
+        // (the browser applies it immediately after download).
+        bgLoaded++;
+      }
+
+      const totalVisible = visible.length + bgTotal;
+      const totalLoaded = loadedImgs.length + bgLoaded;
+      if (totalVisible === 0) return { done: true, visible: 0, loaded: 0 };
+      return {
+        done: totalLoaded >= totalVisible * 0.8,
+        visible: totalVisible,
+        loaded: totalLoaded,
+        imgVisible: visible.length,
+        imgLoaded: loadedImgs.length,
+      };
+    }).catch(() => ({ done: true, visible: 0, loaded: 0 }));
+    if (status.done) {
+      console.log(`  ✓ Images loaded (${status.loaded}/${status.visible})`);
       return true;
     }
-    await delay(300);
+    await delay(400);
   }
-  console.log('  ⚠ Image load timeout (continuing)');
+  // Log details on timeout to help debug
+  const finalStatus = await page.evaluate(() => {
+    const imgs = Array.from(document.querySelectorAll('img'));
+    const visible = imgs.filter((img) => {
+      if (!img.src || img.src.startsWith('data:')) return false;
+      const rect = img.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    });
+    const loaded = visible.filter((img) => img.complete && img.naturalWidth > 0);
+    const unloaded = visible.filter((img) => !img.complete || img.naturalWidth === 0);
+    return {
+      total: visible.length,
+      loaded: loaded.length,
+      unloadedSrcs: unloaded.slice(0, 3).map((img) => img.src.substring(0, 80)),
+    };
+  }).catch(() => ({}));
+  console.log(`  ⚠ Image load timeout — ${finalStatus.loaded || '?'}/${finalStatus.total || '?'} loaded`);
+  if (finalStatus.unloadedSrcs?.length) {
+    console.log(`    Unloaded examples: ${finalStatus.unloadedSrcs.join(', ')}`);
+  }
   return false;
 }
 
@@ -1019,8 +1077,14 @@ async function captureAgents(page) {
     '[class*="assistant"]'
   ]);
 
-  // Wait for agent avatar images to finish loading
-  await waitForImages(page, 8000);
+  // Wait for all GraphQL/API calls to complete before checking images.
+  // Agent cards load avatar URLs asynchronously — network must be idle first.
+  await waitForNetworkIdle(page, 5000);
+  await waitForLoaders(page);
+  // Wait for agent avatar images to finish loading (generous timeout)
+  await waitForImages(page, 15000);
+  // Extra settle time for any final rendering
+  await delay(500);
 
   await takeScreenshot(page, '01-agents-gallery', 'agents');
 
@@ -2274,16 +2338,6 @@ async function captureDatasets(page) {
     }
   } catch (e) {
     console.log(`  Could not capture create dataset modal: ${e.message}`);
-  }
-
-  // Magic Summaries tab
-  try {
-    const magicSummariesUrl = getWorkspaceUrl('/datasets/magic-summaries');
-    if (await gotoWithRetry(page, magicSummariesUrl, { label: 'datasets-magic-summaries' })) {
-      await takeScreenshot(page, '03-magic-summaries', 'datasets');
-    }
-  } catch (e) {
-    console.log(`  Could not capture magic summaries: ${e.message}`);
   }
 
   // Navigate back to datasets and try to open a dataset detail view

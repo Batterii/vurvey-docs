@@ -1193,25 +1193,6 @@ async function testSectionEntryPoints(page, workspaceId) {
       }
     }
 
-    // Magic summaries
-    {
-      const nav = await gotoWorkspaceRoute(page, workspaceId, "/datasets/magic-summaries");
-      if (!nav.ok) {
-        await recordTest("Datasets: Magic summaries route loads", false, nav.error, {selector: "route:/datasets/magic-summaries"});
-      } else {
-        const pathNow = await currentPathname(page);
-        if (!pathNow.includes("magic-summaries")) {
-          recordWarning("Datasets: Magic summaries route redirected", `Ended on ${pathNow} after navigating to /datasets/magic-summaries`);
-        }
-
-        const ok =
-          (await elementExists(page, "[class*=\"summary\" i], [class*=\"magic\" i], table, [class*=\"card\" i]", 8000)) ||
-          (await pageTextIncludes(page, "magic summaries")) ||
-          (await pageTextIncludes(page, "coming soon"));
-
-        await recordTest("Datasets: Magic summaries route loads", ok, ok ? "OK" : "Missing magic summaries UI/empty-state", {selector: "route:/datasets/magic-summaries"});
-      }
-    }
   }
 
   // ── Datasets deep tests ──
@@ -1695,27 +1676,6 @@ async function testDatasetsDeep(page, workspaceId) {
 
         await page.keyboard.press("Escape").catch(() => {});
         await wait(500);
-      }
-    }
-  }
-
-  // Magic summaries content — deeper check with empty state and tab button
-  {
-    const nav = await gotoWorkspaceRoute(page, workspaceId, "/datasets/magic-summaries");
-    if (nav.ok) {
-      await waitForLoadersGone(page);
-      const ok =
-        (await elementExists(page, '[data-testid="magic-summaries-empty-state"], [class*="summaryCard" i], [class*="magicSummary" i], [class*="card" i]', 6000)) ||
-        (await pageTextIncludes(page, "summary")) ||
-        (await pageTextIncludes(page, "no summaries")) ||
-        (await pageTextIncludes(page, "no magic summaries")) ||
-        (await pageTextIncludes(page, "coming soon"));
-      await recordTest("Datasets: Magic summaries content", ok, ok ? "Summaries content or empty state detected" : "No summary content found", {selector: "magic-summaries-empty-state/summaryCard"});
-
-      // Check for the magic summaries tab button
-      const hasMagicTab = await elementExists(page, '[data-testid="magic-summaries-button"]', 3000);
-      if (hasMagicTab) {
-        await recordTest("Datasets: Magic summaries tab button present", true, "Tab button present", {selector: "data-testid:magic-summaries-button"});
       }
     }
   }

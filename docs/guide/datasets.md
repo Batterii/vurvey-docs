@@ -19,7 +19,6 @@ Access **Datasets** from the main sidebar. The section includes two tabs:
 | Tab | Description |
 |-----|-------------|
 | **Datasets** | Gallery view of all your datasets |
-| **Magic Summaries** | AI-generated insights from your datasets (coming soon) |
 
 ## Browsing Your Datasets
 
@@ -478,14 +477,6 @@ Control who can access each dataset:
 2. Set **General Access** for workspace-wide visibility, or invite specific people by email.
 3. Assign permission levels for each person.
 4. Save your changes.
-
-## Magic Summaries
-
-![Magic Summaries](/screenshots/datasets/03-magic-summaries.png)
-
-::: info Coming Soon
-Magic Summaries will automatically generate insights and connections across your datasets, turning your uploaded files into a connected knowledge base. This feature is currently in development.
-:::
 
 ## Real-World Use Cases
 

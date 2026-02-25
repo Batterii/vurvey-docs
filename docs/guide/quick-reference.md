@@ -331,7 +331,6 @@ Common prompt patterns for research:
 | **Workflow** | An automated multi-step research process using AI agents |
 | **Credits** | The currency used for AI operations on the platform |
 | **Facets** | The demographic and personality traits that define an agent's character |
-| **Magic Summary** | An AI-generated summary of your campaign or dataset |
 | **Magic Reels** | AI-compiled video highlights from campaign responses |
 | **Workspace** | A shared environment where your team collaborates on research |
 | **Mold** | A reusable template for creating consistent AI persona profiles *(Enterprise)* |
