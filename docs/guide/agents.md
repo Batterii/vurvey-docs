@@ -169,14 +169,26 @@ After generating, you can refine the agent using the full guided builder by clic
 
 ![Generate Agent Modal](/screenshots/agents/05a-create-agent-modal.png)
 
-::: tip Classic Builder Available
-If you prefer the original builder experience, click **Use Classic Builder** in the top navigation bar at any time. Note: The Classic Builder (V1) may require specific permissions, while the Guided Builder (V2) availability depends on your workspace's feature settings.
+::: info Builder Interface Variations
+The agent builder interface varies depending on your workspace configuration and feature settings. You may see:
+- A **simplified single-page form** with core fields (Bio, Behaviors, Model settings) — look for a "Try the New Builder" button to access advanced features
+- A **step-by-step guided builder** with a visual progress bar and 6 steps
+- A **classic builder** with all configuration options on one scrollable page
+
+If you see the simplified form and want more advanced configuration options (facets, rules, datasets, tools), click the "Try the New Builder" or "Use Guided Builder" button in the top navigation bar.
 :::
 
 ### Builder Navigation
 
-The top of the builder shows a visual progress bar with all six steps. Each step displays one of these states:
+The builder interface depends on which version is active in your workspace:
 
+**Simplified Builder** — A single-page form with essential fields organized into sections:
+- **Bio** — Name, Description, and Background for the agent
+- **Behaviors** — Instructions, Type, Model selection, and Voice settings
+- Use the **Preview** panel on the right to test your agent as you build
+- Click **Save** to preserve your work or **Activate** when ready to publish
+
+**Guided Builder** — A step-by-step wizard with a visual progress bar showing all six steps. Each step displays one of these states:
 - **Locked** — You need to complete earlier steps first
 - **Available** — Ready for you to work on
 - **Active** — The step you're currently viewing (highlighted)
@@ -185,9 +197,13 @@ The top of the builder shows a visual progress bar with all six steps. Each step
 
 You can click any unlocked step to jump directly to it, or use the navigation buttons to move forward and back.
 
+::: tip Simplified Builder Users
+If you're using the simplified single-page builder, you won't see the step-by-step structure described below. Instead, you'll configure your agent using the Bio and Behaviors sections directly. The core concepts (defining objectives, setting behaviors, choosing models) apply to all builder versions, but the interface layout differs.
+:::
+
 ---
 
-### Step 1: Objective
+### Step 1: Objective (Guided Builder)
 
 ![Agent Builder - Objective](/screenshots/agents/05-builder-objective.png)
 
@@ -226,7 +242,7 @@ The specific version gives your agent clear context, scope, and expected outputs
 
 ---
 
-### Step 2: Facets
+### Step 2: Facets (Guided Builder)
 
 <!-- Screenshot placeholder: agents/06-builder-facets.png — will be captured by automated screenshots -->
 
@@ -276,7 +292,7 @@ You can optionally start from a pre-configured **mold** (template) that provides
 
 ---
 
-### Step 3: Optional Settings
+### Step 3: Optional Settings (Guided Builder)
 
 <!-- Screenshot placeholder: agents/07-builder-instructions.png — will be captured by automated screenshots -->
 
@@ -417,7 +433,7 @@ Connect knowledge sources to give your agent specialized expertise. For example,
 
 ---
 
-### Step 4: Identity
+### Step 4: Identity (Guided Builder)
 
 <!-- Screenshot placeholder: agents/08-builder-identity.png — will be captured by automated screenshots -->
 
@@ -460,7 +476,7 @@ A great biography includes:
 
 ---
 
-### Step 5: Appearance
+### Step 5: Appearance (Guided Builder)
 
 <!-- Screenshot placeholder: agents/09-builder-appearance.png — will be captured by automated screenshots -->
 
@@ -494,7 +510,7 @@ Here are some examples of descriptions that produce great avatars:
 
 ---
 
-### Step 6: Review
+### Step 6: Review (Guided Builder)
 
 ![Agent Review Credential Card](/screenshots/agents/04b-agent-edit-credential.png)
 
