@@ -1,88 +1,140 @@
 # QA Failure Remediation Summary
 
-**Date:** 2026-02-25T04:40:00Z
+**Date:** 2026-03-01T04:45:00Z
 **Failures analyzed:** 2
 **Source:** `qa-output/qa-analysis-input.json`
 
 ## Actions Taken
 
-| # | Test Name | Classification | Action | Confidence |
-|---|-----------|---------------|--------|------------|
-| 1 | Agents Builder: Step navigation | CODE_BUG | Bug report already exists: `2026-02-25T04-31-23-web-manager-agent-builder-v2-not-active.json` | 0.85 |
-| 2 | Campaign Deep: Status-dependent UI | TEST_ISSUE | Bug report already exists: `2026-02-25T04-31-23-test-infrastructure-campaign-status-ui.json`<br>Created `qa-output/test-fixes-needed.md` | 0.90 |
+| # | Test Name | Original Classification | Reclassified To | Action | Confidence |
+|---|-----------|------------------------|-----------------|--------|------------|
+| 1 | Agents Builder: Step navigation | CODE_BUG (low) | TEST_ISSUE | Added to `qa-output/test-fixes-needed.md` | 0.95 |
+| 2 | Campaign Deep: Status-dependent UI | CODE_BUG (low) | TEST_ISSUE | Added to `qa-output/test-fixes-needed.md` | 0.90 |
 
 ## Documentation Files Edited
 
-**No documentation edits were required.**
-
-Both failures were correctly identified as non-documentation issues:
-- Failure 1: Code/configuration issue (feature flag)
-- Failure 2: Test infrastructure issue (missing test data setup)
-
-The documentation accurately describes the intended behavior in both cases.
+No documentation files were edited. Both failures were reclassified as test infrastructure issues after verification against documentation and screenshot analysis.
 
 ## Bug Reports Created
 
-Both bug reports were created during the initial QA failure analysis phase (timestamp: 2026-02-25T04:31:23Z):
-
-| File | Target Repo | Severity | Summary |
-|------|-------------|----------|---------|
-| `bug-reports/2026-02-25T04-31-23-web-manager-agent-builder-v2-not-active.json` | vurvey-web-manager | medium | Agent Builder V2 (Guided Builder) not active in DEMO workspace - feature flag issue |
-| `bug-reports/2026-02-25T04-31-23-test-infrastructure-campaign-status-ui.json` | vurvey-docs | low | QA test cannot find Draft campaign to verify status-dependent UI behavior |
-
-**Note:** No new bug reports were created during remediation because the initial analysis correctly classified both failures and filed appropriate bug reports.
+No bug reports were created. Both failures were reclassified as test issues rather than code bugs.
 
 ## Test Fixes Needed
 
 | Test | Type | Action Required |
 |------|------|-----------------|
-| Campaign Deep: Status-dependent UI | Fix needed | Update `scripts/qa-test-suite.js` to create temporary Draft campaigns for testing status-dependent tab behavior |
-
-See `qa-output/test-fixes-needed.md` for detailed implementation guidance.
+| Agents Builder: Step navigation | Fix needed | Update test to recognize V1 Classic Builder as valid builder state |
+| Campaign Deep: Status-dependent UI | Fix needed | Update test to create/find draft campaign, or test positive case for non-draft campaigns |
 
 ## Reclassifications
 
-**No reclassifications were necessary.**
+Both failures were reclassified from **CODE_BUG** to **TEST_ISSUE** after verification against documentation and UI screenshots.
 
-Both failures were correctly classified during initial analysis:
-1. **Agents Builder: Step navigation** - Correctly identified as CODE_BUG (feature flag disabled for DEMO workspace)
-2. **Campaign Deep: Status-dependent UI** - Correctly identified as TEST_ISSUE (test infrastructure needs to create test data)
+| Test | Original | Reclassified To | Reason |
+|------|----------|-----------------|--------|
+| Agents Builder: Step navigation | CODE_BUG (low confidence) | TEST_ISSUE | Test expects V2 Guided Builder (step tabs) or Generate Modal, but landed on V1 Classic Builder. Documentation confirms three valid builder states exist. Test needs to handle Classic Builder. |
+| Campaign Deep: Status-dependent UI | CODE_BUG (low confidence) | TEST_ISSUE | Test expects disabled tabs but tested a Closed campaign. Documentation confirms tabs are only disabled in Draft status. Actual behavior is correct. Test needs to create/find draft campaign or test positive case. |
+
+## Analysis Details
+
+### Failure 1: Agents Builder: Step navigation
+
+**Original classification:** CODE_BUG (low confidence)
+**Reclassified to:** TEST_ISSUE
+**Confidence:** 0.95
+
+**Evidence:**
+- **Screenshot:** `/qa-failure-screenshots/failure-agents-builder--step-navigation-desktop-1772338094137.png`
+  - Shows V1 Classic Builder with single-page form layout
+  - Page title: "Agent Builder"
+  - Button present: "Try the New Builder"
+  - Form sections: Bio (Name, Description, Background), Behaviors (Instructions, Type, Model, Voice)
+  - No step tabs visible
+  - No Generate Agent modal present
+
+- **Documentation verification:** `docs/guide/agents.md:172-173`
+  - Confirms three valid builder experiences exist:
+    1. Generate Agent Modal (AI-powered quick creation)
+    2. V2 Guided Builder (6-step tabs: Objective, Facets, Optional Settings, Identity, Appearance, Review)
+    3. V1 Classic Builder (original builder experience)
+  - Quote: "If you prefer the original builder experience, click **Use Classic Builder** in the top navigation bar at any time."
+
+- **Test code analysis:** `scripts/qa-test-suite.js`
+  - Test checks for `hasGenerateModalFields` OR step tabs with specific aria-labels
+  - Test does not check for V1 Classic Builder fields
+  - Missing validation: presence of "Bio" section, Name/Description/Background fields
+
+**Conclusion:** The application is working correctly. The test needs to be updated to recognize all three valid builder states.
+
+---
+
+### Failure 2: Campaign Deep: Status-dependent UI
+
+**Original classification:** CODE_BUG (low confidence)
+**Reclassified to:** TEST_ISSUE
+**Confidence:** 0.90
+
+**Evidence:**
+- **Screenshot:** `/qa-failure-screenshots/failure-campaign-deep--status-dependent-ui-desktop-1772338888141.png`
+  - Campaign name: "In-store Shopper Feedback"
+  - Status badge: "Closed" (red badge in top navigation)
+  - All tabs visible and enabled: Build, Configure, Audience, Launch, Results, Analyze, Summary
+  - This is CORRECT behavior per documentation
+
+- **Documentation verification:** `docs/guide/campaigns.md:118`
+  - Quote: "Results, Analyze, and Summary tabs are disabled while the campaign is in Draft status. They become available once the campaign is launched and starts collecting responses."
+  - Campaign status lifecycle: Draft → Open → Closed → Archived
+  - Disabled tabs only apply to **Draft** status
+  - All other statuses (Open, Closed, Blocked, Archived) should have all tabs enabled
+
+- **Test code analysis:** `scripts/qa-test-suite.js`
+  - Test looks for `hasDraftIndicator` to verify status-dependent UI
+  - Test error message correctly identifies the issue: "(campaign may already be active)"
+  - Test found a non-draft campaign and couldn't verify expected behavior
+
+**Conclusion:** The application is working correctly. Closed campaigns should have all tabs enabled. The test needs to either:
+1. Create a new draft campaign to test status-dependent UI, OR
+2. Filter for existing draft campaigns before testing, OR
+3. Test the positive case (verify non-draft campaigns have all tabs enabled)
+
+---
 
 ## Items Requiring Human Review
 
-**No items require human review.**
+None. Both failures were successfully analyzed and reclassified with high confidence.
 
-Both failures have clear root causes and actionable remediation paths:
-- The web-manager bug report provides specific feature flag guidance
-- The test-fixes document provides implementation steps for test improvement
+---
 
-## Verification Details
+## Next Steps
 
-### Failure 1: Agents Builder - Step Navigation
+1. **Update test suite** (`scripts/qa-test-suite.js`):
+   - Add V1 Classic Builder detection to Agents Builder test
+   - Modify Campaign Deep test to create/find draft campaigns or test positive case
 
-**Evidence reviewed:**
-- Screenshot: Shows Classic Builder (V1) with "Try the New Builder" button
-- Documentation (agents.md lines 176-186): Describes Guided Builder (V2) with 6-step wizard as default
-- Documentation (agents.md lines 567-596): Explains Classic Builder as alternative, noting V2 "availability depends on workspace's feature settings"
+2. **Consider test reliability improvements:**
+   - Add test data setup phase to create known-state test entities (draft campaign, etc.)
+   - Add better test logging to distinguish which builder version was detected
+   - Consider parameterizing tests to handle multiple UI variants (V1 vs V2 builder)
 
-**Conclusion:** The documentation is correct. The Guided Builder (V2) is the intended default, but it requires a feature flag that is not enabled for the DEMO workspace on staging.
+3. **No further action required** for documentation or code — both are correct as implemented.
 
-### Failure 2: Campaign Deep - Status-dependent UI
+---
 
-**Evidence reviewed:**
-- Screenshot: Shows "Closed" campaign with all tabs enabled (expected behavior)
-- Documentation (campaigns.md line 118): States "Results, Analyze, and Summary tabs are disabled while the campaign is in Draft status"
-- Test error: "No disabled tabs or status text found (campaign may already be active)"
+## Files Created
 
-**Conclusion:** The documentation is correct. The test found a Closed campaign (not Draft), so all tabs are appropriately enabled. The test infrastructure needs to create Draft campaigns to verify the documented behavior.
+- `qa-output/test-fixes-needed.md` — Detailed analysis and fix instructions for both test issues
+
+---
 
 ## Summary
 
-This QA run identified 2 failures, both of which were properly classified and documented during the initial analysis phase:
+**All 2 failures were reclassified as TEST_ISSUE** after thorough verification:
+- Screenshot analysis confirmed actual UI state
+- Documentation review confirmed expected behavior matches actual behavior
+- Test code analysis identified missing test logic
 
-- **1 CODE_BUG** → Bug report filed to `vurvey-web-manager`
-- **1 TEST_ISSUE** → Bug report filed to `vurvey-docs` (test infrastructure)
+**Zero documentation changes needed.**
+**Zero bug reports created.**
+**Test suite requires 2 updates to handle valid UI states correctly.**
 
-**No documentation corrections were needed** — all documented behavior is accurate and matches the intended product design.
-
-The remediation agent verified both classifications, confirmed the bug reports were appropriate, and created test improvement documentation for the infrastructure issue.
+The QA test suite is overly strict and doesn't handle all valid application states. The underlying application behavior is correct per documentation specifications.
