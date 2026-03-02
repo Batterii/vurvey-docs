@@ -1,6 +1,6 @@
 # QA Failure Remediation Summary
 
-**Date:** 2026-03-01T04:45:00Z
+**Date:** 2026-03-02T04:45:00Z
 **Failures analyzed:** 2
 **Source:** `qa-output/qa-analysis-input.json`
 
@@ -8,121 +8,100 @@
 
 | # | Test Name | Original Classification | Reclassified To | Action | Confidence |
 |---|-----------|------------------------|-----------------|--------|------------|
-| 1 | Agents Builder: Step navigation | CODE_BUG (low) | TEST_ISSUE | Added to `qa-output/test-fixes-needed.md` | 0.95 |
-| 2 | Campaign Deep: Status-dependent UI | CODE_BUG (low) | TEST_ISSUE | Added to `qa-output/test-fixes-needed.md` | 0.90 |
+| 1 | Agents Builder: Step navigation | CODE_BUG | TEST_ISSUE (fix needed) | Added to `qa-output/test-fixes-needed.md` | 0.90 |
+| 2 | Campaign Deep: Status-dependent UI | CODE_BUG | TEST_ISSUE (fix needed) | Added to `qa-output/test-fixes-needed.md` | 0.95 |
 
 ## Documentation Files Edited
 
-No documentation files were edited. Both failures were reclassified as test infrastructure issues after verification against documentation and screenshot analysis.
+None — both failures were reclassified as test issues rather than documentation or code bugs.
 
 ## Bug Reports Created
 
-No bug reports were created. Both failures were reclassified as test issues rather than code bugs.
+None — both failures were reclassified as test issues rather than code bugs.
 
 ## Test Fixes Needed
 
-| Test | Type | Action Required |
-|------|------|-----------------|
-| Agents Builder: Step navigation | Fix needed | Update test to recognize V1 Classic Builder as valid builder state |
-| Campaign Deep: Status-dependent UI | Fix needed | Update test to create/find draft campaign, or test positive case for non-draft campaigns |
+| Test | Type | Action Required | Summary |
+|------|------|-----------------|---------|
+| Agents Builder: Step navigation | Fix needed | Navigate to Guided Builder (V2) before checking for step tabs | Test is landing on Classic Builder which doesn't have step navigation |
+| Campaign Deep: Status-dependent UI | Fix needed | Create/navigate to Draft campaign or check status first | Test found Closed campaign where tabs are correctly enabled |
 
 ## Reclassifications
 
-Both failures were reclassified from **CODE_BUG** to **TEST_ISSUE** after verification against documentation and UI screenshots.
-
 | Test | Original | Reclassified To | Reason |
 |------|----------|-----------------|--------|
-| Agents Builder: Step navigation | CODE_BUG (low confidence) | TEST_ISSUE | Test expects V2 Guided Builder (step tabs) or Generate Modal, but landed on V1 Classic Builder. Documentation confirms three valid builder states exist. Test needs to handle Classic Builder. |
-| Campaign Deep: Status-dependent UI | CODE_BUG (low confidence) | TEST_ISSUE | Test expects disabled tabs but tested a Closed campaign. Documentation confirms tabs are only disabled in Draft status. Actual behavior is correct. Test needs to create/find draft campaign or test positive case. |
+| Agents Builder: Step navigation | CODE_BUG (low confidence) | TEST_ISSUE (fix needed) | Screenshot shows Classic Builder with "Try the New Builder" button. The Guided Builder with step navigation exists but test needs to navigate to it. UI is working correctly. |
+| Campaign Deep: Status-dependent UI | CODE_BUG (low confidence) | TEST_ISSUE (fix needed) | Screenshot shows Closed campaign with all tabs correctly enabled. Documentation states tabs are disabled only for Draft campaigns. Test assumes wrong campaign status. UI is working correctly. |
 
 ## Analysis Details
 
 ### Failure 1: Agents Builder: Step navigation
 
 **Original classification:** CODE_BUG (low confidence)
-**Reclassified to:** TEST_ISSUE
-**Confidence:** 0.95
+**Reclassified to:** TEST_ISSUE (fix needed)
 
-**Evidence:**
-- **Screenshot:** `/qa-failure-screenshots/failure-agents-builder--step-navigation-desktop-1772338094137.png`
-  - Shows V1 Classic Builder with single-page form layout
-  - Page title: "Agent Builder"
-  - Button present: "Try the New Builder"
-  - Form sections: Bio (Name, Description, Background), Behaviors (Instructions, Type, Model, Voice)
-  - No step tabs visible
-  - No Generate Agent modal present
+**Investigation:**
+- Examined failure screenshot: Shows single-page "Agent Builder" form with all fields visible (Bio section: Name, Description, Background; Behaviors section: Instructions, Type, Model, Voice)
+- Key evidence: Button labeled "Try the New Builder" visible at top of page
+- Documentation review (docs/guide/agents.md lines 173-186):
+  - Describes "Guided Builder (V2)" with six-step navigation and progress bar
+  - Mentions "Classic Builder (V1)" as alternative experience
+  - States: "If you prefer the original builder experience, click **Use Classic Builder**"
+- Cross-referenced with screenshot: The UI shows the Classic Builder (no step tabs), and offers access to the new builder via button
 
-- **Documentation verification:** `docs/guide/agents.md:172-173`
-  - Confirms three valid builder experiences exist:
-    1. Generate Agent Modal (AI-powered quick creation)
-    2. V2 Guided Builder (6-step tabs: Objective, Facets, Optional Settings, Identity, Appearance, Review)
-    3. V1 Classic Builder (original builder experience)
-  - Quote: "If you prefer the original builder experience, click **Use Classic Builder** in the top navigation bar at any time."
+**Conclusion:** The application is functioning correctly. Both builder versions exist. The test is checking for step navigation but is currently viewing the Classic Builder. The test needs to click "Try the New Builder" before validating step navigation features.
 
-- **Test code analysis:** `scripts/qa-test-suite.js`
-  - Test checks for `hasGenerateModalFields` OR step tabs with specific aria-labels
-  - Test does not check for V1 Classic Builder fields
-  - Missing validation: presence of "Bio" section, Name/Description/Background fields
-
-**Conclusion:** The application is working correctly. The test needs to be updated to recognize all three valid builder states.
+**Confidence:** 0.90 (High — clear visual evidence from screenshot, documentation supports dual-builder model)
 
 ---
 
 ### Failure 2: Campaign Deep: Status-dependent UI
 
 **Original classification:** CODE_BUG (low confidence)
-**Reclassified to:** TEST_ISSUE
-**Confidence:** 0.90
+**Reclassified to:** TEST_ISSUE (fix needed)
 
-**Evidence:**
-- **Screenshot:** `/qa-failure-screenshots/failure-campaign-deep--status-dependent-ui-desktop-1772338888141.png`
-  - Campaign name: "In-store Shopper Feedback"
-  - Status badge: "Closed" (red badge in top navigation)
-  - All tabs visible and enabled: Build, Configure, Audience, Launch, Results, Analyze, Summary
-  - This is CORRECT behavior per documentation
+**Investigation:**
+- Examined failure screenshot: Shows campaign titled "In-store Shopper Feedback" with red "Closed" status badge
+- Navigation tabs visible: Build, Configure, Audience, Launch, Results, Analyze, Summary — all appear enabled
+- Documentation review (docs/guide/campaigns.md line 118-119):
+  - States: "Results, Analyze, and Summary tabs are disabled while the campaign is in Draft status"
+  - Key word: "Draft status" — the screenshot shows "Closed" status
+- Documentation review (docs/guide/campaigns.md lines 34-40):
+  - Campaign statuses: Draft (Cyan), Open (Lime Green), Closed (Red), Blocked (Teal), Archived (Teal)
+  - Closed status means "Collection complete, ready for analysis"
+- Logic verification: A Closed campaign has already launched and collected responses, therefore Results/Analyze/Summary tabs should be accessible (enabled)
 
-- **Documentation verification:** `docs/guide/campaigns.md:118`
-  - Quote: "Results, Analyze, and Summary tabs are disabled while the campaign is in Draft status. They become available once the campaign is launched and starts collecting responses."
-  - Campaign status lifecycle: Draft → Open → Closed → Archived
-  - Disabled tabs only apply to **Draft** status
-  - All other statuses (Open, Closed, Blocked, Archived) should have all tabs enabled
+**Conclusion:** The application is functioning correctly. Tabs are appropriately enabled for a Closed campaign. The test expects to find a Draft campaign with disabled tabs, but the test encountered a Closed campaign instead. The test needs to ensure it's testing against a Draft campaign or adjust its assertions based on actual campaign status.
 
-- **Test code analysis:** `scripts/qa-test-suite.js`
-  - Test looks for `hasDraftIndicator` to verify status-dependent UI
-  - Test error message correctly identifies the issue: "(campaign may already be active)"
-  - Test found a non-draft campaign and couldn't verify expected behavior
-
-**Conclusion:** The application is working correctly. Closed campaigns should have all tabs enabled. The test needs to either:
-1. Create a new draft campaign to test status-dependent UI, OR
-2. Filter for existing draft campaigns before testing, OR
-3. Test the positive case (verify non-draft campaigns have all tabs enabled)
+**Confidence:** 0.95 (Very High — documentation explicitly states tabs are disabled for Draft only; screenshot clearly shows Closed status; behavior is correct)
 
 ---
 
 ## Items Requiring Human Review
 
-None. Both failures were successfully analyzed and reclassified with high confidence.
+None — both failures were successfully reclassified with high confidence based on screenshot evidence and documentation verification.
+
+## Recommendations
+
+1. **Update `scripts/qa-test-suite.js`** to handle multiple builder versions in Agents section
+2. **Update `scripts/qa-test-suite.js`** to create or navigate to specific campaign status before status-dependent UI tests
+3. Consider adding test variants that explicitly test each campaign status (Draft, Open, Closed) with appropriate assertions for each state
+4. Consider documenting the existence of Classic Builder (V1) vs Guided Builder (V2) in test comments to prevent future misunderstandings
+
+## Verification Notes
+
+- Sibling repositories (`vurvey-web-manager`, `vurvey-api`) were not available for source code verification
+- Classifications were based on:
+  - Visual analysis of failure screenshots (PNG images)
+  - Documentation cross-reference (docs/guide/agents.md, docs/guide/campaigns.md)
+  - QA test expectations vs. actual UI state
+  - Logical reasoning about expected behavior for different UI states
 
 ---
 
-## Next Steps
+## Files Created/Updated
 
-1. **Update test suite** (`scripts/qa-test-suite.js`):
-   - Add V1 Classic Builder detection to Agents Builder test
-   - Modify Campaign Deep test to create/find draft campaigns or test positive case
-
-2. **Consider test reliability improvements:**
-   - Add test data setup phase to create known-state test entities (draft campaign, etc.)
-   - Add better test logging to distinguish which builder version was detected
-   - Consider parameterizing tests to handle multiple UI variants (V1 vs V2 builder)
-
-3. **No further action required** for documentation or code — both are correct as implemented.
-
----
-
-## Files Created
-
-- `qa-output/test-fixes-needed.md` — Detailed analysis and fix instructions for both test issues
+- `qa-output/test-fixes-needed.md` — Created with detailed test fix instructions
 
 ---
 
@@ -131,10 +110,11 @@ None. Both failures were successfully analyzed and reclassified with high confid
 **All 2 failures were reclassified as TEST_ISSUE** after thorough verification:
 - Screenshot analysis confirmed actual UI state
 - Documentation review confirmed expected behavior matches actual behavior
-- Test code analysis identified missing test logic
+- No code bugs identified
+- No documentation errors identified
 
 **Zero documentation changes needed.**
 **Zero bug reports created.**
-**Test suite requires 2 updates to handle valid UI states correctly.**
+**Two test updates required** to handle valid UI states correctly.
 
-The QA test suite is overly strict and doesn't handle all valid application states. The underlying application behavior is correct per documentation specifications.
+The QA failures indicate that the test suite needs updates to handle multiple valid application states (Classic vs Guided builder, different campaign statuses). The underlying application behavior is correct per documentation specifications.

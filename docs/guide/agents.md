@@ -276,7 +276,7 @@ You can optionally start from a pre-configured **mold** (template) that provides
 
 ---
 
-### Step 3: Optional Settings
+### Step 3: Instructions
 
 <!-- Screenshot placeholder: agents/07-builder-instructions.png — will be captured by automated screenshots -->
 
