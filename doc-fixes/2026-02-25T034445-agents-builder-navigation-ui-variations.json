@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-02-25T03:44:45.946Z",
+  "qa_test": "Agents Builder: Step navigation",
+  "classification": "DOC_ISSUE",
+  "reclassified_from": "CODE_BUG",
+  "doc_file": "docs/guide/agents.md",
+  "section": "Builder Navigation",
+  "change_summary": "Updated documentation to reflect UI variations in agent builder. Added note about simplified single-page builder interface that some workspaces may see, in addition to the documented step-based guided builder. Qualified all step-by-step instructions with '(Guided Builder)' to clarify they apply to the step-based interface, not the simplified single-page form.",
+  "lines_changed": "172-206 (Builder Navigation section), plus step headings throughout",
+  "reason": "QA test couldn't find step tabs or generate-agent modal fields. Screenshot shows a simplified single-page builder interface with Bio and Behaviors sections, which differs from the documented 6-step guided builder. Documentation needed to acknowledge multiple builder interface variations.",
+  "verified_against": "Screenshot failure-agents-builder--step-navigation-desktop-1771989518803.png",
+  "confidence": 0.90
+}
