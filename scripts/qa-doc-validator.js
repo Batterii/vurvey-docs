@@ -83,7 +83,7 @@ async function extractClaims(filePath) {
     }
 
     // Route references in inline code: `/:workspaceId/agents` or `/agents`
-    const routeRe = /`(\/(?::workspaceId\/)?(?:agents|audience|people|campaigns|datasets|workflow|workspace|settings|branding|forecast|rewards|mentions|admin|integrations|canvas|survey|reel|me)(?:\/[a-z0-9\-_/.:]*)?)`/gi;
+    const routeRe = /`(\/(?::workspaceId\/)?(?:agents|audience|people|campaigns|datasets|workflow|workspace|settings|forecast|rewards|mentions|admin|integrations|canvas|survey|reel|me)(?:\/[a-z0-9\-_/.:]*)?)`/gi;
     for (const m of line.matchAll(routeRe)) {
       let route = m[1];
       // Normalize :workspaceId prefix away
@@ -256,7 +256,6 @@ async function main() {
     "datasets.md": "/datasets",
     "workflows.md": "/workflow/flows",
     "settings.md": "/workspace/settings",
-    "branding.md": "/branding",
     "forecast.md": "/forecast",
     "rewards.md": "/rewards",
     "integrations.md": "/settings/integrations",

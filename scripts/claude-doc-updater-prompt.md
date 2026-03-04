@@ -83,7 +83,6 @@ The following pages should exist. If any are missing, **create them** following 
 | Page | File | Primary Source |
 |------|------|----------------|
 | Settings | `docs/guide/settings.md` | `vurvey-web-manager/src/workspace-settings/` |
-| Branding | `docs/guide/branding.md` | `vurvey-web-manager/src/branding/` |
 | Canvas & Image Studio | `docs/guide/canvas-and-image-studio.md` | `vurvey-web-manager/src/canvas/` |
 | Forecast | `docs/guide/forecast.md` | `vurvey-web-manager/src/forecast/` |
 | Rewards | `docs/guide/rewards.md` | `vurvey-web-manager/src/rewards/` |
@@ -258,21 +257,7 @@ When documentation is correct but code has a bug, create a structured bug report
 
 **If `docs/guide/settings.md` does not exist**, create it following the style of existing guide pages.
 
-### Area 8: Branding (`docs/guide/branding.md`)
-
-**Compare against:**
-- `vurvey-web-manager/src/branding/`
-
-**Verify:**
-- Routes: `/:workspaceId/branding`, `/branding/reviews`, `/branding/reels`, `/branding/questions`
-- Brand settings form fields (name, description, logo, banner, colors, categories, benefits, activities, countries)
-- Feedback questions CRUD
-- Reviews page and reel creation from reviews
-- Brand profile completeness
-
-**If `docs/guide/branding.md` does not exist**, create it following the style of existing guide pages.
-
-### Area 9: Canvas & Image Studio (`docs/guide/canvas-and-image-studio.md`)
+### Area 8: Canvas & Image Studio (`docs/guide/canvas-and-image-studio.md`)
 
 **Compare against:**
 - `vurvey-web-manager/src/canvas/`
@@ -286,7 +271,7 @@ When documentation is correct but code has a bug, create a structured bug report
 
 **If `docs/guide/canvas-and-image-studio.md` does not exist**, create it following the style of existing guide pages.
 
-### Area 10: Forecast (`docs/guide/forecast.md`)
+### Area 9: Forecast (`docs/guide/forecast.md`)
 
 **Compare against:**
 - `vurvey-web-manager/src/forecast/`
@@ -301,7 +286,7 @@ When documentation is correct but code has a bug, create a structured bug report
 
 **If `docs/guide/forecast.md` does not exist**, create it following the style of existing guide pages.
 
-### Area 11: Rewards (`docs/guide/rewards.md`)
+### Area 10: Rewards (`docs/guide/rewards.md`)
 
 **Compare against:**
 - `vurvey-web-manager/src/rewards/`
@@ -315,7 +300,7 @@ When documentation is correct but code has a bug, create a structured bug report
 
 **If `docs/guide/rewards.md` does not exist**, create it following the style of existing guide pages.
 
-### Area 12: Integrations (`docs/guide/integrations.md`)
+### Area 11: Integrations (`docs/guide/integrations.md`)
 
 **Compare against:**
 - `vurvey-web-manager/src/integrations/` or `vurvey-web-manager/src/workspace-settings/`
@@ -329,7 +314,7 @@ When documentation is correct but code has a bug, create a structured bug report
 
 **If `docs/guide/integrations.md` does not exist**, create it following the style of existing guide pages.
 
-### Area 13: Reels (`docs/guide/reels.md`)
+### Area 12: Reels (`docs/guide/reels.md`)
 
 **Compare against:**
 - `vurvey-web-manager/src/reel/`
@@ -342,7 +327,7 @@ When documentation is correct but code has a bug, create a structured bug report
 
 **If `docs/guide/reels.md` does not exist**, create it following the style of existing guide pages.
 
-### Area 14: Admin (`docs/guide/admin.md`)
+### Area 13: Admin (`docs/guide/admin.md`)
 
 **Compare against:**
 - `vurvey-web-manager/src/admin/`

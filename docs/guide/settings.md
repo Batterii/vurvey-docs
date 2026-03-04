@@ -160,11 +160,10 @@ The members table shows all users in your workspace:
 
 | Column | Description |
 |--------|-------------|
-| **Name** | Member's full name and email address |
+| **Name** | Member's full name |
+| **Email** | Member's email address |
 | **Role** | Administrator, Manager, or Owner |
-| **Status** | Active, Pending (invitation sent), or Inactive |
-| **Last Active** | When the member last used the workspace |
-| **Actions** | Change role or remove member |
+| **Actions** | Change role or remove member (three-dot menu) |
 
 ### User Roles
 

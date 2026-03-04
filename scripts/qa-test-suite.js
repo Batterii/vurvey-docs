@@ -1193,25 +1193,6 @@ async function testSectionEntryPoints(page, workspaceId) {
       }
     }
 
-    // Magic summaries
-    {
-      const nav = await gotoWorkspaceRoute(page, workspaceId, "/datasets/magic-summaries");
-      if (!nav.ok) {
-        await recordTest("Datasets: Magic summaries route loads", false, nav.error, {selector: "route:/datasets/magic-summaries"});
-      } else {
-        const pathNow = await currentPathname(page);
-        if (!pathNow.includes("magic-summaries")) {
-          recordWarning("Datasets: Magic summaries route redirected", `Ended on ${pathNow} after navigating to /datasets/magic-summaries`);
-        }
-
-        const ok =
-          (await elementExists(page, "[class*=\"summary\" i], [class*=\"magic\" i], table, [class*=\"card\" i]", 8000)) ||
-          (await pageTextIncludes(page, "magic summaries")) ||
-          (await pageTextIncludes(page, "coming soon"));
-
-        await recordTest("Datasets: Magic summaries route loads", ok, ok ? "OK" : "Missing magic summaries UI/empty-state", {selector: "route:/datasets/magic-summaries"});
-      }
-    }
   }
 
   // ── Datasets deep tests ──
@@ -1699,27 +1680,6 @@ async function testDatasetsDeep(page, workspaceId) {
     }
   }
 
-  // Magic summaries content — deeper check with empty state and tab button
-  {
-    const nav = await gotoWorkspaceRoute(page, workspaceId, "/datasets/magic-summaries");
-    if (nav.ok) {
-      await waitForLoadersGone(page);
-      const ok =
-        (await elementExists(page, '[data-testid="magic-summaries-empty-state"], [class*="summaryCard" i], [class*="magicSummary" i], [class*="card" i]', 6000)) ||
-        (await pageTextIncludes(page, "summary")) ||
-        (await pageTextIncludes(page, "no summaries")) ||
-        (await pageTextIncludes(page, "no magic summaries")) ||
-        (await pageTextIncludes(page, "coming soon"));
-      await recordTest("Datasets: Magic summaries content", ok, ok ? "Summaries content or empty state detected" : "No summary content found", {selector: "magic-summaries-empty-state/summaryCard"});
-
-      // Check for the magic summaries tab button
-      const hasMagicTab = await elementExists(page, '[data-testid="magic-summaries-button"]', 3000);
-      if (hasMagicTab) {
-        await recordTest("Datasets: Magic summaries tab button present", true, "Tab button present", {selector: "data-testid:magic-summaries-button"});
-      }
-    }
-  }
-
   await gotoWorkspaceRoute(page, workspaceId, "/datasets");
 }
 
@@ -1985,77 +1945,6 @@ async function testSettings(page, workspaceId) {
         await recordTest("Settings: Members list shows roles", hasRoles, hasRoles ? "Role labels detected" : "No role labels found in page text", {selector: "text:admin/manager/owner/member"});
       } else {
         recordWarning("Settings: Members sub-page", membersNav.error || "Could not navigate");
-      }
-    }
-  }
-}
-
-async function testBranding(page, workspaceId) {
-  currentSection = "Branding";
-  const nav = await gotoWorkspaceRoute(page, workspaceId, "/branding");
-  if (!nav.ok) {
-    recordWarning("Branding: Page loads", nav.error || "Could not navigate");
-    return;
-  }
-  const hasContent =
-    (await elementExists(page, "form, input, [class*='brand' i], [class*='form' i]", 8000)) ||
-    (await pageTextIncludes(page, "brand"));
-  await recordTest("Branding: Page loads", hasContent, hasContent ? "Branding UI detected" : "No branding UI detected", {selector: "route:/branding"});
-
-  if (!config.quick) {
-    for (const r of ["/branding/reviews", "/branding/reels", "/branding/questions"]) {
-      const subNav = await gotoWorkspaceRoute(page, workspaceId, r);
-      if (!subNav.ok) {
-        recordWarning(`Branding: Route ${r}`, subNav.error || "Could not navigate");
-        continue;
-      }
-      const ok = await elementExists(page, "button, table, [class*='card' i], [class*='list' i], [class*='tab' i]", 8000);
-      await recordTest(`Branding: Route loads (${r})`, ok, ok ? "OK" : "Missing expected UI", {selector: `route:${r}`});
-    }
-
-    // Brand settings form — verify key form fields (name, logo, colors)
-    {
-      const formNav = await gotoWorkspaceRoute(page, workspaceId, "/branding");
-      if (formNav.ok) {
-        const hasNameField = await elementExists(page, '#brand-name, input[name*="name" i], input[placeholder*="name" i]', 6000);
-        const hasLogoArea = await elementExists(page, '#brand-logo-input, [class*="logo" i], [class*="badge" i], [class*="avatar" i]', 4000);
-        const hasColorSection =
-          (await elementExists(page, '#primary-color, [class*="color" i], input[type="color"]', 4000)) ||
-          (await pageTextIncludes(page, "color"));
-        const formFieldCount = [hasNameField, hasLogoArea, hasColorSection].filter(Boolean).length;
-        await recordTest(
-          "Branding: Settings form fields",
-          formFieldCount >= 2,
-          `Found ${formFieldCount}/3 key fields (name: ${hasNameField}, logo: ${hasLogoArea}, colors: ${hasColorSection})`,
-          {selector: "brand form fields"},
-        );
-      }
-    }
-
-    // Reviews tab content — verify review cards or empty state
-    {
-      const reviewsNav = await gotoWorkspaceRoute(page, workspaceId, "/branding/reviews");
-      if (reviewsNav.ok) {
-        const hasReviewContent =
-          (await elementExists(page, '[data-testid="questions-container"], [class*="review" i], [class*="answer" i], [class*="card" i], [class*="question" i]', 8000)) ||
-          (await pageTextIncludes(page, "review")) ||
-          (await pageTextIncludes(page, "no responses")) ||
-          (await pageTextIncludes(page, "unreviewed"));
-        await recordTest("Branding: Reviews tab content", hasReviewContent, hasReviewContent ? "Review cards or empty state detected" : "No review content found", {selector: "route:/branding/reviews content"});
-      }
-    }
-
-    // Reels tab content — verify reel items or empty state
-    {
-      const reelsNav = await gotoWorkspaceRoute(page, workspaceId, "/branding/reels");
-      if (reelsNav.ok) {
-        const hasReelContent =
-          (await elementExists(page, '[class*="reel" i], [class*="video" i], [class*="card" i], [class*="grid" i], table', 8000)) ||
-          (await pageTextIncludes(page, "reel")) ||
-          (await pageTextIncludes(page, "no reels")) ||
-          (await pageTextIncludes(page, "empty")) ||
-          (await pageTextIncludes(page, "create"));
-        await recordTest("Branding: Reels tab content", hasReelContent, hasReelContent ? "Reel items or empty state detected" : "No reel content found", {selector: "route:/branding/reels content"});
       }
     }
   }
@@ -3676,7 +3565,6 @@ async function main() {
     // New domain tests — each wrapped in try-catch so one failure doesn't block others.
     const newDomainTests = [
       ["Settings", testSettings],
-      ["Branding", testBranding],
       ["Forecast", testForecast],
       ["Rewards", testRewards],
       ["Integrations", testIntegrations],
