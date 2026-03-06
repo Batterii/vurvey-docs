@@ -1,6 +1,6 @@
 # QA Failure Remediation Summary
 
-**Date:** 2026-03-02T04:45:00Z
+**Date:** 2026-03-06T04:26:42.680Z
 **Failures analyzed:** 2
 **Source:** `qa-output/qa-analysis-input.json`
 
@@ -8,7 +8,7 @@
 
 | # | Test Name | Original Classification | Reclassified To | Action | Confidence |
 |---|-----------|------------------------|-----------------|--------|------------|
-| 1 | Agents Builder: Step navigation | CODE_BUG | TEST_ISSUE (fix needed) | Added to `qa-output/test-fixes-needed.md` | 0.90 |
+| 1 | Agents Builder: Step navigation | CODE_BUG | TEST_ISSUE (fix needed) | Added to `qa-output/test-fixes-needed.md` | 0.95 |
 | 2 | Campaign Deep: Status-dependent UI | CODE_BUG | TEST_ISSUE (fix needed) | Added to `qa-output/test-fixes-needed.md` | 0.95 |
 
 ## Documentation Files Edited
@@ -23,14 +23,14 @@ None — both failures were reclassified as test issues rather than code bugs.
 
 | Test | Type | Action Required | Summary |
 |------|------|-----------------|---------|
-| Agents Builder: Step navigation | Fix needed | Navigate to Guided Builder (V2) before checking for step tabs | Test is landing on Classic Builder which doesn't have step navigation |
+| Agents Builder: Step navigation | Fix needed | Click "Try the New Builder" before checking for step tabs | Test is landing on simplified builder which doesn't have step navigation tabs |
 | Campaign Deep: Status-dependent UI | Fix needed | Create/navigate to Draft campaign or check status first | Test found Closed campaign where tabs are correctly enabled |
 
 ## Reclassifications
 
 | Test | Original | Reclassified To | Reason |
 |------|----------|-----------------|--------|
-| Agents Builder: Step navigation | CODE_BUG (low confidence) | TEST_ISSUE (fix needed) | Screenshot shows Classic Builder with "Try the New Builder" button. The Guided Builder with step navigation exists but test needs to navigate to it. UI is working correctly. |
+| Agents Builder: Step navigation | CODE_BUG (low confidence) | TEST_ISSUE (fix needed) | Screenshot shows simplified single-page builder with "Try the New Builder" button. Documentation explicitly describes builder variations. Test expects step tabs without clicking the button to access guided builder. UI is working correctly. |
 | Campaign Deep: Status-dependent UI | CODE_BUG (low confidence) | TEST_ISSUE (fix needed) | Screenshot shows Closed campaign with all tabs correctly enabled. Documentation states tabs are disabled only for Draft campaigns. Test assumes wrong campaign status. UI is working correctly. |
 
 ## Analysis Details
@@ -43,15 +43,16 @@ None — both failures were reclassified as test issues rather than code bugs.
 **Investigation:**
 - Examined failure screenshot: Shows single-page "Agent Builder" form with all fields visible (Bio section: Name, Description, Background; Behaviors section: Instructions, Type, Model, Voice)
 - Key evidence: Button labeled "Try the New Builder" visible at top of page
-- Documentation review (docs/guide/agents.md lines 173-186):
-  - Describes "Guided Builder (V2)" with six-step navigation and progress bar
-  - Mentions "Classic Builder (V1)" as alternative experience
-  - States: "If you prefer the original builder experience, click **Use Classic Builder**"
-- Cross-referenced with screenshot: The UI shows the Classic Builder (no step tabs), and offers access to the new builder via button
+- Documentation review (docs/guide/agents.md lines 172-179):
+  - Explicitly describes three builder interface variations depending on workspace configuration
+  - Describes **simplified single-page form** with core fields and a "Try the New Builder" button
+  - Describes **step-by-step guided builder** with visual progress bar and 6 steps
+  - States: "If you see the simplified form and want more advanced configuration options (facets, rules, datasets, tools), click the 'Try the New Builder' or 'Use Guided Builder' button in the top navigation bar."
+- Cross-referenced with screenshot: The UI shows the simplified builder (Bio and Behaviors sections visible, no step tabs), and prominently displays "Try the New Builder" button, exactly matching documentation
 
-**Conclusion:** The application is functioning correctly. Both builder versions exist. The test is checking for step navigation but is currently viewing the Classic Builder. The test needs to click "Try the New Builder" before validating step navigation features.
+**Conclusion:** The application is functioning correctly. The simplified builder is the default in this workspace configuration, and the guided builder with step tabs is accessible via the button. The test is checking for step navigation but is viewing the simplified builder. The test needs to click "Try the New Builder" before validating step navigation features.
 
-**Confidence:** 0.90 (High — clear visual evidence from screenshot, documentation supports dual-builder model)
+**Confidence:** 0.95 (Very High — clear visual evidence from screenshot, documentation explicitly describes this exact scenario)
 
 ---
 
@@ -83,10 +84,13 @@ None — both failures were successfully reclassified with high confidence based
 
 ## Recommendations
 
-1. **Update `scripts/qa-test-suite.js`** to handle multiple builder versions in Agents section
+1. **Update `scripts/qa-test-suite.js`** to handle builder interface variations in Agents section:
+   - Detect if simplified builder is shown (look for "Try the New Builder" button)
+   - Click the button to access guided builder before testing step navigation
+   - Or, add assertions to test both builder variants separately
 2. **Update `scripts/qa-test-suite.js`** to create or navigate to specific campaign status before status-dependent UI tests
 3. Consider adding test variants that explicitly test each campaign status (Draft, Open, Closed) with appropriate assertions for each state
-4. Consider documenting the existence of Classic Builder (V1) vs Guided Builder (V2) in test comments to prevent future misunderstandings
+4. Consider documenting the builder interface variations (simplified, guided, classic) in test comments to prevent future misunderstandings
 
 ## Verification Notes
 
