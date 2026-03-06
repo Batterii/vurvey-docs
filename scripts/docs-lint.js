@@ -32,7 +32,8 @@ async function main() {
   for (const p of problems) {
     const relFile = path.relative(repoRoot, p.file);
     const relTarget = path.relative(repoRoot, p.target);
-    console.error(`- [${p.type}] ${relFile}: ${p.href} -> ${relTarget}`);
+    const detail = p.detail ? ` (${p.detail})` : "";
+    console.error(`- [${p.type}] ${relFile}: ${p.href} -> ${relTarget}${detail}`);
   }
   process.exit(1);
 }

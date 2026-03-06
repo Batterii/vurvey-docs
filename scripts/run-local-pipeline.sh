@@ -252,6 +252,8 @@ FAILURES=0
 # Export env for child scripts
 export VURVEY_URL="${VURVEY_URL:-https://staging.vurvey.dev}"
 export VURVEY_WORKSPACE_ID="${VURVEY_WORKSPACE_ID:-07e5edb5-e739-4a35-9f82-cc6cec7c0193}"
+export CAPTURE_STRICT="${CAPTURE_STRICT:-true}"
+export DOCS_LINT_USE_CAPTURE_REPORT="${DOCS_LINT_USE_CAPTURE_REPORT:-true}"
 
 if [[ "$HEADED" == true ]]; then
   export HEADLESS=false

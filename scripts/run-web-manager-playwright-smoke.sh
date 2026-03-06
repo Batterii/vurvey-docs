@@ -9,7 +9,8 @@ WEB_MANAGER_DIR="${QA_WEB_MANAGER_DIR:-$REPO_ROOT/vurvey-web-manager}"
 BASE_URL="${VURVEY_URL:-https://staging.vurvey.dev}"
 LOGIN_USERNAME="${LOGIN_USERNAME:-${VURVEY_EMAIL:-}}"
 LOGIN_PASSWORD="${LOGIN_PASSWORD:-${VURVEY_PASSWORD:-}}"
-TEST_GREP="${QA_WEB_MANAGER_PLAYWRIGHT_GREP:-should verify campaigns page|should verify datasets page|should verify workflow page}"
+TEST_FILES="${QA_WEB_MANAGER_PLAYWRIGHT_FILES:-playwright/tests/navigation.spec.ts playwright/tests/conversations.spec.ts playwright/tests/reels.spec.ts}"
+TEST_GREP="${QA_WEB_MANAGER_PLAYWRIGHT_GREP:-should verify home page|should verify agents and agent builder page|should verify audience page|should verify campaigns page|should verify datasets page|should verify workflow page|should verify rewards page|should verify settings page|new conversation with added agent|adding sources to conversation|adding tools|create and delete magic reel}"
 PW_CONFIG="$REPO_ROOT/scripts/web-manager-playwright.config.mjs"
 
 if [[ ! -d "$WEB_MANAGER_DIR" ]]; then
@@ -25,6 +26,7 @@ fi
 echo "Running web-manager Playwright smoke tests"
 echo "  repo: $WEB_MANAGER_DIR"
 echo "  url:  $BASE_URL"
+echo "  specs: $TEST_FILES"
 
 pushd "$WEB_MANAGER_DIR" >/dev/null
 
@@ -37,10 +39,12 @@ fi
 
 npx playwright install chromium
 
+read -r -a TEST_FILE_ARGS <<< "$TEST_FILES"
+
 URL="$BASE_URL" LOGIN_USERNAME="$LOGIN_USERNAME" LOGIN_PASSWORD="$LOGIN_PASSWORD" \
   npx playwright test \
     --config "$PW_CONFIG" \
-    playwright/tests/navigation.spec.ts \
+    "${TEST_FILE_ARGS[@]}" \
     --project=chromium \
     --grep "$TEST_GREP" \
     --reporter=line

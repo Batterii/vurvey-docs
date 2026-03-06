@@ -16,9 +16,11 @@ Think of datasets as giving your AI agents specialized expertise. When you conne
 
 Access **Datasets** from the main sidebar. The section includes two tabs:
 
-| Tab | Description |
+| Tab / Control | Description |
 |-----|-------------|
-| **Datasets** | Gallery view of all your datasets |
+| **All Datasets** | Gallery view of all datasets |
+| **Magic Summaries** | Secondary page currently marked as coming soon |
+| **Manage labels** | Admin-level control shown in the header for users with access |
 
 ## Browsing Your Datasets
 
@@ -34,13 +36,8 @@ Datasets appear as cards in a responsive grid. Each card shows:
 
 Use the **Search** bar above the grid to find datasets by name, and the **Sort By** dropdown to change the display order.
 
-::: info Empty State — No Datasets Created Yet
-When you first access Datasets or if no datasets have been created yet, the page displays an **empty state**. You will see:
-- An empty message icon (a speech bubble or similar graphic)
-- **No grid of dataset cards**
-- **No "Create" button visible in the main gallery area initially**
-
-This is expected when there are no datasets. To create your first dataset, look for the **"Create Dataset"** button or **"Manage labels"** button in the top-right corner of the page header (not within the empty content area). In some UI states, you may need to click a "+" icon or use a menu to access the create function.
+::: info Empty State — No Datasets Yet
+Even when your workspace has no datasets yet, the current list view still injects a **Create Dataset** card into the grid. Older docs that say there is no create action in the gallery are outdated.
 :::
 
 ::: tip Organize for Easy Discovery
@@ -52,9 +49,7 @@ Create focused datasets rather than one catch-all collection:
 
 ## Creating a Dataset
 
-To create your first dataset, look for the **Create Dataset** button. Depending on whether you have existing datasets or not, the button location may vary:
-- **If you have no datasets yet**: Look in the top-right corner of the page for a button or "+" icon to access the create function
-- **If you already have datasets**: The **Create Dataset** button appears prominently in the header area or toolbar
+To create your first dataset, use the **Create Dataset** action from the grid or page header.
 
 Click **Create Dataset** to open the creation dialog.
 
@@ -79,10 +74,10 @@ Hover over any dataset card and click the **three-dot menu** (⋯) for quick act
 
 | Action | What It Does |
 |--------|-------------|
-| **Start Conversation** | Open a chat using this dataset as context (requires at least one processed file) |
+| **Start Conversation** | Open a chat using this dataset as context when the dataset is not empty |
 | **Share** | Control who can access this dataset |
 | **Edit** | Change the dataset name or description |
-| **Delete** | Remove the dataset (only available when the dataset is empty) |
+| **Delete** | Remove the dataset (only available when the dataset is empty, and the current flow uses a confirmation modal) |
 
 ::: warning Permissions
 The actions you see depend on your access level. Some options may not appear if you don't have the required permission.
@@ -94,19 +89,23 @@ Click any dataset card to open its detail page.
 
 ### Header
 
-The detail page header shows the dataset **name** and **description**, along with a back arrow to return to the gallery.
+The detail page header shows the dataset **name** and **description**, along with sharing and conversation actions when your permissions allow them.
 
 ### Stats Panel
 
-When files are present, a stats panel summarizes the current state of your uploads:
+When files or videos are present, a stats panel summarizes the current processing state:
 
 | Metric | What It Means |
 |--------|---------------|
-| **Total Files** | Everything in the dataset — documents, images, videos, audio |
-| **Processed** | Files the AI has finished analyzing and can now reference |
-| **Processing** | Files currently being analyzed (status refreshes automatically) |
-| **Failed** | Files that encountered an error — click the retry icon to reprocess |
-| **Uploaded** | Files waiting in the queue to be processed |
+| **Total Files** | Files and videos tracked by the current processing summary |
+| **Processed** | Files and videos the AI has finished analyzing and can now reference |
+| **Processing** | Files and videos currently being analyzed (status refreshes automatically) |
+| **Failed** | Files and videos that encountered an error — click the retry icon to reprocess |
+| **Uploaded** | Files and videos waiting in the queue to be processed |
+
+::: info Current Scope Note
+Audio uploads can still live inside a dataset, but the current summary widgets and the detail-page **Start Conversation** readiness check are built around files and videos.
+:::
 
 ::: tip Keep an Eye on Processing
 After uploading, check the stats panel:
@@ -124,12 +123,25 @@ After uploading, check the stats panel:
 | **Start Conversation** | Begin an AI chat that can reference everything in this dataset |
 
 ::: warning Processing Must Complete First
-The **Start Conversation** button stays disabled until all files have been processed successfully. A tooltip will explain what's still pending.
+The detail-page **Start Conversation** button stays disabled until all files and videos have been processed successfully, and the dataset has at least one file or video. The tooltip explains this state directly in the UI.
 :::
+
+### Current Dialogs and Menus
+
+| Surface | Current behavior |
+|---|---|
+| **Create Dataset** | Opens the dataset-creation dialog for name and description |
+| **Add Files** | Opens a dropdown with **Upload** and **Add via Google Drive** |
+| **Upload Files** | Shared `UploadFilesModal` used for picking, reviewing, and removing files before they are saved |
+| **File row menu** | Contextual menu with **Conversation**, **Edit Labels**, and **Delete** |
+| **Manage Labels** | Modal used for single-file and bulk label edits |
+| **Replace Existing Labels** | Warning modal shown when a bulk label action would overwrite existing values |
+| **Share** | Permissions dialog using **Viewer** and **Editor** roles |
+| **Delete** | File deletion and dataset deletion both use confirmation dialogs |
 
 ## Uploading Files
 
-Click **Add Files** to see your upload options:
+Click **Add Files** to open the current dropdown trigger. From there you can choose local upload or Google Drive import. Local upload uses the shared **Upload Files** modal.
 
 | Option | Description |
 |--------|-------------|
@@ -184,14 +196,14 @@ Different formats have different strengths. Choosing the right one can significa
 ### How Uploading Works
 
 1. Select your files using the file picker or Google Drive browser.
-2. Files upload in batches of up to 20 at a time.
+2. The current upload modal accepts up to **10 files** in one upload session.
 3. A progress notification keeps you informed.
 4. Once uploaded, files enter the processing queue.
 5. Status updates automatically every 30 seconds.
 6. You'll see a notification when processing is complete.
 
 ::: tip Large Uploads
-For best results with many files, upload in batches of 15–20 and wait for processing to finish before uploading more.
+For best results with many files, upload in batches of about **10** and wait for processing to finish before uploading more.
 :::
 
 ### Google Drive Import
@@ -309,7 +321,7 @@ Click the three-dot menu (⋯) on any file row for:
 |--------|-------------|
 | **Conversation** | Start a chat with this specific file as context (file must be processed) |
 | **Edit Labels** | Add or change labels on this file |
-| **Delete** | Remove the file from the dataset |
+| **Delete** | Remove the file from the dataset after a confirmation step |
 
 ## Labels
 
@@ -328,6 +340,8 @@ status: reviewed
 1. Click **Edit Labels** on a file, or select multiple files and click **Add Label**.
 2. Enter key-value pairs (one per row).
 3. Save your changes.
+
+Bulk label changes use the same **Manage Labels** modal. If the change would replace existing values, the UI shows a separate warning modal before it commits the update.
 
 ### How Labels Display
 
@@ -463,20 +477,20 @@ Most teams use a mix. For example, you might organize by project for active work
 
 ## Sharing and Permissions
 
-Control who can access each dataset:
+The current share dialog for datasets uses **General Access** plus person-level **Viewer** and **Editor** roles.
 
-| Permission | What It Allows |
+| Role | What It Allows |
 |------------|---------------|
-| **Edit** | Upload files, edit labels, modify dataset details |
-| **Delete** | Remove files and the dataset itself |
-| **Manage** | Share the dataset and change others' permissions |
+| **Viewer** | Open the dataset, inspect its contents, and use it where read access is supported |
+| **Editor** | Upload files, edit labels, and modify dataset details |
 
 ### How to Share
 
 1. Click **Share** on the dataset card or detail page.
-2. Set **General Access** for workspace-wide visibility, or invite specific people by email.
-3. Assign permission levels for each person.
-4. Save your changes.
+2. Use the **General Access** dropdown to choose **Restricted access** or **Wide access**.
+3. If you turn on **Wide access**, choose the workspace-wide **Viewer** or **Editor** level from the secondary selector.
+4. Use **Add people** to invite specific teammates, then choose **Viewer** or **Editor** for each invite.
+5. Review any per-member restrictions shown by the dialog tooltips and save your changes.
 
 ## Real-World Use Cases
 
@@ -659,7 +673,7 @@ Datasets must be empty before you can delete them. Remove all files first.
 The AI uses semantic search — it understands meaning and context, not just exact keyword matches.
 
 **Q: Can multiple people upload to the same dataset?**
-Yes, as long as they have Edit permission.
+Yes, as long as they have **Editor** access.
 
 **Q: What is the optimal number of files per dataset?**
 For most use cases, 50–200 files hits the sweet spot. The AI retrieves content quickly and answers stay focused. Below 50 files is fine for narrow topics. Above 200, consider whether you could split into more focused datasets. If you must go larger, use labels consistently to help the AI find the right content.

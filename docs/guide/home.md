@@ -48,6 +48,25 @@ You can change your active agent at any point in a conversation. When you switch
 If you only need a quick answer from a different agent, use the **@mention** syntax instead of switching your active agent. This keeps your primary agent selected while routing that single message to the mentioned agent.
 :::
 
+#### The Agent Selector Modal
+
+Clicking **Agents** opens the current agent-picker modal:
+
+- it lists the published agents available to your workspace
+- it exposes agent-type filter chips and search
+- it highlights the currently active agent
+- it uses explicit **Cancel** and **Use selected** actions
+
+#### The Population Persona Modal
+
+When the **Populations** chip is enabled, it opens a separate two-step chooser:
+
+- first you search and pick a population
+- then you drill into the personas inside that population
+- finally you commit with **Choose persona**
+
+If you try to exit with an in-progress selection, the modal can show an unsaved-exit confirmation.
+
 ### Sources
 
 Click the **Sources** button (tooltip: "Select Datasets and/or Campaigns") to connect your data to the conversation. You can select:
@@ -61,32 +80,42 @@ When sources are connected, the AI reads and cites your actual data rather than 
 Selecting one or two relevant sources usually produces sharper answers than selecting everything at once. The AI can focus on what matters instead of sifting through unrelated data.
 :::
 
+#### The Sources Dropdown
+
+Before you get into the full selector, the **Sources** control also exposes a quick dropdown:
+
+| Quick action | What it does |
+|---|---|
+| **Attach Datasets** | Opens the source selector on the dataset flow |
+| **Attach Campaigns** | Opens the source selector on the campaign flow |
+| **Turn on/off sources** | Temporarily includes or excludes workspace sources without clearing existing selections |
+
 #### The Sources Selector Modal
 
-When you click the Sources button, a modal opens with multiple tabs. Each tab lets you connect a different type of data to your conversation.
+When you click the Sources control, the current modal opens around **Campaigns**, **Datasets**, and supporting file/media drill-ins.
 
 <!-- Screenshot placeholder: home/07-sources-modal.png — will be captured by automated screenshots -->
 
-| Tab | What It Contains | Best For |
+| Entry Point | What It Contains | Best For |
 |-----|-----------------|----------|
-| **Campaigns** | Your Vurvey survey campaigns and their collected responses | Analyzing survey results, finding themes in consumer feedback |
-| **Questions** | Individual questions from your campaigns | Drilling into specific survey questions instead of entire campaigns |
-| **Datasets** | Collections of files you've uploaded to Vurvey | Broad research context from multiple documents |
-| **Files** | Individual documents within your datasets | Focused analysis of a single report, spreadsheet, or document |
-| **Videos** | Video content from campaigns or uploads | Analyzing video responses, extracting visual insights |
-| **Audio** | Audio recordings and transcripts | Reviewing interview recordings, podcast analysis |
+| **Campaigns** | Survey campaigns and their collected responses | Analyzing survey results and response patterns |
+| **Datasets** | Uploaded file collections | Bringing reports, spreadsheets, and media into the chat |
+| **All files / drill-ins** | Individual files, questions, videos, and audio reached from the modal flow | Narrowing the scope to a specific asset or subset |
 
-**Campaigns Tab** — Shows all campaigns in your workspace. Select one or more campaigns to give the AI access to every response collected. This is the most common starting point for survey analysis.
+**Campaigns** is the fastest way to attach a whole study.
 
-**Questions Tab** — Lets you drill down into specific questions from your campaigns. Instead of selecting an entire campaign, you can choose individual questions. This is useful when you want the AI to focus on one aspect of a survey, such as "Tell me about responses to Question 3 only."
+**Datasets** is the fastest way to attach a whole document collection.
 
-**Datasets Tab** — Displays file collections you've uploaded. Selecting a dataset connects all files within it. Great for broad context like competitive reports, brand guidelines, or research libraries.
+For more targeted work, the modal can also save question-, file-, video-, and audio-level selections into the conversation even though those are not always presented as primary top-level tabs.
 
-**Files Tab** — Shows individual files within your datasets. Select specific files when you want precise, focused analysis — for example, analyzing one quarterly report instead of an entire dataset of reports.
+At the modal level, the current source picker also includes:
 
-**Videos Tab** — Surfaces video content from your campaigns and uploads. The AI can analyze video transcripts, summarize key moments, and extract insights from video responses.
+- search
+- **Clear all**
+- **Cancel**
+- **Submit**
 
-**Audio Tab** — Connects audio recordings and their transcripts. Useful for analyzing interview recordings, focus group audio, or any audio-based research materials.
+If you try to close it after changing selections, the UI can show an unsaved-selection exit confirmation.
 
 ::: tip Source Selection Strategy
 Start narrow, then broaden. Select one campaign or a few files first. If the AI's answers need more context, add additional sources. This approach gives you more focused, citation-rich responses.
@@ -107,14 +136,14 @@ Select an image generation model from the dropdown:
 | Model | Best For |
 |-------|----------|
 | **Nano Banana** | Vurvey's proprietary model for fast, versatile image generation |
-| **OpenAI (DALL-E)** | Photorealistic images, product mockups, lifestyle scenes |
+| **OpenAI** | Photorealistic images, product mockups, lifestyle scenes |
 | **Google Imagen** | High-fidelity images with strong text rendering and detail |
 | **Stable Diffusion** | Artistic styles, concept art, creative visuals |
 
-You can also toggle image generation on or off using the **Turn on/off images** option at the bottom of the dropdown.
+The bottom option in the dropdown lets you turn image generation on or off.
 
 ::: tip Choosing an Image Model
-If you're unsure which model to use, start with **Nano Banana** for quick iterations, **DALL-E** for realistic product and marketing imagery, or **Stable Diffusion** for more artistic and creative concepts. You can always regenerate with a different model if the first result isn't what you need.
+If you're unsure which model to use, start with **Nano Banana** for quick iterations, **OpenAI** for realistic product and marketing imagery, or **Stable Diffusion** for more artistic and creative concepts. You can always regenerate with a different model if the first result isn't what you need.
 :::
 
 #### Image Generation Tips
@@ -128,6 +157,8 @@ If you're unsure which model to use, start with **Nano Banana** for quick iterat
 
 Click the **Tools** button (sliders icon, tooltip: "Select a search tool") to give the AI access to web research and social media tools. Select a specific tool from the dropdown or let the AI use all available tools automatically.
 
+Typing **/** in the chat composer also opens a contextual slash-command popup for quickly selecting supported web, social, and image tools.
+
 #### Available Tools
 
 | Tool | What It Searches |
@@ -139,11 +170,8 @@ Click the **Tools** button (sliders icon, tooltip: "Select a search tool") to gi
 | **YouTube** | YouTube videos, comments, and channel content |
 | **X/Twitter** | Posts, trending topics, and public conversations on X |
 | **Instagram** | Instagram posts, reels, and visual content trends |
-| **Google Trends** | Search trends, trending topics, and regional interest data |
-| **Google Maps** | Location-based data, business reviews, and geographic insights |
-| **Amazon** | Product listings, reviews, and pricing data |
 
-You can also toggle all tools on or off using the **Turn on/off tools** option at the bottom of the dropdown.
+The bottom option in the dropdown lets you turn tools on or off.
 
 #### What Tools Can Find
 
@@ -204,16 +232,23 @@ The mode automatically adjusts based on your toolbar selections.
 
 | What you've enabled | How the AI behaves |
 |---|---|
-| **Everything on** (default — Omni Mode) | The AI can use all available tools — search the web, query your data, generate images — whatever fits your question. A status line reads "Using all sources, all tools, and image generation" |
+| **Everything on** (default — Omni Mode) | The AI can use all enabled capabilities — workspace sources, web/social research tools, and image generation — depending on your question |
 | **Only Sources selected** | The AI focuses exclusively on your connected datasets and campaigns, citing specific data points |
 | **A specific tool or image model selected** | The AI uses that specific tool to answer your question |
-| **Nothing selected** | Simple conversation mode — the AI uses only its general knowledge and what you've discussed so far. Status reads "Talking to Vee" (or your selected agent's name) |
+| **Nothing selected** | Simple conversation mode — the AI uses only the conversation context and its base model behavior |
 
 You can toggle individual categories on or off using the **Turn on/off** option in each toolbar dropdown. The status display below the toolbar always shows what the AI currently has access to.
 
 ## Attaching Files
 
-Click the **upload button** (to the left of the text input) to attach files directly to your message. The AI can analyze:
+Click the **upload button** (to the left of the text input) to start the current upload flow. In master, that flow uses two dialogs:
+
+1. an **Upload Files** modal where you drag in or pick files
+2. a **Create new dataset** modal that lets you name the uploaded collection so it can be reused as a source later
+
+The upload modal lets you remove files before continuing and currently accepts up to **10 files** in one upload session. If you close it while files are queued, the UI asks you to confirm that you want to cancel the upload.
+
+The AI can analyze:
 
 - **Documents** — PDF, Word, PowerPoint, Excel, CSV, and text files
 - **Images** — PNG, JPG, and GIF for visual analysis
@@ -254,13 +289,13 @@ Each AI response includes several helpful features:
 
 ### Citations
 
-When the AI references your data, it shows a **Citations** section you can expand to see exactly which sources informed the answer. Click the citations button to toggle inline source references on or off within the response text.
+When a response has grounding data, the UI can show a **Powered by** section below the message and a **Citations** toggle in the response actions. Click the citations button to show or hide inline references within the response text.
 
 #### How Citations Work
 
-- **Numbered references** appear inline in the response text (e.g., [1], [2])
+- **Numbered references** appear inline in the response text as superscript citations
 - Click any reference number to jump to the source detail
-- The Citations panel shows the original text, file name, and location within the source
+- The grounded-source UI shows the attached source entries and links back to the underlying item
 - Use citations to verify the AI's claims against your original data
 
 ::: tip Verifying AI Responses
@@ -278,8 +313,8 @@ Below each AI response, you'll find a row of action buttons:
 | **Copy** | Copy the response text to your clipboard — great for pasting into reports or presentations |
 | **Citations** | Show or hide source references within the response |
 | **Audio** | Listen to the response read aloud (available for Vurvey agents and enterprise accounts) |
-| **More** (lightning bolt) | Opens additional actions: **Generate Campaign** (turns the insight into a new survey) and **Create Agent** (creates a new AI agent based on the response) |
-| **Delete** | Remove both your message and the AI's response from the conversation |
+| **More** (lightning bolt) | Opens a contextual menu with additional actions such as **Generate Campaign** and **Create Agent** |
+| **Delete** | Opens a confirmation dialog, then removes both your message and the AI's response from the conversation |
 
 #### When to Use Each Action
 
@@ -314,7 +349,7 @@ Start a new conversation when you're switching to a completely different topic. 
 Conversations are auto-named based on your first message. To rename one:
 1. Right-click the conversation in the sidebar (or click the three-dot menu)
 2. Select **Rename**
-3. Type a descriptive name — for example, "Q4 2026 Brand Health Analysis" or "Packaging Redesign Concepts"
+3. Enter a descriptive name in the **Rename conversation** modal and save it
 
 Good naming habits make it easy to find past research when you need it later.
 
@@ -322,8 +357,11 @@ Good naming habits make it easy to find past research when you need it later.
 
 To save a conversation outside of Vurvey:
 1. Right-click the conversation and select **Export**
-2. Choose your preferred format
-3. The exported file includes all messages, AI responses, and citations
+2. In the export modal, choose how many recent messages to include: **10**, **20**, **50**, or **100**
+3. Choose a file type: **Markdown (.md)**, **PDF (.pdf)**, or **DOCX (.docx)**
+4. The download starts automatically
+
+Deleting from this same conversation menu opens a confirmation step before the conversation is removed.
 
 Exported conversations are great for sharing with team members who may not have Vurvey access, or for archiving completed research projects.
 

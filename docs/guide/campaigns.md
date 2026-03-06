@@ -62,10 +62,10 @@ Each card displays metadata chips at the bottom:
 Click the three-dot menu on any campaign card to:
 
 - **Start Conversation** — Open an AI chat to analyze campaign data (available when the campaign has responses)
-- **Share** — Manage who can access this campaign
+- **Share** — Open the teammate-sharing dialog for this campaign
 - **Preview** — Open the campaign editor
 - **Copy** — Duplicate the campaign
-- **Delete** — Permanently remove the campaign
+- **Delete** — Permanently remove the campaign after a confirmation step
 
 ### Filtering and Sorting
 
@@ -77,17 +77,38 @@ Sort by **Response Count (Low)** to find campaigns that need more responses. Sor
 
 ## Creating Campaigns
 
-Click **Create Campaign** to start a new study. You have three options:
+Click **Create Campaign** to start a new study.
 
-### Manual
+In current master, the create flow depends on feature flags:
+
+- with the smart-survey flow enabled, the modal offers **Manual Creation** and **AI-Powered Creation**
+- without that flag, the app can take you straight into the editor
+- templates are still available, but they are primarily accessed from the separate **Templates** tab rather than as a third option inside the create modal
+
+### Current Dialogs and Menus
+
+The campaign flow uses a few key popups and contextual menus:
+
+| Surface | Current behavior |
+|---|---|
+| **Create Campaign** | Selection modal with **Manual Creation** and **AI-Powered Creation** when the smart-survey flow is enabled |
+| **Add Question** | Category-based dropdown inside the editor |
+| **Saved Questions / Templates** | Separate modal next to **Add Question** for reusing saved question patterns |
+| **Publish** | Two-step modal with **Group** and **Members** |
+| **Share** | Internal permissions dialog from the card menu or top nav; the current sharing UI uses **Viewer** and **Editor** roles plus General Access |
+| **QR code** | **Download QR Code** modal |
+| **CSV export** | Results export can open a modal asking whether to use the current filter |
+| **Participants view** | Participant rows can open a contact modal, plus row menus for credit-adjustment and delete actions |
+| **Bulk response actions** | Searchable dropdowns for **Add to reel**, **Add to list**, and **Invite to Campaign** |
+| **Editor overflow menu** | Top-right menu with **Copy**, **Preview**, **Publish**, **Close**, **Details**, and **Delete** |
+| **Delete actions** | Deleting a question or deleting a campaign uses a confirmation dialog |
+| **Quick Summary** | Includes a share panel plus a confirmation modal when regenerating the summary |
+
+### Manual Creation
 
 Start with a blank campaign and build your questions from scratch. Best when you need complete control over the research design.
 
-### From Template
-
-Use a pre-built research pattern. Browse templates by category, preview the included questions, click **Use Template**, then customize for your needs.
-
-### From Objectives (AI-Powered)
+### AI-Powered Creation
 
 Describe your research goals in plain language and let AI generate appropriate questions:
 
@@ -118,9 +139,13 @@ Once you open a campaign, the top navigation bar provides these tabs:
 ::: tip Results, Analyze, and Summary tabs are disabled while the campaign is in Draft status. They become available once the campaign is launched and starts collecting responses.
 :::
 
+Within the results area, current master also includes a nested **Participants** view. Older docs that flatten the post-launch experience into only Results / Analyze / Summary are incomplete.
+
+Inside **Participants**, clicking a participant opens the contact modal. Each participant row also has an overflow menu that can open **Adjust Credit** or **Delete** flows.
+
 ### Step-by-Step Campaign Creation Walkthrough
 
-Whether you choose Manual, From Template, or From Objectives, you'll end up in the **Campaign Editor** where you build and refine your study. Here's a detailed walkthrough of the entire creation process.
+Whether you start from manual creation, AI-powered creation, or a template, you'll end up in the **Campaign Editor** where you build and refine your study. Here's a detailed walkthrough of the current editing experience.
 
 #### Step 1: Name Your Campaign
 
@@ -163,6 +188,8 @@ Click the **Add Question** button (or the "+" icon) at the bottom of the questio
 - **Stimulus** — Video Playback (shows a video before the question)
 
 Select the question type you need and it will appear in your question list.
+
+The same area also exposes a separate **Saved Questions / Question Templates** modal for reusing previously saved question blocks.
 
 <!-- Screenshot placeholder: 07-question-type-selector.png will be captured by automated screenshots -->
 
@@ -617,7 +644,7 @@ Show a video before a question that respondents must watch before answering.
 
 ### Launch Flow
 
-The launch flow has two steps:
+Click **Publish** to open the launch modal. The current launch flow has two steps:
 
 1. **Group** — Configure your audience targeting and campaign settings
 2. **Members** — Select who receives the campaign
@@ -676,6 +703,8 @@ When launching, you can target four types of audiences:
 :::
 
 ### Sharing Your Campaign
+
+This external-sharing area is separate from the internal **Share** permission dialog used for teammate access.
 
 After launching, you can share your campaign through multiple channels:
 
@@ -744,6 +773,8 @@ The Results tab shows summary statistics — total responses, completion rate, a
 ### Response Cards
 
 Each response appears as a card showing the respondent's name (or anonymous ID), completion date, and a thumbnail preview of their video. Cards are sorted by most recent by default.
+
+When you bulk-select responses, the current action bar exposes searchable dropdown flows for **Add to reel**, **Add to list**, and **Invite to Campaign**.
 
 ### Member Participation Status
 

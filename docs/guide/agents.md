@@ -146,36 +146,49 @@ Before sharing an agent with your team, test it with a few representative questi
 Click the three-dot menu on any agent card to access quick actions:
 
 - **Start Conversation** — Open a new chat with this agent
-- **Share** — Control who can access this agent (requires Manage permission)
-- **Edit Agent** — Open the agent builder to make changes (requires Edit permission)
+- **Share** — Open the sharing dialog when sharing is available for your role
+- **Edit Agent** — Open the agent builder to make changes
 - **View Agent** — Open a read-only view (when you don't have Edit permission)
-- **Delete Agent** — Permanently remove the agent (requires Delete permission)
+- **Delete Agent** — Permanently remove the agent when delete access is available
 
 ---
 
 ## Creating an Agent
 
-Click **+ Create Agent** in the top-right corner of the gallery to open the **Generate Agent** modal. This modal provides a streamlined AI-powered workflow to create agents quickly.
+Click **+ Create Agent** in the top-right corner of the gallery to start the agent creation flow.
 
-::: tip Generate Agent Modal
-When you click **+ Create Agent**, a modal opens with the title **"Generate Agent"**. This modal offers an AI-powered way to create agents:
-- Enter an **Agent Name** (e.g., "Research Assistant")
-- Describe the **Agent Objective** (what the agent should accomplish)
-- Select an **Agent Type** from the dropdown (Assistant, Consumer Persona, Product, or Visual Generator)
-- Click the **Generate** button to let AI create the agent configuration automatically
+::: tip Create Flow Depends on Workspace Features
+In current master, **+ Create Agent** does not always open the same first screen:
 
-After generating, you can refine the agent using the full guided builder by clicking through to edit the agent details.
+- some workspaces open a generation-first modal
+- others go directly into the builder
+
+In both cases, the goal is the same: get you into the guided agent-builder flow and then let you refine the result there.
 :::
 
 ![Generate Agent Modal](/screenshots/agents/05a-create-agent-modal.png)
 
+When the generation-first flow is enabled, the opening modal asks for:
+
+| Field | What it does |
+|---|---|
+| **Agent Name** | The initial display name for the new agent |
+| **Agent Objective** | The job you want the generated agent to perform |
+| **Agent Type** | The starting agent category |
+
+After you click **Generate**, the same modal switches into a progress state and cycles through status messages until the builder opens.
+
 ::: info Builder Interface Variations
 The agent builder interface varies depending on your workspace configuration and feature settings. You may see:
-- A **simplified single-page form** with core fields (Bio, Behaviors, Model settings) — look for a "Try the New Builder" button to access advanced features
-- A **step-by-step guided builder** with a visual progress bar and 6 steps
+- A **simplified single-page form** with core fields like Bio, Behaviors, and Model settings
+- A **step-by-step guided builder** with a visual progress bar and six steps
 - A **classic builder** with all configuration options on one scrollable page
 
-If you see the simplified form and want more advanced configuration options (facets, rules, datasets, tools), click the "Try the New Builder" or "Use Guided Builder" button in the top navigation bar.
+If you land in the simplified or classic view and want the guided experience, use **Try the New Builder** or **Use Guided Builder** in the top navigation bar when that option is available.
+:::
+
+::: tip Classic Builder Available
+If you prefer the original builder experience, click **Use Classic Builder** in the top navigation bar at any time. Builder availability depends on your workspace feature flags and permissions.
 :::
 
 ### Builder Navigation
@@ -530,6 +543,8 @@ Use the benchmark chat to send test questions and verify your agent works as exp
 - Does it follow your rules?
 - How does it handle edge cases or off-topic questions?
 
+The Review step also includes an explicit benchmark modal flow: you launch **Evaluate**, review the benchmark results, and then continue from that modal using **Continue**.
+
 ![Agent Benchmark - Start](/screenshots/agents/04c-agent-benchmark-start.png)
 
 ![Agent Benchmark - In Progress](/screenshots/agents/04d-agent-benchmark-run.png)
@@ -750,28 +765,38 @@ The builder auto-saves your progress, so you can leave and come back without los
 - **Activate** makes the agent available for conversations, campaigns, and workflows. A **green dot** appears on the agent card.
 - **Deactivate** hides the agent from your team but preserves everything — configuration, conversation history, and connected datasets. A **gray dot** appears on the card. You can reactivate at any time.
 
+The builder currently uses a few additional confirmation surfaces:
+
+- an unsaved-changes dialog when you navigate away with pending edits
+- a **Deactivate Agent** confirmation
+- a **Confirm Change** dialog when switching templates or molds after content already exists
+
 ::: warning Deactivating Agents Used in Workflows
 If an agent is currently assigned as a step in an active workflow, deactivating it will cause that workflow step to fail. Check whether the agent is used in any workflows before deactivating. You can find this information in the agent's detail drawer under related activity.
 :::
 
 ### Sharing Agents
 
-Click **Share** from the agent card menu to control who can access the agent:
+Click **Share** from the agent card menu or the builder top bar to open the current permissions dialog.
 
-- **Edit** permission — Allows modifying the agent's configuration
-- **Delete** permission — Allows permanently removing the agent
-- **Manage** permission — Allows sharing the agent and changing permissions
+The current sharing UI focuses on these controls:
 
-You can share with your entire workspace or with specific team members, each with different permission levels.
+| Setting | Current options |
+|----------|-----------------|
+| **General Access** | Restricted, or workspace-wide visibility where that option is enabled |
+| **Person-level role** | **Viewer** or **Editor** |
+| **Existing owner entries** | Visible in the dialog, but not reassigned there |
+
+The **Share** action itself only appears when your current permissions allow you to manage sharing for that agent.
 
 **Sharing best practices:**
 
 | Scenario | Recommended Approach |
 |----------|---------------------|
-| Agents for your entire team | Share to workspace with **Edit** permission so anyone can refine them |
-| Agents you want feedback on | Share to specific reviewers with **Edit** permission |
-| Finalized agents for production use | Share to workspace with no Edit permission (view-only) |
-| Template agents for others to duplicate | Share with **Edit** permission and note "Use as template" in the description |
+| Agents for your entire team | Share to the workspace with **Viewer** if the agent is finalized |
+| Agents you want feedback on | Share to specific reviewers with **Editor** |
+| Finalized agents for production use | Keep broad access at **Viewer** |
+| Template agents for others to adapt | Share with **Editor** and note "Use as template" in the description |
 
 ::: tip Building a Shared Agent Library
 Work with your team to establish conventions:
@@ -974,7 +999,7 @@ Write a detailed biography with personality details, set specific communication 
 Yes — make sure to enable the Image Generation tool in the Instructions step.
 
 **What happens to my agents if I leave the workspace?**
-Agents you created stay in the workspace. Transfer ownership to a teammate before leaving if you want them maintained.
+Agents you created stay in the workspace. The current UI does not expose ownership transfer from the agent-sharing dialog, so give a teammate **Editor** access before you leave if they need to maintain the agent.
 
 **How do I duplicate an agent?**
 Currently, there's no one-click duplicate button. To copy an agent, create a new one and manually transfer the settings. Use the original agent's detail drawer as a reference while configuring the new one. A faster approach is to use the Classic Builder where you can see all settings at once and recreate them side by side.

@@ -18,22 +18,23 @@ Think of workflows as automated research teams that work while you sleep. You ch
 
 ## Navigation
 
-Access **Workflows** from the main sidebar (look for the beta badge). The section includes several tabs:
+Access **Workflows** from the main sidebar (look for the beta badge). In current master, the visible tabs are feature-dependent:
 
 | Tab | Description |
 |-----|-------------|
 | **Workflows** | Your automation pipelines — the main view |
-| **Upcoming Runs** | Scheduled workflow executions |
-| **Templates** | Pre-built workflow templates to get you started |
+| **Upcoming Runs** | Scheduled workflow executions when workflow scheduling is enabled |
+| **Templates** | Pre-built workflow templates when the V3 templates experience is enabled |
 | **Conversations** | Past workflow outputs and conversation history |
-| **Outputs** | View, export, and manage generated reports from completed workflows |
+
+The codebase still has an **Outputs** route, but it is not part of the normal visible tab strip in the current UI.
 
 ## Browsing Your Workflows
 
 ![Workflows Main](/screenshots/workflows/01-workflows-main.png)
 
 ::: info Empty State
-When you first access Workflows or when no workflows exist yet, you'll see an empty state message instead of the workflow grid. The workflow builder, canvas, and grid of workflow cards are not visible in this state — only the **Create new workflow** button appears in the top-right corner. This is normal and expected behavior for a workspace without any workflows.
+When no workflows exist yet, the current UI uses an in-grid create card as the primary call to action. Older docs that describe only a top-right create button are outdated.
 :::
 
 Once you've created workflows, they appear as cards in a grid layout. Each card shows:
@@ -63,7 +64,21 @@ Click the **three-dot menu** (⋯) on any card for quick actions:
 
 ## Creating a Workflow
 
-Click **Create new workflow** to start building. You'll be asked to fill in:
+Click **Create new workflow** to open the workflow-creation modal.
+
+In current master, that modal can include multiple creation paths:
+
+- an initial chooser for **automatic**, **manual**, or **template-based** creation
+- a source-selection modal inside the creation flow when you want to attach campaigns, datasets, files, or media up front
+- a progress state while AI-assisted workflow generation is running
+
+In automatic mode, the current UI also exposes nested objective helpers:
+
+- **Generate Objective**
+- **Select from saved objectives**
+- **Save for future use**
+
+Once you are in the manual or automatic path, you'll be asked to fill in:
 
 | Field | Description |
 |-------|-------------|
@@ -107,6 +122,8 @@ Variables are referenced in agent prompts using the `{{ variableName }}` syntax 
 ::: tip Variable Sets
 Save different combinations of variable values as named sets. Switch between configurations — like "Weekly Report" vs. "Monthly Report" — without editing the workflow itself.
 :::
+
+The current variable-set management flow uses a dedicated **Manage Workflow Variables** modal. Each saved set has a contextual menu with **Set as Active** or **Deactivate**, **Edit**, and **Delete**.
 
 ### Variable Sets: Step-by-Step
 
@@ -268,7 +285,7 @@ Each node shows:
 - **Tools toggle** — enable or disable access to additional AI capabilities
 - **Model selector** — choose a specific AI model (admin only)
 
-Click **Add Agent** to add a new step to your pipeline.
+Click **Add Agent** to open the **Select Agent** modal. The current modal includes search, agent-type filter chips, selection state, and **Choose Agent** / **Add Agent** commit buttons depending on context.
 
 ::: tip Agent Sequencing
 Order your agents strategically for the best results:
@@ -359,6 +376,18 @@ After a workflow completes, click on the output node to see the full results. Yo
 - **Generate a report** — create a formatted document from the workflow output
 - **Export results** — download the output for sharing outside Vurvey
 
+Inside the report editor, the **Insert** dropdown currently offers:
+
+- **Heading 1**
+- **Heading 2**
+- **Heading 3**
+- **Page Break**
+- **Unordered List**
+- **Ordered List**
+- **Image**
+
+If you try to leave with unsaved report edits, the UI opens an **Unsaved Changes** confirmation modal.
+
 #### Customizing Output Format
 
 To control how your results look, give explicit formatting instructions to your final agent. For example:
@@ -406,9 +435,11 @@ The workflow detail page header gives you the key actions:
 | **Edit** button | Change workflow name, description, and parameters |
 | **Save** button | Save your changes (appears when there are unsaved edits) |
 | **Run** button | Execute the workflow |
-| **Cancel** button | Stop a running workflow |
+| **Cancel** button | Opens the **Cancel Workflow** confirmation dialog for a running workflow |
 | **Share** button | Manage access permissions |
 | **Schedule** button | Set up recurring automatic runs |
+
+On the workflow list page, both **Delete Workflow** and **Duplicate Workflow** also use confirmation dialogs before they continue.
 
 ### Workflow Status
 
@@ -464,7 +495,7 @@ Each agent task in a workflow has a maximum execution time of **60 minutes**. If
 
 ## Scheduling Workflows
 
-Click **Schedule** to set up automatic recurring runs.
+Click **Schedule** to open the scheduling modal and set up recurring runs.
 
 ### Schedule Options
 
@@ -551,6 +582,12 @@ Use the **Search** bar to filter by workflow name. Runs are grouped under date h
 
 The **Templates** tab provides pre-built workflow patterns you can use as starting points. Browse available templates, preview what they do, and create a copy to customize for your needs.
 
+The Templates area also uses several dedicated dialogs:
+
+- **Create Workflow from Template** lets you optionally override the workflow name and objective before creating the copy
+- **Create Template** and **Edit Template** modals let you manage the template headline, description, and categories
+- delete or remove actions from template cards use confirmation dialogs
+
 ## Conversations
 
 ![Workflow Conversations](/screenshots/workflows/05-workflow-conversations.png)
@@ -571,10 +608,10 @@ Click the three-dot menu (⋯) on any conversation:
 
 | Action | What It Does |
 |--------|-------------|
-| **Rename** | Give it a meaningful title |
-| **Copy** | Copy the conversation text to your clipboard |
-| **Export** | Download as a file |
-| **Delete** | Remove the conversation |
+| **Rename** | Opens the rename modal |
+| **Copy** | Opens the copy-history modal |
+| **Export** | Opens the export modal |
+| **Delete** | Opens a confirmation dialog, then removes the conversation |
 
 ::: tip Managing Conversations
 - **Export important outputs** so they don't get buried in the history.
@@ -582,22 +619,28 @@ Click the three-dot menu (⋯) on any conversation:
 - **Delete test runs** regularly to keep the list clean.
 :::
 
+### Report Share and Output Menus
+
+Completed workflow runs expose a few more contextual surfaces inside the report experience:
+
+- the report **Share** action opens a modal with a share toggle, copyable link, and optional access code
+- protected shared links can show an **Access code** modal before the report loads
+- history-entry dropdowns can include **Save to Dataset**, **Export to PDF**, **Export to Word**, and **Rerun Report**
+
 ## Sharing and Permissions
 
-Control who can access each workflow:
+The current workflow-sharing dialog uses **General Access** plus person-level **Viewer** and **Editor** roles.
 
-| Permission | What It Allows |
+| Role | What It Allows |
 |------------|---------------|
-| **View** | See the workflow and its results (read-only) |
-| **Edit** | Modify the workflow structure and settings |
-| **Delete** | Remove the workflow |
-| **Manage** | Share the workflow and change others' permissions |
+| **Viewer** | See the workflow and its results in read-only mode |
+| **Editor** | Modify the workflow structure and settings |
 
 ### How to Share
 
 1. Click **Share** from the top bar or the card menu.
 2. Set workspace-wide access or invite specific people.
-3. Assign permission levels.
+3. Assign **Viewer** or **Editor** roles.
 4. Save your changes.
 
 ## Real-World Use Cases
@@ -655,7 +698,7 @@ Control who can access each workflow:
 2. Add a cross-reference agent: *"Find common themes and contradictions across all sources. Note areas of consensus and disagreement."*
 3. Add a synthesis agent: *"Create a unified market narrative incorporating customer voice, competitive positioning, and industry trends."*
 4. Add a recommendations agent: *"Provide 3–5 strategic recommendations with supporting evidence from the sources."*
-5. Schedule monthly to support strategic planning cycles.
+5. Schedule weekly or run it manually to support recurring strategic planning cycles.
 
 ## Best Practices
 

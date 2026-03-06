@@ -24,36 +24,36 @@ The People section has five tabs across the top of the page:
 |-----|-------------|
 | **Populations** | AI-generated audience profiles representing consumer segments |
 | **Humans** | Real people who participate in your research campaigns |
-| **Molds** | Templates for creating consistent persona profiles (Enterprise only) |
+| **Molds** | Templates for creating consistent persona profiles when mold access is enabled |
 | **Lists & Segments** | Ways to organize your audiences into reusable groups |
 | **Properties** | Custom attributes you track about your audience |
 
-::: info Enterprise Feature
-The **Molds** tab is only visible to enterprise workspaces. It lets you create reusable templates for consistent AI population generation.
+::: info Access Note
+The **Molds** tab is access-controlled. In current master it is tied to enterprise-manager/support-style access, and related feature flags can also affect availability.
 :::
 
 ---
 
 ## Populations
 
-::: warning Feature In Development — Expected Empty State
-The Populations feature is currently being refined and is **not yet available in most workspaces**. **When you navigate to the People page (`/audience`) or the Populations tab (`/people/populations`), you will likely see an empty state with the message:**
+::: warning Empty State Still Exists
+The legacy `/audience/*` route now redirects into `/people/*`.
+
+Populations is a real page in current master, but you may still see an empty state with the message:
 
 **"Stay tuned! We're working on unveiling the new populations feature in your workspace."**
 
-This is expected and intentional behavior. The page loads successfully, but the feature content is hidden behind a feature flag. You will not see population data, cards, or management UI until the feature is explicitly enabled for your workspace.
+This is expected when your workspace has no population data yet. It does **not** mean the entire Populations feature is missing from the product.
 :::
 
 ![Populations](/screenshots/people/02-populations.png)
 
-Once enabled, Populations will be AI-generated audience groups that represent different consumer segments. You'll be able to use them to simulate focus group discussions, test campaign questions before launch, or fill gaps when you don't have enough real participants.
+When population data exists, the page supports the normal population management flow: list/grid browsing, search and sorting, detail pages, persona views, and analytics.
 
-::: info What You'll See Right Now
-- **People page:** Displays the People section with tabs for Populations, Humans, Molds, Lists & Segments, and Properties. The default view shows the Populations tab with the "Stay tuned" empty state message.
-- **No table, grid, or card views:** The feature UI is completely hidden until activation.
-- **No error:** This is not a bug or broken page — the empty state is intentional.
-
-The feature will be rolled out workspace-by-workspace in upcoming releases.
+::: info Current Product State
+- **Populations** has a real route and detail experience in current master
+- the empty state can still appear when there are no populations to show
+- older docs that describe Populations as broadly unavailable or hidden behind `/audience` are outdated
 :::
 
 ### Why Use Populations?
@@ -69,7 +69,11 @@ Imagine you're launching a new skincare line and want to hear from 200 premium b
 
 Populations appear in a card grid. Each card shows the population name, member count, and when it was last updated. Use the search bar to filter by name, or sort by most recently updated.
 
-Click the three-dot menu on any card to view, edit, duplicate, or delete a population.
+Click the three-dot menu on any card for the current population actions:
+
+- **Show Details**
+- **Take Campaign**
+- **Delete** (where that action is available)
 
 ### Population Details
 
@@ -82,6 +86,12 @@ The details page includes:
 - **Persona Carousel** — Browse representative personas with their avatar, name, and key demographics
 - **Charts View** — Visual breakdowns of your population by demographics, preferences, and behaviors (donut charts, bar charts, treemaps, and more)
 - **Table View** — A detailed list of all personas with sortable columns
+
+In the attached-persona table, each row also has a contextual menu with:
+
+- **Conversation**
+- **View Details**
+- **Remove from Population** (where that action is available)
 
 Use the category pills to filter which demographic facets are displayed. Hover over any chart element for exact counts and percentages.
 
@@ -148,7 +158,7 @@ Combine multiple filters to uncover insights — for example, find participants 
 
 ### Adding Contacts
 
-Click **+ Add** to invite new people to your workspace. Enter one or more email addresses, and invitations are sent immediately. New contacts appear in your list once they accept.
+Click **+ Add** to open the current **Add Creators** modal. You can paste one or more email addresses, then either add them directly or use the modal's **Add to list** dropdown to place them into an existing list first.
 
 ### Bulk Actions
 
@@ -159,6 +169,10 @@ Select multiple contacts using the checkboxes, then use the bulk action buttons 
 | **Delete** | Permanently remove selected contacts and their response history |
 | **Add to List** | Add contacts to an existing list or create a new one |
 | **Add Property** | Assign a property value to all selected contacts at once |
+
+The Humans table also has a row-level menu on each contact for contextual actions such as **Delete/Remove** and **Add Property**. Delete actions use a confirmation step.
+
+The **Add Property** flow opens a modal where you choose the property, choose the value, and decide whether to **Add value** or **Replace value**.
 
 ### Contact Profiles
 
@@ -253,7 +267,7 @@ Create a list called "2026 Holiday Research Panel" for a seasonal campaign, or m
 
 ### Working with Segments
 
-Segments are dynamic groups that automatically update as contacts match your rules. Click **New Segment** to open the segment builder.
+Segments are dynamic groups that automatically update as contacts match your rules. Click **New Segment** to open the segment-builder modal.
 
 ![Segment Builder](/screenshots/people/04a-segment-builder.png)
 
@@ -273,6 +287,8 @@ Segments are dynamic groups that automatically update as contacts match your rul
 | Gen Z Beauty Enthusiasts | age between 18-27, interest contains "beauty" | Trend research |
 | Dormant Participants | last_active > 90 days | Re-engagement campaigns |
 | Northeast US Panel | region = "Northeast" | Regional product testing |
+
+Each segment row uses a contextual menu with **Edit**, **Copy**, and **Delete**. Bulk actions across selected segments currently include **Delete** and **Create Combined Segment**, and both single-delete and bulk-delete flows use confirmation modals.
 
 ### Segment Builder: Complete Examples
 
@@ -379,7 +395,7 @@ Properties are custom attributes you can track for contacts beyond the built-in 
 
 ### Creating Properties
 
-Click **+ New Property** and fill in the name, type, and optionally a category to keep things organized. For select types, define the available choices.
+Click **+ New Property** to open the property modal, then fill in the name, type, and optionally a category to keep things organized. Property rows also use a three-dot menu for **Edit** and **Delete**, and delete actions confirm before they run.
 
 ### Property Management Best Practices
 
@@ -430,7 +446,9 @@ Group your properties into logical categories to keep the Properties page manage
 
 ### Managing Categories
 
-Organize properties into categories like "Demographics", "Purchase Behavior", or "Research Preferences" using the category dropdown. Click **+ Create new category** or **Edit Categories** to manage them.
+Organize properties into categories like "Demographics", "Purchase Behavior", or "Research Preferences" using the category dropdown. Click **+ Create new category** or **Edit Categories** to open the category-management modals.
+
+Inside an individual property-value table, the current UI also exposes row-level **Delete** actions and a bulk **Add to list** flow.
 
 ### Importing Data with CSV
 
@@ -438,41 +456,41 @@ Upload properties and values in bulk:
 
 1. Click the upload button
 2. Select your CSV file
-3. Choose an action: **Add** (new values only), **Update** (update existing), or **Replace** (overwrite everything)
+3. In the **CSV Upload** modal, choose **Add values** or **Replace values**
+4. Upload the file
 
-Your CSV must include an email column to match contacts and headers that match property names.
+The modal also includes a **Download example CSV file** shortcut.
 
 ### CSV Import: Format Specification
 
-For successful imports, your CSV file must follow these formatting rules:
+The current Properties CSV upload expects a narrow three-column file, not a wide spreadsheet with one property per column.
 
 #### Required Columns
 
 | Column | Required? | Description |
 |--------|-----------|-------------|
-| **email** | Yes | The email address used to match contacts. Must match exactly. |
-| (property columns) | At least one | One or more columns with headers matching your property names |
+| **EMAIL_OR_CREATOR_TAG** | Yes | The contact identifier used to match the person |
+| **ATTR_NAME** | Yes | The property name that already exists in Vurvey |
+| **ATTR_VALUE** | Yes | The value to add or replace for that property |
 
 #### Format Rules
 
 | Rule | Details |
 |------|---------|
 | **Encoding** | UTF-8 (most spreadsheet apps export this by default) |
-| **Date format** | YYYY-MM-DD (e.g., 2026-03-15) |
-| **Boolean values** | Use `true` / `false` (not 1/0 or yes/no) |
-| **Multi-select values** | Separate with semicolons: `skincare;haircare;makeup` |
-| **Empty values** | Leave the cell blank — don't use "N/A" or "null" |
 | **Header row** | First row must contain column headers |
-| **No merged cells** | Each cell must be independent |
+| **One property per row** | Each row maps one contact to one property/value pair |
+| **Existing property names** | `ATTR_NAME` should match a property that already exists in your workspace |
+| **Single file** | The upload modal accepts one CSV at a time |
 
 #### Sample CSV
 
 ```csv
-email,loyalty_tier,purchase_frequency,last_purchase_date,preferred_category,research_opt_in
-jane@example.com,Gold,12,2026-01-15,skincare;haircare,true
-john@example.com,Silver,4,2026-01-20,makeup,true
-sarah@example.com,Bronze,2,2026-02-05,fragrance;skincare,false
-mike@example.com,Gold,8,2026-02-01,haircare,true
+EMAIL_OR_CREATOR_TAG,ATTR_NAME,ATTR_VALUE
+jane@example.com,loyalty_tier,Gold
+jane@example.com,preferred_category,skincare
+john@example.com,loyalty_tier,Silver
+john@example.com,research_opt_in,true
 ```
 
 #### Common CSV Errors and Fixes
@@ -480,16 +498,14 @@ mike@example.com,Gold,8,2026-02-01,haircare,true
 | Error | Cause | Fix |
 |-------|-------|-----|
 | "No matching contacts found" | Email addresses don't match existing contacts | Check for typos, extra spaces, or different email domains |
-| "Invalid date format" | Dates aren't in YYYY-MM-DD format | Convert dates in your spreadsheet before exporting |
-| "Unknown property" | Column header doesn't match any property name | Create the property first, or fix the header spelling |
+| "Unknown property" | `ATTR_NAME` does not match an existing property | Create the property first, or fix the property name spelling |
 | Garbled characters (?, ÃÂ) | Wrong file encoding | Re-save as UTF-8 in your spreadsheet app |
-| Missing values after import | Blank cells were skipped | This is expected — blank cells don't overwrite existing values in "Add" mode |
 | Extra rows imported | Hidden rows or trailing blank rows | Delete empty rows at the bottom of your spreadsheet |
 
 ::: tip CSV Import Best Practices
 1. **Test with a small file first** — try 5–10 rows before importing hundreds.
-2. **Use "Add" mode** for your first import to avoid overwriting data.
-3. **Back up current data** — export your contacts before a large "Replace" import.
+2. **Use "Add values" first** if you're appending data to existing contacts.
+3. **Use "Replace values" carefully** because it overwrites the targeted values.
 4. **Open in a text editor** to verify formatting if your spreadsheet app adds unexpected characters.
 :::
 
@@ -501,8 +517,8 @@ When you delete a property, all values assigned to contacts are also removed. An
 
 ## Molds (Enterprise)
 
-::: warning Enterprise Feature
-Molds are only available to enterprise workspaces. Contact your account manager to enable this feature.
+::: warning Access-Controlled Feature
+Molds are not available in every workspace. In current master, access depends on the mold-related access path and feature configuration for your workspace.
 :::
 
 ![Molds](/screenshots/people/06-molds.png)

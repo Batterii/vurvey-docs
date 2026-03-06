@@ -74,6 +74,18 @@ const CONFIG = {
 // Store extracted workspace ID after login
 let workspaceId = null;
 
+function shouldCaptureSection(sectionName) {
+  return !CONFIG.captureOnly.length || CONFIG.captureOnly.includes(sectionName);
+}
+const CAPTURE_REPORT = {
+  startedAt: new Date().toISOString(),
+  baseUrl: CONFIG.baseUrl,
+  strict: CONFIG.strict,
+  captureOnly: CONFIG.captureOnly,
+  issues: [],
+  screenshots: [],
+};
+
 // Utility functions
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -83,6 +95,55 @@ function ensureDir(dir) {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
+}
+
+function getScreenshotRelativePath(name, subdir = '') {
+  return subdir ? `${subdir}/${name}.png` : `${name}.png`;
+}
+
+function updateCaptureReportEntry(entry) {
+  const normalizedEntry = {
+    capturedAt: new Date().toISOString(),
+    ...entry,
+  };
+  const existingIndex = CAPTURE_REPORT.screenshots.findIndex((item) => item.path === normalizedEntry.path);
+  if (existingIndex >= 0) {
+    CAPTURE_REPORT.screenshots[existingIndex] = normalizedEntry;
+  } else {
+    CAPTURE_REPORT.screenshots.push(normalizedEntry);
+  }
+}
+
+function recordSectionIssue(section, reason, extra = {}) {
+  CAPTURE_REPORT.issues.push({
+    recordedAt: new Date().toISOString(),
+    section,
+    reason,
+    ...extra,
+  });
+}
+
+async function writeCaptureReport(extra = {}) {
+  try {
+    ensureDir(CONFIG.artifactsDir);
+    const reportPath = path.join(CONFIG.artifactsDir, 'capture-report.json');
+    const payload = {
+      ...CAPTURE_REPORT,
+      endedAt: new Date().toISOString(),
+      workspaceId,
+      ...extra,
+    };
+    fs.writeFileSync(reportPath, JSON.stringify(payload, null, 2));
+    console.log(`  ✓ Capture report: ${path.relative(path.join(__dirname, '..'), reportPath)}`);
+  } catch (e) {
+    console.log(`  ⚠ Could not write capture report: ${e.message}`);
+  }
+}
+
+function urlIncludesOneOf(url, parts = []) {
+  const normalized = (parts || []).filter(Boolean);
+  if (!normalized.length) return true;
+  return normalized.some((part) => String(url || '').includes(part));
 }
 
 async function takeArtifactScreenshot(page, name) {
@@ -181,6 +242,22 @@ async function waitForBodyTextAny(page, phrases, timeout = TIMING.contentWaitTim
     await delay(250);
   }
   return false;
+}
+
+async function bodyTextMatches(page, phrases, mode = 'any') {
+  const normalized = (phrases || [])
+    .map((p) => String(p || '').trim().toLowerCase())
+    .filter(Boolean);
+  if (!normalized.length) return true;
+
+  try {
+    const bodyText = await page.evaluate(() => (document.body?.innerText || '').toLowerCase());
+    return mode === 'all'
+      ? normalized.every((p) => bodyText.includes(p))
+      : normalized.some((p) => bodyText.includes(p));
+  } catch {
+    return false;
+  }
 }
 
 async function waitForLoaders(page, timeout = TIMING.loaderTimeout) {
@@ -316,36 +393,210 @@ async function waitForImages(page, timeout = 6000) {
   return false;
 }
 
-async function hasRenderableMainContent(page) {
+async function getRenderDiagnostics(page, containerSelector = null) {
   try {
-    return await page.evaluate(() => {
+    return await page.evaluate((requestedContainerSelector) => {
+      const visible = (el) => {
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      };
+
       const root =
+        (requestedContainerSelector ? document.querySelector(requestedContainerSelector) : null) ||
         document.querySelector('main, [role="main"], #root main, [class*="main-content" i], [class*="page-content" i]') ||
         document.body;
+      if (!root) {
+        return {
+          missingRoot: true,
+          mainTextLength: 0,
+          structuredCount: 0,
+          centeredSpinnerCount: 0,
+          visibleLoaderCount: 0,
+          hasDialog: false,
+          hasMenu: false,
+        };
+      }
+
       const clone = root.cloneNode(true);
       clone
         .querySelectorAll('nav, aside, [class*="sidebar" i], [aria-label*="navigation" i]')
         .forEach((el) => el.remove());
 
       const text = (clone.innerText || '').replace(/\s+/g, ' ').trim();
-      const hasStructuredContent = !!clone.querySelector(
-        'table, form, textarea, canvas, [contenteditable="true"], [data-testid*="card"], [class*="card" i], [class*="grid" i], [class*="list" i], [class*="chat" i], [class*="message" i]'
-      );
-      const iconOnly = !!clone.querySelector('svg, [class*="icon" i]') && text.length < 40 && !hasStructuredContent;
+      const structuredCount = clone.querySelectorAll(
+        'table, form, textarea, canvas, [contenteditable="true"], [role="dialog"], [role="menu"], [data-testid*="card"], [class*="card" i], [class*="grid" i], [class*="list" i], [class*="chat" i], [class*="message" i], [class*="chart" i]'
+      ).length;
 
-      if (iconOnly) return false;
-      return hasStructuredContent || text.length >= 80;
-    });
+      const loaderSelectors = [
+        '[class*="loading" i]',
+        '[class*="spinner" i]',
+        '[class*="skeleton" i]',
+        '[data-testid*="loading" i]',
+        '[data-testid*="skeleton" i]',
+        '[aria-busy="true"]',
+      ];
+
+      const centeredSpinnerCount = Array.from(
+        document.querySelectorAll('svg, [class*="spinner" i], [class*="loading" i], [data-testid*="loading" i], [aria-busy="true"]')
+      ).filter((el) => {
+        if (!visible(el)) return false;
+        const rect = el.getBoundingClientRect();
+        if (rect.width > 240 || rect.height > 240) return false;
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        return (
+          centerX >= window.innerWidth * 0.2 &&
+          centerX <= window.innerWidth * 0.8 &&
+          centerY >= window.innerHeight * 0.15 &&
+          centerY <= window.innerHeight * 0.85
+        );
+      }).length;
+
+      const visibleLoaderCount = loaderSelectors.reduce((count, selector) => {
+        return count + Array.from(document.querySelectorAll(selector)).filter((el) => visible(el)).length;
+      }, 0);
+
+      return {
+        mainTextLength: text.length,
+        structuredCount,
+        centeredSpinnerCount,
+        visibleLoaderCount,
+        hasDialog: Array.from(document.querySelectorAll('[role="dialog"], [class*="modal" i]')).some((el) => visible(el)),
+        hasMenu: Array.from(document.querySelectorAll('[role="menu"], [class*="dropdown" i], [class*="popover" i]')).some(
+          (el) => visible(el)
+        ),
+      };
+    }, containerSelector);
   } catch {
-    // If DOM probing fails, do not block the capture.
-    return true;
+    return {
+      missingRoot: false,
+      mainTextLength: 0,
+      structuredCount: 0,
+      centeredSpinnerCount: 0,
+      visibleLoaderCount: 0,
+      hasDialog: false,
+      hasMenu: false,
+    };
   }
 }
 
-async function takeScreenshot(page, name, subdir = '') {
+async function hasVisibleSelectors(page, selectors = [], mode = 'any') {
+  if (!selectors.length) return true;
+  try {
+    return await page.evaluate(({selectors: requestedSelectors, requestedMode}) => {
+      const visible = (el) => {
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      };
+
+      const matches = requestedSelectors.map((selector) => {
+        return Array.from(document.querySelectorAll(selector)).some((el) => visible(el));
+      });
+      return requestedMode === 'all' ? matches.every(Boolean) : matches.some(Boolean);
+    }, {selectors, requestedMode: mode});
+  } catch {
+    return false;
+  }
+}
+
+async function hasRenderableMainContent(page, containerSelector = null) {
+  const diagnostics = await getRenderDiagnostics(page, containerSelector);
+  const hasStructuredContent = diagnostics.structuredCount > 0;
+  const iconOnly = diagnostics.centeredSpinnerCount > 0 && diagnostics.mainTextLength < 40 && !hasStructuredContent;
+
+  if (iconOnly) return false;
+  if (diagnostics.centeredSpinnerCount > 0 && diagnostics.mainTextLength < 120 && diagnostics.structuredCount <= 1) {
+    return false;
+  }
+  return hasStructuredContent || diagnostics.mainTextLength >= 80;
+}
+
+async function validateCaptureTarget(page, options = {}) {
+  const {
+    routeIncludes = [],
+    routeExcludes = [],
+    requiredSelectors = [],
+    requiredSelectorMode = 'any',
+    forbiddenSelectors = [],
+    requiredTexts = [],
+    requiredTextMode = 'any',
+    forbiddenTexts = [],
+    requireDialog = false,
+    requireMenu = false,
+    containerSelector = null,
+    minMainTextLength = null,
+    minStructuredElements = null,
+    allowVisibleLoaders = false,
+    allowCenteredSpinner = false,
+  } = options;
+
+  const url = page.url();
+  const diagnostics = await getRenderDiagnostics(page, containerSelector);
+
+  if (routeIncludes.length && !urlIncludesOneOf(url, routeIncludes)) {
+    return {ok: false, reason: `route mismatch (${url})`, diagnostics};
+  }
+  if (routeExcludes.length && urlIncludesOneOf(url, routeExcludes)) {
+    return {ok: false, reason: `unexpected route (${url})`, diagnostics};
+  }
+  if (requiredSelectors.length && !(await hasVisibleSelectors(page, requiredSelectors, requiredSelectorMode))) {
+    return {ok: false, reason: `missing required selector`, diagnostics};
+  }
+  if (forbiddenSelectors.length && (await hasVisibleSelectors(page, forbiddenSelectors, 'any'))) {
+    return {ok: false, reason: `unexpected selector present`, diagnostics};
+  }
+  if (requiredTexts.length && !(await bodyTextMatches(page, requiredTexts, requiredTextMode))) {
+    return {ok: false, reason: `missing required text`, diagnostics};
+  }
+  if (forbiddenTexts.length && (await bodyTextMatches(page, forbiddenTexts, 'any'))) {
+    return {ok: false, reason: `unexpected text present`, diagnostics};
+  }
+  if (requireDialog && !diagnostics.hasDialog) {
+    return {ok: false, reason: 'expected dialog not visible', diagnostics};
+  }
+  if (requireMenu && !diagnostics.hasMenu) {
+    return {ok: false, reason: 'expected menu not visible', diagnostics};
+  }
+  if (!allowVisibleLoaders && diagnostics.visibleLoaderCount > 0) {
+    return {ok: false, reason: 'visible loaders present', diagnostics};
+  }
+  if (!allowCenteredSpinner && diagnostics.centeredSpinnerCount > 0 && diagnostics.mainTextLength < 220) {
+    return {ok: false, reason: 'centered loading state detected', diagnostics};
+  }
+  if (typeof minMainTextLength === 'number' && diagnostics.mainTextLength < minMainTextLength) {
+    return {
+      ok: false,
+      reason: `insufficient content text (${diagnostics.mainTextLength} < ${minMainTextLength})`,
+      diagnostics,
+    };
+  }
+  if (typeof minStructuredElements === 'number' && diagnostics.structuredCount < minStructuredElements) {
+    return {
+      ok: false,
+      reason: `insufficient structured content (${diagnostics.structuredCount} < ${minStructuredElements})`,
+      diagnostics,
+    };
+  }
+
+  const hasContent = await hasRenderableMainContent(page, containerSelector);
+  if (!hasContent) {
+    return {ok: false, reason: 'insufficient page content', diagnostics};
+  }
+
+  return {ok: true, diagnostics};
+}
+
+async function takeScreenshot(page, name, subdir = '', options = {}) {
   const dir = subdir ? path.join(CONFIG.screenshotsDir, subdir) : CONFIG.screenshotsDir;
   ensureDir(dir);
   const filepath = path.join(dir, `${name}.png`);
+  const relativePath = getScreenshotRelativePath(name, subdir);
 
   // Wait for any loaders to complete
   try {
@@ -356,15 +607,23 @@ async function takeScreenshot(page, name, subdir = '') {
   await delay(TIMING.preScreenshotDelay);
 
   if (await pageHasGlobalError(page)) {
-    console.log(`  ⚠ Skipping screenshot (${subdir}/${name}.png): page is in a global error state`);
+    console.log(`  ⚠ Skipping screenshot (${relativePath}): page is in a global error state`);
     await takeArtifactScreenshot(page, `skip-global-${subdir}-${name}`);
+    updateCaptureReportEntry({path: relativePath, ok: false, reason: 'global-error-state', url: page.url()});
     return null;
   }
 
-  const hasContent = await hasRenderableMainContent(page);
-  if (!hasContent) {
-    console.log(`  ⚠ Skipping screenshot (${subdir}/${name}.png): insufficient page content`);
-    await takeArtifactScreenshot(page, `skip-empty-${subdir}-${name}`);
+  const validation = await validateCaptureTarget(page, options);
+  if (!validation.ok) {
+    console.log(`  ⚠ Skipping screenshot (${relativePath}): ${validation.reason}`);
+    await takeArtifactScreenshot(page, `skip-invalid-${subdir}-${name}`);
+    updateCaptureReportEntry({
+      path: relativePath,
+      ok: false,
+      reason: validation.reason,
+      url: page.url(),
+      diagnostics: validation.diagnostics,
+    });
     return null;
   }
 
@@ -372,9 +631,16 @@ async function takeScreenshot(page, name, subdir = '') {
     await page.screenshot({ path: filepath, fullPage: false });
   } catch (e) {
     console.log(`  ⚠ Screenshot failed (${name}): ${e.message}`);
+    updateCaptureReportEntry({path: relativePath, ok: false, reason: e.message, url: page.url()});
     return null;
   }
-  console.log(`  ✓ Screenshot: ${subdir}/${name}.png`);
+  console.log(`  ✓ Screenshot: ${relativePath}`);
+  updateCaptureReportEntry({
+    path: relativePath,
+    ok: true,
+    url: page.url(),
+    diagnostics: validation.diagnostics,
+  });
   return filepath;
 }
 
@@ -477,6 +743,67 @@ async function clickButtonByText(page, text, timeout = 8000) {
   return false;
 }
 
+async function clickButtonByTextNearComposer(page, text, timeout = 5000) {
+  const startTime = Date.now();
+  const norm = String(text).trim().toLowerCase();
+
+  while (Date.now() - startTime < timeout) {
+    const clicked = await page.evaluate((needle) => {
+      const isVisible = (el) => {
+        if (!el) return false;
+        const st = window.getComputedStyle(el);
+        if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      };
+
+      const composer =
+        document.querySelector('[data-testid="input-bubble-input"]') ||
+        document.querySelector('textarea[placeholder*="Ask" i]') ||
+        document.querySelector('textarea');
+      const composerRect = composer?.getBoundingClientRect() || null;
+
+      const candidates = Array.from(document.querySelectorAll("button, a, [role='button'], [role='tab']"))
+        .filter((el) => isVisible(el))
+        .map((el) => ({
+          el,
+          text: (el.textContent || '').trim().toLowerCase(),
+          rect: el.getBoundingClientRect(),
+        }))
+        .filter(({text}) => text === needle || text.startsWith(`${needle} `) || text.includes(needle));
+
+      const ranked = candidates
+        .filter(({rect}) => {
+          if (!composerRect) return true;
+          return (
+            rect.top >= composerRect.top - 220 &&
+            rect.bottom <= composerRect.bottom + 160 &&
+            rect.left >= composerRect.left - 120 &&
+            rect.right <= composerRect.right + 720
+          );
+        })
+        .sort((a, b) => {
+          if (!composerRect) return a.rect.top - b.rect.top;
+          const score = (item) =>
+            Math.abs(item.rect.top - composerRect.top) +
+            Math.abs(item.rect.left - composerRect.left) +
+            Math.abs((item.rect.width || 0) - 120);
+          return score(a) - score(b);
+        });
+
+      const target = ranked[0] || candidates[0];
+      if (!target) return false;
+      target.el.click();
+      return true;
+    }, norm);
+
+    if (clicked) return true;
+    await delay(250);
+  }
+
+  return false;
+}
+
 /**
  * Click a button/menu-item by text, but ONLY within a specific container selector.
  * Prevents accidental clicks on similarly-named elements elsewhere on the page.
@@ -569,6 +896,24 @@ async function clickByAriaLabel(page, label, timeout = 5000) {
   return false;
 }
 
+async function hoverFirstVisible(page, selectors) {
+  for (const selector of selectors) {
+    const handles = await page.$$(selector);
+    for (const handle of handles) {
+      try {
+        const box = await handle.boundingBox();
+        if (!box || box.width <= 0 || box.height <= 0) continue;
+        await handle.hover();
+        return true;
+      } catch {
+        continue;
+      }
+    }
+  }
+
+  return false;
+}
+
 async function clickFirstVisible(page, selectors) {
   return await page.evaluate((selectors) => {
     for (const sel of selectors) {
@@ -586,6 +931,33 @@ async function clickFirstVisible(page, selectors) {
     }
     return false;
   }, selectors);
+}
+
+async function clickFirstCreatorProfileTrigger(page) {
+  return await page.evaluate(() => {
+    const nameEl = document.querySelector('[data-testid="creator-name"]');
+    if (!nameEl) return false;
+
+    const textContainer = nameEl.parentElement;
+    const tagEl = textContainer?.querySelector('span:not([data-testid="creator-name"])');
+    if (tagEl) {
+      tagEl.click();
+      return true;
+    }
+
+    const row = nameEl.closest('tr');
+    const avatarCandidate =
+      row?.querySelector('td:first-child > div [class*="container" i]') ||
+      row?.querySelector('td:first-child img') ||
+      row?.querySelector('td:first-child > div');
+
+    if (avatarCandidate) {
+      avatarCandidate.click();
+      return true;
+    }
+
+    return false;
+  });
 }
 
 async function safeClick(page, selectors) {
@@ -738,7 +1110,9 @@ async function login(page) {
   await delay(TIMING.postNavDelay);
 
   // Capture login page
-  await takeScreenshot(page, '00-login-page', 'home');
+  if (shouldCaptureSection('home')) {
+    await takeScreenshot(page, '00-login-page', 'home');
+  }
 
   // Click "Sign in with email"
   console.log('  Looking for email login button...');
@@ -755,7 +1129,9 @@ async function login(page) {
   if (emailLoginClicked) {
     console.log('  ✓ Clicked email login');
     await delay(TIMING.postClickDelay);
-    await takeScreenshot(page, '00b-email-login-clicked', 'home');
+    if (shouldCaptureSection('home')) {
+      await takeScreenshot(page, '00b-email-login-clicked', 'home');
+    }
   }
 
   // Fill email
@@ -840,7 +1216,9 @@ async function login(page) {
     await waitForLoaders(page);
   }
 
-  await takeScreenshot(page, '03-after-login', 'home');
+  if (shouldCaptureSection('home')) {
+    await takeScreenshot(page, '03-after-login', 'home');
+  }
 
   if (currentUrl.includes(CONFIG.baseUrl.replace('https://', '')) && !currentUrl.includes('login')) {
     console.log('  ✓ Login successful');
@@ -895,15 +1273,23 @@ async function captureHome(page) {
   }
 
   // Wait for chat interface elements
-  await waitForContent(page, [
+  const hasComposer = await waitForContent(page, [
     '[data-testid="chat-input"]',
+    '[data-testid="input-bubble-input"]',
     'textarea',
     '[class*="chatInput"]',
     '[class*="chat-view"]',
     '[placeholder*="Ask"]'
   ]);
+  if (!hasComposer) return false;
 
-  await takeScreenshot(page, '01-chat-main', 'home');
+  let sectionOk = true;
+
+  sectionOk = Boolean(await takeScreenshot(page, '01-chat-main', 'home', {
+    requiredSelectors: ['[data-testid="input-bubble-input"]', 'textarea[placeholder*="Ask" i]'],
+    requiredSelectorMode: 'any',
+    minMainTextLength: 80,
+  })) && sectionOk;
 
   // Capture the welcome header (visible before any messages are sent)
   try {
@@ -913,122 +1299,150 @@ async function captureHome(page) {
       '[class*="chatWelcome" i]',
     ], 3000);
     if (hasWelcome) {
-      await takeScreenshot(page, '02-chat-welcome-header', 'home');
+      await takeScreenshot(page, '02-chat-welcome-header', 'home', {
+        requiredSelectors: [
+          '[class*="welcomeHeader" i]',
+          '[class*="welcome" i]',
+          '[class*="chatWelcome" i]',
+        ],
+        requiredSelectorMode: 'any',
+        minMainTextLength: 40,
+      });
     }
   } catch (e) {
     console.log('  Could not capture welcome header');
   }
 
   // Capture the toolbar chip area (Agents, Sources, Images, Tools buttons)
-  await takeScreenshot(page, '03-chat-toolbar', 'home');
+  sectionOk = Boolean(await takeScreenshot(page, '03-chat-toolbar', 'home', {
+    requiredTexts: ['agents', 'populations'],
+    requiredTextMode: 'all',
+    minMainTextLength: 100,
+  })) && sectionOk;
 
   // Capture conversation sidebar if visible
   await delay(TIMING.postClickDelay);
-  await takeScreenshot(page, '04-conversation-sidebar', 'home');
+  await takeScreenshot(page, '04-conversation-sidebar', 'home', {
+    minMainTextLength: 80,
+  });
 
   // Try clicking toolbar buttons to capture their dropdowns/modals
   // Agents button
   try {
-    const agentsClicked = await clickFirstVisible(page, [
-      'button[aria-label*="agent" i]',
-      '[class*="toolbarChip" i] button',
-      '[data-testid*="agent-button"]',
-    ]) || await clickButtonByText(page, 'agents', 3000);
+    const agentsClicked = await clickButtonByTextNearComposer(page, 'agents', 4000);
     if (agentsClicked) {
       await delay(TIMING.postClickDelay);
+      await waitForContent(page, ['[data-testid="select-agent-modal"]', '[aria-label="select-agent"]'], 6000);
       await waitForLoaders(page);
-      await takeScreenshot(page, '05-agents-dropdown', 'home');
+      sectionOk = Boolean(await takeScreenshot(page, '05-agents-dropdown', 'home', {
+        requiredSelectors: ['[data-testid="select-agent-modal"]', '[aria-label="select-agent"]'],
+        requiredSelectorMode: 'any',
+        requiredTexts: ['Select Agent', 'Use selected'],
+        requiredTextMode: 'all',
+        requireDialog: true,
+        minMainTextLength: 120,
+      })) && sectionOk;
       // Close by pressing Escape
-      await page.keyboard.press('Escape').catch(() => {});
+      await dismissAnyModal(page).catch(() => {});
       await delay(300);
+    } else {
+      console.log('  ⚠ Could not open agents modal from the composer toolbar');
+      sectionOk = false;
     }
   } catch (e) {
     console.log('  Could not capture agents dropdown');
+    sectionOk = false;
   }
 
   // Sources button (folder icon)
   try {
-    const sourcesClicked = await clickFirstVisible(page, [
-      'button[aria-label*="source" i]',
-      'button[aria-label*="folder" i]',
-      '[data-testid*="sources-button"]',
-    ]) || await clickButtonByText(page, 'sources', 3000);
+    const sourcesClicked = await clickByAriaLabel(page, 'Select a specific data source to ask about', 4000);
     if (sourcesClicked) {
       await delay(TIMING.postClickDelay);
       await waitForLoaders(page);
-      await takeScreenshot(page, '06-sources-dropdown', 'home');
+      sectionOk = Boolean(await takeScreenshot(page, '06-sources-dropdown', 'home', {
+        requiredTexts: ['Attach Datasets', 'Attach Campaigns'],
+        requiredTextMode: 'all',
+        requireMenu: true,
+        minMainTextLength: 120,
+      })) && sectionOk;
       await page.keyboard.press('Escape').catch(() => {});
       await delay(300);
+    } else {
+      console.log('  ⚠ Could not open sources dropdown');
+      sectionOk = false;
     }
   } catch (e) {
     console.log('  Could not capture sources dropdown');
+    sectionOk = false;
   }
 
   // Images button (picture icon)
   try {
-    const imagesClicked = await clickFirstVisible(page, [
-      'button[aria-label*="image" i]',
-      '[data-testid*="image-button"]',
-    ]) || await clickButtonByText(page, 'images', 3000);
+    const imagesClicked = await clickByAriaLabel(page, 'Select a specific Image Model', 4000);
     if (imagesClicked) {
       await delay(TIMING.postClickDelay);
       await waitForLoaders(page);
-      await takeScreenshot(page, '07-images-dropdown', 'home');
+      sectionOk = Boolean(await takeScreenshot(page, '07-images-dropdown', 'home', {
+        requiredTexts: ['OpenAI', 'Google Imagen'],
+        requireMenu: true,
+        minMainTextLength: 120,
+      })) && sectionOk;
       await page.keyboard.press('Escape').catch(() => {});
       await delay(300);
+    } else {
+      console.log('  ⚠ Could not open images dropdown');
+      sectionOk = false;
     }
   } catch (e) {
     console.log('  Could not capture images dropdown');
+    sectionOk = false;
   }
 
   // Tools button (sliders icon)
   try {
-    const toolsClicked = await clickFirstVisible(page, [
-      'button[aria-label*="tool" i]',
-      '[data-testid*="tools-button"]',
-    ]) || await clickButtonByText(page, 'tools', 3000);
+    const toolsClicked = await clickByAriaLabel(page, 'Select a specific Tool to search the internet or social media', 4000);
     if (toolsClicked) {
       await delay(TIMING.postClickDelay);
       await waitForLoaders(page);
-      await takeScreenshot(page, '08-tools-dropdown', 'home');
-      await page.keyboard.press('Escape').catch(() => {});
-      await delay(300);
-    }
-  } catch (e) {
-    console.log('  Could not capture tools dropdown');
-  }
-
-  // Upload/attach button (the + button to the left of the text input)
-  try {
-    const uploadClicked = await clickFirstVisible(page, [
-      'button[aria-label*="upload" i]',
-      'button[aria-label*="attach" i]',
-      'button[aria-label*="add" i]',
-      '[data-testid*="upload-button"]',
-      '[data-testid*="attach-button"]',
-      '[class*="uploadButton" i]',
-      '[class*="attachButton" i]',
-    ]);
-    if (uploadClicked) {
-      await delay(TIMING.postClickDelay);
-      await waitForLoaders(page);
-      // Verify something changed (dropdown/popover appeared)
-      const hasUploadUI = await waitForContent(page, [
-        '[role="menu"]', '[class*="dropdown" i]', '[class*="popover" i]',
-        '[class*="upload" i]', '[class*="attach" i]',
-      ], 3000);
-      if (hasUploadUI) {
-        await takeScreenshot(page, '09-upload-button', 'home');
-      } else {
-        console.log('  ⚠ Upload button clicked but no UI appeared');
-      }
+      sectionOk = Boolean(await takeScreenshot(page, '08-tools-dropdown', 'home', {
+        requiredTexts: ['Web Research', 'TikTok'],
+        requiredTextMode: 'all',
+        requireMenu: true,
+        minMainTextLength: 140,
+      })) && sectionOk;
       await page.keyboard.press('Escape').catch(() => {});
       await delay(300);
     } else {
-      console.log('  ⚠ Could not find upload/attach button');
+      console.log('  ⚠ Could not open tools dropdown');
+      sectionOk = false;
+    }
+  } catch (e) {
+    console.log('  Could not capture tools dropdown');
+    sectionOk = false;
+  }
+
+  // Upload/attach button (the + button to the left of the text input).
+  // This button opens a native file chooser, so hover for the tooltip instead of clicking.
+  try {
+    const uploadHovered = await hoverFirstVisible(page, [
+      'button[aria-label="Upload from your computer"]',
+      '[class*="uploadButton" i] button',
+    ]);
+    if (uploadHovered) {
+      await delay(TIMING.postClickDelay);
+      await waitForLoaders(page);
+      sectionOk = Boolean(await takeScreenshot(page, '09-upload-button', 'home', {
+        requiredTexts: ['Upload from your computer'],
+        minMainTextLength: 100,
+      })) && sectionOk;
+    } else {
+      console.log('  ⚠ Could not find upload button');
+      sectionOk = false;
     }
   } catch (e) {
     console.log('  Could not capture upload button');
+    sectionOk = false;
   }
 
   // Try to capture an existing conversation with a response
@@ -1059,7 +1473,7 @@ async function captureHome(page) {
     console.log('  Could not capture conversation with response');
   }
 
-  return true;
+  return sectionOk;
 }
 
 async function captureAgents(page) {
@@ -1086,7 +1500,14 @@ async function captureAgents(page) {
   // Extra settle time for any final rendering
   await delay(500);
 
-  await takeScreenshot(page, '01-agents-gallery', 'agents');
+  let sectionOk = true;
+
+  sectionOk = Boolean(await takeScreenshot(page, '01-agents-gallery', 'agents', {
+    routeIncludes: ['/agents'],
+    requiredSelectors: ['[data-testid="agent-card"]', '[class*="agentCard"]', '[class*="personaCard"]'],
+    requiredSelectorMode: 'any',
+    minMainTextLength: 100,
+  })) && sectionOk;
 
   // For the search screenshot, type a search term to show the filter in action
   try {
@@ -1496,17 +1917,43 @@ async function captureAgents(page) {
           }
 
           // The first step (Objective) is already active after clicking Edit Agent.
-          await takeScreenshot(page, '05-builder-objective', 'agents');
+          sectionOk = Boolean(await takeScreenshot(page, '05-builder-objective', 'agents', {
+            routeIncludes: ['/agents/builder-v2/'],
+            requiredTexts: ['Objective'],
+            minMainTextLength: 100,
+          })) && sectionOk;
 
           // Navigate through remaining builder steps using direct URL navigation.
           // Each step maps to /agents/builder-v2/{id}/{stepSlug} per
           // useAgentBuilderNavigation in the frontend source.
           const steps = [
-            { slug: 'facets', shot: '06-builder-facets', contentHints: ['facet', 'add facet'] },
-            { slug: 'instructions', shot: '07-builder-instructions', contentHints: ['instruction', 'behavior'] },
-            { slug: 'identity', shot: '08-builder-identity', contentHints: ['name', 'biography', 'voice'] },
-            { slug: 'appearance', shot: '09-builder-appearance', contentHints: ['appearance', 'avatar', 'image'] },
-            { slug: 'review', shot: '10-builder-review', contentHints: ['review', 'credential', 'summary'] }
+            { slug: 'facets', shot: '06-builder-facets', contentHints: ['Facet Values'], requiredTexts: ['Facet Values'] },
+            {
+              slug: 'instructions',
+              shot: '07-builder-instructions',
+              contentHints: ['Optional Settings'],
+              requiredTexts: ['Optional Settings'],
+            },
+            {
+              slug: 'identity',
+              shot: '08-builder-identity',
+              contentHints: ['Identity', 'Voice'],
+              requiredTexts: ['Identity', 'Voice'],
+              requiredTextMode: 'all',
+            },
+            {
+              slug: 'appearance',
+              shot: '09-builder-appearance',
+              contentHints: ['Appearance', 'Physical Description'],
+              requiredTexts: ['Appearance', 'Physical Description'],
+              requiredTextMode: 'all',
+            },
+            {
+              slug: 'review',
+              shot: '10-builder-review',
+              contentHints: ['Mint Agent', 'Save Changes', 'Preview'],
+              requiredTexts: ['Preview'],
+            }
           ];
 
           for (const step of steps) {
@@ -1533,23 +1980,26 @@ async function captureAgents(page) {
               await waitForBodyTextAny(page, step.contentHints, 12000);
             }
 
-            // Verify we have renderable content (not just a loading icon)
-            const hasContent = await hasRenderableMainContent(page);
-            if (!hasContent) {
-              console.log(`  ⚠ Skipping builder step ${step.slug} — no renderable content`);
-              continue;
+            const stepShot = await takeScreenshot(page, step.shot, 'agents', {
+              routeIncludes: [`/agents/builder-v2/${benchmarkBuilderId}/${step.slug}`],
+              requiredTexts: step.requiredTexts,
+              requiredTextMode: step.requiredTextMode || 'any',
+              minMainTextLength: 100,
+            });
+            if (!stepShot) {
+              sectionOk = false;
             }
-
-            await takeScreenshot(page, step.shot, 'agents');
           }
 
-          capturedBuilderSteps = true;
+          capturedBuilderSteps = sectionOk;
         } else {
           console.log('  ⚠ Could not find "Edit Agent" button on builder-v2 view');
+          sectionOk = false;
         }
       }
     } catch (e) {
       console.log(`  ⚠ Could not capture builder steps from edit view: ${e.message}`);
+      sectionOk = false;
     }
   }
 
@@ -1585,20 +2035,52 @@ async function captureAgents(page) {
       if (isModal) {
         console.log('  ✓ Generate Agent modal detected');
       } else {
-        console.log('  ⚠ Create Agent opened Classic Builder page instead of modal');
+        console.log('  ⚠ Create Agent opened Classic Builder page instead of modal; trying "Try the New Builder" fallback');
+        const openedFromClassicBuilder =
+          (await clickButtonByText(page, 'try the new builder', 4000)) ||
+          (await clickButtonByText(page, 'generate agent', 2500));
+        if (openedFromClassicBuilder) {
+          await delay(TIMING.postClickDelay);
+          await waitForNetworkIdle(page);
+          await waitForLoaders(page);
+        } else {
+          recordSectionIssue('agents', 'create-agent-opened-classic-builder', {url: page.url()});
+        }
       }
 
-      await takeScreenshot(page, '05a-create-agent-modal', 'agents');
+      const modalShot = await takeScreenshot(page, '05a-create-agent-modal', 'agents', {
+        requiredSelectors: ['[data-testid="generate-agent-modal"]', '[data-testid="generate-agent-form"]'],
+        requiredSelectorMode: 'any',
+        requiredTexts: ['Generate Agent', 'Agent Objective'],
+        requiredTextMode: 'all',
+        requireDialog: true,
+        containerSelector: '[data-testid="generate-agent-modal"], [data-testid="generate-agent-form"], [role="dialog"]',
+        allowVisibleLoaders: true,
+        allowCenteredSpinner: true,
+        // This modal is intentionally compact and can render over the classic builder shell,
+        // so dialog-specific text is lower than a full page even when the form is complete.
+        minMainTextLength: 90,
+      });
+      if (!modalShot || !isModal) {
+        sectionOk = false;
+        if (!modalShot) {
+          recordSectionIssue('agents', 'generate-agent-modal-missing', {url: page.url()});
+        }
+      }
     } else {
       console.log('  ⚠ Could not open Create Agent modal');
+      sectionOk = false;
+      recordSectionIssue('agents', 'create-agent-button-missing', {url: page.url()});
     }
   } catch (e) {
     console.log(`  Could not capture Create Agent modal: ${e.message}`);
+    sectionOk = false;
+    recordSectionIssue('agents', 'create-agent-modal-error', {detail: e.message, url: page.url()});
   }
 
   // Return to Agents list
   await gotoWithRetry(page, agentsUrl, { label: 'agents-return' });
-  return true;
+  return sectionOk;
 }
 
 async function capturePeople(page) {
@@ -1628,14 +2110,40 @@ async function capturePeople(page) {
   // Wait for population card avatar images to finish loading
   await waitForImages(page, 8000);
 
-  await takeScreenshot(page, '01-people-main', 'people');
+  let sectionOk = true;
+
+  sectionOk = Boolean(await takeScreenshot(page, '01-people-main', 'people', {
+    routeIncludes: ['/people', '/audience'],
+    minMainTextLength: 100,
+  })) && sectionOk;
 
   // Sub-pages (try /people first, then /audience).
   const subPages = [
-    { paths: ['/people/populations', '/audience/populations'], name: '02-populations' },
-    { paths: ['/people/humans', '/audience/community'], name: '03-humans' },
-    { paths: ['/people/lists', '/audience/lists'], name: '04-lists-segments' },
-    { paths: ['/people/properties', '/audience/properties'], name: '05-properties' },
+    {
+      paths: ['/people/populations', '/audience/populations'],
+      name: '02-populations',
+      routeIncludes: ['/populations'],
+      requiredTexts: ['Populations'],
+    },
+    {
+      paths: ['/people/humans', '/audience/community'],
+      name: '03-humans',
+      routeIncludes: ['/humans', '/community'],
+      requiredSelectors: ['table tbody tr [data-testid="creator-name"]', 'table tbody tr'],
+      requiredTexts: ['Last Active'],
+    },
+    {
+      paths: ['/people/lists', '/audience/lists'],
+      name: '04-lists-segments',
+      routeIncludes: ['/lists'],
+      requiredTexts: ['Lists', 'Segments'],
+    },
+    {
+      paths: ['/people/properties', '/audience/properties'],
+      name: '05-properties',
+      routeIncludes: ['/properties'],
+      requiredTexts: ['Properties'],
+    },
   ];
 
   for (const subPage of subPages) {
@@ -1644,9 +2152,7 @@ async function capturePeople(page) {
       for (const p of subPage.paths) {
         const subUrl = getWorkspaceUrl(p);
         if (await gotoWithRetry(page, subUrl, { label: subPage.name })) {
-          // Verify we actually reached the People section (not redirected to Home)
-          const pathSegment = p.split('/').filter(Boolean).pop(); // e.g. "humans", "lists"
-          if (!isOnExpectedRoute(page, 'people') && !isOnExpectedRoute(page, 'audience')) {
+          if (!urlIncludesOneOf(page.url(), subPage.routeIncludes)) {
             console.log(`  ⚠ Redirected away from ${p} — skipping ${subPage.name}`);
             continue;
           }
@@ -1658,14 +2164,26 @@ async function capturePeople(page) {
           await waitForLoaders(page, 5000);
           // Wait for avatar/profile images on population and human cards
           await waitForImages(page, 6000);
-          await takeScreenshot(page, subPage.name, 'people');
+          const subPageShot = await takeScreenshot(page, subPage.name, 'people', {
+            routeIncludes: subPage.routeIncludes,
+            requiredSelectors: subPage.requiredSelectors || [],
+            requiredTexts: subPage.requiredTexts || [],
+            minMainTextLength: 100,
+          });
+          if (!subPageShot) {
+            sectionOk = false;
+          }
           did = true;
           break;
         }
       }
-      if (!did) console.log(`  ⚠ Could not capture ${subPage.name}`);
+      if (!did) {
+        console.log(`  ⚠ Could not capture ${subPage.name}`);
+        sectionOk = false;
+      }
     } catch (e) {
       console.log(`  Could not capture ${subPage.name}: ${e.message}`);
+      sectionOk = false;
     }
   }
 
@@ -1693,8 +2211,7 @@ async function capturePeople(page) {
       const humansUrl = getWorkspaceUrl(p);
       if (!(await gotoWithRetry(page, humansUrl, { label: 'people-humans' }))) continue;
 
-      // Verify we're on the humans page (not redirected to Home)
-      if (!isOnExpectedRoute(page, 'people') && !isOnExpectedRoute(page, 'audience')) {
+      if (!urlIncludesOneOf(page.url(), ['/humans', '/community'])) {
         console.log('  ⚠ Redirected away from humans page — skipping contact profile');
         continue;
       }
@@ -1702,54 +2219,39 @@ async function capturePeople(page) {
       // Wait for the table to load
       await waitForContent(page, ['table tbody tr'], 8000);
 
-      // Click the NAME link in the first column, not the action menu button
-      const clicked = await page.evaluate(() => {
-        const row = document.querySelector('table tbody tr');
-        if (!row) return false;
-        // Target the first cell's link (the name link)
-        const firstCell = row.querySelector('td:first-child');
-        if (firstCell) {
-          const nameLink = firstCell.querySelector('a');
-          if (nameLink) {
-            nameLink.click();
-            return true;
-          }
-        }
-        // Fallback: click the first <a> tag that looks like a profile link
-        const links = Array.from(row.querySelectorAll('a'));
-        const profileLink = links.find((a) => {
-          const href = a.getAttribute('href') || '';
-          return href.includes('profile') || href.includes('contact') || href.includes('human');
-        });
-        if (profileLink) {
-          profileLink.click();
-          return true;
-        }
-        // Last resort: click the row itself (may open profile or context menu)
-        row.click();
-        return true;
-      });
+      const clicked = await clickFirstCreatorProfileTrigger(page);
       if (!clicked) continue;
       await delay(TIMING.postClickDelay);
       await waitForNetworkIdle(page);
       await waitForLoaders(page);
 
-      // Verify we navigated to a profile page (not just opened a context menu)
-      const hasProfileContent = await waitForContent(page, [
-        '[class*="profile" i]',
-        '[class*="contactDetail" i]',
-        '[class*="humanDetail" i]',
-        '[class*="basicInfo" i]',
-      ], 5000);
+      const hasProfileContent =
+        (await waitForBodyTextAny(page, ['Total responses', 'Video minutes', 'Summary'], 6000)) ||
+        (await waitForContent(page, ['[role="dialog"]', '[class*="modal" i]'], 2000));
       if (!hasProfileContent) {
         console.log('  ⚠ Click did not navigate to contact profile — may have opened context menu');
+        sectionOk = false;
+        recordSectionIssue('people', 'contact-profile-did-not-open', {url: page.url()});
+        continue;
       }
 
-      await takeScreenshot(page, '03a-contact-profile', 'people');
+      const profileShot = await takeScreenshot(page, '03a-contact-profile', 'people', {
+        requiredTexts: ['Total responses', 'Video minutes', 'Summary'],
+        requiredTextMode: 'all',
+        requireDialog: true,
+        containerSelector: '[role="dialog"], [class*="modal" i]',
+        minMainTextLength: 120,
+      });
+      if (!profileShot) {
+        sectionOk = false;
+        recordSectionIssue('people', 'contact-profile-screenshot-failed', {url: page.url()});
+      }
       break;
     }
   } catch (e) {
     console.log(`  Could not capture contact profile: ${e.message}`);
+    sectionOk = false;
+    recordSectionIssue('people', 'contact-profile-error', {detail: e.message, url: page.url()});
   }
 
   try {
@@ -1764,8 +2266,9 @@ async function capturePeople(page) {
         continue;
       }
 
-      // First, try to switch from "Lists" to "Segments" view using the dropdown/toggle
       const switchedToSegments =
+        ((await clickFirstVisible(page, ['[data-testid="view-select-dropdown"]'])) &&
+          (await clickFirstVisible(page, ['[data-testid="select-segments-option"]']))) ||
         (await clickButtonByText(page, 'segments', 2500)) ||
         (await clickFirstVisible(page, [
           '[data-testid*="segment-tab"]',
@@ -1807,14 +2310,28 @@ async function capturePeople(page) {
         console.log('  ⚠ Opened "New List" dialog instead of Segment Builder — dismissing');
         await dismissAnyModal(page);
         await delay(300);
+        sectionOk = false;
+        recordSectionIssue('people', 'segment-builder-opened-new-list-dialog', {url: page.url()});
         continue;
       }
 
-      await takeScreenshot(page, '04a-segment-builder', 'people');
+      const segmentShot = await takeScreenshot(page, '04a-segment-builder', 'people', {
+        requiredTexts: ['New Segment', 'Segment Name', 'Add rule'],
+        requiredTextMode: 'all',
+        requireDialog: true,
+        containerSelector: '[role="dialog"], [class*="modal" i]',
+        minMainTextLength: 120,
+      });
+      if (!segmentShot) {
+        sectionOk = false;
+        recordSectionIssue('people', 'segment-builder-screenshot-failed', {url: page.url()});
+      }
       break;
     }
   } catch (e) {
     console.log(`  Could not capture segment builder: ${e.message}`);
+    sectionOk = false;
+    recordSectionIssue('people', 'segment-builder-error', {detail: e.message, url: page.url()});
   }
 
   try {
@@ -1880,7 +2397,7 @@ async function capturePeople(page) {
     console.log(`  Could not capture people search/filter: ${e.message}`);
   }
 
-  return true;
+  return sectionOk;
 }
 
 async function captureCampaigns(page) {
@@ -2443,7 +2960,14 @@ async function captureWorkflows(page) {
     '[class*="orchestration"]'
   ]);
 
-  await takeScreenshot(page, '01-workflows-main', 'workflows');
+  let sectionOk = true;
+
+  sectionOk = Boolean(await takeScreenshot(page, '01-workflows-main', 'workflows', {
+    routeIncludes: ['/workflow'],
+    requiredSelectors: ['[data-testid="workflow-card"]', '[class*="workflowCard"]'],
+    requiredSelectorMode: 'any',
+    minMainTextLength: 100,
+  })) && sectionOk;
 
   // Try to open a workflow detail (Build tab) by clicking a workflow card
   // Workflow cards are <div> elements with onClick handlers (not <a> tags)
@@ -2480,40 +3004,99 @@ async function captureWorkflows(page) {
       ], 8000);
 
       if (hasCanvas) {
-        await takeScreenshot(page, '06-workflow-build-tab', 'workflows');
-        workflowDetailCaptured = true;
+        const buildShot = await takeScreenshot(page, '06-workflow-build-tab', 'workflows', {
+          routeIncludes: ['/workflow'],
+          requiredSelectors: ['[data-testid="workflow-title"]'],
+          requiredTexts: ['Build', 'Run Workflow'],
+          requiredTextMode: 'all',
+          minMainTextLength: 140,
+          minStructuredElements: 1,
+        });
+        workflowDetailCaptured = Boolean(buildShot);
+        if (!buildShot) {
+          sectionOk = false;
+        }
 
-        // Try to capture a node being edited (may require double-click)
+        // Capture the workflow-specific modals directly from the Build tab.
         try {
-          // First try a single click on a node
-          const nodeEl = await page.$('[class*="agentTaskNode" i], [class*="react-flow__node" i], [data-testid*="node"]');
-          if (nodeEl) {
-            // Try double-click to open the editor (some UIs require it)
-            await nodeEl.click({ clickCount: 2 });
-            await delay(TIMING.postClickDelay * 2);
+          const variablesOpened = await clickFirstVisible(page, ['[data-testid="manage-variables-button"]']);
+          if (variablesOpened) {
+            await delay(TIMING.postClickDelay);
+            await waitForNetworkIdle(page);
+            await waitForLoaders(page);
+            const variablesShot = await takeScreenshot(page, '07-workflow-variables-modal', 'workflows', {
+              routeIncludes: ['/workflow'],
+              requiredTexts: ['Manage Workflow Variables'],
+              requireDialog: true,
+              containerSelector: '[role="dialog"], [class*="modal" i]',
+              minMainTextLength: 120,
+            });
+            if (!variablesShot) {
+              sectionOk = false;
+              recordSectionIssue('workflows', 'variables-modal-screenshot-failed', {url: page.url()});
+            }
+            await dismissAnyModal(page).catch(() => {});
+            await delay(300);
+          } else {
+            sectionOk = false;
+            recordSectionIssue('workflows', 'manage-variables-button-missing', {url: page.url()});
+          }
+
+          const sourcesOpened = await clickButtonByText(page, 'add source', 3000);
+          if (sourcesOpened) {
+            await delay(TIMING.postClickDelay);
+            await waitForNetworkIdle(page);
+            await waitForLoaders(page);
+            const sourcesShot = await takeScreenshot(page, '07a-workflow-sources-modal', 'workflows', {
+              routeIncludes: ['/workflow'],
+              requiredTexts: ['Choose Sources'],
+              requireDialog: true,
+              containerSelector: '[role="dialog"], [class*="modal" i]',
+              minMainTextLength: 120,
+            });
+            if (!sourcesShot) {
+              sectionOk = false;
+              recordSectionIssue('workflows', 'sources-modal-screenshot-failed', {url: page.url()});
+            }
+            await dismissAnyModal(page).catch(() => {});
+            await delay(300);
+          } else {
+            sectionOk = false;
+            recordSectionIssue('workflows', 'add-source-button-missing', {url: page.url()});
+          }
+
+          const addAgentOpened = await clickFirstVisible(page, ['[data-testid="add-agent-button"]']);
+          if (addAgentOpened) {
+            await delay(TIMING.postClickDelay);
             await waitForNetworkIdle(page);
             await waitForLoaders(page);
 
-            // Wait for an editor panel/drawer/sidebar to appear
-            const hasEditorPanel = await waitForContent(page, [
-              '[class*="nodeEditor" i]',
-              '[class*="sidePanel" i]',
-              '[class*="taskEditor" i]',
-              '[class*="drawer" i][class*="open" i]',
-              '[class*="nodeDetail" i]',
-            ], 5000);
-
-            if (!hasEditorPanel) {
-              // Fallback: try single click (some UIs use single click for selection)
-              await nodeEl.click();
-              await delay(TIMING.postClickDelay);
-              await waitForLoaders(page);
+            const needsAgentChoice = await bodyTextMatches(page, ['Agents', 'Populations'], 'all');
+            if (needsAgentChoice) {
+              await clickButtonByText(page, 'agents', 2500).catch(() => false);
+              await delay(300);
             }
 
-            await takeScreenshot(page, '07-workflow-node-editor', 'workflows');
+            const agentModalShot = await takeScreenshot(page, '07b-workflow-select-agent-modal', 'workflows', {
+              routeIncludes: ['/workflow'],
+              requiredSelectors: ['[data-testid="select-agent-modal"]', '[aria-label="select-agent"]'],
+              requiredSelectorMode: 'any',
+              requiredTexts: ['Select Agent'],
+              requireDialog: true,
+              containerSelector: '[data-testid="select-agent-modal"], [aria-label="select-agent"], [role="dialog"]',
+              minMainTextLength: 120,
+            });
+            if (agentModalShot) {
+              await dismissAnyModal(page).catch(() => {});
+              await delay(300);
+            }
+          } else {
+            console.log('  ℹ Add Agent button not present on this workflow canvas');
           }
         } catch (e) {
-          console.log('  Could not capture node editor');
+          console.log(`  Could not capture workflow build modals: ${e.message}`);
+          sectionOk = false;
+          recordSectionIssue('workflows', 'workflow-build-modal-error', {detail: e.message, url: page.url()});
         }
 
         // Click the "View" tab to show completed workflow results
@@ -2525,23 +3108,35 @@ async function captureWorkflows(page) {
             await delay(TIMING.postClickDelay);
             await waitForNetworkIdle(page);
             await waitForLoaders(page);
-            await takeScreenshot(page, '06a-workflow-view-tab', 'workflows');
+            const viewShot = await takeScreenshot(page, '06a-workflow-view-tab', 'workflows', {
+              routeIncludes: ['/workflow'],
+              requiredSelectors: ['[data-testid="workflow-title"]'],
+              requiredTexts: ['View'],
+              minMainTextLength: 120,
+              minStructuredElements: 1,
+            });
+            if (!viewShot) {
+              sectionOk = false;
+            }
           } else {
             console.log('  View tab not clickable (workflow may not have completed runs)');
+            sectionOk = false;
           }
         } catch (e) {
           console.log(`  Could not capture View tab: ${e.message}`);
+          sectionOk = false;
         }
       } else {
         console.log('  Workflow detail loaded but no canvas/builder found');
-        await takeScreenshot(page, '06-workflow-build-tab', 'workflows');
-        workflowDetailCaptured = true;
+        sectionOk = false;
       }
     } else {
       console.log('  No workflow cards found on main page');
+      sectionOk = false;
     }
   } catch (e) {
     console.log(`  Could not capture workflow detail: ${e.message}`);
+    sectionOk = false;
   }
 
   // Workflow Create dialog (from gallery) — captures the creation modal.
@@ -2562,13 +3157,23 @@ async function captureWorkflows(page) {
         await delay(TIMING.postClickDelay);
         await waitForNetworkIdle(page);
         await waitForLoaders(page);
-        await takeScreenshot(page, '02-workflow-builder', 'workflows');
+        const createShot = await takeScreenshot(page, '02-workflow-builder', 'workflows', {
+          requiredTexts: ['Create Workflow'],
+          requireDialog: true,
+          minMainTextLength: 120,
+        });
+        if (!createShot) {
+          sectionOk = false;
+        }
         await page.keyboard.press('Escape').catch(() => {});
         await delay(400);
+      } else {
+        sectionOk = false;
       }
     }
   } catch (e) {
     console.log(`  Could not capture workflow create dialog: ${e.message}`);
+    sectionOk = false;
   }
 
   // Sub-pages - navigate via tab clicks from the main workflow page for reliability.
@@ -2605,9 +3210,16 @@ async function captureWorkflows(page) {
             '[class*="conversation" i]', '[class*="upcoming" i]',
             '[class*="empty" i]', '[class*="noData" i]',
           ], 8000);
-          await takeScreenshot(page, subPage.name, 'workflows');
+          const subPageShot = await takeScreenshot(page, subPage.name, 'workflows', {
+            routeIncludes: [subPage.path.replace('/workflow', '') === '' ? '/workflow' : subPage.path],
+            minMainTextLength: 100,
+          });
+          if (!subPageShot) {
+            sectionOk = false;
+          }
         } else {
           console.log(`  ⚠ Tab click for ${subPage.name} redirected away from workflow section`);
+          sectionOk = false;
         }
       } else {
         // Fallback: try direct URL navigation
@@ -2615,14 +3227,22 @@ async function captureWorkflows(page) {
         if (await gotoWithRetry(page, subUrl, { label: `workflow-${subPage.name}` })) {
           if (isOnExpectedRoute(page, 'workflow')) {
             await waitForContent(page, ['table', '[class*="card" i]', 'button'], 8000);
-            await takeScreenshot(page, subPage.name, 'workflows');
+            const subPageShot = await takeScreenshot(page, subPage.name, 'workflows', {
+              routeIncludes: [subPage.path],
+              minMainTextLength: 100,
+            });
+            if (!subPageShot) {
+              sectionOk = false;
+            }
           } else {
             console.log(`  ⚠ Direct navigation to ${subPage.path} redirected — skipping ${subPage.name}`);
+            sectionOk = false;
           }
         }
       }
     } catch (e) {
       console.log(`  Could not capture ${subPage.name}: ${e.message}`);
+      sectionOk = false;
     }
   }
 
@@ -2685,18 +3305,27 @@ async function captureWorkflows(page) {
 
           // Verify we're on a workflow detail page, not a general chat
           if (isOnExpectedRoute(page, 'workflow')) {
-            await takeScreenshot(page, '08-workflow-run-detail', 'workflows');
+            const runDetailShot = await takeScreenshot(page, '08-workflow-run-detail', 'workflows', {
+              routeIncludes: ['/workflow'],
+              minMainTextLength: 120,
+              minStructuredElements: 1,
+            });
+            if (!runDetailShot) {
+              sectionOk = false;
+            }
           } else {
             console.log('  ⚠ Run click navigated outside workflow section — skipping run detail');
+            sectionOk = false;
           }
         }
       }
     }
   } catch (e) {
     console.log(`  Could not capture workflow run detail: ${e.message}`);
+    sectionOk = false;
   }
 
-  return true;
+  return sectionOk;
 }
 
 // ── New section capture functions ──────────────────────────────────
@@ -2714,7 +3343,12 @@ async function captureSettings(page) {
     '[class*="form" i]',
   ]);
 
-  await takeScreenshot(page, '01-general-settings', 'settings');
+  let sectionOk = true;
+
+  sectionOk = Boolean(await takeScreenshot(page, '01-general-settings', 'settings', {
+    routeIncludes: ['/workspace/settings'],
+    minMainTextLength: 100,
+  })) && sectionOk;
 
   // AI Models sub-page
   try {
@@ -2726,10 +3360,21 @@ async function captureSettings(page) {
         '[class*="model" i]',
         'input',
       ]);
-      await takeScreenshot(page, '02-ai-models', 'settings');
+      const aiShot = await takeScreenshot(page, '02-ai-models', 'settings', {
+        routeIncludes: ['/workspace/settings/ai-models'],
+        minMainTextLength: 100,
+      });
+      if (!aiShot) {
+        sectionOk = false;
+      }
+    } else {
+      sectionOk = false;
+      recordSectionIssue('settings', 'ai-models-route-failed', {url: aiUrl});
     }
   } catch (e) {
     console.log(`  Could not capture AI models: ${e.message}`);
+    sectionOk = false;
+    recordSectionIssue('settings', 'ai-models-error', {detail: e.message, url: page.url()});
   }
 
   // Members sub-page
@@ -2741,10 +3386,21 @@ async function captureSettings(page) {
         '[class*="member" i]',
         '[class*="workspaceMembers" i]',
       ]);
-      await takeScreenshot(page, '03-members', 'settings');
+      const membersShot = await takeScreenshot(page, '03-members', 'settings', {
+        routeIncludes: ['/workspace/members'],
+        minMainTextLength: 100,
+      });
+      if (!membersShot) {
+        sectionOk = false;
+      }
+    } else {
+      sectionOk = false;
+      recordSectionIssue('settings', 'members-route-failed', {url: membersUrl});
     }
   } catch (e) {
     console.log(`  Could not capture members: ${e.message}`);
+    sectionOk = false;
+    recordSectionIssue('settings', 'members-error', {detail: e.message, url: page.url()});
   }
 
   // API Management sub-page (may be feature-flagged off)
@@ -2753,17 +3409,32 @@ async function captureSettings(page) {
     if (await gotoWithRetry(page, apiUrl, { label: 'settings-api-management' })) {
       // Check if we're still on the api-management page (might redirect if disabled)
       if (page.url().includes('api-management')) {
-        await takeScreenshot(page, '04-api-management', 'settings');
+        const apiShot = await takeScreenshot(page, '04-api-management', 'settings', {
+          routeIncludes: ['/workspace/settings/api-management'],
+          requiredTexts: ['API Management Not Available', 'Create API Key', 'View API Docs', 'No API keys found.'],
+          minMainTextLength: 100,
+        });
+        if (!apiShot) {
+          sectionOk = false;
+        }
+      } else {
+        sectionOk = false;
+        recordSectionIssue('settings', 'api-management-redirected', {url: page.url()});
       }
+    } else {
+      sectionOk = false;
+      recordSectionIssue('settings', 'api-management-route-failed', {url: apiUrl});
     }
   } catch (e) {
     console.log(`  Could not capture API management: ${e.message}`);
+    sectionOk = false;
+    recordSectionIssue('settings', 'api-management-error', {detail: e.message, url: page.url()});
   }
 
   // Billing/Plan info is already visible in General Settings (01-general-settings.png)
   // so we no longer capture a separate duplicate screenshot for it.
 
-  return true;
+  return sectionOk;
 }
 
 async function captureForecast(page) {
@@ -2787,14 +3458,23 @@ async function captureForecast(page) {
     '[class*="chart" i]',
     'canvas',
     'table',
+    '[class*="forecastInputs" i]',
+    '[class*="chartWrapper" i]',
   ]);
   if (!hasForecastContent) {
     console.log('  ⚠ Forecast page loaded without expected content. Skipping forecast capture.');
     return true;
   }
 
-  await takeScreenshot(page, '01-forecast-main', 'forecast');
-  return true;
+  const forecastShot = await takeScreenshot(page, '01-forecast-main', 'forecast', {
+    routeIncludes: ['/forecast'],
+    requiredTexts: ['Forecast', 'Time Granularity'],
+    requiredTextMode: 'all',
+    requiredSelectors: ['[class*="forecastInputs" i]', '[class*="chartWrapper" i]'],
+    requiredSelectorMode: 'all',
+    minMainTextLength: 120,
+  });
+  return Boolean(forecastShot);
 }
 
 async function captureRewards(page) {
@@ -2984,13 +3664,18 @@ async function main() {
     }
 
     const failed = captureResults.filter((r) => !r.ok).map((r) => r.name);
+    await writeCaptureReport({
+      sectionResults: captureResults,
+      failedSections: failed,
+      fullRun: CONFIG.captureOnly.length === 0,
+    });
     console.timeEnd('Total screenshot capture');
     if (failed.length) {
       console.log('\n==========================================');
       console.log(` Screenshot capture finished with failures: ${failed.join(", ")}`);
       console.log(' See qa-output/capture-screenshots/ for retry/error artifacts.');
       console.log('==========================================\n');
-      if (CONFIG.strict) process.exit(1);
+      if (CONFIG.strict) process.exitCode = 1;
     } else {
       console.log('\n==========================================');
       console.log(' All screenshots captured successfully!');
@@ -3000,8 +3685,14 @@ async function main() {
   } catch (error) {
     console.error('\n Error during screenshot capture:', error.message);
     await takeArtifactScreenshot(loginPage, 'capture-error').catch(() => {});
-    if (CONFIG.strict) process.exit(1);
-    console.log('  ⚠ Non-strict mode: exiting 0 despite screenshot capture error');
+    await writeCaptureReport({
+      fatalError: error.message,
+      fullRun: CONFIG.captureOnly.length === 0,
+    });
+    if (CONFIG.strict) process.exitCode = 1;
+    if (!CONFIG.strict) {
+      console.log('  ⚠ Non-strict mode: exiting 0 despite screenshot capture error');
+    }
   } finally {
     await browser.close();
   }

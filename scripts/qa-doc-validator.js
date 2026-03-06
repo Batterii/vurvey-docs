@@ -37,6 +37,7 @@ const repoRoot = path.join(__dirname, "..");
 const docsDir = path.join(repoRoot, "docs", "guide");
 const screenshotsDir = path.join(repoRoot, "docs", "public", "screenshots");
 const outDir = path.join(repoRoot, "qa-output");
+const captureReportPath = path.join(outDir, "capture-screenshots", "capture-report.json");
 
 const config = {
   email: process.env.VURVEY_EMAIL,
@@ -46,6 +47,8 @@ const config = {
   headless: process.env.HEADLESS !== "false",
   timeoutMs: 30000,
 };
+
+let screenshotCaptureReport = new Map();
 
 // ─── Claim Extraction ──────────────────────────────────────────────
 
@@ -74,8 +77,8 @@ async function extractClaims(filePath) {
     const line = lines[i];
     const lineNum = i + 1;
 
-    // Screenshot references: ![alt](/vurvey-docs/screenshots/...)
-    const imgRe = /!\[.*?\]\((\/vurvey-docs\/screenshots\/[^)]+)\)/g;
+    // Screenshot references: ![alt](/screenshots/...) or ![alt](/vurvey-docs/screenshots/...)
+    const imgRe = /!\[.*?\]\((\/(?:vurvey-docs\/)?screenshots\/[^)]+)\)/g;
     for (const m of line.matchAll(imgRe)) {
       // Strip ?optional=1 for path check
       const imgPath = m[1].split("?")[0];
@@ -117,12 +120,16 @@ async function extractClaims(filePath) {
  * @returns {Promise<{verified: boolean, detail: string}>}
  */
 async function verifyScreenshot(claim) {
-  // /vurvey-docs/screenshots/... maps to docs/public/screenshots/...
-  const rel = claim.value.replace(/^\/vurvey-docs\/screenshots\//, "");
+  // /screenshots/... and /vurvey-docs/screenshots/... both map to docs/public/screenshots/...
+  const rel = claim.value.replace(/^\/(?:vurvey-docs\/)?screenshots\//, "");
   const fullPath = path.join(screenshotsDir, rel);
   try {
     const stat = await fs.stat(fullPath);
     if (stat.size > 0) {
+      const reportEntry = screenshotCaptureReport.get(rel.replace(/\\/g, "/"));
+      if (reportEntry && reportEntry.ok === false) {
+        return {verified: false, detail: `Capture report marked invalid: ${reportEntry.reason || "unknown reason"}`};
+      }
       return {verified: true, detail: `exists (${stat.size} bytes)`};
     }
     return {verified: false, detail: "File exists but is 0 bytes"};
@@ -177,6 +184,18 @@ async function main() {
   }
 
   await fs.mkdir(outDir, {recursive: true});
+
+  try {
+    const raw = await fs.readFile(captureReportPath, "utf8");
+    const parsed = JSON.parse(raw);
+    screenshotCaptureReport = new Map(
+      (parsed?.screenshots || [])
+        .filter((entry) => entry?.path)
+        .map((entry) => [String(entry.path).replace(/\\/g, "/"), entry])
+    );
+  } catch {
+    screenshotCaptureReport = new Map();
+  }
 
   // 1. Parse all guide markdown files
   console.log("Phase 1: Extracting testable claims from documentation...");
@@ -251,10 +270,10 @@ async function main() {
   const docToRoute = {
     "home.md": "/",
     "agents.md": "/agents",
-    "people.md": "/audience",
+    "people.md": "/people",
     "campaigns.md": "/campaigns",
     "datasets.md": "/datasets",
-    "workflows.md": "/workflow/flows",
+    "workflows.md": "/workflow",
     "settings.md": "/workspace/settings",
     "forecast.md": "/forecast",
     "rewards.md": "/rewards",

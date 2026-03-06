@@ -21,6 +21,12 @@ import puppeteer from 'puppeteer';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import {
+  login as sharedLogin,
+  gotoWorkspaceRoute,
+  waitForLoadersGone,
+  waitForNetworkIdle as sharedWaitForNetworkIdle,
+} from './lib/qa-browser-helpers.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -95,7 +101,7 @@ async function captureScreenshot(page, device, route) {
 
 async function waitForNetworkIdle(page, timeout = 5000) {
   try {
-    await page.waitForNetworkIdle({ idleTime: 1000, timeout });
+    await sharedWaitForNetworkIdle(page, timeout);
   } catch (e) {}
 }
 
@@ -302,34 +308,16 @@ async function testModalsAndDrawers(page, device, route) {
 
 async function login(page) {
   log(`Logging in to ${config.baseUrl}...`, 'info');
-
-  await page.goto(config.baseUrl, { waitUntil: 'networkidle2', timeout: config.timeout });
-  await page.waitForSelector('input[type="email"], input[name="email"]', { timeout: 10000 });
-  await page.type('input[type="email"], input[name="email"]', config.email);
-  await page.type('input[type="password"], input[name="password"]', config.password);
-
-  const submitButton = await page.$('button[type="submit"]');
-  if (submitButton) await submitButton.click();
-
-  await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
-
-  const url = page.url();
-  const workspaceMatch = url.match(/\/([a-f0-9-]{36})/);
-  const resolvedWorkspaceId = workspaceMatch ? workspaceMatch[1] : null;
-  const targetWorkspaceId = config.preferredWorkspaceId || resolvedWorkspaceId;
-
-  if (targetWorkspaceId && targetWorkspaceId !== resolvedWorkspaceId) {
-    log(`Switching to configured workspace: ${targetWorkspaceId}`, 'info');
-    await page.goto(`${config.baseUrl}/${targetWorkspaceId}/agents`, { waitUntil: 'networkidle2', timeout: config.timeout });
-    await waitForNetworkIdle(page);
-  }
-
-  if (targetWorkspaceId) {
-    log(`Login successful. Workspace: ${targetWorkspaceId}`, 'pass');
-    return targetWorkspaceId;
-  }
-
-  throw new Error('Could not extract workspace ID from URL');
+  const workspaceId = await sharedLogin(page, {
+    baseUrl: config.baseUrl,
+    email: config.email,
+    password: config.password,
+    fallbackWorkspaceId: config.preferredWorkspaceId,
+    preferredWorkspaceId: config.preferredWorkspaceId,
+    timeoutMs: config.timeout,
+  });
+  log(`Login successful. Workspace: ${workspaceId}`, 'pass');
+  return workspaceId;
 }
 
 async function runViewportTests(page, workspaceId, device, deviceConfig) {
@@ -350,14 +338,22 @@ async function runViewportTests(page, workspaceId, device, deviceConfig) {
     { route: '/agents', name: 'Agents' },
     { route: '/campaigns', name: 'Campaigns' },
     { route: '/datasets', name: 'Datasets' },
-    { route: '/audience', name: 'People' },
+    { route: '/people', name: 'People' },
     { route: '/workflow', name: 'Workflows' },
   ];
 
   for (const { route, name } of routes) {
-    const url = `${config.baseUrl}/${workspaceId}${route}`;
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: config.timeout });
+    const nav = await gotoWorkspaceRoute(page, workspaceId, route, {
+      baseUrl: config.baseUrl,
+      retries: 1,
+      timeoutMs: config.timeout,
+    });
+    if (!nav.ok) {
+      recordTest(device, name, 'Route loads', false, nav.error || 'Navigation failed');
+      continue;
+    }
     await waitForNetworkIdle(page);
+    await waitForLoadersGone(page, 12000);
 
     log(`\nTesting ${name} (${route})...`, 'info');
 

@@ -58,8 +58,22 @@ jobs:
           VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
           VURVEY_URL: https://staging.vurvey.dev
           HEADLESS: 'true'
-          CAPTURE_STRICT: 'false'
+          CAPTURE_STRICT: 'true'
         run: npm run update:screenshots
+
+      - name: Validate screenshot references and capture report
+        env:
+          DOCS_LINT_USE_CAPTURE_REPORT: 'true'
+        run: npm run lint:docs
+
+      - name: Upload capture artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-capture-artifacts
+          path: |
+            qa-output/capture-screenshots/
+          retention-days: 7
 
       - name: Check for changes
         id: git-check
@@ -134,6 +148,16 @@ jobs:
           QA_WEB_MANAGER_DIR: vurvey-web-manager
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm run test:qa:web-manager-playwright
+        continue-on-error: true
+
+      - name: Run mobile viewport QA
+        env:
+          VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
+          VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
+          VURVEY_URL: https://staging.vurvey.dev
+          HEADLESS: 'true'
+        run: npm run test:qa:mobile
         continue-on-error: true
 
       - name: Upload QA artifacts

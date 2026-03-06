@@ -1,227 +1,77 @@
 # Forecast
 
-Vurvey's Forecast feature uses AI-powered analytics to predict trends and patterns in your data. It provides multiple tools for model validation, comparison, and discovery of insights.
+Forecast is a workspace feature for structured forecasting and AI-generated analysis. In current `vurvey-web-manager` master, the visible Forecast shell exposes a single top-level tab: **Forecast**.
 
 ![Forecast main interface](/screenshots/forecast/01-forecast-main.png?optional=1)
 
-## Overview
+## Availability
 
-Forecast provides five main tools:
+Forecast is gated by the workspace field `forecastEnabled`.
 
-| Section | Purpose |
-|---------|---------|
-| **Forecast View** | Main analysis interface with AI-generated insights |
-| **Model Validation** | Validate forecast accuracy and confidence |
-| **Model Comparison** | Compare up to 5 different forecast models |
-| **Discover** | AI-powered pattern discovery from data |
-| **Optimize** | Optimization tools (coming soon) |
+- If Forecast is enabled, the page loads normally
+- If Forecast is disabled, the app redirects away from the Forecast section
 
-## Feature Flag Requirement
+This is not something users can currently toggle from the visible Settings UI.
 
-:::warning Workspace Configuration Required
-Forecast must be enabled in your workspace settings. If the feature is not available:
-1. Contact your workspace administrator
-2. Verify your workspace plan includes Forecast features
-3. Check that `forecastEnabled` is true in workspace settings
-:::
+## Current Visible Experience
 
-## Forecast View
+The main Forecast screen is built from three stacked sections:
 
-The main forecast interface lets you analyze trends with customizable parameters.
+1. **Forecast Inputs**
+2. **Chart**
+3. **AI analysis**
 
-### Input Parameters
+The visible input controls are:
 
-Configure your forecast analysis:
+| Input | Purpose |
+|---|---|
+| **Item** | What you want to forecast |
+| **Time Granularity** | The time scale for the forecast |
+| **Geography** | The geography tied to the selected item |
+| **Confidence Level** | The confidence setting used for the analysis |
 
-| Parameter | Description | Options |
-|-----------|-------------|---------|
-| **Item** | What you're forecasting | Selectable from available items |
-| **Geography** | Region for analysis | Location-specific options |
-| **Time Granularity** | Analysis period | Daily, Weekly, Monthly, Quarterly, Yearly |
-| **Confidence Level** | Prediction certainty | Low, Medium, High (percentage-based) |
+All four controls are dropdown selectors in the current UI.
 
-### Workflow
+After changing values, click **Apply & Regenerate** to refresh the chart and analysis.
 
-1. Navigate to **Forecast** from the sidebar
-2. Select an **Item** to analyze
-3. Choose a **Geography** region
-4. Set **Time Granularity** (e.g., Monthly)
-5. Adjust **Confidence Level**
-6. View AI-generated analysis and charts
-7. Click **Start Conversation** to discuss insights with AI
+A **Save Custom View** button also appears next to it. In current master that button is wired to a TODO/no-op handler, so docs should not promise saved-view behavior yet.
 
-### AI-Generated Analysis
+The analysis section also includes **Start Conversation** so you can continue exploring the result in chat.
 
-The forecast displays:
-- **Chart visualization** showing trends over time
-- **Markdown-formatted insights** explaining patterns
-- **Confidence indicators** for predictions
-- **Interactive conversation** to explore findings further
+## Hidden or Secondary Routes
 
-## Model Validation
+The master branch still contains additional Forecast routes such as:
 
-Validate the accuracy of your forecast models.
+- model validation
+- model comparison
+- discover
+- optimize
 
-### Using Model Validation
+Those routes exist in the codebase, but they are not exposed from the current visible Forecast sub-navigation. For end users, the reliable primary entry point is the main **Forecast** page.
 
-1. Click **Model Validation** in the Forecast navigation
-2. Configure the same input parameters (Item, Geography, etc.)
-3. View validation charts showing:
-   - Actual vs. predicted values
-   - Error margins
-   - Confidence intervals
-   - Model performance metrics
+## Model Comparison Note
 
-### Validation Metrics
+If your workspace links directly into the comparison route, the current code supports comparing up to **7** models at once. Older docs that mention a limit of 5 are outdated.
 
-The validation page helps you understand:
-- How well the model predicts actual outcomes
-- Where the model is most/least accurate
-- Confidence level appropriateness
-- Data quality indicators
+That comparison flow uses a dedicated **Select Models to Compare** modal. The current modal includes:
 
-## Model Comparison
+- a live count header such as `3/7 models`
+- **Clear All**
+- **Cancel**
+- **Submit**
 
-Compare multiple forecast models side-by-side.
-
-### Comparing Models
-
-1. Click **Model Comparison** in navigation
-2. Click **Select Models** button
-3. Choose up to **5 models** to compare
-4. Set **Time Granularity** for comparison period
-5. View side-by-side chart with legend
-
-### Comparison Features
-
-- **Multi-model overlay**: See all models on one chart
-- **Color-coded legends**: Distinguish between models
-- **Performance comparison**: Identify best-performing model
-- **Time period adjustment**: Switch granularity dynamically
-
-### Use Cases
-
-- **A/B testing forecast approaches**: Test different methodologies
-- **Model selection**: Choose the most accurate model
-- **Ensemble validation**: Verify consistency across models
-
-## Discover
-
-The Discovery Engine automatically surfaces patterns and insights from your forecast data.
-
-### Discovery Modes
-
-The Discover page offers two modes:
-
-#### Predefined Mode
-
-Use pre-built discovery queries:
-1. Select from predefined analysis patterns
-2. View automatically generated insights
-3. Explore highlighted trends and anomalies
-
-#### Upload Mode
-
-Upload custom data for discovery:
-1. Switch to **Upload Mode**
-2. Upload CSV with forecast data
-3. System analyzes and surfaces patterns
-4. AI generates insights from uploaded data
-
-### Discovery Workflows
-
-**Market Trend Analysis:**
-- Upload sales data
-- AI identifies seasonal patterns
-- Highlights anomalies and outliers
-- Suggests optimization strategies
-
-**Competitive Intelligence:**
-- Compare multiple data sources
-- Discover correlation patterns
-- Identify market opportunities
-
-## Optimize (Coming Soon)
-
-The Optimize page is a placeholder for future optimization features.
-
-## Common Workflows
-
-### Weekly Trend Review
-
-1. Open **Forecast View**
-2. Select your key item and geography
-3. Set time granularity to **Weekly**
-4. Review AI-generated analysis
-5. Export insights to Dataset or start conversation
-
-### Model Selection Process
-
-1. Go to **Model Comparison**
-2. Select 3-5 candidate models
-3. Compare across multiple time periods
-4. Use **Model Validation** to verify accuracy
-5. Choose best-performing model for production
-
-### Pattern Discovery
-
-1. Navigate to **Discover**
-2. Upload historical data (CSV format)
-3. Review AI-discovered patterns
-4. Investigate anomalies and trends
-5. Apply insights to business strategy
+If you try to leave the modal with unsaved model-selection changes, the UI opens a **Confirm Exit** modal.
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Forecast not visible in sidebar | Verify `forecastEnabled` feature flag in workspace settings |
-| "No items available" error | Contact administrator to configure forecast items |
-| Charts not loading | Check data availability for selected item/geography |
-| Analysis fails to generate | Verify sufficient data exists for selected parameters |
-| Model comparison shows empty | Select models first using "Select Models" button |
-
-## Best Practices
-
-### Data Quality
-
-- **Consistent granularity**: Use same time periods across analysis
-- **Complete datasets**: Ensure no gaps in historical data
-- **Regular updates**: Refresh forecast data periodically
-- **Geography specificity**: Use precise location data when available
-
-### Confidence Levels
-
-- **High confidence**: Use for short-term forecasts with stable data
-- **Medium confidence**: Balanced approach for most scenarios
-- **Low confidence**: Appropriate for long-term or volatile forecasts
-
-### Analysis Interpretation
-
-- **Combine tools**: Use Validation + Comparison + Discover together
-- **Context matters**: Consider external factors affecting forecasts
-- **Iterative refinement**: Adjust parameters based on validation results
-- **Document assumptions**: Note confidence levels and data sources
-
-## FAQ
-
-**Q: How do I enable Forecast in my workspace?**
-A: Contact your workspace administrator. Forecast requires the `forecastEnabled` feature flag to be turned on in workspace settings.
-
-**Q: How many models can I compare?**
-A: Up to 5 models can be compared simultaneously in the Model Comparison view.
-
-**Q: What file format does Discover accept?**
-A: CSV format is supported for uploading custom data in Discover mode.
-
-**Q: Can I export forecast results?**
-A: Yes, use the "Start Conversation" button to interact with insights, then save the conversation or export data to a Dataset.
-
-**Q: Why are my forecasts inaccurate?**
-A: Use Model Validation to check accuracy. Common causes: insufficient historical data, inappropriate confidence level, or external factors not captured in the model.
+| Issue | What to check |
+|---|---|
+| Forecast is missing | Confirm the workspace has Forecast enabled |
+| Inputs load but analysis does not | Make sure both **Item** and **Geography** are selected |
+| Page redirects away | The workspace likely does not have Forecast enabled |
 
 ## Related Features
 
-- [Datasets](/guide/datasets) - Store and manage forecast data
-- [Workflows](/guide/workflows) - Automate forecast generation
-- [Home (Chat)](/guide/home) - Discuss forecast insights with AI agents
+- [Home](/guide/home) for follow-up analysis in chat
+- [Datasets](/guide/datasets) for research files and supporting context
+- [Workflows](/guide/workflows) for automation paths that may consume forecast outputs

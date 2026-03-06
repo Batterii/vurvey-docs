@@ -29,8 +29,8 @@ Here's what each section does:
 | **People** | Manage your research participants — view contacts, build segments, and organize audiences. |
 | **Campaigns** | Create and manage video surveys and other research campaigns to collect real consumer responses. |
 | **Datasets** | Upload and organize files (documents, spreadsheets, reports) so your AI Agents can analyze them. |
-| **Forecast** | View predictive analytics and trend projections based on your research data. |
-| **Workflow** | Build automated, multi-step research pipelines that run on a schedule. *(Beta)* |
+| **Forecast** | View predictive analytics and trend projections when Forecast is enabled for the workspace. |
+| **Workflow** | Build automated, multi-step research pipelines when Workflow is enabled for the workspace. *(Beta)* |
 
 ::: tip Quick Tip
 At the bottom of the sidebar, you'll find your profile, your current workspace name, and the option to switch between workspaces if you belong to more than one.

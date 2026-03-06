@@ -581,7 +581,7 @@ async function resolveWorkspaceIdAfterLogin(page) {
   }
 
   // 4) Probe common routes to trigger workspace-prefixed redirects.
-  for (const probe of ["/agents", "/audience", "/campaigns", "/datasets", "/workflow"]) {
+  for (const probe of ["/agents", "/people", "/campaigns", "/datasets", "/workflow"]) {
     try {
       await page.goto(`${config.baseUrl}${probe}`, {waitUntil: "domcontentloaded", timeout: 30000});
       await waitForNetworkIdle(page, 12000);
@@ -919,11 +919,11 @@ async function testSectionEntryPoints(page, workspaceId) {
     await testAgentBuilderDeep(page, workspaceId);
   }
 
-  await verifySidebarNav(page, {label: ["People", "Audience"], expectedPathIncludes: ["/audience", "/people"]});
+  await verifySidebarNav(page, {label: ["People", "Audience"], expectedPathIncludes: ["/people", "/audience"]});
   {
-    const nav = await gotoWorkspaceRoute(page, workspaceId, "/audience");
+    const nav = await gotoWorkspaceRoute(page, workspaceId, "/people");
     if (!nav.ok) {
-      await recordTest("People: Page loads", false, nav.error, {selector: "route:/audience"});
+      await recordTest("People: Page loads", false, nav.error, {selector: "route:/people"});
     }
   }
   const hasPeopleContent = await elementExists(page, "table, [role=\"grid\"], [class*=\"table\" i], [class*=\"grid\" i], [class*=\"card\" i], [class*=\"population\" i]", 8000);
@@ -1108,7 +1108,7 @@ async function testSectionEntryPoints(page, workspaceId) {
 
     // People search — test search input on main People page
     {
-      const srchNav = await gotoWorkspaceRoute(page, workspaceId, "/audience");
+      const srchNav = await gotoWorkspaceRoute(page, workspaceId, "/people");
       if (srchNav.ok) {
         const searchExists = await elementExists(page, 'input[type="search"], input[placeholder*="search" i], [class*="search" i] input', 4000);
         if (searchExists) {
@@ -3284,7 +3284,7 @@ async function testEdgeCasesAndErrorStates(page, workspaceId) {
       {name: "Campaigns", route: "/campaigns"},
       {name: "Datasets", route: "/datasets"},
       {name: "Workflow", route: "/workflow/flows"},
-      {name: "People", route: "/audience"},
+      {name: "People", route: "/people"},
     ];
 
     const perfResults = [];

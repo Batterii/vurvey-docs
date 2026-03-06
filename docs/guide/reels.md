@@ -1,383 +1,299 @@
 # Reels
 
-Reels are curated video compilations created from campaign responses, reviews, or media library content. Use Reels to showcase customer feedback, create highlight videos, or share insights with stakeholders.
+Reels are editable highlight videos built from campaign responses or uploaded source videos. In current `vurvey-web-manager` master, the main reel-management surface is **Campaigns → Magic Reels**, and the editor is the dedicated `/reel/:reelId` page.
 
-## Overview
+## Where Reels Live
 
-Reels provide:
-- **Video compilation**: Combine multiple video clips into one reel
-- **Drag-and-drop editing**: Reorder clips easily
-- **Professional sharing**: Share with password protection and branding
-- **Multiple formats**: Automatic transcoding to web and download formats
-- **Subtitle support**: Multi-language subtitle generation
+Use **Campaigns → Magic Reels** to create and manage workspace reels.
 
-## Reel Interface
+The current list page includes:
 
-The Reel editor uses a three-column layout:
+- a **Search Reels** input
+- an **Add Reel** button
+- a table with **Name**, **Length**, **Status**, and **Last updated**
+- a row-level overflow menu with **Copy** and **Delete**
 
-```
-┌─────────────────────────────────────────────┐
-│  Reel Actions (Publish, Share, Download)   │
-├──────────────┬───────────────┬──────────────┤
-│   Preview    │  Clips List   │   Metadata   │
-│   (Player)   │   (Sortable)  │   (Details)  │
-│              │               │              │
-└──────────────┴───────────────┴──────────────┘
-```
+Status labels shown in the list are currently:
 
-| Column | Content |
-|--------|---------|
-| **Left** | Video player showing current clip preview |
-| **Middle** | Sortable list of all clips in the reel |
-| **Right** | Reel metadata (creator, date, duration, status) |
+- **Draft**
+- **Processing**
+- **Published**
+- **Unpublished Changes**
+- **Failed**
 
-## Creating a Reel
+Deleting from the row menu opens the shared yes/no confirmation modal: **Are you sure you want to delete this reel?**
 
-### From Campaign Reviews
+## Create Reel Modal
 
-The most common way to create Reels is from campaign video responses:
+Click **Add Reel** to open the current **Add Reel** modal.
 
-1. Navigate to a **Campaign** with video responses
-2. Go to the **Results** tab
-3. Select video responses you want to include
-4. Click **Create Reel**
-5. Reel editor opens with selected videos as clips
+The modal includes:
 
-### From Mentions (Enterprise)
+- **Name**
+- **Description (optional)**
+- **Save**
 
-1. Navigate to **Mentions** → **Reviews**
-2. Filter feedback videos
-3. Select relevant clips
-4. Create reel compilation
+If you opened the modal from a response-selection flow, saving can also create clips in the new reel automatically.
 
-## Managing Clips
+## Reel Editor Layout
 
-### Adding Clips
+Opening a reel takes you to the full editor page. The current editor is organized into three working areas:
 
-Click **Add Video** to see three options:
+- the top action bar
+- the left preview and metadata area
+- the right clip list and add-video controls
 
-#### 1. Upload Video
-- Upload video files from your computer
-- Supported formats: MP4, MOV, AVI
-- Max file size depends on workspace plan
-- Progress bar shows upload status
+### Top Action Bar
 
-#### 2. Search Videos
-- Search existing campaign responses
-- Filter by campaign, question, or respondent
-- Preview videos before adding
-- Add multiple videos at once
+The current action bar includes:
 
-#### 3. Media Library
-- Browse all workspace videos
-- Filter by dataset or upload date
-- Select from previously uploaded content
+- a back button
+- an inline reel-name field that saves on blur
+- a publish-status indicator
+- **Share**
+- **Save & Publish**
+- an overflow menu
 
-### Reordering Clips
+For eligible enterprise/support users, the bar also shows a **Share on brand page** toggle.
 
-1. Hover over a clip in the middle column
-2. Drag the clip to a new position
-3. Drop to reorder
-4. Reel updates automatically
+The overflow menu currently includes:
 
-### Editing Clips
+- **Share**
+- **Save & Publish**
+- **Copy**
+- **Download**
+- **Delete**
 
-1. Click on a clip in the list
-2. Clip editor modal opens
-3. Adjust **start time** and **end time**
-4. Preview the trimmed clip
-5. Click **Save** to apply changes
+Important current behavior:
 
-### Duplicating Clips
+- **Share** is disabled until the reel has been published at least once
+- **Download** is disabled until the reel is in the published state
+- **Delete** opens the reel delete confirmation modal
+- **Copy** duplicates the reel and routes you to the duplicate
 
-- Click the **three-dot menu** on a clip
-- Select **Duplicate**
-- Copy appears immediately after original
-- Edit timing independently
+### Preview And Metadata
 
-### Deleting Clips
+The left side of the editor contains:
 
-- Click the **three-dot menu** on a clip
-- Select **Delete**
-- Confirm deletion
-- Clip removed from reel
+- the current clip/video preview
+- creator and created-date metadata
+- total reel duration
+- a **Preview** button when the reel has at least one clip
+- a **Description** text area
 
-## Publishing and Sharing
+The description saves when the field loses focus.
 
-### Publishing a Reel
+### Clips List
 
-Before sharing, publish your reel to generate the compiled video:
+The right side of the editor shows the reel's clips in a table with:
 
-1. Review all clips in the editor
-2. Click **Publish** in the top-right
-3. System begins **transcoding** (compiling clips into one video)
-4. Status updates every 3 seconds:
-   - **PENDING** → Waiting to start
-   - **PROCESSING** → Transcoding in progress
-   - **CREATED** → Ready to share
-   - **FAILED** → Error during processing
-5. When **CREATED**, video is ready
+- clip order
+- video thumbnail and source details
+- clip duration
+- clip actions
 
-:::warning Transcoding Time
-Transcoding takes 1-5 minutes depending on:
-- Total reel duration
-- Number of clips
-- Video resolution
-- Current system load
+Each clip row currently supports:
 
-Do not close the browser during transcoding.
-:::
+- clicking the clip title or scissors icon to open the **Clip Editor** modal
+- dragging with the drag handle to reorder clips
+- a three-dot menu with **Copy** and **Delete**
 
-### Sharing Options
+## Add Video Menu
 
-Click **Share** to open the sharing screen:
+At the bottom of the clip list, the current **Add Video** button opens a three-option menu:
 
-#### Display Modes
+- **Upload Video**
+- **Search Videos**
+- **From Media Library**
 
-| Mode | Description | Use Case |
-|------|-------------|----------|
-| **PUBLIC** | Anyone with the link can view | Broad audience sharing |
-| **PASSWORD_PROTECTED** | Requires password to view | Controlled access |
-| **PRIVATE** | Only workspace members can view | Internal only |
+These are three separate flows with different modals.
 
-#### Sharing Workflow
+## Current Modals And Menus
 
-1. Click **Share** button
-2. Select display mode
-3. (Optional) Set password if using PASSWORD_PROTECTED
-4. Click **Copy Link**
-5. Share the link via email, Slack, etc.
+| Surface | Current behavior |
+|---|---|
+| **Add Reel** | Small modal with **Name**, **Description (optional)**, and **Save** |
+| **Delete Reel** | Shared confirmation modal with **Yes** and **No** |
+| **Add Video** menu | Context menu with **Upload Video**, **Search Videos**, and **From Media Library** |
+| **Upload Video** | Modal with a collection selector, video uploader, and **Upload** button |
+| **Create Collection** | Nested modal from the upload flow with **Collection Name** and **Save** |
+| **Video Search** | Modal with search, sort, campaign filter, **Highlights only**, selection count, and **Add to Reel** |
+| **Media Library** | Modal with inline collection creation, selectable videos, per-video **Remove** menu, and **Add to Reel** |
+| **Clip Editor** | Large modal for trimming with transcript/slider controls and **Save** / **Cancel** |
+| **Preview Reel** | Modal preview player with a tip banner and **Restart** |
+| **Share Link** | Full-height side panel, not a small popup modal |
+| **Clip row menu** | Context menu with **Copy** and **Delete** |
+| **Magic Reels row menu** | Context menu with **Copy** and **Delete** |
 
-#### Share with Brand
+## Upload Video Modal
 
-Toggle **Share with Brand** to:
-- Make reel visible in branding section
-- Include in brand profile
-- Allow brand-level access
+Choosing **Upload Video** opens the current upload modal.
 
-### Downloading Reels
+That modal includes:
 
-Download reels for offline viewing or external sharing:
+- a collection dropdown labeled **Upload to collection**
+- a video input for **MOV, MP4, MPEG4, AVI**
+- an **Upload** button
 
-1. Click **Download** button
-2. Choose format:
-   - **MP4 with Subtitles** (ZIP file)
-   - **MP4 only** (single file)
-3. File downloads automatically
-4. Subtitles included as separate SRT files (if available)
+Current behavior to know:
 
-**Download formats:**
-- **Video**: H264/AAC MP4 (universal compatibility)
-- **Subtitles**: SRT format for multiple languages
-- **Package**: ZIP contains video + all subtitle files
+- you must select a collection before the upload input is enabled
+- the collection dropdown includes **Create Collection**
+- choosing **Create Collection** opens the nested **Create Collection** modal
+- the upload flow first creates the source video, then adds it to the selected collection, then creates the reel clip
 
-## Reel Metadata
+## Search Videos Modal
 
-View reel information in the right column:
+Choosing **Search Videos** opens the current **Video Search** modal.
 
-| Field | Description |
-|-------|-------------|
-| **Creator** | User who created the reel |
-| **Created At** | Date and time of creation |
-| **Duration** | Total runtime of all clips |
-| **Status** | Current transcoding/publishing status |
-| **Editors** | Users with edit access |
-| **Shared in Brand** | Whether included in brand profile |
+The modal includes:
 
-## Reel Actions
+- a search input
+- a sort dropdown
+- an **All Campaigns** searchable filter
+- a **Highlights only** checkbox
+- paginated results
+- a sticky selection bar with **Add to Reel** once you select one or more items
 
-### Duplicate Reel
+The modal does not preload every video by default. It is centered on entering a search term, then refining with filters.
 
-Create a copy of the entire reel:
+## Media Library Modal
 
-1. Click **three-dot menu** in Reel Actions
-2. Select **Duplicate**
-3. New reel created with same clips
-4. Edit copy independently
-5. Original reel unchanged
+Choosing **From Media Library** opens the current **Media Library** modal.
 
-### Delete Reel
+The modal includes:
 
-Permanently remove a reel:
+- an inline **Create collection** input and button at the top
+- grouped video cards under each collection
+- a checkbox on each video
+- a per-video overflow menu with **Remove**
+- a sticky selection bar with **Add to Reel**
 
-1. Click **three-dot menu**
-2. Select **Delete**
-3. Confirm deletion in modal
-4. Reel and all clips removed (original videos preserved)
+Removing a video here removes it from the collection. It does not delete the reel itself.
 
-:::warning Cannot Undo
-Reel deletion is permanent and cannot be undone. The source videos remain in their original locations (campaigns, datasets, etc.).
-:::
+## Clip Editor Modal
+
+The current **Clip Editor** modal opens when you click a clip title or the scissors icon.
+
+The modal includes:
+
+- the clip video player
+- a clip progress bar and time indicator
+- transcript-based trimming when transcript data exists
+- a slider-based trimming mode
+- a radio toggle between **Clip with transcript** and **Clip using slider** when both modes are available
+- **Save**
+- **Cancel**
+
+Saving updates the clip timing and recalculates total reel duration.
+
+## Preview Reel Modal
+
+The **Preview** button opens the current **Preview Reel** modal.
+
+This modal includes:
+
+- an inline player
+- a play/pause control
+- a tip banner explaining that the final rendered reel may differ slightly
+- **Restart**
+
+## Share Link Side Panel
+
+The current reel sharing experience is not the same generic teammate-sharing dialog used by agents, campaigns, datasets, or workflows.
+
+When you click **Share** on a reel, the app opens a full-height **Share Link** side panel. The panel currently includes:
+
+- a copyable share URL
+- **Copy**
+- **Dark background** / **Light background** radio options
+- **Download**
+- **Require a password**
+- a password input with **Save**
+
+Current reel-sharing behavior:
+
+- opening the share panel marks the reel as shared
+- password protection is optional and controlled inside the side panel
+- the shared page can require a password before the reel loads
+- the side panel does not expose public/private/team visibility modes
+
+## Password-Protected Shared Reel
+
+If a shared reel requires a password, the public `/share/:reelId` page shows a password form instead of the video.
+
+That screen currently includes:
+
+- an **Enter a password** input
+- **Submit**
+- a **Password incorrect** error when needed
+
+Once the password is accepted, the shared page shows the reel player and a **Download** button.
+
+## Publishing
+
+Use **Save & Publish** to render the current reel.
+
+Current publishing rules and states:
+
+- clips must be at least **1 second** long or publishing is blocked
+- **Draft** means the reel has not been published yet
+- **Publishing** / **Processing** means the render job is running
+- **Published** means the downloadable/shared reel is ready
+- **Unpublished Changes** means the reel was published before, then edited again
+- **Publishing failed** means the render job failed and you may need to retry
+
+The editor polls for updates while the reel is publishing.
+
+## Brand-Sharing Notes
+
+If the workspace role allows it, a reel can also be toggled into **Share on brand page** from the top action bar.
+
+The branding area also has a separate **Brand Reels** listing page backed by the same reel model. That list currently uses the same table-style row menu pattern with **Copy** and **Delete**.
 
 ## Common Workflows
 
-### Customer Testimonial Reel
+### Build A Reel From Existing Responses
 
-1. Run a video feedback campaign
-2. Go to Campaign → Results
-3. Filter for positive responses (4+ stars)
-4. Select best video answers
-5. Click **Create Reel**
-6. Reorder clips for narrative flow
-7. Trim clips to key quotes (15-30 seconds each)
-8. Publish and download
-9. Share on social media or website
+1. Open **Campaigns → Magic Reels**
+2. Click **Add Reel**
+3. Name the reel and save
+4. Use **Add Video → Search Videos**
+5. Select clips and click **Add to Reel**
+6. Reorder or trim clips in the editor
+7. Click **Save & Publish**
+8. Open **Share** once publishing completes
 
-### Weekly Highlights
+### Build A Reel From Uploaded Video Files
 
-1. Collect video responses throughout the week
-2. Friday: Create reel from top responses
-3. Organize clips chronologically
-4. Add opening clip (introduction)
-5. Add closing clip (call-to-action)
-6. Publish and share with PUBLIC mode
-7. Send link via newsletter
-
-### Internal Research Summary
-
-1. Gather research videos from campaigns
-2. Create reel organized by theme
-3. Group similar responses together
-4. Set to PASSWORD_PROTECTED mode
-5. Share password with stakeholders only
-6. Present in meetings using shared link
-
-### Product Review Compilation
-
-1. Collect product-related feedback videos from campaign results
-2. Select relevant video responses
-3. Create reel
-4. Edit clips to 10-20 seconds each
-5. Order from problem → solution → satisfaction
-6. Download with subtitles
-7. Use in product marketing
-
-## Transcoding Details
-
-### Video Formats Produced
-
-Vurvey automatically generates two formats:
-
-| Format | Codec | Purpose |
-|--------|-------|---------|
-| **WebM** | VP8/Vorbis | Web streaming (browsers) |
-| **MP4** | H264/AAC | Download and compatibility |
-
-### Transcoding Status
-
-Monitor progress in Reel Actions:
-
-- **Pending**: Queued for processing
-- **Processing**: Transcoding in progress (1-5 min)
-- **Completed**: Ready to view/share
-- **Completed (No Audio)**: Video only, no audio track
-- **Failed**: Error occurred (contact support)
-
-### Polling
-
-The Reel page automatically checks status every **3 seconds** during transcoding. You'll see real-time updates without refreshing.
-
-## Subtitles
-
-### Automatic Generation
-
-Subtitles are automatically generated for:
-- Video responses with clear speech
-- Multi-language content (detected automatically)
-- Transcribed during transcoding process
-
-### Subtitle Languages
-
-Depending on content, subtitles may be available in:
-- English
-- Spanish
-- French
-- German
-- Italian
-- Portuguese
-- (Additional languages based on source audio)
-
-### Downloading Subtitles
-
-1. Click **Download**
-2. Select **MP4 with Subtitles**
-3. ZIP file includes:
-   - Compiled MP4 video
-   - SRT subtitle files (one per language)
-4. Use subtitle files in video editors or players
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Transcoding stuck at PENDING | Refresh page; check system status |
-| Transcoding FAILED | Re-publish reel; check source video formats |
-| Video not playing in preview | Ensure browser supports MP4/H264; update browser |
-| Can't add more clips | Check workspace plan limits; delete unused reels |
-| Share link not working | Verify display mode; check password if protected |
-| Download includes no subtitles | Source videos may lack clear audio; subtitles unavailable |
-| Clips out of order after save | Ensure drag-drop completed; save changes explicitly |
-| "No permission" error | Request edit access from reel creator or admin |
-
-## Best Practices
-
-### Clip Length
-
-- **Testimonials**: 15-30 seconds per clip
-- **Highlights**: 10-20 seconds per clip
-- **Full responses**: 1-2 minutes maximum
-- **Total reel**: Keep under 5 minutes for best engagement
-
-### Narrative Flow
-
-- **Start strong**: Open with compelling clip
-- **Theme grouping**: Organize similar responses together
-- **Pacing**: Alternate between shorter and longer clips
-- **End with CTA**: Close with call-to-action or summary
-
-### Quality Control
-
-- **Preview all clips**: Watch in editor before publishing
-- **Trim dead space**: Remove pauses at start/end of clips
-- **Audio levels**: Ensure consistent volume across clips
-- **Resolution**: Use highest quality source videos
-- **Lighting**: Group similarly lit clips together
-
-### Sharing Strategy
-
-- **Public reels**: Use for marketing, social media
-- **Password-protected**: Use for stakeholder reviews
-- **Private**: Use for internal research discussions
-- **Brand sharing**: Enable for reels featured in brand profile
+1. Open a reel
+2. Click **Add Video → Upload Video**
+3. Pick or create a collection
+4. Upload the source video
+5. Wait for processing to finish
+6. Click **Upload**
+7. Trim the clip in the **Clip Editor** if needed
+8. Publish the reel
 
 ## FAQ
 
-**Q: Can I edit a reel after publishing?**
-A: Yes, but you'll need to re-publish after making changes. The transcoding process will run again.
+**Q: Can I reorder clips?**  
+A: Yes. The current editor uses a drag handle in each clip row.
 
-**Q: What's the maximum reel length?**
-A: There's no hard limit, but we recommend keeping reels under 10 minutes for optimal transcoding and viewer engagement.
+**Q: Can I trim a clip after adding it?**  
+A: Yes. Open the **Clip Editor** from the clip title or scissors icon.
 
-**Q: Can I add non-video content to reels?**
-A: No, reels currently support video clips only. Use Datasets for other content types.
+**Q: Does reel sharing use the standard Viewer/Editor permissions dialog?**  
+A: No. Reels currently use a share-link side panel with optional password protection.
 
-**Q: Do deleted reels delete the source videos?**
-A: No. Deleting a reel only removes the compilation. Source videos remain in their original locations (campaigns, media library, etc.).
+**Q: Can I download a reel before publishing?**  
+A: No. Download is disabled until the reel has a published video.
 
-**Q: Can I add custom branding or watermarks?**
-A: Custom branding options may be available at the workspace level. Contact your administrator for details.
+**Q: Can I add clips from uploaded collections as well as campaign answers?**  
+A: Yes. The current editor supports both **Search Videos** and **From Media Library**, plus direct video upload.
 
-**Q: How do I create a reel from multiple campaigns?**
-A: Use the Media Library option when adding clips. You can select videos from any campaign or source.
+## Related Guides
 
-**Q: Can collaborators edit my reels?**
-A: Yes, if you grant them edit permissions. See the Permissions & Sharing guide for details.
-
-**Q: Why are my subtitles inaccurate?**
-A: Subtitle accuracy depends on audio quality, accents, and background noise. Clear audio with minimal background noise produces the best results.
-
-## Related Features
-
-- [Campaigns](/guide/campaigns) - Source videos from campaign responses
-- [Datasets](/guide/datasets) - Store and organize video content
-- [Permissions & Sharing](/guide/permissions-and-sharing) - Control who can view/edit reels
+- [Campaigns](/guide/campaigns) for adding response clips to reels from survey results
+- [Datasets](/guide/datasets) for broader file and media organization
+- [Permissions & Sharing](/guide/permissions-and-sharing) for the standard teammate-sharing dialog used elsewhere in the app

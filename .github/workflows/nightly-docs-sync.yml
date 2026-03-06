@@ -72,11 +72,10 @@ jobs:
           VURVEY_URL: ${{ env.VURVEY_URL }}
           VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
           HEADLESS: 'true'
-          CAPTURE_STRICT: 'false'
-        continue-on-error: true
+          CAPTURE_STRICT: 'true'
         run: |
           echo "Capturing screenshots from staging environment..."
-          npm run update:screenshots || echo "Screenshot capture had errors"
+          npm run update:screenshots
 
           # Check if screenshots changed
           if git diff --quiet docs/public/screenshots/; then
@@ -85,6 +84,20 @@ jobs:
             echo "SCREENSHOTS_CHANGED=true" >> $GITHUB_ENV
             echo "Screenshots have been updated"
           fi
+
+      - name: Validate screenshot references and capture report
+        env:
+          DOCS_LINT_USE_CAPTURE_REPORT: 'true'
+        run: npm run lint:docs
+
+      - name: Upload capture artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-screenshot-capture-artifacts
+          path: |
+            qa-output/capture-screenshots/
+          retention-days: 7
 
       - name: Run QA tests
         env:
@@ -113,6 +126,18 @@ jobs:
           npm run test:qa:web-manager-playwright || echo "web-manager Playwright smoke tests completed with some failures"
         continue-on-error: true
 
+      - name: Run mobile viewport QA
+        env:
+          VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
+          VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
+          VURVEY_URL: ${{ env.VURVEY_URL }}
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
+          HEADLESS: 'true'
+        run: |
+          echo "Running mobile viewport QA..."
+          npm run test:qa:mobile || echo "mobile viewport QA completed with some failures"
+        continue-on-error: true
+
       - name: Analyze QA failures
         id: analyze_qa
         continue-on-error: true
@@ -133,6 +158,8 @@ jobs:
           fi
 
       - name: Lint docs (links + screenshots)
+        env:
+          DOCS_LINT_USE_CAPTURE_REPORT: 'true'
         run: npm run test:docs
 
       - name: Install Claude Code CLI

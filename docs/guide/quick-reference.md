@@ -38,14 +38,15 @@ Use the left sidebar to move between sections:
 
 | What You Want to Do | Where to Go | Steps |
 |---|---|---|
-| Create a new agent | Agents | Click **+ Create Agent** and follow the 6-step builder |
+| Create a new agent | Agents | Click **+ Create Agent** and follow the available builder flow for your workspace |
 | Upload files for AI analysis | Datasets | Create or open a dataset, click **Add Files** |
 | Launch a research survey | Campaigns | Click **Create Campaign** and configure your survey |
+| Create a reel | Campaigns > Magic Reels | Click **Add Reel**, save it, then use **Add Video** inside the editor |
 | Create from a template | Campaigns | Go to Templates tab, select a template, click **Use Template** |
 | Build an audience group | People | Go to Populations tab and create a new group |
 | Create an audience segment | People | Go to Lists & Segments tab, click **New Segment** |
 | Set up an automated workflow | Workflow | Click **Create new workflow** and design your pipeline |
-| Schedule a recurring workflow | Workflow | Open a workflow, click **Schedule** |
+| Schedule a recurring workflow | Workflow | Open a workflow and use **Schedule** when workflow scheduling is enabled |
 
 ### Sharing and Collaboration
 
@@ -55,8 +56,26 @@ Use the left sidebar to move between sections:
 | Share a campaign | Campaigns | Click three-dot menu on card > **Share** |
 | Share a dataset | Datasets | Click three-dot menu on card > **Share** |
 | Share a workflow | Workflow | Open the workflow, click **Share** |
-| Invite a team member | People > Humans | Click **+ Add** and enter their email |
-| Set permissions | Any share dialog | Choose View, Edit, Share, or Remove for each person |
+| Invite a team member | Settings > Manage Users | Click **Add Users** and use the **Invite Members** modal |
+| Set permissions | Any share dialog | Choose **Restricted access** or **Wide access**, then set **Viewer** or **Editor** and copy the link if needed |
+
+### Common Popups and Menus
+
+| Surface | Where it appears | What it contains |
+|---|---|---|
+| **Agent selector** | Home / Canvas | Published-agent picker used to switch the active agent |
+| **Sources selector** | Home / Canvas | Quick dropdown plus modal for campaigns, datasets, files, videos, and audio drill-ins |
+| **Chat upload flow** | Home / Canvas | **Upload Files** modal followed by **Create new dataset** |
+| **Generate Agent** | Agents | Name, objective, type, then generation progress |
+| **Publish Campaign** | Campaign editor | **Group** and **Members** steps |
+| **Dataset file actions** | Dataset detail | **Conversation**, **Edit Labels**, **Delete** |
+| **Reel add-video menu** | Reel editor | **Upload Video**, **Search Videos**, **From Media Library** |
+| **Clip Editor** | Reel editor | Transcript/slider trimming plus **Save** and **Cancel** |
+| **Reel share panel** | Reel editor | Copy link, light/dark background, password protection, download |
+| **Workflow schedule** | Workflow builder | Hourly, Daily, Weekly, plus email notifications |
+| **Workflow conversation menu** | Workflow > Conversations | **Rename**, **Copy**, **Export**, **Delete** |
+| **Share dialog** | Agents / Campaigns / Datasets / Workflows | **General Access**, person-level **Viewer/Editor**, and **Copy link** |
+| **Integration connect chooser** | Integrations | **OAuth (Login)**, **API Key**, **Bearer Token**, **Cancel** |
 
 ### Finding Things
 
@@ -67,8 +86,8 @@ Use the left sidebar to move between sections:
 | Locate a dataset | Datasets page -- use the search field at the top |
 | View past conversations | Home -- open the Conversations panel in the sidebar, then click **View all** |
 | Search your contacts | People > Humans tab -- use the search field |
-| Find a scheduled workflow | Workflow > Upcoming Runs tab |
-| Browse workflow templates | Workflow > Templates tab |
+| Find a scheduled workflow | Workflow > Upcoming Runs tab (when scheduling is enabled) |
+| Browse workflow templates | Workflow > Templates tab (when templates are enabled) |
 
 ### Exporting Data
 
@@ -78,7 +97,7 @@ Use the left sidebar to move between sections:
 | Download video responses | Campaign results > individual response | MP4 |
 | Export transcripts | Campaign results > individual response | Text |
 | Copy AI conversation | Home > response actions | Clipboard, text |
-| Export conversation history | Home > conversation menu | Text file |
+| Export conversation history | Home > conversation menu | Markdown, PDF, DOCX |
 
 ## Chat Toolbar
 
@@ -140,7 +159,7 @@ The People section is organized into five tabs:
 | **Humans** | Individual contact records and participant profiles | Add contacts, view profiles |
 | **Lists & Segments** | Reusable audience groups for targeting | Create static lists or dynamic segments |
 | **Properties** | Custom attributes you track about contacts | Define properties, import via CSV |
-| **Molds** | Persona templates for consistent population generation *(Enterprise)* | Create and manage templates |
+| **Molds** | Persona templates for consistent population generation when mold access is enabled | Create and manage templates |
 
 ## Question Types Quick Reference
 
@@ -219,10 +238,8 @@ PNG, JPG, GIF, WEBP
 
 | Permission | Agents | Campaigns | Datasets | Workflows |
 |---|---|---|---|---|
-| **View** | Chat with agent, see config | View results and responses | Browse files, use in chat | See workflow and results |
-| **Edit** | Modify agent configuration | Edit questions, settings | Upload files, edit labels | Modify workflow design |
-| **Share** | Grant others access | Grant others access | Grant others access | Grant others access |
-| **Remove** | Delete the agent | Delete the campaign | Delete files and dataset | Delete the workflow |
+| **Viewer** | Open and use the shared item | Read campaign details/results | Browse files, use in chat | Inspect workflow and outputs |
+| **Editor** | Modify the shared item | Make campaign changes allowed by state | Upload files, edit dataset details | Modify workflow design |
 
 ## Keyboard Shortcuts
 

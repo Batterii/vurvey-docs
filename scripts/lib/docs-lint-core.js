@@ -113,6 +113,22 @@ export function resolveScreenshotTarget({publicRoot, href}) {
 export async function lintDocs({repoRoot, docsRoot, publicRoot}) {
   const mdFiles = await listMarkdownFiles(docsRoot);
   const problems = [];
+  let captureReport = null;
+
+  if (process.env.DOCS_LINT_USE_CAPTURE_REPORT === "true") {
+    try {
+      const raw = await fs.readFile(path.join(repoRoot, "qa-output", "capture-screenshots", "capture-report.json"), "utf8");
+      captureReport = JSON.parse(raw);
+    } catch {
+      captureReport = null;
+    }
+  }
+
+  const captureReportEntries = new Map(
+    (captureReport?.screenshots || [])
+      .filter((entry) => entry?.path)
+      .map((entry) => [String(entry.path).replace(/\\/g, "/"), entry])
+  );
 
   for (const file of mdFiles) {
     const content = await fs.readFile(file, "utf8");
@@ -134,6 +150,20 @@ export async function lintDocs({repoRoot, docsRoot, publicRoot}) {
             href,
             target: screenshotTarget,
           });
+        } else {
+          const relScreenshotPath = path
+            .relative(path.join(publicRoot, "screenshots"), screenshotTarget)
+            .replace(/\\/g, "/");
+          const captureStatus = captureReportEntries.get(relScreenshotPath);
+          if (captureStatus && captureStatus.ok === false) {
+            problems.push({
+              type: "invalid-screenshot",
+              file,
+              href,
+              target: screenshotTarget,
+              detail: captureStatus.reason || "capture report marked screenshot invalid",
+            });
+          }
         }
         continue;
       }
