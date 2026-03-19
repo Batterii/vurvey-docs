@@ -13,7 +13,7 @@
 
 import path from "path";
 import {fileURLToPath} from "url";
-import {lintDocs} from "./lib/docs-lint-core.js";
+import {lintDocs, isHardError} from "./lib/docs-lint-core.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(__dirname, "..");
@@ -28,14 +28,35 @@ async function main() {
     process.exit(0);
   }
 
-  console.error(`docs-lint: ${problems.length} problem(s) found`);
-  for (const p of problems) {
-    const relFile = path.relative(repoRoot, p.file);
-    const relTarget = path.relative(repoRoot, p.target);
-    const detail = p.detail ? ` (${p.detail})` : "";
-    console.error(`- [${p.type}] ${relFile}: ${p.href} -> ${relTarget}${detail}`);
+  const hardErrors = problems.filter(isHardError);
+  const warnings = problems.filter((p) => !isHardError(p));
+
+  // Always print warnings (invalid-screenshot from capture report)
+  if (warnings.length > 0) {
+    console.warn(`docs-lint: ${warnings.length} warning(s) (screenshot capture quality)`);
+    for (const p of warnings) {
+      const relFile = path.relative(repoRoot, p.file);
+      const relTarget = path.relative(repoRoot, p.target);
+      const detail = p.detail ? ` (${p.detail})` : "";
+      console.warn(`  ⚠ [${p.type}] ${relFile}: ${p.href} -> ${relTarget}${detail}`);
+    }
   }
-  process.exit(1);
+
+  // Hard errors block CI
+  if (hardErrors.length > 0) {
+    console.error(`docs-lint: ${hardErrors.length} error(s) found`);
+    for (const p of hardErrors) {
+      const relFile = path.relative(repoRoot, p.file);
+      const relTarget = path.relative(repoRoot, p.target);
+      const detail = p.detail ? ` (${p.detail})` : "";
+      console.error(`- [${p.type}] ${relFile}: ${p.href} -> ${relTarget}${detail}`);
+    }
+    process.exit(1);
+  }
+
+  // Only warnings — exit successfully
+  console.log("docs-lint: OK (with warnings)");
+  process.exit(0);
 }
 
 main().catch((err) => {

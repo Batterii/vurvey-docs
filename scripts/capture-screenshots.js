@@ -25,23 +25,28 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import {buildWorkspaceUrl, extractWorkspaceIdFromUrl} from './lib/vurvey-url.js';
+import {isRetryableValidationFailure} from './lib/capture-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Centralized timing configuration – tune these to balance speed vs. reliability.
+// CI environments (GitHub Actions on Ubuntu) are slower than local dev machines,
+// so these values need to be generous enough for headless CI browsers.
 const TIMING = {
-  postNavDelay: 500,           // was 2500ms – wait after page.goto before idle check
-  networkIdleTime: 800,        // was 2000ms – how long network must be quiet
-  networkIdleTimeout: 5000,    // was 15000ms – max wait for network idle
-  loaderPollInterval: 200,     // was 500ms – how often to check for spinners
-  loaderTimeout: 5000,         // was 15000ms – max wait for loaders to clear
-  preScreenshotDelay: 200,     // was 800ms – settle time before capturing
-  postClickDelay: 500,         // was 1500-2500ms – wait after clicking UI elements
-  builderStepWait: 600,        // was 1800ms – wait after navigating builder steps
-  contentWaitTimeout: 8000,    // was 10000-15000ms – max wait for content selectors
-  retryBackoff: 400,           // was 800ms – base backoff per retry attempt
-  loginPostRedirect: 1500,     // was 2500ms – wait after login redirect
+  postNavDelay: 800,           // wait after page.goto before idle check
+  networkIdleTime: 1200,       // how long network must be quiet
+  networkIdleTimeout: 8000,    // max wait for network idle
+  loaderPollInterval: 200,     // how often to check for spinners
+  loaderTimeout: 8000,         // max wait for loaders to clear
+  preScreenshotDelay: 300,     // settle time before capturing
+  postClickDelay: 600,         // wait after clicking UI elements
+  builderStepWait: 800,        // wait after navigating builder steps
+  contentWaitTimeout: 10000,   // max wait for content selectors
+  retryBackoff: 500,           // base backoff per retry attempt
+  loginPostRedirect: 2000,     // wait after login redirect
+  screenshotRetries: 2,        // number of validation retries per screenshot
+  screenshotRetryDelay: 1500,  // base delay between screenshot validation retries
 };
 
 // Configuration
@@ -598,50 +603,73 @@ async function takeScreenshot(page, name, subdir = '', options = {}) {
   const filepath = path.join(dir, `${name}.png`);
   const relativePath = getScreenshotRelativePath(name, subdir);
 
-  // Wait for any loaders to complete
-  try {
-    await waitForLoaders(page, TIMING.loaderTimeout);
-  } catch {
-    // Ignore loader wait issues (context destroyed, etc).
-  }
-  await delay(TIMING.preScreenshotDelay);
+  const maxAttempts = 1 + TIMING.screenshotRetries;
+  let lastValidation = null;
 
-  if (await pageHasGlobalError(page)) {
-    console.log(`  ⚠ Skipping screenshot (${relativePath}): page is in a global error state`);
-    await takeArtifactScreenshot(page, `skip-global-${subdir}-${name}`);
-    updateCaptureReportEntry({path: relativePath, ok: false, reason: 'global-error-state', url: page.url()});
-    return null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    // Wait for any loaders to complete
+    try {
+      await waitForLoaders(page, TIMING.loaderTimeout);
+    } catch {
+      // Ignore loader wait issues (context destroyed, etc).
+    }
+    await delay(TIMING.preScreenshotDelay);
+
+    if (await pageHasGlobalError(page)) {
+      console.log(`  ⚠ Skipping screenshot (${relativePath}): page is in a global error state`);
+      await takeArtifactScreenshot(page, `skip-global-${subdir}-${name}`);
+      updateCaptureReportEntry({path: relativePath, ok: false, reason: 'global-error-state', url: page.url()});
+      return null;
+    }
+
+    const validation = await validateCaptureTarget(page, options);
+    lastValidation = validation;
+
+    if (validation.ok) {
+      // Validation passed — take the screenshot
+      try {
+        await page.screenshot({ path: filepath, fullPage: false });
+      } catch (e) {
+        console.log(`  ⚠ Screenshot failed (${name}): ${e.message}`);
+        updateCaptureReportEntry({path: relativePath, ok: false, reason: e.message, url: page.url()});
+        return null;
+      }
+      console.log(`  ✓ Screenshot: ${relativePath}${attempt > 1 ? ` (attempt ${attempt}/${maxAttempts})` : ''}`);
+      updateCaptureReportEntry({
+        path: relativePath,
+        ok: true,
+        url: page.url(),
+        diagnostics: validation.diagnostics,
+      });
+      return filepath;
+    }
+
+    // Validation failed — decide whether to retry
+    const canRetry = attempt < maxAttempts && isRetryableValidationFailure(validation.reason);
+    if (canRetry) {
+      const retryDelay = TIMING.screenshotRetryDelay * attempt;
+      console.log(`  ⟳ Validation failed (${relativePath}): ${validation.reason} — retrying in ${retryDelay}ms (attempt ${attempt}/${maxAttempts})`);
+      await takeArtifactScreenshot(page, `retry-validate-${subdir}-${name}-${attempt}`);
+      await delay(retryDelay);
+      // Re-wait for network and loaders before next attempt
+      await waitForNetworkIdle(page, TIMING.networkIdleTimeout);
+    } else {
+      // Non-retryable or out of retries
+      break;
+    }
   }
 
-  const validation = await validateCaptureTarget(page, options);
-  if (!validation.ok) {
-    console.log(`  ⚠ Skipping screenshot (${relativePath}): ${validation.reason}`);
-    await takeArtifactScreenshot(page, `skip-invalid-${subdir}-${name}`);
-    updateCaptureReportEntry({
-      path: relativePath,
-      ok: false,
-      reason: validation.reason,
-      url: page.url(),
-      diagnostics: validation.diagnostics,
-    });
-    return null;
-  }
-
-  try {
-    await page.screenshot({ path: filepath, fullPage: false });
-  } catch (e) {
-    console.log(`  ⚠ Screenshot failed (${name}): ${e.message}`);
-    updateCaptureReportEntry({path: relativePath, ok: false, reason: e.message, url: page.url()});
-    return null;
-  }
-  console.log(`  ✓ Screenshot: ${relativePath}`);
+  // All attempts exhausted or non-retryable failure
+  console.log(`  ⚠ Skipping screenshot (${relativePath}): ${lastValidation.reason}${maxAttempts > 1 ? ` (after ${maxAttempts} attempts)` : ''}`);
+  await takeArtifactScreenshot(page, `skip-invalid-${subdir}-${name}`);
   updateCaptureReportEntry({
     path: relativePath,
-    ok: true,
+    ok: false,
+    reason: lastValidation.reason,
     url: page.url(),
-    diagnostics: validation.diagnostics,
+    diagnostics: lastValidation.diagnostics,
   });
-  return filepath;
+  return null;
 }
 
 async function hasOpenRightSideDrawer(page) {
