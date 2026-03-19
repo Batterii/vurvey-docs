@@ -92,6 +92,109 @@ The following pages should exist. If any are missing, **create them** following 
 
 These pages have corresponding sidebar entries already configured under the "Platform" group in `docs/.vitepress/config.js`.
 
+---
+
+## Phase 1.5: Business Logic Accuracy Verification
+
+After completing the general documentation analysis in Phase 1, perform a **deep cross-reference** of every factual claim about how Vurvey features work under the hood. This phase catches errors where the documentation *looks* correct in the UI but describes the wrong business logic (billing formulas, permission rules, data flows, rate limits, etc.).
+
+### 1. Read Each Page's Business Logic Claims
+
+For every page in `docs/guide/`, identify sentences that make factual claims about **how** a feature works — not just what it looks like. Examples of business logic claims:
+
+- "Credits are deducted per answer" (billing)
+- "Administrators can invite members" (permissions)
+- "Workflows run on a schedule" (execution logic)
+- "File uploads support PDF, CSV, and DOCX" (data constraints)
+- "Campaigns in Draft status cannot collect responses" (lifecycle rules)
+
+Collect these claims into a working list for cross-referencing.
+
+### 2. Cross-Reference Against Backend Code
+
+For each claim, verify it against the authoritative backend source in `vurvey-api/src/`:
+
+| Claim Category | Primary Source Files | What to Check |
+|---------------|---------------------|---------------|
+| **Billing / Credits** | `src/services/workspace-credit.service.ts`, `src/services/answer-credit-*.ts`, `src/models/credit-rate.ts`, `src/models/workspace-credit-change.ts` | Credit rates, deduction formula, deduction timing, reversal logic, balance checks, "Allow Negative Credits" flag |
+| **Permissions / Roles** | `src/permissions/`, `src/authz/`, `src/models/workspace-member.ts` | Role names, role capabilities, permission checks, OpenFGA tuples |
+| **Feature Flags** | `src/models/workspace.ts` (boolean flags), Flipt config | Which features are gated, what flag names are used, what happens when a flag is off |
+| **Data Models / Fields** | `src/models/` (all model files) | Field names, types, constraints (min/max length, enums), default values, nullable vs required |
+| **GraphQL Schema** | `src/graphql/schema/*.graphql` | Documented query/mutation names exist, input/output types match, enum values match |
+| **Campaign Lifecycle** | `src/models/survey.ts`, `src/graphql/schema/survey.graphql` | Status enum values, allowed transitions, what each status means |
+| **File Uploads / Limits** | `src/routes/`, `src/config/`, frontend `src/config/file-upload.ts` | Accepted MIME types, size limits, processing pipelines |
+| **Rate Limits / Quotas** | `src/middleware/`, `src/config/` | Documented rate limits, quota enforcement logic |
+| **Integrations** | `src/services/providers/`, `src/models/composio-*.ts` | Integration types, auth methods, connection lifecycle states |
+
+### 3. Specific Verification Checklist
+
+Run through each of these high-priority areas explicitly:
+
+#### Credits & Billing
+- [ ] Credit rates: verify the exact numeric rates for Creator and Agent responses match docs
+- [ ] Credit formula: verify `Total = Participants x Rate x Questions` matches the actual deduction logic
+- [ ] Response sources: verify which sources (Creators, Recruits, Agents, People Models, Email Invites) are charged and which are free
+- [ ] Deduction timing: verify whether credits are deducted per-answer or per-response
+- [ ] Reversals: verify whether deleting an answer automatically refunds credits
+- [ ] Balance checks: verify what happens when credits reach zero (survey blocked? negative allowed?)
+- [ ] Credit change reasons enum: verify all documented reason values exist in the code (`ADMIN_ADJUSTMENT`, `INDIVIDUAL_ANSWER_AGENT`, `INDIVIDUAL_ANSWER_CREATOR`, `ANSWER_REVERSAL`, `SURVEY_RESPONSE`, `SYSTEM`, `OTHER`)
+
+#### Permissions & Roles
+- [ ] Workspace roles: verify the documented roles (Administrator, Manager, Guest) match the code
+- [ ] Role capabilities: verify what each role can and cannot do matches documentation
+- [ ] Sharing roles: verify that Viewer/Editor roles in the share dialog match the code
+- [ ] Feature flag requirements: verify which features require admin-level access
+
+#### Campaign Lifecycle
+- [ ] Status enum values: verify `Draft`, `Open`, `Closed`, `Blocked`, `Archived` match the `SurveyStatus` enum
+- [ ] Status transitions: verify the documented state machine matches the code (e.g., can you go directly from Draft to Closed?)
+- [ ] Status behavior: verify what each status means functionally (e.g., "Open" actually accepts responses)
+
+#### Agent Builder
+- [ ] Builder steps: verify the documented steps match the `AgentBuilderPage` enum
+- [ ] Agent types: verify documented types match the `PersonaType` enum
+- [ ] Validation rules: verify documented field constraints (name length, etc.) match model validations
+
+#### Data Limits
+- [ ] File upload limits: verify documented size limits match `ACCEPTED_FILE_TYPES` config
+- [ ] Character limits: verify documented character limits for text fields match model constraints
+- [ ] Question count limits: verify any documented limits on questions per campaign
+
+#### Feature Flags
+- [ ] Flag names: verify documented feature flag names (`chatbotEnabled`, `workflowEnabled`, `forecastEnabled`) exist in the Workspace model
+- [ ] Gating behavior: verify that when a flag is off, the documented behavior matches (e.g., "section is hidden from navigation" vs "section shows an upgrade prompt")
+- [ ] Default values: verify documented default values for feature flags match the code
+
+### 4. Classification of Business Logic Errors
+
+When a business logic claim in the docs doesn't match the code:
+
+1. **Check git blame** on the relevant code file:
+   ```bash
+   git log --oneline -5 -- src/services/workspace-credit.service.ts
+   ```
+2. **If the code changed recently and docs weren't updated** → Classify as **DOC_FIX** and edit the markdown immediately
+3. **If the code is clearly buggy** (e.g., a feature flag check is inverted, a rate is hardcoded incorrectly) → Classify as **CODE_BUG** and create a bug report in `bug-reports/`
+4. **If unclear** → Classify as **UNCLEAR** and add to the audit summary for human review
+
+### 5. High-Priority Anti-Patterns to Catch
+
+These are the most dangerous types of business logic documentation errors. Flag any instance immediately:
+
+| Anti-Pattern | Example | Why It's Dangerous |
+|-------------|---------|-------------------|
+| **Vague docs, specific code** | Docs say "credits are used for AI processing" when code charges per-answer at specific rates | Users can't budget; leads to surprise charges |
+| **Mismatched enums/lists** | Docs list 5 status values but code has 6 (or vice versa) | Users see undocumented states in the UI |
+| **Unconditional language, conditional code** | Docs say "Workflows run automatically" but code requires `workflowEnabled` flag | Users expect features they don't have access to |
+| **Wrong execution flow** | Docs describe a 3-step process but code has 4 steps (or different order) | Users get confused mid-workflow |
+| **Stale numbers** | Docs say "up to 10 questions" but code allows 50 | Users artificially limit themselves or hit unexpected walls |
+| **Missing prerequisite** | Docs don't mention a required feature flag or permission | Users try to use a feature and can't find it |
+| **Reversed logic** | Docs say "enabled by default" but code defaults to false | Users wait for something that will never appear |
+
+When you find any of these anti-patterns, fix the documentation immediately (DOC_FIX) or create a bug report (CODE_BUG). Do not just note it — take action.
+
+---
+
 ### Classification Rules
 
 When you find a discrepancy, classify it:
@@ -482,7 +585,7 @@ When documentation is correct but code has a bug, create a structured bug report
 
 1. **Create `bug-reports/` directory** if it doesn't exist
 2. **Validate all screenshots** - Create validation report if issues found, then continue
-3. **Analyze each documentation area** in order (Phases 1-3)
+3. **Analyze each documentation area** in order (Phases 1, 1.5, 2, and 3)
 4. **For each discrepancy found:**
    - Classify as DOC_FIX, CODE_BUG, or UNCLEAR
    - Take appropriate action (edit file or create bug report)
