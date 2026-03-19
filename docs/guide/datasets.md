@@ -76,8 +76,8 @@ Hover over any dataset card and click the **three-dot menu** (⋯) for quick act
 |--------|-------------|
 | **Start Conversation** | Open a chat using this dataset as context when the dataset is not empty |
 | **Share** | Control who can access this dataset |
-| **Edit** | Change the dataset name or description |
-| **Delete** | Remove the dataset (only available when the dataset is empty, and the current flow uses a confirmation modal) |
+| **Edit** | Change the dataset name or description (requires edit permission) |
+| **Delete** | Remove the dataset (requires delete permission; only available when the dataset is empty, and the current flow uses a confirmation modal) |
 
 ::: warning Permissions
 The actions you see depend on your access level. Some options may not appear if you don't have the required permission.
@@ -119,7 +119,7 @@ After uploading, check the stats panel:
 | Button | Description |
 |--------|-------------|
 | **Add Files** | Upload new files from your computer or Google Drive |
-| **Share** | Manage who can view or edit this dataset |
+| **Share** | Manage who can view or edit this dataset (requires manage permissions) |
 | **Start Conversation** | Begin an AI chat that can reference everything in this dataset |
 
 ::: warning Processing Must Complete First
@@ -302,16 +302,16 @@ The page polls for updates every 30 seconds and shows a notification when everyt
 
 ### File Table
 
-The detail page lists all files in a sortable table with columns for **Name**, **Size**, **Status**, **Labels**, and a row-level action menu.
+The detail page lists all files in a sortable table with columns for **Name**, **Type**, **Status**, **Labels**, and a row-level action menu.
 
-Use the **Search** bar to find files by name, or filter by **Labels** using the filter controls.
+Use the **Search** bar to find files by name, or use the **media criteria panel** to filter by label, file type, and processing status.
 
 ### Bulk Actions
 
 Select multiple files using the checkboxes, then use the toolbar to:
 
 - **Add Label** — apply labels to all selected files at once
-- **Delete** — remove the selected files
+- **Delete** — remove the selected files (requires delete permission)
 
 ### Row Actions
 

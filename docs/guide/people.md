@@ -72,8 +72,9 @@ Populations appear in a card grid. Each card shows the population name, member c
 Click the three-dot menu on any card for the current population actions:
 
 - **Show Details**
-- **Take Campaign**
-- **Delete** (where that action is available)
+- **Take Campaign** (requires `aiSimulationEnabled` feature flag)
+- **Change visibility** (available for enterprise managers)
+- **Delete** (requires admin role)
 
 ### Population Details
 
@@ -183,10 +184,9 @@ Click a contact's name to open their full profile.
 A profile includes:
 
 - **Basic Information** — Name, email, avatar, age, gender, location
-- **Custom Properties** — All assigned attribute values
-- **Campaign History** — Which campaigns they've participated in
-- **Response Data** — Transcripts, videos, and individual answers
-- **Segment Memberships** — Lists and segments they belong to
+- **Stats Cards** — Total responses, Video minutes, and Engagement metrics
+- **Summary tab** — Overview of the contact's activity and attributes
+- **Interests tab** — Topics and categories the contact has shown interest in
 
 ### Contact Profile: Deep Dive
 

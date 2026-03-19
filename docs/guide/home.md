@@ -199,7 +199,7 @@ Select a specific social media tool (like TikTok or Reddit) when you want target
 
 ### Model Selector
 
-If available, a model selector button lets you choose which AI model powers your conversation. The default setting, **Auto-Select**, automatically picks the best model for your task. You can also choose a specific model if you prefer.
+If available, a model selector button lets you choose which AI model powers your conversation. This control requires both the `agentBuilderV2Active` flag and the chat model selector feature flag to be enabled for your workspace. The default setting, **Auto-Select**, automatically picks the best model for your task. You can also choose a specific model if you prefer.
 
 #### How Auto-Select Works
 
@@ -312,7 +312,7 @@ Below each AI response, you'll find a row of action buttons:
 | **Dislike** (thumbs down) | Mark a response as unhelpful |
 | **Copy** | Copy the response text to your clipboard — great for pasting into reports or presentations |
 | **Citations** | Show or hide source references within the response |
-| **Audio** | Listen to the response read aloud (available for Vurvey agents and enterprise accounts) |
+| **Audio** | Listen to the response read aloud (appears for Vurvey-persona agent messages or admin users only) |
 | **More** (lightning bolt) | Opens a contextual menu with additional actions such as **Generate Campaign** and **Create Agent** |
 | **Delete** | Opens a confirmation dialog, then removes both your message and the AI's response from the conversation |
 
@@ -654,7 +654,6 @@ Use one `@mention` per message and ask each agent in separate turns. Then ask on
 | **Enter** | Send your message |
 | **Shift + Enter** | Add a new line without sending |
 | **@** + agent name | Mention an agent in your message |
-| **Up arrow** | Edit your last sent message (when input is empty) |
 
 ## Next Steps
 

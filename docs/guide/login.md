@@ -86,7 +86,7 @@ Once you've signed in successfully, you'll land on the **Home** page — your ma
 
 ![Vurvey Home Page After Login](/screenshots/home/03-after-login.png)
 
-The left sidebar gives you quick access to the sections enabled for your workspace, typically including Home, Agents, People, Campaigns, Datasets, and any feature-flagged areas such as Forecast or Workflow. You'll also see your workspace name and your profile at the bottom.
+The left sidebar gives you quick access to the sections enabled for your workspace. **People** and **Campaigns** are always visible. **Home**, **Agents**, and **Datasets** require `chatbotEnabled` to be true for the workspace. Feature-flagged areas such as Forecast or Workflow appear when enabled. You'll also see your workspace name and your profile at the bottom.
 
 ## Choosing a Workspace
 

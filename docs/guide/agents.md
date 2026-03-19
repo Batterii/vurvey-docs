@@ -609,8 +609,8 @@ The Classic Builder is the original agent creation experience that presents all 
 
 ### How to Switch
 
-- From the Agent Builder, click **Use Classic Builder** in the top navigation bar
-- From the Classic Builder, click **Use Guided Builder** to switch back
+- From the Guided Builder, click **Use Classic Builder** in the top navigation bar to switch to the classic view
+- Switching from Classic Builder back to Guided Builder is not currently supported — the **Use Classic Builder** link is a one-way transition
 - Your progress is preserved when switching — nothing is lost
 
 ### Key Differences

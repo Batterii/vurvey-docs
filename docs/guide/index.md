@@ -24,11 +24,11 @@ Here's what each section does:
 
 | Sidebar Item | What It's For |
 |---|---|
-| **Home** | Your main workspace for AI-powered conversations. Ask questions, get analysis, and explore insights. |
-| **Agents** | Browse, create, and customize the AI Agents that power your research conversations. |
+| **Home** | Your main workspace for AI-powered conversations. Ask questions, get analysis, and explore insights. *(Requires `chatbotEnabled`)* |
+| **Agents** | Browse, create, and customize the AI Agents that power your research conversations. *(Requires `chatbotEnabled`)* |
 | **People** | Manage your research participants — view contacts, build segments, and organize audiences. |
 | **Campaigns** | Create and manage video surveys and other research campaigns to collect real consumer responses. |
-| **Datasets** | Upload and organize files (documents, spreadsheets, reports) so your AI Agents can analyze them. |
+| **Datasets** | Upload and organize files (documents, spreadsheets, reports) so your AI Agents can analyze them. *(Requires `chatbotEnabled`)* |
 | **Forecast** | View predictive analytics and trend projections when Forecast is enabled for the workspace. |
 | **Workflow** | Build automated, multi-step research pipelines when Workflow is enabled for the workspace. *(Beta)* |
 

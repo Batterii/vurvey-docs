@@ -126,14 +126,14 @@ The editor currently supports:
 
 The current video conversion panel exposes these controls:
 
-- prompt
-- duration: **4**, **6**, or **8** seconds
-- aspect ratio: **16:9** or **9:16**
-- sample count: **1-4**
-- person generation: **Allow Adults** or **No People/Faces**
-- negative prompt
-- seed
-- **Enhance prompt with Gemini**
+- **Video prompt** — text area describing the desired video content
+- **Duration** — **4**, **6**, or **8** seconds
+- **Aspect ratio** — **16:9** or **9:16**
+- **Sample count** — **1-4**
+- **Person generation** — **Allow Adults** or **No People/Faces**
+- **Negative prompt** — text field for specifying what to exclude from the video
+- **Seed** — numeric field for reproducible generation results
+- **Enhance prompt** — checkbox to refine the prompt with Gemini before generation
 
 ### History
 
