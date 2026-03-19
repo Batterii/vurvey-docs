@@ -139,6 +139,26 @@ jobs:
           npm run test:qa:mobile || echo "mobile viewport QA completed with some failures"
         continue-on-error: true
 
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Run doc-claim Playwright tests
+        env:
+          VURVEY_EMAIL: ${{ secrets.VURVEY_EMAIL }}
+          VURVEY_PASSWORD: ${{ secrets.VURVEY_PASSWORD }}
+          VURVEY_URL: https://staging.vurvey.dev
+          VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
+        run: npm run test:pw
+        continue-on-error: true
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright/playwright-report/
+          retention-days: 7
+
       - name: Analyze QA failures
         id: analyze_qa
         continue-on-error: true
