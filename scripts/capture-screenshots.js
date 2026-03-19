@@ -1934,14 +1934,21 @@ async function captureAgents(page) {
           await waitForNetworkIdle(page);
           await waitForLoaders(page);
 
-          // Wait for the builder flow navigation to appear (step buttons with aria-labels).
+          // Wait for the builder edit flow to fully render. The "Edit Agent" click
+          // triggers a React state transition that loads the multi-step builder.
+          // In CI this can take several seconds as the form data loads.
+          // Wait specifically for the "Objective" header text which appears when
+          // the first builder step has fully rendered (not just the nav labels).
           const flowNavReady = await waitForBodyTextAny(
             page,
-            ['objective', 'facets'],
-            8000
+            ['objective'],
+            12000
           );
           if (!flowNavReady) {
             console.log('  ⚠ Builder flow navigation did not appear after clicking Edit Agent');
+            // Give extra time — the edit transition may still be in progress
+            await delay(2000);
+            await waitForLoaders(page);
           }
 
           // The first step (Objective) is already active after clicking Edit Agent.
