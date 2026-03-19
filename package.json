@@ -21,6 +21,10 @@
     "lint:docs": "node scripts/docs-lint.js",
     "test:docs": "npm run lint:docs",
     "sync:nightly": "npm run update:screenshots && npm run test:qa",
+    "test:pw": "npx playwright test --config=playwright/playwright.config.ts",
+    "test:pw:headed": "npx playwright test --config=playwright/playwright.config.ts --headed",
+    "test:pw:ui": "npx playwright test --config=playwright/playwright.config.ts --ui",
+    "test:pw:report": "npx playwright show-report playwright/playwright-report",
     "prepare": "husky"
   },
   "repository": {
@@ -35,6 +39,8 @@
   "author": "Vurvey Labs",
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "dotenv": "^17.3.1",
     "husky": "^9.1.7",
     "puppeteer": "^23.0.0",
     "vitepress": "^1.5.0",
