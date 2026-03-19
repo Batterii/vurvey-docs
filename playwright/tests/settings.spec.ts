@@ -338,37 +338,39 @@ test.describe('settings.md: Documentation claim tests', () => {
 
     // Claim: Per-row vertical menu with Edit and Remove
     test('member row has menu with Edit and Remove', async ({ page }) => {
-      // Find a data row in the member table (skip header row by targeting tbody tr)
-      const memberRow = page.locator('tbody tr').first()
-        .or(page.locator('table tr').nth(1))
+      // Find a data row in the member table — skip the first row (which may
+      // be the current user; self-management actions are blocked).
+      // Use the second data row (tbody tr:nth-child(2)) for a non-self member.
+      const memberRow = page.locator('tbody tr').nth(1)
+        .or(page.locator('table tr').nth(2))
         .first();
 
       const isRowVisible = await memberRow.isVisible({ timeout: 15_000 }).catch(() => false);
       if (!isRowVisible) {
-        test.skip(true, 'No member rows found on the page');
+        test.skip(true, 'Not enough member rows found on the page');
         return;
       }
 
-      // Each member row has a button (with an img icon) in the last cell
+      // Each member row has a button (icon-only) in the last cell
       const menuBtn = memberRow.locator('button').first();
       await menuBtn.waitFor({ state: 'visible', timeout: 5_000 });
       await menuBtn.click();
 
-      // Wait for the dropdown menu to appear
-      const menu = page.locator(
-        '[role="menu"], [role="listbox"], [class*="dropdown" i], [class*="popover" i], [class*="contextMenu" i]'
-      ).first();
-      await menu.waitFor({ state: 'visible', timeout: 8_000 }).catch(() => {});
+      // The popup menu renders as a floating element at the page level, not
+      // inside a role="menu" container.  Look for visible "Edit" and "Remove"
+      // text anywhere on the page that appeared after the click.
+      await page.waitForTimeout(1_000);
 
-      // Check for Edit option
+      const editOption = page.getByText('Edit', { exact: true }).first();
+      const removeOption = page.getByText('Remove', { exact: true }).first();
+
       expect.soft(
-        await menu.getByText(/edit/i).first().isVisible({ timeout: 5_000 }).catch(() => false),
+        await editOption.isVisible({ timeout: 5_000 }).catch(() => false),
         'Member row menu should have "Edit" option'
       ).toBeTruthy();
 
-      // Check for Remove option
       expect.soft(
-        await menu.getByText(/remove/i).first().isVisible({ timeout: 5_000 }).catch(() => false),
+        await removeOption.isVisible({ timeout: 5_000 }).catch(() => false),
         'Member row menu should have "Remove" option'
       ).toBeTruthy();
 
