@@ -1274,7 +1274,6 @@ async function captureHome(page) {
 
   // Wait for chat interface elements
   const hasComposer = await waitForContent(page, [
-    '[data-testid="chat-input"]',
     '[data-testid="input-bubble-input"]',
     'textarea',
     '[class*="chatInput"]',
@@ -1292,18 +1291,19 @@ async function captureHome(page) {
   })) && sectionOk;
 
   // Capture the welcome header (visible before any messages are sent)
+  // The welcome component uses a generic "welcome" or "subheader" class.
   try {
     const hasWelcome = await waitForContent(page, [
-      '[class*="welcomeHeader" i]',
       '[class*="welcome" i]',
-      '[class*="chatWelcome" i]',
+      '[class*="subheader" i]',
+      '[class*="chat-welcome" i]',
     ], 3000);
     if (hasWelcome) {
       await takeScreenshot(page, '02-chat-welcome-header', 'home', {
         requiredSelectors: [
-          '[class*="welcomeHeader" i]',
           '[class*="welcome" i]',
-          '[class*="chatWelcome" i]',
+          '[class*="subheader" i]',
+          '[class*="chat-welcome" i]',
         ],
         requiredSelectorMode: 'any',
         minMainTextLength: 40,
@@ -1923,33 +1923,33 @@ async function captureAgents(page) {
             minMainTextLength: 100,
           })) && sectionOk;
 
-          // Navigate through remaining builder steps using direct URL navigation.
-          // Each step maps to /agents/builder-v2/{id}/{stepSlug} per
-          // useAgentBuilderNavigation in the frontend source.
+          // Navigate through remaining builder steps by clicking step buttons.
+          // Builder steps are managed via internal React state — all steps share
+          // the URL /agents/builder-v2/{id} (no per-step URL slugs).
           const steps = [
-            { slug: 'facets', shot: '06-builder-facets', contentHints: ['Facet Values'], requiredTexts: ['Facet Values'] },
+            { name: 'facets', shot: '06-builder-facets', contentHints: ['Facet Values'], requiredTexts: ['Facet Values'] },
             {
-              slug: 'instructions',
+              name: 'instructions',
               shot: '07-builder-instructions',
               contentHints: ['Optional Settings'],
               requiredTexts: ['Optional Settings'],
             },
             {
-              slug: 'identity',
+              name: 'identity',
               shot: '08-builder-identity',
               contentHints: ['Identity', 'Voice'],
               requiredTexts: ['Identity', 'Voice'],
               requiredTextMode: 'all',
             },
             {
-              slug: 'appearance',
+              name: 'appearance',
               shot: '09-builder-appearance',
               contentHints: ['Appearance', 'Physical Description'],
               requiredTexts: ['Appearance', 'Physical Description'],
               requiredTextMode: 'all',
             },
             {
-              slug: 'review',
+              name: 'review',
               shot: '10-builder-review',
               contentHints: ['Mint Agent', 'Save Changes', 'Preview'],
               requiredTexts: ['Preview'],
@@ -1957,31 +1957,36 @@ async function captureAgents(page) {
           ];
 
           for (const step of steps) {
-            const stepUrl = getWorkspaceUrl(`/agents/builder-v2/${benchmarkBuilderId}/${step.slug}`);
-            const reached = await gotoWithRetry(page, stepUrl, {
-              label: `agents-builder-step-${step.slug}`,
-              retries: 2,
-            });
-            if (!reached) {
-              console.log(`  ⚠ Could not navigate to builder step: ${step.slug}`);
+            // Click the step name in the builder nav or click "Next" to advance
+            const stepClicked =
+              (await clickButtonByText(page, step.name, 3000)) ||
+              (await clickFirstVisible(page, [
+                `[aria-label*="${step.name}" i]`,
+                `[data-testid*="${step.name}" i]`,
+              ])) ||
+              (await clickButtonByText(page, 'next', 2000));
+            if (!stepClicked) {
+              console.log(`  ⚠ Could not navigate to builder step: ${step.name}`);
               continue;
             }
+            await delay(TIMING.builderStepWait);
             await waitForNetworkIdle(page);
             await waitForLoaders(page, 8000);
 
             // Wait for step-specific content to render (not just the page shell)
             const hasStepContent = await waitForBodyTextAny(page, step.contentHints, 10000);
             if (!hasStepContent) {
-              console.log(`  ⚠ Builder step ${step.slug} content not detected — retrying`);
-              // Retry once with a page reload
-              await gotoWithRetry(page, stepUrl, { label: `agents-builder-step-${step.slug}-retry`, retries: 1 });
+              console.log(`  ⚠ Builder step ${step.name} content not detected — trying Next button`);
+              // Fallback: try clicking Next to advance past any intermediate state
+              await clickButtonByText(page, 'next', 2000);
+              await delay(TIMING.builderStepWait);
               await waitForNetworkIdle(page);
               await waitForLoaders(page, 10000);
               await waitForBodyTextAny(page, step.contentHints, 12000);
             }
 
             const stepShot = await takeScreenshot(page, step.shot, 'agents', {
-              routeIncludes: [`/agents/builder-v2/${benchmarkBuilderId}/${step.slug}`],
+              routeIncludes: ['/agents/builder-v2/'],
               requiredTexts: step.requiredTexts,
               requiredTextMode: step.requiredTextMode || 'any',
               minMainTextLength: 100,
@@ -2051,7 +2056,7 @@ async function captureAgents(page) {
       const modalShot = await takeScreenshot(page, '05a-create-agent-modal', 'agents', {
         requiredSelectors: ['[data-testid="generate-agent-modal"]', '[data-testid="generate-agent-form"]'],
         requiredSelectorMode: 'any',
-        requiredTexts: ['Generate Agent', 'Agent Objective'],
+        requiredTexts: ['Generate', 'Describe your agent'],
         requiredTextMode: 'all',
         requireDialog: true,
         containerSelector: '[data-testid="generate-agent-modal"], [data-testid="generate-agent-form"], [role="dialog"]',
@@ -2100,11 +2105,11 @@ async function capturePeople(page) {
 
   // Wait for content to load
   await waitForContent(page, [
-    '[class*="crm"]',
     '[class*="population"]',
     '[data-testid*="population"]',
     'table',
-    '[class*="list"]'
+    '[class*="list"]',
+    '[class*="layout"]'
   ]);
 
   // Wait for population card avatar images to finish loading
@@ -2126,9 +2131,9 @@ async function capturePeople(page) {
       requiredTexts: ['Populations'],
     },
     {
-      paths: ['/people/humans', '/audience/community'],
+      paths: ['/people/community', '/audience/community'],
       name: '03-humans',
-      routeIncludes: ['/humans', '/community'],
+      routeIncludes: ['/community'],
       requiredSelectors: ['table tbody tr [data-testid="creator-name"]', 'table tbody tr'],
       requiredTexts: ['Last Active'],
     },
@@ -2158,8 +2163,9 @@ async function capturePeople(page) {
           }
           // Wait for actual page content (not just any input/button)
           await waitForContent(page, [
-            'table', '[class*="population" i]', '[class*="crm" i]',
-            '[class*="humans" i]', '[class*="list" i]', '[class*="properties" i]',
+            'table', '[class*="population" i]', '[class*="layout" i]',
+            '[class*="community" i]', '[class*="list" i]', '[class*="properties" i]',
+            '[class*="contacts" i]',
           ], 8000);
           await waitForLoaders(page, 5000);
           // Wait for avatar/profile images on population and human cards
@@ -2207,11 +2213,11 @@ async function capturePeople(page) {
 
   try {
     // Contact profile: click the name link in the first row on humans page.
-    for (const p of ['/people/humans', '/audience/community']) {
+    for (const p of ['/people/community', '/audience/community']) {
       const humansUrl = getWorkspaceUrl(p);
       if (!(await gotoWithRetry(page, humansUrl, { label: 'people-humans' }))) continue;
 
-      if (!urlIncludesOneOf(page.url(), ['/humans', '/community'])) {
+      if (!urlIncludesOneOf(page.url(), ['/community'])) {
         console.log('  ⚠ Redirected away from humans page — skipping contact profile');
         continue;
       }
@@ -2357,7 +2363,7 @@ async function capturePeople(page) {
 
   // Import flow: try to find and click import button on humans page
   try {
-    for (const p of ['/people/humans', '/audience/community']) {
+    for (const p of ['/people/community', '/audience/community']) {
       const humansUrl = getWorkspaceUrl(p);
       if (!(await gotoWithRetry(page, humansUrl, { label: 'people-import' }))) continue;
       const importClicked =
@@ -2382,7 +2388,7 @@ async function capturePeople(page) {
 
   // Filter/Search UI on humans page
   try {
-    for (const p of ['/people/humans', '/audience/community']) {
+    for (const p of ['/people/community', '/audience/community']) {
       const humansUrl = getWorkspaceUrl(p);
       if (!(await gotoWithRetry(page, humansUrl, { label: 'people-filters' }))) continue;
       const searchInput = await page.$('input[type="search"], input[placeholder*="search" i]');
@@ -2955,16 +2961,16 @@ async function captureWorkflows(page) {
   // Wait for workflow cards
   await waitForContent(page, [
     '[data-testid="workflow-card"]',
-    '[class*="workflowCard"]',
     '[class*="flow"]',
-    '[class*="orchestration"]'
+    '[class*="orchestration"]',
+    '[class*="card" i]'
   ]);
 
   let sectionOk = true;
 
   sectionOk = Boolean(await takeScreenshot(page, '01-workflows-main', 'workflows', {
     routeIncludes: ['/workflow'],
-    requiredSelectors: ['[data-testid="workflow-card"]', '[class*="workflowCard"]'],
+    requiredSelectors: ['[data-testid="workflow-card"]', '[class*="flow"]'],
     requiredSelectorMode: 'any',
     minMainTextLength: 100,
   })) && sectionOk;
@@ -2979,8 +2985,8 @@ async function captureWorkflows(page) {
         card.click();
         return true;
       }
-      // Fallback: click any element with workflow card class
-      const classCards = document.querySelectorAll('[class*="workflowCard"], [class*="orchestration"]');
+      // Fallback: click any element with workflow/flow class
+      const classCards = document.querySelectorAll('[class*="flow"], [class*="orchestration"]');
       for (const c of classCards) {
         c.click();
         return true;
@@ -3145,7 +3151,7 @@ async function captureWorkflows(page) {
     const mainLoaded = await gotoWithRetry(page, workflowUrl, { label: 'workflow-for-create-dialog' });
     if (mainLoaded) {
       await waitForContent(page, [
-        '[data-testid="workflow-card"]', '[class*="workflowCard"]',
+        '[data-testid="workflow-card"]', '[class*="card" i]',
         '[class*="flow"]', 'button',
       ], 5000);
       const opened =
@@ -3191,7 +3197,7 @@ async function captureWorkflows(page) {
       if (!mainWorkflowLoaded) continue;
 
       await waitForContent(page, [
-        '[data-testid="workflow-card"]', '[class*="workflowCard"]',
+        '[data-testid="workflow-card"]', '[class*="card" i]',
         '[class*="flow"]', '[class*="orchestration"]',
       ], 5000);
 
@@ -3253,7 +3259,7 @@ async function captureWorkflows(page) {
     const mainLoaded = await gotoWithRetry(page, workflowUrl, { label: 'workflow-for-run-detail' });
     if (mainLoaded) {
       await waitForContent(page, [
-        '[data-testid="workflow-card"]', '[class*="workflowCard"]',
+        '[data-testid="workflow-card"]', '[class*="card" i]',
         '[class*="flow"]', '[class*="orchestration"]',
       ], 5000);
       const tabClicked = await clickButtonByText(page, 'conversations', 3000);
@@ -3411,7 +3417,7 @@ async function captureSettings(page) {
       if (page.url().includes('api-management')) {
         const apiShot = await takeScreenshot(page, '04-api-management', 'settings', {
           routeIncludes: ['/workspace/settings/api-management'],
-          requiredTexts: ['API Management Not Available', 'Create API Key', 'View API Docs', 'No API keys found.'],
+          requiredTexts: ['API Management', 'Create API App', 'No API keys found.', 'API Management is not enabled'],
           minMainTextLength: 100,
         });
         if (!apiShot) {

@@ -173,7 +173,7 @@ When the generation-first flow is enabled, the opening modal asks for:
 | Field | What it does |
 |---|---|
 | **Agent Name** | The initial display name for the new agent |
-| **Agent Objective** | The job you want the generated agent to perform |
+| **Describe your agent's role** | The job you want the generated agent to perform |
 | **Agent Type** | The starting agent category |
 
 After you click **Generate**, the same modal switches into a progress state and cycles through status messages until the builder opens.
