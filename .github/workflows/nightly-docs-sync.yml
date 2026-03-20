@@ -232,13 +232,13 @@ jobs:
           if-no-files-found: ignore
 
   qa-doc-claims:
-    name: qa-doc-claims (shard ${{ matrix.shard }}/2)
+    name: qa-doc-claims (shard ${{ matrix.shard }}/10)
     runs-on: ubuntu-latest
     timeout-minutes: 35
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     steps:
       - name: Checkout documentation repo
@@ -267,8 +267,8 @@ jobs:
           VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
         run: |
-          echo "Running doc-claim Playwright shard ${{ matrix.shard }}/2..."
-          npm run test:pw -- --shard=${{ matrix.shard }}/2 --retries=0 --max-failures=25
+          echo "Running doc-claim Playwright shard ${{ matrix.shard }}/10..."
+          npm run test:pw -- --shard=${{ matrix.shard }}/10 --retries=0 --max-failures=25
         continue-on-error: true
 
       - name: Upload doc-claim artifacts
