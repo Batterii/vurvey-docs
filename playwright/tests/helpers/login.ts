@@ -5,9 +5,9 @@ const PASSWORD = process.env.VURVEY_PASSWORD || '';
 
 /**
  * Firebase API key used by the staging Vurvey SPA.
- * Extracted from the app's Firebase config / network requests.
+ * Read from FIREBASE_API_KEY env var (set in playwright/.env or CI secrets).
  */
-const FIREBASE_API_KEY = 'AIzaSyBo3WI_YKn6yr0H6Dl_8me9N9u6_Wciskg';
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY || '';
 
 /**
  * Authenticate by calling the Firebase REST API and injecting the auth
@@ -20,6 +20,9 @@ const FIREBASE_API_KEY = 'AIzaSyBo3WI_YKn6yr0H6Dl_8me9N9u6_Wciskg';
 export async function loginViaFirebaseREST(page: Page): Promise<void> {
   if (!EMAIL || !PASSWORD) {
     throw new Error('VURVEY_EMAIL and VURVEY_PASSWORD env vars required for login');
+  }
+  if (!FIREBASE_API_KEY) {
+    throw new Error('FIREBASE_API_KEY env var required for Firebase REST login');
   }
 
   await page.goto('/');
