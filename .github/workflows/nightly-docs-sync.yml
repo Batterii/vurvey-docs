@@ -268,7 +268,7 @@ jobs:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
         run: |
           echo "Running doc-claim Playwright shard ${{ matrix.shard }}/20..."
-          npm run test:pw -- --shard=${{ matrix.shard }}/20 --retries=0 --max-failures=25
+          npm run test:pw -- --shard=${{ matrix.shard }}/20 --retries=0 --max-failures=10
         continue-on-error: true
 
       - name: Upload doc-claim artifacts
