@@ -1,0 +1,632 @@
+{
+  "startedAt": "2026-03-20T17:19:47.899Z",
+  "baseUrl": "https://staging.vurvey.dev",
+  "strict": false,
+  "captureOnly": [],
+  "issues": [],
+  "screenshots": [
+    {
+      "capturedAt": "2026-03-20T17:19:52.814Z",
+      "path": "home/00-login-page.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/",
+      "diagnostics": {
+        "mainTextLength": 1639,
+        "structuredCount": 0,
+        "centeredSpinnerCount": 2,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": false
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:19:54.048Z",
+      "path": "home/00b-email-login-clicked.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/",
+      "diagnostics": {
+        "mainTextLength": 1498,
+        "structuredCount": 1,
+        "centeredSpinnerCount": 0,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": false
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:20:27.144Z",
+      "path": "home/03-after-login.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/",
+      "diagnostics": {
+        "mainTextLength": 1719,
+        "structuredCount": 18,
+        "centeredSpinnerCount": 7,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:20:51.420Z",
+      "path": "forecast/01-forecast-main.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/forecast",
+      "diagnostics": {
+        "mainTextLength": 1663,
+        "structuredCount": 4,
+        "centeredSpinnerCount": 3,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:20:51.625Z",
+      "path": "workflows/01-workflows-main.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/workflow/flows",
+      "diagnostics": {
+        "mainTextLength": 1653,
+        "structuredCount": 7,
+        "centeredSpinnerCount": 3,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:20:51.952Z",
+      "path": "people/01-people-main.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/people/populations",
+      "diagnostics": {
+        "mainTextLength": 1554,
+        "structuredCount": 0,
+        "centeredSpinnerCount": 2,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:20.630Z",
+      "path": "datasets/01-datasets-main.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/datasets",
+      "diagnostics": {
+        "mainTextLength": 1634,
+        "structuredCount": 7,
+        "centeredSpinnerCount": 2,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:21.013Z",
+      "path": "home/01-chat-main.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/",
+      "diagnostics": {
+        "mainTextLength": 1711,
+        "structuredCount": 18,
+        "centeredSpinnerCount": 7,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:21.199Z",
+      "path": "campaigns/01-campaigns-gallery.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/campaigns",
+      "diagnostics": {
+        "mainTextLength": 1662,
+        "structuredCount": 7,
+        "centeredSpinnerCount": 3,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:21.323Z",
+      "path": "settings/01-general-settings.png",
+      "ok": false,
+      "reason": "global-error-state",
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/workspace/settings"
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:25.525Z",
+      "path": "home/02-chat-welcome-header.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/",
+      "diagnostics": {
+        "mainTextLength": 1717,
+        "structuredCount": 18,
+        "centeredSpinnerCount": 7,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:27.749Z",
+      "path": "home/03-chat-toolbar.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/",
+      "diagnostics": {
+        "mainTextLength": 1717,
+        "structuredCount": 18,
+        "centeredSpinnerCount": 7,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:29.944Z",
+      "path": "home/04-conversation-sidebar.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/",
+      "diagnostics": {
+        "mainTextLength": 1717,
+        "structuredCount": 18,
+        "centeredSpinnerCount": 7,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:32.363Z",
+      "path": "campaigns/03-templates.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/campaigns/templates",
+      "diagnostics": {
+        "mainTextLength": 1390,
+        "structuredCount": 0,
+        "centeredSpinnerCount": 1,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": false
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:32.526Z",
+      "path": "rewards/01-rewards-main.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/rewards",
+      "diagnostics": {
+        "mainTextLength": 1633,
+        "structuredCount": 7,
+        "centeredSpinnerCount": 1,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:34.578Z",
+      "path": "people/02-populations.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/people/populations",
+      "diagnostics": {
+        "mainTextLength": 1640,
+        "structuredCount": 7,
+        "centeredSpinnerCount": 2,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:49.325Z",
+      "path": "agents/01-agents-gallery.png",
+      "ok": false,
+      "reason": "missing required selector",
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/agents",
+      "diagnostics": {
+        "mainTextLength": 1613,
+        "structuredCount": 7,
+        "centeredSpinnerCount": 4,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:55.843Z",
+      "path": "home/05-agents-dropdown.png",
+      "ok": false,
+      "reason": "missing required text",
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/",
+      "diagnostics": {
+        "mainTextLength": 1857,
+        "structuredCount": 20,
+        "centeredSpinnerCount": 8,
+        "visibleLoaderCount": 0,
+        "hasDialog": true,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:21:58.687Z",
+      "path": "home/06-sources-dropdown.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/",
+      "diagnostics": {
+        "mainTextLength": 1754,
+        "structuredCount": 19,
+        "centeredSpinnerCount": 10,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:22:01.179Z",
+      "path": "home/07-images-dropdown.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/",
+      "diagnostics": {
+        "mainTextLength": 1768,
+        "structuredCount": 19,
+        "centeredSpinnerCount": 12,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:22:03.611Z",
+      "path": "home/08-tools-dropdown.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/",
+      "diagnostics": {
+        "mainTextLength": 1778,
+        "structuredCount": 19,
+        "centeredSpinnerCount": 12,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:22:06.978Z",
+      "path": "settings/02-ai-models.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/workspace/settings/ai-models",
+      "diagnostics": {
+        "mainTextLength": 1533,
+        "structuredCount": 0,
+        "centeredSpinnerCount": 1,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:22:47.309Z",
+      "path": "campaigns/04-usage.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/campaigns/usage",
+      "diagnostics": {
+        "mainTextLength": 2079,
+        "structuredCount": 43,
+        "centeredSpinnerCount": 0,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:22:47.446Z",
+      "path": "settings/03-members.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/workspace/members",
+      "diagnostics": {
+        "mainTextLength": 2690,
+        "structuredCount": 8,
+        "centeredSpinnerCount": 0,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:22:52.089Z",
+      "path": "people/03-humans.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/people/community",
+      "diagnostics": {
+        "mainTextLength": 4827,
+        "structuredCount": 8,
+        "centeredSpinnerCount": 1,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:23:16.936Z",
+      "path": "workflows/03-upcoming-runs.png",
+      "ok": false,
+      "reason": "global-error-state",
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/workflow/upcoming-runs"
+    },
+    {
+      "capturedAt": "2026-03-20T17:23:19.319Z",
+      "path": "settings/04-api-management.png",
+      "ok": false,
+      "reason": "missing required text",
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193",
+      "diagnostics": {
+        "mainTextLength": 1390,
+        "structuredCount": 0,
+        "centeredSpinnerCount": 1,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": false
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:23:34.718Z",
+      "path": "people/04-lists-segments.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/people/lists",
+      "diagnostics": {
+        "mainTextLength": 2368,
+        "structuredCount": 9,
+        "centeredSpinnerCount": 1,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:23:38.645Z",
+      "path": "campaigns/05-magic-reels.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/campaigns/magic-reels",
+      "diagnostics": {
+        "mainTextLength": 1646,
+        "structuredCount": 8,
+        "centeredSpinnerCount": 1,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:23:47.343Z",
+      "path": "integrations/01-integrations-main.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/settings/integrations",
+      "diagnostics": {
+        "mainTextLength": 1879,
+        "structuredCount": 0,
+        "centeredSpinnerCount": 0,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:24:06.866Z",
+      "path": "campaigns/05a-magic-reel-editor.png",
+      "ok": false,
+      "reason": "global-error-state",
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/reel/9e00f530-2f5d-4c5d-803e-2e131e1f80c4"
+    },
+    {
+      "capturedAt": "2026-03-20T17:24:11.488Z",
+      "path": "workflows/04-workflow-templates.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/workflow/templates",
+      "diagnostics": {
+        "mainTextLength": 1655,
+        "structuredCount": 0,
+        "centeredSpinnerCount": 0,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:24:41.259Z",
+      "path": "people/05-properties.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/people/properties",
+      "diagnostics": {
+        "mainTextLength": 3652,
+        "structuredCount": 9,
+        "centeredSpinnerCount": 1,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:25:08.659Z",
+      "path": "workflows/05-workflow-conversations.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/workflow/conversations",
+      "diagnostics": {
+        "mainTextLength": 2243,
+        "structuredCount": 24,
+        "centeredSpinnerCount": 15,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:26:12.126Z",
+      "path": "home/09-upload-button.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/",
+      "diagnostics": {
+        "mainTextLength": 1744,
+        "structuredCount": 18,
+        "centeredSpinnerCount": 7,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:26:49.789Z",
+      "path": "agents/02-agents-search.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/agents",
+      "diagnostics": {
+        "mainTextLength": 1613,
+        "structuredCount": 7,
+        "centeredSpinnerCount": 4,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:28:17.766Z",
+      "path": "agents/04b-agent-edit-credential.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/agents/builder-v2/b06c8939-4fc1-40e7-830e-099f3439a70a",
+      "diagnostics": {
+        "mainTextLength": 1615,
+        "structuredCount": 21,
+        "centeredSpinnerCount": 17,
+        "visibleLoaderCount": 0,
+        "hasDialog": false,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:29:02.309Z",
+      "path": "agents/04c-agent-benchmark-start.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/agents/builder-v2/b06c8939-4fc1-40e7-830e-099f3439a70a",
+      "diagnostics": {
+        "mainTextLength": 1989,
+        "structuredCount": 22,
+        "centeredSpinnerCount": 18,
+        "visibleLoaderCount": 0,
+        "hasDialog": true,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:30:59.332Z",
+      "path": "agents/05-builder-objective.png",
+      "ok": false,
+      "reason": "missing required text",
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/agents/builder-v2/b06c8939-4fc1-40e7-830e-099f3439a70a?mode=edit",
+      "diagnostics": {
+        "mainTextLength": 2095,
+        "structuredCount": 25,
+        "centeredSpinnerCount": 12,
+        "visibleLoaderCount": 0,
+        "hasDialog": true,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:32:03.351Z",
+      "path": "agents/06-builder-facets.png",
+      "ok": false,
+      "reason": "missing required text",
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/agents/builder-v2/b06c8939-4fc1-40e7-830e-099f3439a70a?mode=edit",
+      "diagnostics": {
+        "mainTextLength": 42440,
+        "structuredCount": 204,
+        "centeredSpinnerCount": 18,
+        "visibleLoaderCount": 0,
+        "hasDialog": true,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:32:30.921Z",
+      "path": "agents/10-builder-review.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/agents/builder-v2/b06c8939-4fc1-40e7-830e-099f3439a70a?mode=edit",
+      "diagnostics": {
+        "mainTextLength": 42440,
+        "structuredCount": 204,
+        "centeredSpinnerCount": 18,
+        "visibleLoaderCount": 0,
+        "hasDialog": true,
+        "hasMenu": true
+      }
+    },
+    {
+      "capturedAt": "2026-03-20T17:33:22.533Z",
+      "path": "agents/05a-create-agent-modal.png",
+      "ok": true,
+      "url": "https://staging.vurvey.dev/07e5edb5-e739-4a35-9f82-cc6cec7c0193/agents/builder",
+      "diagnostics": {
+        "mainTextLength": 224,
+        "structuredCount": 2,
+        "centeredSpinnerCount": 6,
+        "visibleLoaderCount": 3,
+        "hasDialog": true,
+        "hasMenu": true
+      }
+    }
+  ],
+  "endedAt": "2026-03-20T17:33:32.021Z",
+  "workspaceId": "07e5edb5-e739-4a35-9f82-cc6cec7c0193",
+  "sectionResults": [
+    {
+      "name": "campaigns",
+      "ok": true
+    },
+    {
+      "name": "agents",
+      "ok": false
+    },
+    {
+      "name": "people",
+      "ok": true
+    },
+    {
+      "name": "home",
+      "ok": false
+    },
+    {
+      "name": "workflows",
+      "ok": false
+    },
+    {
+      "name": "datasets",
+      "ok": true
+    },
+    {
+      "name": "settings",
+      "ok": false
+    },
+    {
+      "name": "integrations",
+      "ok": true
+    },
+    {
+      "name": "forecast",
+      "ok": true
+    },
+    {
+      "name": "rewards",
+      "ok": true
+    }
+  ],
+  "failedSections": [
+    "agents",
+    "home",
+    "workflows",
+    "settings"
+  ],
+  "fullRun": true
+}

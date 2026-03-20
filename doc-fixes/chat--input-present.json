@@ -1,0 +1,22 @@
+{
+  "title": "Doc update needed: Chat: Input present",
+  "description": "Documentation may not match current UI. Not found",
+  "documentation_file": "docs/guide/home.md",
+  "section": "Chat",
+  "current_text": "",
+  "correct_text": "",
+  "source": "qa-test-suite",
+  "qa_failure": {
+    "test_name": "Chat: Input present",
+    "error": "Not found",
+    "reproSteps": [
+      "1. Navigate to https://staging.vurvey.dev",
+      "2. Log in with test credentials",
+      "3. Set viewport: Desktop (1920x1080)",
+      "4. Go to: /",
+      "5. Target selector/text: chat input",
+      "6. Test: Chat: Input present",
+      "7. Section: Home/Chat"
+    ]
+  }
+}
