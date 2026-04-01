@@ -16,6 +16,10 @@ The Settings area controls workspace-level configuration. In current `vurvey-web
 
 An **API Management** route still exists in the codebase, but it is not part of the visible Settings tab strip in the current UI.
 
+## Integrations
+
+Workspace integrations are managed on the dedicated [Integrations](/guide/integrations) page, not in Settings. Use that page to connect, manage, and disconnect third-party services.
+
 ## General Settings
 
 The General Settings page currently exposes these sections:
