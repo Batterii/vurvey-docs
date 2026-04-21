@@ -39,6 +39,9 @@ qa-failure-report.md
 screenshot-validation-report.md
 qa-report.json
 qa-output/
+qa-artifacts-download/
+nightly-*/
+collected-artifacts/
 
 # Screenshot capture retries/errors (noise; keep docs screenshots clean)
 docs/public/screenshots/retry-*.png
