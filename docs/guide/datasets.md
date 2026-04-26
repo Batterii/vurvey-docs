@@ -4,9 +4,9 @@ Datasets are your AI's knowledge base. Upload research reports, survey exports, 
 
 ## Overview
 
-![Datasets Dashboard](/screenshots/datasets/01-datasets-main.png)
+![Loaded Dataset Detail](/screenshots/datasets/06-dataset-with-documents.png)
 
-The Datasets page displays all your datasets in a card-based gallery. Each card shows the dataset name, a brief description, the creator, and the total number of files inside.
+A loaded dataset shows processing stats, action buttons, search, and the file table in one place. Use this view to confirm files are ready, add more files, manage labels, and start conversations when processing is complete.
 
 ::: tip Why Use Datasets?
 Think of datasets as giving your AI agents specialized expertise. When you connect a dataset to an agent or conversation, the AI can draw on everything you've uploaded — product specs, brand tracking reports, interview transcripts, competitive intelligence — to give you more informed, accurate answers.
@@ -24,17 +24,17 @@ Access **Datasets** from the main sidebar. The section includes two tabs:
 
 ## Browsing Your Datasets
 
-![Datasets Dashboard](/screenshots/datasets/01-datasets-main.png)
+![Loaded Dataset Files](/screenshots/datasets/04-dataset-detail.png)
 
-Datasets appear as cards in a responsive grid. Each card shows:
+From **All Datasets**, open a dataset card to inspect its files and processing state. Inside a loaded dataset, each file row shows:
 
-- **Name** — the dataset title
-- **Description** — a summary of what the dataset contains
-- **Creator** — who created it ("by Jane Smith")
-- **File count** — total documents, images, videos, and audio files
-- **Add Files** button for quick uploads (if you have edit access)
+- **Name** - the file name
+- **Type** - document, spreadsheet, presentation, video, or other supported media
+- **Status** - whether the file has uploaded, processed, failed, or is still processing
+- **Labels** - metadata used to help agents retrieve the right files
+- **Row menu** - actions such as conversation, label editing, and deletion
 
-Use the **Search** bar above the grid to find datasets by name, and the **Sort By** dropdown to change the display order.
+Use the **Search** bar to find files by name. On the dataset list, use search and sorting controls to find the dataset you want to open.
 
 ::: info Empty State — No Datasets Yet
 Even when your workspace has no datasets yet, the current list view still injects a **Create Dataset** card into the grid. Older docs that say there is no create action in the gallery are outdated.
@@ -350,15 +350,15 @@ Click the three-dot menu (⋯) on any file row for:
 
 ## Labels
 
-Labels help you organize files within a dataset using simple **key: value** pairs. For example:
+Labels help you organize files within a dataset using simple **key: value** pairs.
 
-```
-category: skincare
-region: north-america
-quarter: Q4-2026
-source: focus-group
-status: reviewed
-```
+| Label key | Example value |
+|---|---|
+| `category` | `skincare` |
+| `region` | `north-america` |
+| `quarter` | `Q4-2026` |
+| `source` | `focus-group` |
+| `status` | `reviewed` |
 
 ### Adding Labels
 
@@ -390,50 +390,50 @@ Here are complete labeling schemes for common research scenarios. Use these as s
 
 #### Example 1: Beauty Brand Research
 
-```
-product-line: skincare | haircare | makeup | fragrance
-study-type: concept-test | usage-attitudes | brand-tracking | claims-test
-quarter: Q1-2026 | Q2-2026 | Q3-2026 | Q4-2026
-region: north-america | europe | asia-pacific | latin-america
-source: online-survey | focus-group | in-depth-interview | social-listening
-status: draft | reviewed | final
-```
+| Label key | Suggested values |
+|---|---|
+| `product-line` | `skincare`, `haircare`, `makeup`, `fragrance` |
+| `study-type` | `concept-test`, `usage-attitudes`, `brand-tracking`, `claims-test` |
+| `quarter` | `Q1-2026`, `Q2-2026`, `Q3-2026`, `Q4-2026` |
+| `region` | `north-america`, `europe`, `asia-pacific`, `latin-america` |
+| `source` | `online-survey`, `focus-group`, `in-depth-interview`, `social-listening` |
+| `status` | `draft`, `reviewed`, `final` |
 
 **How to use it:** When your agent asks questions about skincare concept tests from Q1, the labels let the AI zero in on exactly the right files instead of searching your entire dataset.
 
 #### Example 2: CPG Category Management
 
-```
-category: beverages | snacks | personal-care | household | frozen-foods
-data-source: nielsen | iri | internal-survey | social-listening | retailer-pos
-time-period: weekly | monthly | quarterly | annual
-channel: grocery | mass | convenience | online | club
-brand: own-brand | competitor-a | competitor-b | private-label
-```
+| Label key | Suggested values |
+|---|---|
+| `category` | `beverages`, `snacks`, `personal-care`, `household`, `frozen-foods` |
+| `data-source` | `nielsen`, `iri`, `internal-survey`, `social-listening`, `retailer-pos` |
+| `time-period` | `weekly`, `monthly`, `quarterly`, `annual` |
+| `channel` | `grocery`, `mass`, `convenience`, `online`, `club` |
+| `brand` | `own-brand`, `competitor-a`, `competitor-b`, `private-label` |
 
 **How to use it:** Ask your agent "Show me quarterly Nielsen trends for beverages in the grocery channel" and the labels help surface the most relevant data files.
 
 #### Example 3: Competitive Intelligence
 
-```
-competitor: competitor-a | competitor-b | competitor-c | competitor-d
-intel-type: pricing | messaging | product-launch | campaign | partnership
-confidence: confirmed | rumored | speculative
-date-collected: 2026-01 | 2026-02 | 2026-03
-source: press-release | website | social-media | industry-report | field-observation
-```
+| Label key | Suggested values |
+|---|---|
+| `competitor` | `competitor-a`, `competitor-b`, `competitor-c`, `competitor-d` |
+| `intel-type` | `pricing`, `messaging`, `product-launch`, `campaign`, `partnership` |
+| `confidence` | `confirmed`, `rumored`, `speculative` |
+| `date-collected` | `2026-01`, `2026-02`, `2026-03` |
+| `source` | `press-release`, `website`, `social-media`, `industry-report`, `field-observation` |
 
 **How to use it:** Track the freshness and reliability of your competitive intel. When the AI cites a source, you can quickly tell whether it's confirmed intelligence or a rumor.
 
 #### Example 4: Multi-Market Consumer Research
 
-```
-market: us | uk | germany | france | japan | brazil
-language: english | german | french | japanese | portuguese
-methodology: quant-survey | qual-interview | ethnography | diary-study
-wave: wave-1 | wave-2 | wave-3 | pre-launch | post-launch
-segment: gen-z | millennials | gen-x | boomers | all-ages
-```
+| Label key | Suggested values |
+|---|---|
+| `market` | `us`, `uk`, `germany`, `france`, `japan`, `brazil` |
+| `language` | `english`, `german`, `french`, `japanese`, `portuguese` |
+| `methodology` | `quant-survey`, `qual-interview`, `ethnography`, `diary-study` |
+| `wave` | `wave-1`, `wave-2`, `wave-3`, `pre-launch`, `post-launch` |
+| `segment` | `gen-z`, `millennials`, `gen-x`, `boomers`, `all-ages` |
 
 **How to use it:** Run cross-market comparisons by asking agents to analyze differences between segments or markets — the labels make it easy to pull the right files for each comparison.
 
