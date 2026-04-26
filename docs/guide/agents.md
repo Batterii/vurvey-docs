@@ -526,7 +526,7 @@ Here are some examples of descriptions that produce great avatars:
 
 ### Step 6: Review (Guided Builder)
 
-![Agent Review Credential Card](/screenshots/agents/04b-agent-edit-credential.png)
+![Agent Review Credential Card](/screenshots/agents/05-builder-objective.png)
 
 The final step brings everything together so you can review your agent's complete configuration before going live.
 
