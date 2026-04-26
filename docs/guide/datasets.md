@@ -118,7 +118,7 @@ After uploading, check the stats panel:
 
 | Button | Description |
 |--------|-------------|
-| **Add Files** | Upload new files from your computer or Google Drive |
+| **Add Files** | Upload new files from your computer, Google Drive, or SharePoint when enabled and connected |
 | **Share** | Manage who can view or edit this dataset (requires manage permissions) |
 | **Start Conversation** | Begin an AI chat that can reference everything in this dataset |
 
@@ -131,8 +131,9 @@ The detail-page **Start Conversation** button stays disabled until all files and
 | Surface | Current behavior |
 |---|---|
 | **Create Dataset** | Opens the dataset-creation dialog for name and description |
-| **Add Files** | Opens a dropdown with **Upload** and **Add via Google Drive** |
+| **Add Files** | Opens a dropdown with **Upload**, **Add via Google Drive**, and **Import from SharePoint** when the workspace has a saved SharePoint connection |
 | **Upload Files** | Shared `UploadFilesModal` used for picking, reviewing, and removing files before they are saved |
+| **Import from SharePoint** | Opens the SharePoint file browser and import modal when SharePoint is enabled and configured |
 | **File row menu** | Contextual menu with **Conversation**, **Edit Labels**, and **Delete** |
 | **Manage Labels** | Modal used for single-file and bulk label edits |
 | **Replace Existing Labels** | Warning modal shown when a bulk label action would overwrite existing values |
@@ -141,12 +142,13 @@ The detail-page **Start Conversation** button stays disabled until all files and
 
 ## Uploading Files
 
-Click **Add Files** to open the current dropdown trigger. From there you can choose local upload or Google Drive import. Local upload uses the shared **Upload Files** modal.
+Click **Add Files** to open the current dropdown trigger. From there you can choose local upload, Google Drive import, or SharePoint import when SharePoint is enabled and connected for the workspace. Local upload uses the shared **Upload Files** modal.
 
 | Option | Description |
 |--------|-------------|
 | **Upload** | Select files from your computer |
 | **Add via Google Drive** | Import files directly from Google Drive |
+| **Import from SharePoint** | Browse configured SharePoint sites, drives, folders, and files, then import selected files into the dataset |
 
 ### Supported File Types
 
@@ -213,6 +215,29 @@ When you choose **Add via Google Drive**:
 1. Authenticate with your Google account (one-time setup).
 2. Browse and select the files you want.
 3. Files are copied into Vurvey — they aren't linked, so future changes in Drive won't sync automatically.
+
+### SharePoint Import
+
+When SharePoint is enabled for the workspace and an admin has saved a valid connection, the **Add Files** menu includes **Import from SharePoint**.
+
+The SharePoint import flow:
+
+1. Opens the **Import from SharePoint** modal.
+2. Loads the configured SharePoint sites. If a Site URL was saved in Settings, browsing is restricted to that site.
+3. Lets you choose a site and drive.
+4. Lets you browse folders, search, refresh the current folder, and select files.
+5. Imports selected SharePoint files into the current dataset.
+6. Sends imported files through the same dataset processing queue as local and Google Drive uploads.
+
+The import result reports how many files were imported, skipped, or failed.
+
+::: info Setup Required
+If the modal says the SharePoint connection is not configured, open Workspace Settings and save the Microsoft SharePoint connection first. Admins configure the Tenant ID, Application (Client) ID, Client Secret Value, and optional Site URL.
+:::
+
+::: warning SharePoint Limits
+SharePoint imports currently support files, not folders as import targets. Files over 50 MB are skipped, and permission or missing-file errors are reported per file in the import result.
+:::
 
 ### Google Drive Import: Step-by-Step Walkthrough
 
