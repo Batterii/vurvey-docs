@@ -1,0 +1,22 @@
+{
+  "title": "Doc update needed: Campaigns: Create button visible",
+  "description": "Documentation may not match current UI. Create campaign button not found",
+  "documentation_file": "docs/guide/campaigns.md",
+  "section": "Campaigns",
+  "current_text": "",
+  "correct_text": "",
+  "source": "qa-test-suite",
+  "qa_failure": {
+    "test_name": "Campaigns: Create button visible",
+    "error": "Create campaign button not found",
+    "reproSteps": [
+      "1. Navigate to https://staging.vurvey.dev",
+      "2. Log in with test credentials",
+      "3. Set viewport: Desktop (1920x1080)",
+      "4. Go to: /campaigns",
+      "5. Target selector/text: data-testid:create-campaign-button",
+      "6. Test: Campaigns: Create button visible",
+      "7. Section: Nav: Campaigns"
+    ]
+  }
+}
