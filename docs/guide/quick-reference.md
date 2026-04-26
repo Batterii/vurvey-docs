@@ -69,12 +69,14 @@ Use the left sidebar to move between sections:
 | **Generate Agent** | Agents | Name, objective, type, then generation progress |
 | **Publish Campaign** | Campaign editor | **Group** and **Members** steps |
 | **Dataset file actions** | Dataset detail | **Conversation**, **Edit Labels**, **Delete** |
+| **Dataset SharePoint import** | Dataset detail > Add Files | **Import from SharePoint** when the workspace has SharePoint enabled and connected |
 | **Reel add-video menu** | Reel editor | **Upload Video**, **Search Videos**, **From Media Library** |
 | **Clip Editor** | Reel editor | Transcript/slider trimming plus **Save** and **Cancel** |
 | **Reel share panel** | Reel editor | Copy link, light/dark background, password protection, download |
 | **Workflow schedule** | Workflow builder | Hourly, Daily, Weekly, plus email notifications |
 | **Workflow conversation menu** | Workflow > Conversations | **Rename**, **Copy**, **Export**, **Delete** |
 | **Share dialog** | Agents / Campaigns / Datasets / Workflows | **General Access**, person-level **Viewer/Editor**, and **Copy link** |
+| **SharePoint connection settings** | Settings > Integrations / General Settings | Tenant ID, Application (Client) ID, Client Secret Value, optional Site URL, **Test connection**, **Save connection** |
 | **Integration connect chooser** | Integrations | **OAuth (Login)**, **API Key**, **Bearer Token**, **Cancel** |
 
 ### Finding Things

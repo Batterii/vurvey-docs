@@ -86,7 +86,7 @@ The following pages should exist. If any are missing, **create them** following 
 | Canvas & Image Studio | `docs/guide/canvas-and-image-studio.md` | `vurvey-web-manager/src/canvas/` |
 | Forecast | `docs/guide/forecast.md` | `vurvey-web-manager/src/forecast/` |
 | Rewards | `docs/guide/rewards.md` | `vurvey-web-manager/src/rewards/` |
-| Integrations | `docs/guide/integrations.md` | `vurvey-web-manager/src/integrations/` |
+| Integrations | `docs/guide/integrations.md` | `vurvey-web-manager/src/integrations/`, `vurvey-web-manager/src/workspace-settings/containers/workspace-settings/integrations/`, `vurvey-web-manager/src/workspace-settings/containers/workspace-settings/general-settings/*-card/`, `vurvey-web-manager/src/modals/` |
 | Reels | `docs/guide/reels.md` | `vurvey-web-manager/src/reel/` |
 | Admin (Enterprise) | `docs/guide/admin.md` | `vurvey-web-manager/src/admin/` |
 
@@ -124,7 +124,7 @@ For each claim, verify it against the authoritative backend source in `vurvey-ap
 | **Campaign Lifecycle** | `src/models/survey.ts`, `src/graphql/schema/survey.graphql` | Status enum values, allowed transitions, what each status means |
 | **File Uploads / Limits** | `src/routes/`, `src/config/`, frontend `src/config/file-upload.ts` | Accepted MIME types, size limits, processing pipelines |
 | **Rate Limits / Quotas** | `src/middleware/`, `src/config/` | Documented rate limits, quota enforcement logic |
-| **Integrations** | `src/services/providers/`, `src/models/composio-*.ts` | Integration types, auth methods, connection lifecycle states |
+| **Integrations** | `src/services/providers/`, `src/models/composio-*.ts`, `src/services/sharepoint/`, `src/models/workspace-sharepoint-connection.ts`, `src/api/workspace-sharepoint*.ts`, frontend `src/workspace-settings/containers/workspace-settings/`, `src/modals/sharepoint/`, `src/datasets/components/file-uploader/` | Integration types, auth methods, connection lifecycle states, workspace flags, import entry points |
 
 ### 3. Specific Verification Checklist
 
@@ -164,6 +164,11 @@ Run through each of these high-priority areas explicitly:
 - [ ] Flag names: verify documented feature flag names (`chatbotEnabled`, `workflowEnabled`, `forecastEnabled`) exist in the Workspace model
 - [ ] Gating behavior: verify that when a flag is off, the documented behavior matches (e.g., "section is hidden from navigation" vs "section shows an upgrade prompt")
 - [ ] Default values: verify documented default values for feature flags match the code
+
+#### Integrations and Import Sources
+- [ ] SharePoint: if `sharepointEnabled`, `WorkspaceSharepointConnection`, or `src/modals/sharepoint/` exists, verify Settings, Integrations, Datasets, and Quick Reference docs mention Microsoft SharePoint setup and dataset import
+- [ ] Dataset Add Files menu: verify every dropdown option in `src/datasets/components/file-uploader/` is documented, including conditional options
+- [ ] Workspace integration cards: verify cards under workspace settings are documented even when their code lives outside `src/integrations/`
 
 ### 4. Classification of Business Logic Errors
 

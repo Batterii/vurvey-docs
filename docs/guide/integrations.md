@@ -1,15 +1,16 @@
 # Integrations
 
-The Integrations page is the workspace connection manager for third-party services. In the current UI, the page header is **Third-Party Integrations** and it is backed by Composio-supported tools and user connections.
+The Integrations page is the workspace connection manager for third-party services. In the current UI, integration management can include both workspace-native integrations, such as Microsoft SharePoint, and Composio-supported tool connections.
 
 ![Integrations page](/screenshots/integrations/01-integrations-main.png)
 
 ## What the Page Does
 
-The page combines two data sets:
+The page can combine several kinds of connection state:
 
 - the list of **supported tools**
 - the current user's **connections**
+- workspace-level integration cards that depend on workspace feature flags
 
 From there, you can:
 
@@ -17,6 +18,48 @@ From there, you can:
 - start a new connection flow
 - see connection status
 - disconnect an existing connection
+- manage workspace-scoped integrations when you have the required permission
+
+## Microsoft SharePoint
+
+Microsoft SharePoint is a workspace-scoped integration. It appears only when `sharepointEnabled` is enabled for the workspace.
+
+The SharePoint card is labeled **Microsoft SharePoint** and explains that admins can connect SharePoint so files can be imported directly into datasets for indexing and embeddings without local downloads.
+
+### Setup
+
+Admins with the `sharepointSettings` permission can click **Connect** or **Manage** on the SharePoint card. The **Integrate with SharePoint** modal asks for:
+
+| Field | Description |
+|---|---|
+| **Tenant ID** | Microsoft Entra tenant identifier |
+| **Application (Client) ID** | Azure App Registration Overview value |
+| **Client Secret Value** | Secret value from the app registration. This is required the first time and can be left blank later to keep the saved secret |
+| **Site URL (Optional)** | Restricts browsing and imports to one SharePoint site |
+
+Use **Test connection** to validate Microsoft Graph access. Use **Save connection** to store the connection for the workspace.
+
+### Importing Files
+
+After a SharePoint connection is saved, dataset editors can use **Datasets > dataset detail > Add Files > Import from SharePoint**.
+
+The import modal lets users:
+
+- choose a SharePoint site and drive
+- browse folders
+- search SharePoint items
+- select files
+- import selected files into the current dataset
+
+Imported SharePoint files enter the same dataset processing flow as uploaded files.
+
+::: info Connection Scope
+The SharePoint connection belongs to the workspace, not to each individual user. If a Site URL is configured, browsing and imports are limited to that site.
+:::
+
+::: warning Availability
+If you do not see Microsoft SharePoint, the workspace flag may be off or your role may not include SharePoint settings permission.
+:::
 
 ## Categories
 

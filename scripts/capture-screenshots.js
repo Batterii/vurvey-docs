@@ -1537,17 +1537,24 @@ async function captureAgents(page) {
     minMainTextLength: 100,
   })) && sectionOk;
 
-  // For the search screenshot, type a search term to show the filter in action
+  // For the search screenshot, type a known DEMO agent name so the result
+  // shows the search in action instead of an empty loaded gallery.
   try {
     const searchInput = await page.$('input[type="search"], input[placeholder*="search" i], input[placeholder*="Search" i]');
     if (searchInput) {
       await searchInput.click();
       await delay(200);
-      await searchInput.type('Storyteller', { delay: 40 });
+      await searchInput.type(CONFIG.benchmarkAgentName || 'Devils Advocate', { delay: 40 });
       await delay(TIMING.postClickDelay);
       await waitForNetworkIdle(page);
       await waitForLoaders(page);
-      await takeScreenshot(page, '02-agents-search', 'agents');
+      await waitForBodyTextAny(page, [CONFIG.benchmarkAgentName || 'Devils Advocate'], 10000);
+      await takeScreenshot(page, '02-agents-search', 'agents', {
+        routeIncludes: ['/agents'],
+        requiredTexts: [CONFIG.benchmarkAgentName || 'Devils Advocate'],
+        forbiddenTexts: ['No agents found', 'No Agents Found'],
+        minMainTextLength: 100,
+      });
       // Clear the search to restore gallery
       await searchInput.click({ clickCount: 3 }); // select all
       await page.keyboard.press('Backspace');
@@ -1877,7 +1884,17 @@ async function captureAgents(page) {
           }
         }
 
-        await takeScreenshot(page, '04b-agent-edit-credential', 'agents');
+        if (agentIdentityReady) {
+          await takeScreenshot(page, '04b-agent-edit-credential', 'agents', {
+            routeIncludes: ['/agents/builder-v2/'],
+            requiredTexts: [CONFIG.benchmarkAgentName || 'Devils Advocate'],
+            forbiddenTexts: ['Untitled Agent'],
+            minMainTextLength: 120,
+          });
+        } else {
+          sectionOk = false;
+          recordSectionIssue('agents', 'benchmark-agent-identity-not-ready', {url: page.url()});
+        }
         const benchmarkResult = await captureBenchmarkFromEditView();
         benchmarkStateCaptured = Boolean(benchmarkResult?.started);
         if (!benchmarkStateCaptured) {
