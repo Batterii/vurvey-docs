@@ -19,6 +19,7 @@ Use the left sidebar to move between sections:
 | **Datasets** | File library -- upload documents, spreadsheets, media, and other files for AI analysis |
 | **Forecast** | Predictive analytics and trend projections based on your research data |
 | **Workflow** | Automated research pipelines -- build multi-step AI processes that run on their own *(Beta)* |
+| **Capabilities** | Blueprint-backed AI systems that package workflows, schedules, and structured outputs |
 
 ## Common Tasks at a Glance
 
@@ -44,9 +45,11 @@ Use the left sidebar to move between sections:
 | Create a reel | Campaigns > Magic Reels | Click **Add Reel**, save it, then use **Add Video** inside the editor |
 | Create from a template | Campaigns | Go to Templates tab, select a template, click **Use Template** |
 | Build an audience group | People | Go to Populations tab and create a new group |
+| Run a concept simulation | People > Simulations | Create concepts, add context, choose a population, then run the simulation when available |
 | Create an audience segment | People | Go to Lists & Segments tab, click **New Segment** |
 | Set up an automated workflow | Workflow | Click **Create new workflow** and design your pipeline |
 | Schedule a recurring workflow | Workflow | Open a workflow and use **Schedule** when workflow scheduling is enabled |
+| Deploy a capability | Capabilities | Click **+ New capability** or browse blueprints, configure workflows, then activate |
 
 ### Sharing and Collaboration
 
@@ -66,7 +69,7 @@ Use the left sidebar to move between sections:
 | **Agent selector** | Home / Canvas | Published-agent picker used to switch the active agent |
 | **Sources selector** | Home / Canvas | Quick dropdown plus modal for campaigns, datasets, files, videos, and audio drill-ins |
 | **Chat upload flow** | Home / Canvas | **Upload Files** modal followed by **Create new dataset** |
-| **Generate Agent** | Agents | Name, objective, type, then generation progress |
+| **Generate Agent** | Agents | Role brief, agent personality, facet review, then generation progress |
 | **Publish Campaign** | Campaign editor | **Group** and **Members** steps |
 | **Dataset file actions** | Dataset detail | **Conversation**, **Edit Labels**, **Delete** |
 | **Dataset SharePoint import** | Dataset detail > Add Files | **Import from SharePoint** when the workspace has SharePoint enabled and connected |
@@ -74,6 +77,8 @@ Use the left sidebar to move between sections:
 | **Clip Editor** | Reel editor | Transcript/slider trimming plus **Save** and **Cancel** |
 | **Reel share panel** | Reel editor | Copy link, light/dark background, password protection, download |
 | **Workflow schedule** | Workflow builder | Hourly, Daily, Weekly, plus email notifications |
+| **Prompt Form Canvas** | Workflow builder | The Prompt, Suggested Prompts, Guiding Controls, and Live Preview |
+| **Capability schedule** | Capability workflow detail | Daily, Hourly, Weekly, Monthly, and Custom schedule presets for head workflows |
 | **Workflow conversation menu** | Workflow > Conversations | **Rename**, **Copy**, **Export**, **Delete** |
 | **Share dialog** | Agents / Campaigns / Datasets / Workflows | **General Access**, person-level **Viewer/Editor**, and **Copy link** |
 | **SharePoint connection settings** | Settings > Integrations / General Settings | Tenant ID, Application (Client) ID, Client Secret Value, optional Site URL, **Test connection**, **Save connection** |
@@ -88,8 +93,10 @@ Use the left sidebar to move between sections:
 | Locate a dataset | Datasets page -- use the search field at the top |
 | View past conversations | Home -- open the Conversations panel in the sidebar, then click **View all** |
 | Search your contacts | People > Humans tab -- use the search field |
+| Search populations | People > Populations tab -- filter by Brand Populations or Vurvey Populations, then sort |
 | Find a scheduled workflow | Workflow > Upcoming Runs tab (when scheduling is enabled) |
 | Browse workflow templates | Workflow > Templates tab (when templates are enabled) |
+| Browse capability blueprints | Capabilities > Blueprints -- filter by tags or choose **Build from scratch** |
 
 ### Exporting Data
 
@@ -153,11 +160,12 @@ Start with **Gemini Flash** for most agents. Switch to **Claude** when persona c
 
 ## People Section Tabs
 
-The People section is organized into five tabs:
+The People section uses feature-dependent tabs:
 
 | Tab | What It Contains | Key Action |
 |---|---|---|
-| **Populations** | AI-generated audience groups for research | View demographics and analytics |
+| **Populations** | Brand and Vurvey audience populations for research | View demographics and analytics |
+| **Simulations** | Concept simulation setup and results when enabled | Create concepts, add context, and choose a population |
 | **Humans** | Individual contact records and participant profiles | Add contacts, view profiles |
 | **Lists & Segments** | Reusable audience groups for targeting | Create static lists or dynamic segments |
 | **Properties** | Custom attributes you track about contacts | Define properties, import via CSV |
@@ -212,6 +220,17 @@ After you upload a file, watch for these status indicators:
 | **Completed** | Finished successfully | Review results in Conversations |
 | **Failed** | An error occurred during execution | Check the Run tab for error details |
 | **Cancelled** | Manually stopped before completing | Re-run when ready |
+
+## Capability Statuses
+
+| Status | What It Means | Action Needed |
+|---|---|---|
+| **DRAFT** | Capability is still being configured | Finish setup and activate when ready |
+| **ACTIVE** | Capability can run and produce output | Monitor dashboard and workflow runs |
+| **PAUSED** | Capability is temporarily stopped | Resume when it should run again |
+| **BROKEN** | Capability needs attention before normal use | Review the broken-state banner and workflow details |
+| **ARCHIVED** | Capability is preserved for reference | Restore or duplicate if more work is needed |
+| **DELETED** | Capability has been removed from active use | None |
 
 ## Supported File Formats
 
@@ -348,6 +367,7 @@ Common prompt patterns for research:
 | **Campaign** | A research survey or study that collects responses from participants |
 | **Dataset** | A collection of uploaded files that the AI can analyze and reference |
 | **Workflow** | An automated multi-step research process using AI agents |
+| **Capability** | A reusable AI system that packages workflows, schedules, and structured outputs |
 | **Credits** | The currency used for AI operations on the platform |
 | **Facets** | The demographic and personality traits that define an agent's character |
 | **Magic Reels** | AI-compiled video highlights from campaign responses |
@@ -376,6 +396,7 @@ Common prompt patterns for research:
 - [Datasets](/guide/datasets) -- Uploading and organizing files
 - [People](/guide/people) -- Managing audiences and segments
 - [Workflows](/guide/workflows) -- Automating research pipelines
+- [Capabilities](/guide/capabilities) -- Deploying reusable AI systems
 - [Sources & Citations](/guide/sources-and-citations) -- How AI references your data
 - [Permissions & Sharing](/guide/permissions-and-sharing) -- Team collaboration and access control
 - [About This Documentation](/guide/automation-and-qa) -- How these docs are maintained

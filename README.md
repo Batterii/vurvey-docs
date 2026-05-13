@@ -50,10 +50,12 @@ The site will be available at `http://localhost:5173/vurvey-docs/`
 
 ## Automated Updates
 
-This repo runs two scheduled GitHub Actions workflows:
+This repo runs scheduled GitHub Actions workflows:
 
 - **Update Documentation** (`.github/workflows/update-docs.yml`): captures screenshots and deploys GitHub Pages (2 AM UTC)
-- **Nightly Documentation Sync** (`.github/workflows/nightly-docs-sync.yml`): captures screenshots, runs QA, proposes doc updates, and opens a PR (3 AM UTC)
+- **Nightly Documentation Sync** (`.github/workflows/nightly-docs-sync.yml`): captures screenshots, runs QA, checks the app source, commits documentation updates directly to `main`, builds the site, and deploys GitHub Pages (3 AM UTC)
+
+The nightly sync does not wait for manual approval. If no files changed, it still creates a nightly marker commit and deploys the current docs so the run is visible and auditable.
 
 ### GitHub Secrets Required
 
@@ -64,6 +66,8 @@ Configure these secrets in your repository settings:
 | `VURVEY_EMAIL` | Login email for staging.vurvey.dev |
 | `VURVEY_PASSWORD` | Login password |
 | `VURVEY_WORKSPACE_ID` | Workspace ID for deterministic routing (default: DEMO workspace `07e5edb5-e739-4a35-9f82-cc6cec7c0193`) |
+| `ANTHROPIC_API_KEY` | API key used by the nightly source-analysis step |
+| `VURVEY_REPO_TOKEN` | GitHub token with read access to `batterii/vurvey-web-manager` and `batterii/vurvey-api` |
 
 ### QA Stability Settings
 
@@ -159,6 +163,8 @@ Deployment happens automatically via GitHub Actions when:
 - Manual workflow trigger
 
 GitHub Pages serves the built site from the `gh-pages` environment.
+
+The nightly documentation sync commits to `main` before deploying. This keeps the published site aligned with the checked-in docs without a PR approval step.
 
 ### Initial Setup
 

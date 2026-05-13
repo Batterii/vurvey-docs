@@ -49,6 +49,7 @@ export default defineConfig({
             { text: 'Campaigns', link: '/guide/campaigns' },
             { text: 'Datasets', link: '/guide/datasets' },
             { text: 'Workflow (Beta)', link: '/guide/workflows' },
+            { text: 'Capabilities', link: '/guide/capabilities' },
           ]
         },
         {

@@ -52,7 +52,7 @@ For each documentation file in `docs/guide/`, compare against:
 
 ### Coverage & Depth Requirements (Do This As You Go)
 
-For each major feature area (Home/Chat, Agents, People, Campaigns, Datasets, Workflows, Settings, Branding, Canvas & Image Studio, Forecast, Rewards, Integrations, Reels, Admin), ensure the documentation includes:
+For each major feature area (Home/Chat, Agents, People, Campaigns, Datasets, Workflows, Capabilities, Settings, Branding, Canvas & Image Studio, Forecast, Rewards, Integrations, Reels, Admin), ensure the documentation includes:
 
 1. What it is (short)
 2. How to use it (step-by-step for common tasks)
@@ -89,6 +89,7 @@ The following pages should exist. If any are missing, **create them** following 
 | Integrations | `docs/guide/integrations.md` | `vurvey-web-manager/src/integrations/`, `vurvey-web-manager/src/workspace-settings/containers/workspace-settings/integrations/`, `vurvey-web-manager/src/workspace-settings/containers/workspace-settings/general-settings/*-card/`, `vurvey-web-manager/src/modals/` |
 | Reels | `docs/guide/reels.md` | `vurvey-web-manager/src/reel/` |
 | Admin (Enterprise) | `docs/guide/admin.md` | `vurvey-web-manager/src/admin/` |
+| Capabilities | `docs/guide/capabilities.md` | `vurvey-web-manager/src/capabilities/`, `vurvey-web-manager/src/app-routes/capabilities-routes.tsx` |
 
 These pages have corresponding sidebar entries already configured under the "Platform" group in `docs/.vitepress/config.js`.
 
@@ -327,6 +328,20 @@ When documentation is correct but code has a bug, create a structured bug report
 - Node types match React Flow implementation
 - Schedule options match `ScheduleModal` component
 - Execution states match reducer
+
+### Area 4.5: Capabilities (`docs/guide/capabilities.md`)
+
+**Compare against:**
+- `vurvey-web-manager/src/capabilities/`
+- `vurvey-web-manager/src/app-routes/capabilities-routes.tsx`
+- `vurvey-web-manager/src/hoc/layout/navigation/navigation-content/`
+
+**Verify:**
+- Sidebar availability matches `chatbotEnabled` plus `autonomousCapabilitiesEnabled`
+- Root route behavior matches `capabilityWave3BackendEnabled`
+- Blueprint library and blueprint detail routes match implementation
+- Capability detail tabs, statuses, actions, and dashboard behavior match components
+- Capability-scoped workflow detail route and schedule editor behavior match implementation
 
 ### Area 5: People (`docs/guide/people.md`)
 

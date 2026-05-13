@@ -38,6 +38,8 @@ A **Save Custom View** button also appears next to it. In current master that bu
 
 The analysis section also includes **Start Conversation** so you can continue exploring the result in chat.
 
+Some workspaces show a **Demo data preview** banner above the forecast controls. When that banner appears, the screen is using a static sample dataset. Dates and figures in that state are not live and do not refresh automatically.
+
 ## Hidden or Secondary Routes
 
 The master branch still contains additional Forecast routes such as:

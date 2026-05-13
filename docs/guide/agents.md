@@ -172,11 +172,10 @@ When the generation-first flow is enabled, the opening modal asks for:
 
 | Field | What it does |
 |---|---|
-| **Agent Name** | The initial display name for the new agent |
 | **Describe your agent's role** | The job you want the generated agent to perform |
-| **Agent Type** | The starting agent category |
+| **Agent Personality** | The personality preset that guides the generated facets and voice |
 
-After you click **Generate**, the same modal switches into a progress state and cycles through status messages until the builder opens.
+After you click **Continue**, the modal generates draft facets from the role and personality. Review the generated setup, then click **Generate** to create the agent and open it in the builder.
 
 ::: info Builder Interface Variations
 The agent builder interface varies depending on your workspace configuration and feature settings. You may see:
@@ -305,8 +304,7 @@ You can optionally start from a pre-configured **mold** (template) that provides
 
 ---
 
-### Step 3: Optional Settings (Guided Builder)
-### Step 3: Instructions
+### Step 3: Instructions (Guided Builder)
 
 <!-- Screenshot placeholder: agents/07-builder-instructions.png — will be captured by automated screenshots -->
 

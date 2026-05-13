@@ -59,13 +59,18 @@ Clicking **Agents** opens the current agent-picker modal:
 
 #### The Population Persona Modal
 
-When the **Populations** chip is enabled, it opens a separate two-step chooser:
+When the **Populations** chip is enabled, it opens the population-persona chooser:
 
-- first you search and pick a population
-- then you drill into the personas inside that population
-- finally you commit with **Choose persona**
+- choose between **Brand Populations** and **Vurvey Populations**
+- search for a population or persona
+- drill into a population to inspect its personas
+- select one persona at a time
+- use **Clear** to remove the selected population persona
+- commit with **Choose persona**
 
 If you try to exit with an in-progress selection, the modal can show an unsaved-exit confirmation.
+
+Choosing a population persona switches the chat into a persona conversation. The app clears other selected persona types and turns off selected tools, sources, and image generation so the answer comes from that persona. If persona conversation credits are enabled for your workspace, the toolbar can show a **Billed** badge and the send button can block the message when the credit balance is empty.
 
 ### Sources
 
@@ -235,6 +240,7 @@ The mode automatically adjusts based on your toolbar selections.
 | **Everything on** (default — Omni Mode) | The AI can use all enabled capabilities — workspace sources, web/social research tools, and image generation — depending on your question |
 | **Only Sources selected** | The AI focuses exclusively on your connected datasets and campaigns, citing specific data points |
 | **A specific tool or image model selected** | The AI uses that specific tool to answer your question |
+| **Population persona selected** | The AI responds as the selected persona. Other toolbar capabilities are cleared so the persona drives the conversation |
 | **Nothing selected** | Simple conversation mode — the AI uses only the conversation context and its base model behavior |
 
 You can toggle individual categories on or off using the **Turn on/off** option in each toolbar dropdown. The status display below the toolbar always shows what the AI currently has access to.

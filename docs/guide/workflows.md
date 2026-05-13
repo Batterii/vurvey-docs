@@ -125,6 +125,25 @@ Save different combinations of variable values as named sets. Switch between con
 
 The current variable-set management flow uses a dedicated **Manage Workflow Variables** modal. Each saved set has a contextual menu with **Set as Active** or **Deactivate**, **Edit**, and **Delete**.
 
+### Prompt Form Canvas
+
+When the prompt-form canvas feature is enabled, a workflow can open a dedicated prompt form builder at:
+
+`/workflow/flows/:workflowId/prompt-form`
+
+This surface is used to shape a workflow into a guided input form. It is organized into four areas:
+
+| Area | What It Contains |
+|---|---|
+| **The Prompt** | The core workflow prompt and variable references |
+| **Suggested Prompts** | Generated prompt ideas for the workflow |
+| **Guiding Controls** | Form controls mapped to workflow variables |
+| **Live Preview** | A preview of the form users will see |
+
+Available control types include **Text**, **Long Text**, **Number**, **Dropdown**, **Toggle**, **Date**, **Slider**, **File**, **Campaign**, and **Dataset**.
+
+Controls need names before the form can be saved. Saving updates the active variable set, or creates a default active set when the workflow does not already have one.
+
 ### Variable Sets: Step-by-Step
 
 Variable sets let you save and reuse different configurations for the same workflow. Here's a complete example:
@@ -451,6 +470,16 @@ On the workflow list page, both **Delete Workflow** and **Duplicate Workflow** a
 | **Completed** | All steps finished successfully |
 | **Failed** | An error occurred — check the Run tab for details |
 | **Cancelled** | You stopped it manually |
+
+### Capability-Scoped Workflow Monitoring
+
+Workflows that belong to a Capability can also be opened from the Capability detail page. That route uses:
+
+`/capabilities/:capabilitySlug/workflows/:workflowId`
+
+The capability-scoped page is for monitoring the workflow inside its capability pipeline. It shows the parent capability breadcrumb, phase number, workflow role, last run metrics, next scheduled run, and produced output types.
+
+Only head workflows that support scheduling show the schedule editor. Downstream workflows run when the upstream workflow completes.
 
 ## Error Handling in Workflows
 

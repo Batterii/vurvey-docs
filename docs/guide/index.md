@@ -12,6 +12,7 @@ Vurvey is built for market researchers, brand strategists, and insights professi
 - **Run video-based research campaigns** — Collect rich, qualitative responses from real participants through video surveys, then let AI help you find the patterns.
 - **Organize and analyze your data** — Upload documents, spreadsheets, and reports to Datasets so your AI Agents can reference them when answering your questions.
 - **Automate recurring research tasks** — Build Workflows that combine multiple steps into a single automated process, so your weekly reports practically write themselves.
+- **Deploy reusable AI capabilities** - Turn a research objective into a blueprint-backed system with workflows, schedules, and structured outputs.
 - **Understand your audience** — Manage and segment your research participants in People, then target the right groups for each campaign.
 
 ## Finding Your Way Around
@@ -31,6 +32,7 @@ Here's what each section does:
 | **Datasets** | Upload and organize files (documents, spreadsheets, reports) so your AI Agents can analyze them. *(Requires `chatbotEnabled`)* |
 | **Forecast** | View predictive analytics and trend projections when Forecast is enabled for the workspace. |
 | **Workflow** | Build automated, multi-step research pipelines when Workflow is enabled for the workspace. *(Beta)* |
+| **Capabilities** | Deploy reusable AI systems from blueprints, monitor their workflows, and manage capability output. *(Requires autonomous capabilities)* |
 
 ::: tip Quick Tip
 At the bottom of the sidebar, you'll find your profile, your current workspace name, and the option to switch between workspaces if you belong to more than one.
@@ -68,6 +70,10 @@ Datasets are collections of files — documents, spreadsheets, reports, videos �
 
 Workflows let you automate multi-step research processes. Imagine setting up a pipeline that automatically analyzes new campaign responses every week, generates a summary report, and delivers it to your team. That's the kind of thing Workflows make possible. *(Currently in Beta)* [Learn more about Workflows](/guide/workflows)
 
+### Capabilities
+
+Capabilities package workflows into reusable research systems. Start from a blueprint or build from scratch, activate the capability, then monitor the dashboard and workflow runs from one place. [Learn more about Capabilities](/guide/capabilities)
+
 ## Getting Started
 
 Here's the fastest path to your first insight:
@@ -87,6 +93,7 @@ Say you're a brand manager at a beauty company and you want to explore consumer 
 3. **Create a Campaign** with video survey questions to gather real consumer reactions
 4. **Review responses** and ask your Agent to summarize the key themes
 5. **Build a Workflow** to automatically generate weekly insight summaries as new responses come in
+6. **Deploy a Capability** when the research process should become a reusable system for your team
 
 ## Getting Help
 
@@ -103,3 +110,4 @@ Ready to dive in? Here's where to go next:
 2. [Explore the Home chat interface](/guide/home)
 3. [Create your first Agent](/guide/agents)
 4. [Upload data to Datasets](/guide/datasets)
+5. [Explore Capabilities](/guide/capabilities)

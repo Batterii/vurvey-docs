@@ -18,18 +18,19 @@ The People section gives you a complete view of your research audiences. Whether
 
 ## Navigation
 
-The People section has five tabs across the top of the page:
+The People section has feature-dependent tabs across the top of the page:
 
 | Tab | Description |
 |-----|-------------|
-| **Populations** | AI-generated audience profiles representing consumer segments |
+| **Populations** | Brand and Vurvey audience populations used for persona conversations, simulations, and research targeting |
+| **Simulations** | Concept simulation setup and results when simulations are enabled |
 | **Humans** | Real people who participate in your research campaigns |
 | **Molds** | Templates for creating consistent persona profiles when mold access is enabled |
 | **Lists & Segments** | Ways to organize your audiences into reusable groups |
 | **Properties** | Custom attributes you track about your audience |
 
 ::: info Access Note
-The **Molds** tab is access-controlled. In current master it is tied to enterprise-manager/support-style access, and related feature flags can also affect availability.
+The **Simulations** and **Molds** tabs are access-controlled. Simulations require the simulations feature to be active. Molds require enterprise-manager/support-style access, and related feature flags can also affect availability.
 :::
 
 ---
@@ -53,6 +54,8 @@ When population data exists, the page supports the normal population management 
 ::: info Current Product State
 - **Populations** has a real route and detail experience in current master
 - the empty state can still appear when there are no populations to show
+- population browsing can include both Brand Populations and Vurvey Populations when general populations are enabled
+- creation uses a modal flow when the create-populations feature is enabled
 - older docs that describe Populations as broadly unavailable or hidden behind `/audience` are outdated
 :::
 
@@ -67,7 +70,25 @@ Imagine you're launching a new skincare line and want to hear from 200 premium b
 
 ### Browsing Your Populations
 
-Populations appear in a card grid. Each card shows the population name, member count, and when it was last updated. Use the search bar to filter by name, or sort by most recently updated.
+Populations appear in a card grid. Each card shows the population name, persona count, status, and key demographics. Use search to filter by name.
+
+When general populations are enabled, use the filter chips to switch between:
+
+- **See all**
+- **Brand Populations**
+- **Vurvey Populations**
+
+Use the sort menu to order by name, created date, updated date, or AI persona count.
+
+Vurvey population cards can show:
+
+- **Active** or **Hidden** status
+- **Vurvey Population** badge
+- persona count
+- gender percentage chips
+- trait count
+- **Show Details**
+- **Take Campaign** when AI simulation is enabled and the population is not hidden
 
 Click the three-dot menu on any card for the current population actions:
 
@@ -133,11 +154,71 @@ To compare two populations, open each in separate browser tabs and look at the s
 
 ### Creating Populations
 
-Populations are typically created during campaign setup or through the Agent Builder. The Populations tab is primarily for viewing and managing existing populations.
+When the create-populations feature is enabled, the Populations page includes a create card that opens **Create New Population**.
+
+The modal collects:
+
+| Field | Required | Notes |
+|---|---|---|
+| **Population Name** | Yes | Display name for the population |
+| **Number of Personas** | Yes | 50 to 500 is recommended. The current maximum is 1000 |
+| **Region** | Yes | Main geographic region |
+| **Sub-region** | No | Optional narrower geography |
+| **Population Prompt** | Yes | Plain-language audience definition |
+| **Age** | No | Optional targeting detail |
+| **Gender** | No | Optional targeting detail |
+| **Income Level** | No | Optional targeting detail |
+| **Education Level** | No | Optional targeting detail |
+
+The modal shows processing steps such as parsing metadata parameters, generating synthetic profiles, and validating statistical variance before the final create action.
+
+Treat a population as created only after you return to the Populations page and see the new population card. Some workspaces may expose the modal before full creation is available.
 
 ::: tip Best Practice
 Keep populations focused on specific demographics or use cases. Use clear names like "US Millennials - Urban - Tech Enthusiasts" so your team can quickly find the right audience.
 :::
+
+---
+
+## Simulations
+
+The Simulations tab appears when concept simulations are enabled for the workspace. It lets you test concepts against a selected Brand or Vurvey population.
+
+### Simulation Library
+
+The library shows existing simulations as cards and includes a create card for starting a new simulation. Open a simulation to view results, or start a new one to walk through the builder.
+
+### Creating a Simulation
+
+The builder has three main setup steps:
+
+| Step | What You Configure |
+|---|---|
+| **Concepts** | Simulation name, method, concept type, and concept entries |
+| **Context** | Test focus, optional additional text, and optional supporting file |
+| **Population** | Brand or Vurvey population to run the simulation against |
+
+Concept methods include **Single** and **Compare**. Concept types include **Video**, **Image**, and **Text**. Compare simulations can include multiple concepts, up to the current concept limit shown in the UI.
+
+The Context step provides focus presets. Single-concept simulations include options such as preference, likelihood to purchase, and brand fit. Compare simulations include options such as most preferred, most likely to purchase, and best brand fit.
+
+The Population step uses the same Brand Population and Vurvey Population browsing model as the Populations tab. Select a population before running the simulation.
+
+::: info Rollout Note
+Some simulation screens use placeholder result data or may show a disabled run action while the feature is rolling out. Verify the simulation appears in the library or results view before treating it as complete.
+:::
+
+### Simulation Results
+
+Results can include:
+
+- top takeaways
+- a start-conversation card
+- persona response summaries
+- concept rankings
+- winner and ranking details
+- transparency information
+- a visualization view with progress and response cards
 
 ---
 

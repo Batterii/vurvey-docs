@@ -8,7 +8,7 @@ The automation system performs three key functions:
 
 1. **Screenshot Capture** - Automatically captures fresh screenshots from staging
 2. **QA Testing** - Verifies documented UI elements exist and function correctly
-3. **Documentation Analysis** - Uses Claude Code to identify and fix documentation discrepancies
+3. **Documentation Analysis** - Checks the app source and fixes documentation discrepancies
 
 ## Required GitHub Secrets
 
@@ -42,8 +42,8 @@ You can also trigger it manually:
 
 ### Manual Trigger Options
 
-- **force_update**: Create PR even if no changes detected
-- **skip_screenshots**: Skip screenshot capture for faster testing
+- **force_update**: Create a marker commit even if no file changes are detected
+- **skip_bug_dispatch**: Skip dispatching generated bug reports to source repositories
 
 ## File Structure
 
@@ -54,7 +54,7 @@ You can also trigger it manually:
 scripts/
 ├── capture-screenshots.js    # Puppeteer screenshot automation
 ├── qa-test-suite.js          # UI verification tests
-└── claude-doc-updater-prompt.md  # Claude Code analysis prompt
+└── claude-doc-updater-prompt.md  # Documentation analysis prompt
 ```
 
 ## Local Development
@@ -109,19 +109,20 @@ npm run sync:nightly
 - Validates component presence
 - Generates `qa-report.json` with results
 
-### 3. Documentation Analysis (Claude Code)
+### 3. Documentation Analysis
 
 - Reads current documentation files
 - Compares against vurvey-web-manager source code
 - Identifies discrepancies
 - Makes targeted updates to documentation
 
-### 4. Pull Request Creation
+### 4. Direct Commit and Deployment
 
-- If changes are detected, creates a PR
-- PR includes all screenshot updates
-- PR includes documentation fixes
-- Requires manual review before merge
+- Commits documentation updates directly to `main`
+- Creates an empty nightly marker commit when there are no file changes
+- Builds the VitePress site
+- Deploys GitHub Pages in the same nightly workflow
+- Does not require manual approval
 
 ## Troubleshooting
 
@@ -137,17 +138,18 @@ npm run sync:nightly
 2. Verify HEADLESS=true in workflow
 3. Check for selector changes in the app
 
-### Claude Code Analysis Fails
+### Documentation Analysis Fails
 
 1. Verify `ANTHROPIC_API_KEY` is valid
 2. Check prompt file exists at expected path
-3. Review Claude logs in workflow artifacts
+3. Review analysis logs in workflow artifacts
 
-### PR Not Created
+### Commit or Deploy Did Not Happen
 
-1. Workflow only creates PR if changes detected
-2. Use "force_update" option to test
-3. Check GitHub token permissions
+1. Check the **Nightly Documentation Sync** workflow run
+2. Confirm Actions has write permission to `main`
+3. Confirm GitHub Pages is enabled with the **GitHub Actions** source
+4. Use the `force_update` manual option to force a marker commit
 
 ## Monitoring
 
@@ -155,11 +157,11 @@ After each run, check:
 
 1. **Workflow Status** - Actions tab shows pass/fail
 2. **Artifacts** - Download `documentation-analysis` for logs
-3. **Pull Requests** - Review any auto-generated PRs
+3. **Commits** - Review nightly commits on `main`
 
 ## Best Practices
 
-1. **Review All PRs** - Don't auto-merge, review changes first
-2. **Monitor Weekly** - Check workflow runs at least weekly
-3. **Update Test Selectors** - If UI changes significantly, update QA tests
-4. **Keep Credentials Fresh** - Rotate passwords periodically
+1. **Monitor Weekly** - Check workflow runs at least weekly
+2. **Update Test Selectors** - If UI changes significantly, update QA tests
+3. **Keep Credentials Fresh** - Rotate passwords periodically
+4. **Keep Source Coverage Current** - Add new feature areas to `scripts/claude-doc-updater-prompt.md` when new app sections ship
