@@ -54,7 +54,7 @@ For each documentation file in `docs/guide/`, compare against:
 
 ### Coverage & Depth Requirements (Do This As You Go)
 
-For each major feature area (Home/Chat, Agents, People, Campaigns, Datasets, Workflows, Capabilities, Settings, Branding, Canvas & Image Studio, Forecast, Rewards, Integrations, Reels, Admin), ensure the documentation includes:
+For each major feature area (Home/Chat, Agents, People, Campaigns, Datasets, Workflows, Capabilities, Settings, Account & Profile, Branding, Brand Companions, Mentions, Canvas & Image Studio, Forecast, Rewards, Integrations, Reels, Implementation, Admin), ensure the documentation includes:
 
 1. What it is (short)
 2. How to use it (step-by-step for common tasks)
@@ -89,6 +89,10 @@ The following pages should exist. If any are missing, **create them** following 
 | Forecast | `docs/guide/forecast.md` | `vurvey-web-manager/src/forecast/` |
 | Rewards | `docs/guide/rewards.md` | `vurvey-web-manager/src/rewards/` |
 | Integrations | `docs/guide/integrations.md` | `vurvey-web-manager/src/integrations/`, `vurvey-web-manager/src/account/containers/account-page/`, `vurvey-web-manager/src/workspace-settings/containers/workspace-settings/general-settings/*-card/`, `vurvey-web-manager/src/modals/` |
+| Account & Profile | `docs/guide/account.md` | `vurvey-web-manager/src/account/`, `vurvey-web-manager/src/app-routes/me-routes.tsx` |
+| Branding | `docs/guide/branding.md` | `vurvey-web-manager/src/branding/`, `vurvey-web-manager/src/app-routes/branding-routes.tsx` |
+| Brand Companions | `docs/guide/brand-companions.md` | `vurvey-web-manager/src/brand-companions/`, `vurvey-web-manager/src/app-routes/brand-companions-routes.tsx` |
+| Mentions | `docs/guide/mentions.md` | `vurvey-web-manager/src/mentions/`, `vurvey-web-manager/src/app-routes/mentions-routes.tsx` |
 | Reels | `docs/guide/reels.md` | `vurvey-web-manager/src/reel/` |
 | Admin (Enterprise) | `docs/guide/admin.md` | `vurvey-web-manager/src/admin/` |
 | Capabilities | `docs/guide/capabilities.md` | `vurvey-web-manager/src/capabilities/`, `vurvey-web-manager/src/app-routes/capabilities-routes.tsx` |

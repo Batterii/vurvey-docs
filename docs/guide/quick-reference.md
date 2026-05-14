@@ -20,6 +20,10 @@ Use the left sidebar and workspace dropdown to move between sections:
 | **Forecast** | Predictive analytics and trend projections based on your research data |
 | **Workflow** | Automated research pipelines -- build multi-step AI processes that run on their own *(Beta)* |
 | **Capabilities** | Blueprint-backed AI systems that package workflows, schedules, and structured outputs |
+| **Branding** | Brand profile, brand feedback questions, and review moderation |
+| **Brand Companions** | Admin-only Brand Companion grid, metrics, and developer API apps |
+| **Mentions** | Admin-only brand mention review and Magic Topics |
+| **Account & Profile** | Personal profile settings, terms, and user integration connections |
 | **Implementation** | Enterprise setup for taxonomy, system prompts, YAML agent creation, agent personalities, and Molds |
 
 ## Common Tasks at a Glance
@@ -51,6 +55,10 @@ Use the left sidebar and workspace dropdown to move between sections:
 | Set up an automated workflow | Workflow | Click **Create new workflow** and design your pipeline |
 | Schedule a recurring workflow | Workflow | Open a workflow and use **Schedule** when workflow scheduling is enabled |
 | Deploy a capability | Capabilities | Click **+ New capability** or browse blueprints, configure workflows, then activate |
+| Update brand profile | Branding | Edit logo, banner, name, description, attributes, categories, countries, and colors, then click **Save Changes** |
+| Review brand feedback | Branding > Reviews or Mentions | Pick a feedback question, filter **Unreviewed Only** if needed, then review responses |
+| Manage Brand Companion API access | Brand Companions > Developer API Apps | Create an API app, configure whitelisted domains, and manage credentials |
+| Update your profile | Personal Profile | Edit profile image or personal information, then save |
 | Manage implementation setup | Workspace dropdown > Implementation | Use Taxonomy Management, System Prompts, YAML agent creation, Agent Personalities, or Molds when you have access |
 
 ### Sharing and Collaboration
@@ -81,6 +89,11 @@ Use the left sidebar and workspace dropdown to move between sections:
 | **Workflow schedule** | Workflow builder | Hourly, Daily, Weekly, plus email notifications |
 | **Prompt Form Canvas** | Workflow builder | The Prompt, Suggested Prompts, Guiding Controls, and Live Preview |
 | **Capability schedule** | Capability workflow detail | Daily, Hourly, Weekly, Monthly, and Custom schedule presets for head workflows |
+| **Brand Settings** | Branding | Banner, logo, name, description, attributes, categories, countries, and brand colors |
+| **Brand Reviews** | Branding > Reviews or Mentions > All mentions | Question selector, **Unreviewed Only**, response review, and create-reel flow |
+| **Brand Questions** | Branding > Questions | **+ New Question**, reorder/edit controls, and delete confirmation |
+| **Brand Companion API apps** | Brand Companions > Developer API Apps | **API Docs**, **Create API App**, credential actions, domain allowlist controls |
+| **Personal profile editor** | Personal Profile | Profile image modal, personal information form, dark mode toggle, and delete-account modal |
 | **Workflow conversation menu** | Workflow > Conversations | **Rename**, **Copy**, **Export**, **Delete** |
 | **Share dialog** | Agents / Campaigns / Datasets / Workflows | **General Access**, person-level **Viewer/Editor**, and **Copy link** |
 | **SharePoint connection settings** | Workspace Settings > General settings | Tenant ID, Application (Client) ID, Client Secret Value, optional Site URL, **Test connection**, **Save connection** |
@@ -99,6 +112,9 @@ Use the left sidebar and workspace dropdown to move between sections:
 | Find a scheduled workflow | Workflow > Upcoming Runs tab (when scheduling is enabled) |
 | Browse workflow templates | Workflow > Templates tab (when templates are enabled) |
 | Browse capability blueprints | Capabilities > Blueprints -- filter by tags or choose **Build from scratch** |
+| Find brand feedback questions | Branding > Questions |
+| Find Brand Companion credentials | Brand Companions > Developer API Apps |
+| Review user terms | Personal Profile > Terms of Service |
 
 ### Exporting Data
 
@@ -373,6 +389,8 @@ Common prompt patterns for research:
 | **Dataset** | A collection of uploaded files that the AI can analyze and reference |
 | **Workflow** | An automated multi-step research process using AI agents |
 | **Capability** | A reusable AI system that packages workflows, schedules, and structured outputs |
+| **Brand Companion** | A Brand Companion persona managed through the admin Brand Companions area |
+| **API App** | Developer credential configuration used by Brand Companion and API integrations |
 | **Credits** | The currency used for AI operations on the platform |
 | **Facets** | The demographic and personality traits that define an agent's character |
 | **Magic Reels** | AI-compiled video highlights from campaign responses |
@@ -402,6 +420,10 @@ Common prompt patterns for research:
 - [People](/guide/people) -- Managing audiences and segments
 - [Workflows](/guide/workflows) -- Automating research pipelines
 - [Capabilities](/guide/capabilities) -- Deploying reusable AI systems
+- [Branding](/guide/branding) -- Managing brand profile, reviews, and questions
+- [Brand Companions](/guide/brand-companions) -- Managing companion agents and API apps
+- [Mentions](/guide/mentions) -- Reviewing brand-directed mentions
+- [Account & Profile](/guide/account) -- Managing personal profile settings
 - [Sources & Citations](/guide/sources-and-citations) -- How AI references your data
 - [Permissions & Sharing](/guide/permissions-and-sharing) -- Team collaboration and access control
 - [About This Documentation](/guide/automation-and-qa) -- How these docs are maintained

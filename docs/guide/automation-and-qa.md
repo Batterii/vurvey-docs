@@ -26,3 +26,8 @@ Use the sidebar to explore detailed guides for each section of the platform:
 - [Campaigns](/guide/campaigns) -- Research surveys
 - [Datasets](/guide/datasets) -- File management
 - [Workflow](/guide/workflows) -- Automated pipelines
+- [Capabilities](/guide/capabilities) -- Reusable AI systems
+- [Branding](/guide/branding) -- Brand profile, reviews, and questions
+- [Brand Companions](/guide/brand-companions) -- Companion agents and API apps
+- [Mentions](/guide/mentions) -- Brand mention review
+- [Account & Profile](/guide/account) -- User profile settings

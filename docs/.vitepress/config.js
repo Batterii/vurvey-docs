@@ -38,6 +38,7 @@ export default defineConfig({
           items: [
             { text: 'Introduction', link: '/guide/' },
             { text: 'Logging In', link: '/guide/login' },
+            { text: 'Account & Profile', link: '/guide/account' },
           ]
         },
         {
@@ -58,9 +59,12 @@ export default defineConfig({
           items: [
             { text: 'Settings', link: '/guide/settings' },
             { text: 'Canvas & Image Studio', link: '/guide/canvas-and-image-studio' },
+            { text: 'Branding', link: '/guide/branding' },
+            { text: 'Brand Companions', link: '/guide/brand-companions' },
             { text: 'Forecast', link: '/guide/forecast' },
             { text: 'Rewards', link: '/guide/rewards' },
             { text: 'Integrations', link: '/guide/integrations' },
+            { text: 'Mentions', link: '/guide/mentions' },
             { text: 'Reels', link: '/guide/reels' },
             { text: 'Implementation', link: '/guide/implementation' },
             { text: 'Admin (Enterprise)', link: '/guide/admin' },

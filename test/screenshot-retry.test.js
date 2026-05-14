@@ -30,6 +30,10 @@ test("isRetryableValidationFailure: centered loading state is retryable", () => 
   assert.equal(isRetryableValidationFailure("centered loading state detected"), true);
 });
 
+test("isRetryableValidationFailure: animated centered loading state is retryable", () => {
+  assert.equal(isRetryableValidationFailure("animated centered loading state detected"), true);
+});
+
 test("isRetryableValidationFailure: missing required text is retryable", () => {
   assert.equal(isRetryableValidationFailure("missing required text"), true);
 });

@@ -13,6 +13,7 @@ Vurvey is built for market researchers, brand strategists, and insights professi
 - **Organize and analyze your data** — Upload documents, spreadsheets, and reports to Datasets so your AI Agents can reference them when answering your questions.
 - **Automate recurring research tasks** — Build Workflows that combine multiple steps into a single automated process, so your weekly reports practically write themselves.
 - **Deploy reusable AI capabilities** - Turn a research objective into a blueprint-backed system with workflows, schedules, and structured outputs.
+- **Manage brand systems** - Configure brand identity, review brand feedback, and administer Brand Companions when you have access.
 - **Understand your audience** — Manage and segment your research participants in People, then target the right groups for each campaign.
 
 ## Finding Your Way Around
@@ -33,6 +34,10 @@ Here's what each section does:
 | **Forecast** | View predictive analytics and trend projections when Forecast is enabled for the workspace. |
 | **Workflow** | Build automated, multi-step research pipelines when Workflow is enabled for the workspace. *(Beta)* |
 | **Capabilities** | Deploy reusable AI systems from blueprints, monitor their workflows, and manage capability output. *(Requires autonomous capabilities)* |
+| **Branding** | Manage brand identity, brand feedback questions, and review moderation. |
+| **Brand Companions** | Admin-only area for Brand Companion agents, metrics, and API apps. |
+| **Mentions** | Admin-only review surface for brand-directed mentions and Magic Topics. |
+| **Account & Profile** | Manage your profile image, personal information, dark mode, terms, and personal integrations. |
 | **Implementation** | Enterprise setup area for taxonomy, system prompts, YAML agent creation, agent personalities, and Molds. *(Requires implementation access)* |
 
 ::: tip Quick Tip
@@ -74,6 +79,10 @@ Workflows let you automate multi-step research processes. Imagine setting up a p
 ### Capabilities
 
 Capabilities package workflows into reusable research systems. Start from a blueprint or build from scratch, activate the capability, then monitor the dashboard and workflow runs from one place. [Learn more about Capabilities](/guide/capabilities)
+
+### Branding And Brand Companions
+
+Branding controls the brand profile, feedback questions, and review queue. Brand Companions is the admin surface for companion agents, metrics, and API apps. [Learn more about Branding](/guide/branding) and [Brand Companions](/guide/brand-companions)
 
 ## Getting Started
 

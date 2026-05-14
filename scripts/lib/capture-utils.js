@@ -13,6 +13,7 @@
  */
 const RETRYABLE_REASONS = new Set([
   'visible loaders present',
+  'animated centered loading state detected',
   'centered loading state detected',
   'missing required text',
   'missing required selector',

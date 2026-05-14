@@ -10,6 +10,8 @@ Open it from **workspace dropdown > Implementation** or by using `/implementatio
 
 ## Current Navigation
 
+![Taxonomy Management](/screenshots/implementation/01-taxonomy-management.png?optional=1)
+
 The current Implementation navigation includes:
 
 | Page | Route | Purpose |
@@ -21,6 +23,55 @@ The current Implementation navigation includes:
 | **Molds** | `/implementation/molds` | Manage reusable persona molds when `moldBuilder` is enabled |
 
 The **Molds** navigation item appears only when the `moldBuilder` feature flag is enabled. If the flag is off, direct Molds routes redirect back to Taxonomy Management.
+
+## Taxonomy Management
+
+Taxonomy Management is the default Implementation page. It is organized into tabs:
+
+| Tab | Purpose |
+|---|---|
+| **Facet Editor** | View and edit taxonomy facets and values |
+| **Constraint Rules** | Manage rules that constrain or weight facet combinations |
+| **Versions** | Review taxonomy versions |
+| **Sync Logs** | Review taxonomy synchronization history |
+| **Add Facet** | Upload or paste YAML and ask AI to recommend taxonomy changes |
+
+The Add Facet flow supports both file upload and pasted YAML. It can optionally return the full updated taxonomy before applying a recommended update.
+
+## System Prompts
+
+![System Prompts](/screenshots/implementation/02-system-prompts.png?optional=1)
+
+System Prompts is a searchable prompt management table. The current page supports:
+
+- search
+- category filter
+- status filter with **Active**, **Draft**, and **Archived**
+- create/edit prompt modal
+- archive, restore, and duplicate actions
+
+## Create Agents From YAML Files
+
+![Create agents from YAML](/screenshots/implementation/03-agents-yaml.png?optional=1)
+
+The YAML import page starts with **Select a workspace in which to import agents:**. After a workspace is selected, it exposes:
+
+- **Create from .yaml**
+- **Import Rules**
+
+This surface is for controlled agent seeding across workspaces, not normal agent creation. Most users should create agents from [Agents](/guide/agents).
+
+## Create Agent Personalities
+
+![Create Agent Personalities](/screenshots/implementation/04-agent-personalities.png?optional=1)
+
+Agent Personalities manages reusable personality definitions used by persona generation. The current page supports:
+
+- search
+- **Create Personality**
+- table selection
+- **Delete Selected**
+- edit, delete, and publish actions for individual rows
 
 ## Molds Routes
 

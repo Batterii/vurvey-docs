@@ -18,6 +18,8 @@ If Capabilities are not enabled for your workspace, the app returns you to the w
 
 ## Capability Library
 
+![Capabilities library](/screenshots/capabilities/01-capabilities-main.png?optional=1)
+
 The Capabilities home page is the main library for deployed and draft capabilities.
 
 | Area | What It Shows |
@@ -30,6 +32,8 @@ The Capabilities home page is the main library for deployed and draft capabiliti
 Capability cards use status labels such as **Configured** when the capability has its required setup.
 
 ## Blueprint Library
+
+![Capability blueprints](/screenshots/capabilities/02-blueprints.png?optional=1)
 
 Click **Browse blueprints** or open the blueprints route to start from a pre-built capability pattern.
 
@@ -132,7 +136,16 @@ Advanced per-workflow schedule customization is not fully exposed yet.
 
 ## Object Types
 
+![Object types](/screenshots/capabilities/03-object-types.png?optional=1)
+
 The **Object Types** route lists object definitions used by capabilities. These describe the structured objects that capability workflows can produce and pass between phases.
+
+The current page includes:
+
+- **Object types** heading
+- **New type** action
+- cards for existing type definitions
+- an empty state that says **No object types yet** when the workspace has none
 
 ## Object Libraries
 
@@ -143,6 +156,26 @@ When the newer capability backend is enabled, Capabilities also mounts object-li
 - **Evaluations** at `/capabilities/evaluations`
 
 These pages show structured objects produced by capability workflows.
+
+![Insights Library](/screenshots/capabilities/04-insights-library.png?optional=1)
+
+The object libraries share a consistent pattern:
+
+| Library | What it shows |
+|---|---|
+| **Insights Library** | Insight cards and discovery output produced across the workspace |
+| **Concepts Library** | Concept cards produced by capability workflows |
+| **Evaluations Library** | Scored concept or evaluation cards, sorted by score when available |
+
+Each library includes:
+
+- back link to Capabilities
+- search input
+- category filter when categories exist
+- count pill for filtered items
+- object-detail modal when a card is opened
+
+If the required object type definitions are not configured or no matching objects exist, these routes can show a valid empty state instead of cards.
 
 ## Related Guides
 

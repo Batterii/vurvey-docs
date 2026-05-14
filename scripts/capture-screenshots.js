@@ -434,6 +434,7 @@ async function getRenderDiagnostics(page, containerSelector = null) {
           mainTextLength: 0,
           structuredCount: 0,
           centeredSpinnerCount: 0,
+          animatedCenteredSpinnerCount: 0,
           visibleLoaderCount: 0,
           loadedImageCount: 0,
           hasDialog: false,
@@ -468,7 +469,7 @@ async function getRenderDiagnostics(page, containerSelector = null) {
         '[data-state="loading"]',
       ];
 
-      const centeredSpinnerCount = Array.from(
+      const centeredCandidates = Array.from(
         document.querySelectorAll(
           [
             'svg',
@@ -532,6 +533,18 @@ async function getRenderDiagnostics(page, containerSelector = null) {
           rect.width <= 80 &&
           rect.height <= 80
         );
+      });
+      const centeredSpinnerCount = centeredCandidates.length;
+      const animatedCenteredSpinnerCount = centeredCandidates.filter((el) => {
+        let current = el;
+        for (let depth = 0; current && depth < 4; depth++) {
+          const style = window.getComputedStyle(current);
+          const animationName = style.animationName || '';
+          const animationDuration = style.animationDuration || '';
+          if (animationName !== 'none' && animationDuration !== '0s') return true;
+          current = current.parentElement;
+        }
+        return false;
       }).length;
 
       const visibleLoaderCount = loaderSelectors.reduce((count, selector) => {
@@ -555,6 +568,7 @@ async function getRenderDiagnostics(page, containerSelector = null) {
         mainTextLength: text.length,
         structuredCount,
         centeredSpinnerCount,
+        animatedCenteredSpinnerCount,
         visibleLoaderCount,
         loadedImageCount: loadedImageCount + loadedBackgroundImageCount,
         hasDialog: Array.from(document.querySelectorAll('[role="dialog"], [class*="modal" i]')).some((el) => visible(el)),
@@ -569,6 +583,7 @@ async function getRenderDiagnostics(page, containerSelector = null) {
       mainTextLength: 0,
       structuredCount: 0,
       centeredSpinnerCount: 0,
+      animatedCenteredSpinnerCount: 0,
       visibleLoaderCount: 0,
       loadedImageCount: 0,
       hasDialog: false,
@@ -664,6 +679,9 @@ async function validateCaptureTarget(page, options = {}) {
   }
   if (!allowVisibleLoaders && diagnostics.visibleLoaderCount > 0) {
     return {ok: false, reason: 'visible loaders present', diagnostics};
+  }
+  if (!allowCenteredSpinner && diagnostics.animatedCenteredSpinnerCount > 0) {
+    return {ok: false, reason: 'animated centered loading state detected', diagnostics};
   }
   if (
     !allowCenteredSpinner &&
@@ -3508,6 +3526,237 @@ async function captureIntegrations(page) {
   return true;
 }
 
+async function captureWorkspaceRouteScreenshot(page, section, routePath, screenshotName, options = {}) {
+  const url = getWorkspaceUrl(routePath);
+  if (!(await gotoWithRetry(page, url, { label: `${section}-${screenshotName}`, retries: 1 }))) {
+    console.log(`  ⚠ ${section}/${screenshotName} route did not load`);
+    return Boolean(options.optional);
+  }
+
+  if (!isOnExpectedRoute(page, routePath)) {
+    console.log(`  ⚠ ${routePath} redirected to ${page.url()}. Skipping gated capture.`);
+    return Boolean(options.optional);
+  }
+
+  await waitForContent(page, options.contentSelectors || [
+    'main',
+    '[role="main"]',
+    'button',
+    'input',
+    'table',
+    '[class*="empty" i]',
+    '[data-testid*="empty" i]',
+  ], options.contentTimeout || 8000);
+
+  if (!isOnExpectedRoute(page, routePath)) {
+    console.log(`  ⚠ ${routePath} redirected to ${page.url()} after load. Skipping gated capture.`);
+    return Boolean(options.optional);
+  }
+
+  const screenshot = await takeScreenshot(page, screenshotName, section, {
+    routeIncludes: [routePath],
+    minMainTextLength: 80,
+    ...options.validation,
+  });
+
+  return Boolean(screenshot);
+}
+
+async function captureBranding(page) {
+  console.log('\n Capturing Branding...');
+
+  let sectionOk = true;
+  sectionOk = (await captureWorkspaceRouteScreenshot(page, 'branding', '/branding', '01-brand-settings', {
+    contentSelectors: ['#brand-name', '[id="brand-description"]', 'form', 'button'],
+    validation: {
+      requiredTexts: ['Branding', 'Name', 'Description'],
+      requiredTextMode: 'all',
+      requiredSelectors: ['#brand-name'],
+      minMainTextLength: 160,
+    },
+  })) && sectionOk;
+
+  sectionOk = (await captureWorkspaceRouteScreenshot(page, 'branding', '/branding/reviews', '02-brand-reviews', {
+    contentSelectors: ['[data-testid="questions-container"]', '[class*="answers" i]', '[class*="noResponses" i]', 'button'],
+    validation: {
+      requiredTexts: ['Branding'],
+      minMainTextLength: 80,
+    },
+  })) && sectionOk;
+
+  return sectionOk;
+}
+
+async function captureMentions(page) {
+  console.log('\n Capturing Mentions...');
+
+  let sectionOk = true;
+  sectionOk = (await captureWorkspaceRouteScreenshot(page, 'mentions', '/mentions/magic-topics', '02-magic-topics', {
+    contentSelectors: ['[data-testid="magic-topics-empty-state"]', '[data-testid="magic-topics-button"]'],
+    validation: {
+      requiredTexts: ['Mentions', 'Magic Topics'],
+      requiredTextMode: 'all',
+      minMainTextLength: 100,
+    },
+  })) && sectionOk;
+
+  return sectionOk;
+}
+
+async function captureAccount(page) {
+  console.log('\n Capturing Account...');
+
+  let sectionOk = true;
+  sectionOk = (await captureWorkspaceRouteScreenshot(page, 'account', '/me', '01-personal-profile', {
+    contentSelectors: ['[data-testid="personal-profile-wrapper"]', '[data-testid="general-settings-link"]'],
+    validation: {
+      requiredTexts: ['Personal Profile', 'Profile Image', 'Personal Information'],
+      requiredTextMode: 'all',
+      requiredSelectors: ['[data-testid="personal-profile-wrapper"]'],
+      minMainTextLength: 260,
+    },
+  })) && sectionOk;
+
+  return sectionOk;
+}
+
+async function captureCapabilities(page) {
+  console.log('\n Capturing Capabilities...');
+
+  let sectionOk = true;
+  const captures = [
+    {
+      route: '/capabilities',
+      shot: '01-capabilities-main',
+      validation: {
+        requiredTexts: ['Capabilities'],
+        minMainTextLength: 100,
+      },
+    },
+    {
+      route: '/capabilities/blueprints',
+      shot: '02-blueprints',
+      validation: {
+        requiredTexts: ['Capability Blueprints', 'Build from scratch'],
+        requiredTextMode: 'all',
+        minMainTextLength: 140,
+      },
+    },
+    {
+      route: '/capabilities/object-types',
+      shot: '03-object-types',
+      validation: {
+        requiredTexts: ['Object types'],
+        minMainTextLength: 90,
+      },
+    },
+    {
+      route: '/capabilities/insights',
+      shot: '04-insights-library',
+      validation: {
+        requiredTexts: ['Insights Library'],
+        minMainTextLength: 90,
+      },
+    },
+    {
+      route: '/capabilities/concepts',
+      shot: '05-concepts-library',
+      validation: {
+        requiredTexts: ['Concepts Library'],
+        minMainTextLength: 90,
+      },
+    },
+    {
+      route: '/capabilities/evaluations',
+      shot: '06-evaluations-library',
+      validation: {
+        requiredTexts: ['Evaluations Library'],
+        minMainTextLength: 90,
+      },
+    },
+  ];
+
+  for (const capture of captures) {
+    sectionOk = (await captureWorkspaceRouteScreenshot(page, 'capabilities', capture.route, capture.shot, {
+      contentSelectors: ['button', '[class*="card" i]', '[class*="empty" i]', '[class*="library" i]', 'input'],
+      validation: capture.validation,
+    })) && sectionOk;
+  }
+
+  return sectionOk;
+}
+
+async function captureImplementation(page) {
+  console.log('\n Capturing Implementation...');
+
+  let sectionOk = true;
+  const captures = [
+    {
+      route: '/implementation/taxonomy',
+      shot: '01-taxonomy-management',
+      contentSelectors: ['input[placeholder="Search facets..."]'],
+      validation: {
+        requiredTexts: ['Implementation', 'Taxonomy Management', 'Facet Editor', 'Select a facet to edit'],
+        requiredTextMode: 'all',
+        requiredSelectors: ['input[placeholder="Search facets..."]'],
+        minMainTextLength: 180,
+      },
+    },
+    {
+      route: '/implementation/system-prompts',
+      shot: '02-system-prompts',
+      validation: {
+        requiredTexts: ['Implementation', 'System Prompts'],
+        requiredTextMode: 'all',
+        minMainTextLength: 160,
+      },
+    },
+    {
+      route: '/implementation/add-agents-via-yaml',
+      shot: '03-agents-yaml',
+      validation: {
+        requiredTexts: ['Implementation', 'Create agents from YAML files'],
+        requiredTextMode: 'all',
+        minMainTextLength: 120,
+      },
+    },
+    {
+      route: '/implementation/agent-personalities',
+      shot: '04-agent-personalities',
+      validation: {
+        requiredTexts: ['Implementation', 'Create Agent Personalities'],
+        requiredTextMode: 'all',
+        minMainTextLength: 120,
+      },
+    },
+  ];
+
+  for (const capture of captures) {
+    sectionOk = (await captureWorkspaceRouteScreenshot(page, 'implementation', capture.route, capture.shot, {
+      contentSelectors: capture.contentSelectors || ['button', 'input', 'table', '[class*="grid" i]', '[class*="empty" i]'],
+      validation: capture.validation,
+    })) && sectionOk;
+  }
+
+  return sectionOk;
+}
+
+async function captureBrandCompanions(page) {
+  console.log('\n Capturing Brand Companions...');
+
+  let sectionOk = true;
+  sectionOk = (await captureWorkspaceRouteScreenshot(page, 'brand-companions', '/brand-companions/api-management', '02-developer-api-apps', {
+    contentSelectors: ['[data-testid="api-management-button"]', 'button', '[class*="empty" i]', '[class*="card" i]'],
+    validation: {
+      requiredTexts: ['Brand Companions', 'Developer API Apps'],
+      requiredTextMode: 'all',
+      minMainTextLength: 120,
+    },
+  })) && sectionOk;
+
+  return sectionOk;
+}
+
 // Run a list of capture functions on a dedicated page, returning results.
 async function runWorker(browser, captures, workerLabel) {
   const page = await browser.newPage();
@@ -3547,7 +3796,24 @@ async function main() {
   console.log(`Parallel workers: ${CONFIG.parallel}`);
 
   // Ensure screenshot directories exist
-  const dirs = ['home', 'agents', 'people', 'campaigns', 'datasets', 'workflows', 'settings', 'forecast', 'rewards', 'integrations'];
+  const dirs = [
+    'home',
+    'agents',
+    'people',
+    'campaigns',
+    'datasets',
+    'workflows',
+    'settings',
+    'forecast',
+    'rewards',
+    'integrations',
+    'branding',
+    'mentions',
+    'account',
+    'capabilities',
+    'implementation',
+    'brand-companions',
+  ];
   dirs.forEach(dir => ensureDir(path.join(CONFIG.screenshotsDir, dir)));
   ensureDir(CONFIG.artifactsDir);
 
@@ -3610,6 +3876,12 @@ async function main() {
       ["forecast", captureForecast],
       ["rewards", captureRewards],
       ["integrations", captureIntegrations],
+      ["branding", captureBranding],
+      ["mentions", captureMentions],
+      ["account", captureAccount],
+      ["capabilities", captureCapabilities],
+      ["implementation", captureImplementation],
+      ["brand-companions", captureBrandCompanions],
     ];
 
     const selectedCaptures = CONFIG.captureOnly.length
@@ -3704,6 +3976,12 @@ function distributeCaptures(captures, numWorkers) {
     forecast: 1,
     rewards: 1,
     integrations: 1,
+    branding: 2,
+    mentions: 1,
+    account: 1,
+    capabilities: 2,
+    implementation: 2,
+    'brand-companions': 1,
   };
 
   // Sort captures by weight descending so heavy ones get assigned first.
