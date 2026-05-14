@@ -267,11 +267,20 @@ async function bodyTextMatches(page, phrases, mode = 'any') {
 
 async function waitForLoaders(page, timeout = TIMING.loaderTimeout) {
   const loaderSelectors = [
-    '[class*="loading"]',
-    '[class*="spinner"]',
-    '[class*="skeleton"]',
-    '[data-testid*="loading"]',
-    '[data-testid*="skeleton"]'
+    '[class*="loading" i]',
+    '[class*="loader" i]',
+    '[class*="spinner" i]',
+    '[class*="skeleton" i]',
+    '[data-testid*="loading" i]',
+    '[data-testid*="loader" i]',
+    '[data-testid*="spinner" i]',
+    '[data-testid*="skeleton" i]',
+    '[role="progressbar"]',
+    '[aria-busy="true"]',
+    '[aria-label*="loading" i]',
+    '[aria-label*="spinner" i]',
+    '[data-loading="true"]',
+    '[data-state="loading"]'
   ];
 
   console.log('  Waiting for loaders to disappear...');
@@ -420,6 +429,7 @@ async function getRenderDiagnostics(page, containerSelector = null) {
           structuredCount: 0,
           centeredSpinnerCount: 0,
           visibleLoaderCount: 0,
+          loadedImageCount: 0,
           hasDialog: false,
           hasMenu: false,
         };
@@ -437,26 +447,84 @@ async function getRenderDiagnostics(page, containerSelector = null) {
 
       const loaderSelectors = [
         '[class*="loading" i]',
+        '[class*="loader" i]',
         '[class*="spinner" i]',
         '[class*="skeleton" i]',
         '[data-testid*="loading" i]',
+        '[data-testid*="loader" i]',
+        '[data-testid*="spinner" i]',
         '[data-testid*="skeleton" i]',
+        '[role="progressbar"]',
         '[aria-busy="true"]',
+        '[aria-label*="loading" i]',
+        '[aria-label*="spinner" i]',
+        '[data-loading="true"]',
+        '[data-state="loading"]',
       ];
 
       const centeredSpinnerCount = Array.from(
-        document.querySelectorAll('svg, [class*="spinner" i], [class*="loading" i], [data-testid*="loading" i], [aria-busy="true"]')
+        document.querySelectorAll(
+          [
+            'svg',
+            '[role="progressbar"]',
+            '[class*="spinner" i]',
+            '[class*="loading" i]',
+            '[class*="loader" i]',
+            '[data-testid*="loading" i]',
+            '[data-testid*="loader" i]',
+            '[data-testid*="spinner" i]',
+            '[aria-busy="true"]',
+            '[aria-label*="loading" i]',
+            '[aria-label*="spinner" i]',
+            '[data-loading="true"]',
+            '[data-state="loading"]',
+          ].join(',')
+        )
       ).filter((el) => {
         if (!visible(el)) return false;
         const rect = el.getBoundingClientRect();
-        if (rect.width > 240 || rect.height > 240) return false;
+        if (rect.width > 160 || rect.height > 160) return false;
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
+        const nearViewportCenter =
+          centerX >= window.innerWidth * 0.42 &&
+          centerX <= window.innerWidth * 0.58 &&
+          centerY >= window.innerHeight * 0.28 &&
+          centerY <= window.innerHeight * 0.72;
+        if (!nearViewportCenter) return false;
+
+        const label = [
+          el.getAttribute('class'),
+          el.getAttribute('role'),
+          el.getAttribute('aria-label'),
+          el.getAttribute('data-testid'),
+          el.getAttribute('data-state'),
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        const explicitlyLoader =
+          label.includes('load') ||
+          label.includes('spinner') ||
+          label.includes('progress') ||
+          label.includes('skeleton') ||
+          el.getAttribute('aria-busy') === 'true';
+        if (explicitlyLoader) return true;
+
+        // The Vurvey SPA renders a small centered brand/icon SVG while data is
+        // still hydrating. It has no loading class, so catch the icon-only case.
+        if (el.tagName.toLowerCase() !== 'svg') return false;
+        const contextualParent = el.closest(
+          '[class*="card" i], [data-testid*="card" i], button, a, [role="button"]'
+        );
+        if (contextualParent && (contextualParent.innerText || '').replace(/\s+/g, ' ').trim().length > 6) {
+          return false;
+        }
         return (
-          centerX >= window.innerWidth * 0.2 &&
-          centerX <= window.innerWidth * 0.8 &&
-          centerY >= window.innerHeight * 0.15 &&
-          centerY <= window.innerHeight * 0.85
+          rect.width >= 12 &&
+          rect.height >= 12 &&
+          rect.width <= 80 &&
+          rect.height <= 80
         );
       }).length;
 
@@ -464,11 +532,25 @@ async function getRenderDiagnostics(page, containerSelector = null) {
         return count + Array.from(document.querySelectorAll(selector)).filter((el) => visible(el)).length;
       }, 0);
 
+      const loadedImageCount = Array.from(document.querySelectorAll('img')).filter((img) => {
+        if (!visible(img)) return false;
+        return img.complete && img.naturalWidth > 0 && img.naturalHeight > 0;
+      }).length;
+
+      const loadedBackgroundImageCount = Array.from(
+        document.querySelectorAll('[class*="avatar" i], [class*="image" i], [class*="photo" i], [class*="thumbnail" i]')
+      ).filter((el) => {
+        if (!visible(el)) return false;
+        const bg = window.getComputedStyle(el).backgroundImage;
+        return Boolean(bg && bg !== 'none' && bg.includes('url('));
+      }).length;
+
       return {
         mainTextLength: text.length,
         structuredCount,
         centeredSpinnerCount,
         visibleLoaderCount,
+        loadedImageCount: loadedImageCount + loadedBackgroundImageCount,
         hasDialog: Array.from(document.querySelectorAll('[role="dialog"], [class*="modal" i]')).some((el) => visible(el)),
         hasMenu: Array.from(document.querySelectorAll('[role="menu"], [class*="dropdown" i], [class*="popover" i]')).some(
           (el) => visible(el)
@@ -482,6 +564,7 @@ async function getRenderDiagnostics(page, containerSelector = null) {
       structuredCount: 0,
       centeredSpinnerCount: 0,
       visibleLoaderCount: 0,
+      loadedImageCount: 0,
       hasDialog: false,
       hasMenu: false,
     };
@@ -516,7 +599,7 @@ async function hasRenderableMainContent(page, containerSelector = null) {
   const iconOnly = diagnostics.centeredSpinnerCount > 0 && diagnostics.mainTextLength < 40 && !hasStructuredContent;
 
   if (iconOnly) return false;
-  if (diagnostics.centeredSpinnerCount > 0 && diagnostics.mainTextLength < 120 && diagnostics.structuredCount <= 1) {
+  if (diagnostics.centeredSpinnerCount > 0 && diagnostics.mainTextLength < 300 && diagnostics.structuredCount <= 4) {
     return false;
   }
   return hasStructuredContent || diagnostics.mainTextLength >= 80;
@@ -537,6 +620,7 @@ async function validateCaptureTarget(page, options = {}) {
     containerSelector = null,
     minMainTextLength = null,
     minStructuredElements = null,
+    minLoadedImages = null,
     allowVisibleLoaders = false,
     allowCenteredSpinner = false,
   } = options;
@@ -571,7 +655,7 @@ async function validateCaptureTarget(page, options = {}) {
   if (!allowVisibleLoaders && diagnostics.visibleLoaderCount > 0) {
     return {ok: false, reason: 'visible loaders present', diagnostics};
   }
-  if (!allowCenteredSpinner && diagnostics.centeredSpinnerCount > 0 && diagnostics.mainTextLength < 220) {
+  if (!allowCenteredSpinner && diagnostics.centeredSpinnerCount > 0) {
     return {ok: false, reason: 'centered loading state detected', diagnostics};
   }
   if (typeof minMainTextLength === 'number' && diagnostics.mainTextLength < minMainTextLength) {
@@ -585,6 +669,13 @@ async function validateCaptureTarget(page, options = {}) {
     return {
       ok: false,
       reason: `insufficient structured content (${diagnostics.structuredCount} < ${minStructuredElements})`,
+      diagnostics,
+    };
+  }
+  if (typeof minLoadedImages === 'number' && diagnostics.loadedImageCount < minLoadedImages) {
+    return {
+      ok: false,
+      reason: `insufficient loaded images (${diagnostics.loadedImageCount} < ${minLoadedImages})`,
       diagnostics,
     };
   }
@@ -1534,6 +1625,7 @@ async function captureAgents(page) {
     routeIncludes: ['/agents'],
     requiredSelectors: ['[data-testid="agent-card"]', '[class*="agentCard"]', '[class*="personaCard"]'],
     requiredSelectorMode: 'any',
+    minLoadedImages: 8,
     minMainTextLength: 100,
   })) && sectionOk;
 
@@ -2171,7 +2263,8 @@ async function capturePeople(page) {
 
   sectionOk = Boolean(await takeScreenshot(page, '01-people-main', 'people', {
     routeIncludes: ['/people', '/audience'],
-    minMainTextLength: 100,
+    requiredTexts: ['Showing'],
+    minMainTextLength: 140,
   })) && sectionOk;
 
   // Sub-pages (try /people first, then /audience).
@@ -2226,6 +2319,7 @@ async function capturePeople(page) {
             routeIncludes: subPage.routeIncludes,
             requiredSelectors: subPage.requiredSelectors || [],
             requiredTexts: subPage.requiredTexts || [],
+            requiredTextMode: subPage.requiredTextMode || 'any',
             minMainTextLength: 100,
           });
           if (!subPageShot) {
@@ -2256,7 +2350,12 @@ async function capturePeople(page) {
       await delay(TIMING.postClickDelay);
       await waitForNetworkIdle(page);
       await waitForLoaders(page);
-      await takeScreenshot(page, '02a-population-charts', 'people');
+      await takeScreenshot(page, '02a-population-charts', 'people', {
+        routeIncludes: ['/people', '/audience'],
+        requiredTexts: ['Brand Relationship Orientation', 'Change Orientation'],
+        requiredTextMode: 'all',
+        minMainTextLength: 180,
+      });
       break;
     }
   } catch (e) {
@@ -2970,7 +3069,11 @@ async function captureDatasets(page) {
           '[class*="fileTable" i]',
           'table',
         ], 5000);
-        await takeScreenshot(page, '04-dataset-detail', 'datasets');
+        await takeScreenshot(page, '04-dataset-detail', 'datasets', {
+          routeIncludes: ['/datasets'],
+          requiredTexts: ['Success'],
+          minMainTextLength: 160,
+        });
 
         // Try to capture the upload dialog
         try {
@@ -2984,7 +3087,11 @@ async function captureDatasets(page) {
             ]));
           if (uploadClicked) {
             await delay(TIMING.postClickDelay);
-            await takeScreenshot(page, '05-upload-dialog', 'datasets');
+        await takeScreenshot(page, '05-upload-dialog', 'datasets', {
+          routeIncludes: ['/datasets'],
+          requiredTexts: ['Upload', 'Add via'],
+          minMainTextLength: 160,
+        });
             await page.keyboard.press('Escape').catch(() => {});
             await delay(300);
           }
@@ -2993,7 +3100,11 @@ async function captureDatasets(page) {
         }
 
         // Capture dataset with documents (should already be showing files table)
-        await takeScreenshot(page, '06-dataset-with-documents', 'datasets');
+        await takeScreenshot(page, '06-dataset-with-documents', 'datasets', {
+          routeIncludes: ['/datasets'],
+          requiredTexts: ['Success'],
+          minMainTextLength: 160,
+        });
       }
     }
   } catch (e) {
@@ -3085,6 +3196,7 @@ async function captureWorkflows(page) {
             const variablesShot = await takeScreenshot(page, '07-workflow-variables-modal', 'workflows', {
               routeIncludes: ['/workflow'],
               requiredTexts: ['Manage Workflow Variables'],
+              forbiddenTexts: ['Loading'],
               requireDialog: true,
               containerSelector: '[role="dialog"], [class*="modal" i]',
               minMainTextLength: 120,
@@ -3108,6 +3220,7 @@ async function captureWorkflows(page) {
             const sourcesShot = await takeScreenshot(page, '07a-workflow-sources-modal', 'workflows', {
               routeIncludes: ['/workflow'],
               requiredTexts: ['Choose Sources'],
+              forbiddenTexts: ['Loading'],
               requireDialog: true,
               containerSelector: '[role="dialog"], [class*="modal" i]',
               minMainTextLength: 120,
@@ -3548,7 +3661,11 @@ async function captureRewards(page) {
     'button',
   ]);
 
-  await takeScreenshot(page, '01-rewards-main', 'rewards');
+  await takeScreenshot(page, '01-rewards-main', 'rewards', {
+    routeIncludes: ['/rewards'],
+    requiredTexts: ['Rewards'],
+    minMainTextLength: 140,
+  });
   return true;
 }
 
@@ -3573,7 +3690,12 @@ async function captureIntegrations(page) {
     'table',
   ]);
 
-  await takeScreenshot(page, '01-integrations-main', 'integrations');
+  await takeScreenshot(page, '01-integrations-main', 'integrations', {
+    routeIncludes: ['/integrations'],
+    requiredTexts: ['Integrations', 'Connect'],
+    requiredTextMode: 'all',
+    minMainTextLength: 160,
+  });
   return true;
 }
 

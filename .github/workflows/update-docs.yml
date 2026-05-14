@@ -58,14 +58,16 @@ jobs:
           VURVEY_WORKSPACE_ID: ${{ secrets.VURVEY_WORKSPACE_ID || '07e5edb5-e739-4a35-9f82-cc6cec7c0193' }}
           VURVEY_URL: https://staging.vurvey.dev
           HEADLESS: 'true'
-          CAPTURE_STRICT: 'false'
+          CAPTURE_STRICT: 'true'
         run: npm run update:screenshots
-        continue-on-error: true
 
       - name: Validate screenshot references and capture report
         env:
           DOCS_LINT_USE_CAPTURE_REPORT: 'true'
         run: npm run lint:docs
+
+      - name: Audit committed screenshots
+        run: npm run audit:screenshots
 
       - name: Upload capture artifacts
         if: always()
@@ -74,6 +76,7 @@ jobs:
           name: screenshot-capture-artifacts
           path: |
             qa-output/capture-screenshots/
+            qa-output/screenshot-audit/
           retention-days: 7
 
       - name: Check for changes

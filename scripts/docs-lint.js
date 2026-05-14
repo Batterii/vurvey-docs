@@ -31,9 +31,9 @@ async function main() {
   const hardErrors = problems.filter(isHardError);
   const warnings = problems.filter((p) => !isHardError(p));
 
-  // Always print warnings (invalid-screenshot from capture report)
+  // Print any non-blocking diagnostics if future lint types add them.
   if (warnings.length > 0) {
-    console.warn(`docs-lint: ${warnings.length} warning(s) (screenshot capture quality)`);
+    console.warn(`docs-lint: ${warnings.length} warning(s)`);
     for (const p of warnings) {
       const relFile = path.relative(repoRoot, p.file);
       const relTarget = path.relative(repoRoot, p.target);
@@ -54,7 +54,7 @@ async function main() {
     process.exit(1);
   }
 
-  // Only warnings — exit successfully
+  // Only warnings, so exit successfully.
   console.log("docs-lint: OK (with warnings)");
   process.exit(0);
 }

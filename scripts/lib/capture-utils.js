@@ -18,6 +18,7 @@ const RETRYABLE_REASONS = new Set([
   'missing required selector',
   'insufficient content text',
   'insufficient structured content',
+  'insufficient loaded images',
   'insufficient page content',
   'expected dialog not visible',
   'expected menu not visible',

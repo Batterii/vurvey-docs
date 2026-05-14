@@ -3,8 +3,8 @@
  *
  * These tests verify:
  * 1. isRetryableValidationFailure correctly classifies transient vs permanent failures
- * 2. isHardError correctly separates blocking errors from soft warnings
- * 3. lintDocs treats invalid-screenshot as non-blocking when capture report is present
+ * 2. isHardError treats screenshot quality failures as blocking
+ * 3. lintDocs reports invalid-screenshot when the capture report flags one
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -48,6 +48,10 @@ test("isRetryableValidationFailure: parameterized insufficient content is retrya
 
 test("isRetryableValidationFailure: insufficient structured content is retryable", () => {
   assert.equal(isRetryableValidationFailure("insufficient structured content (0 < 2)"), true);
+});
+
+test("isRetryableValidationFailure: insufficient loaded images is retryable", () => {
+  assert.equal(isRetryableValidationFailure("insufficient loaded images (0 < 8)"), true);
 });
 
 test("isRetryableValidationFailure: expected dialog not visible is retryable", () => {
@@ -94,8 +98,8 @@ test("isHardError: broken-link is a hard error", () => {
   assert.equal(isHardError({type: "broken-link"}), true);
 });
 
-test("isHardError: invalid-screenshot is NOT a hard error", () => {
-  assert.equal(isHardError({type: "invalid-screenshot"}), false);
+test("isHardError: invalid-screenshot is a hard error", () => {
+  assert.equal(isHardError({type: "invalid-screenshot"}), true);
 });
 
 test("isHardError: unknown types are treated as hard errors", () => {
@@ -131,8 +135,7 @@ test("lintDocs: invalid-screenshot from capture report is type invalid-screensho
       assert.equal(problems.length, 1);
       assert.equal(problems[0].type, "invalid-screenshot");
       assert.equal(problems[0].detail, "visible loaders present");
-      // This should NOT be a hard error
-      assert.equal(isHardError(problems[0]), false);
+      assert.equal(isHardError(problems[0]), true);
     } finally {
       if (origEnv === undefined) {
         delete process.env.DOCS_LINT_USE_CAPTURE_REPORT;
@@ -197,7 +200,7 @@ test("lintDocs: ok screenshot in capture report produces no problem", async () =
   });
 });
 
-test("lintDocs: mixed hard errors and soft warnings are correctly classified", async () => {
+test("lintDocs: mixed hard errors and invalid screenshots are all blocking", async () => {
   await withTempDir(async (repoRoot) => {
     const docsRoot = path.join(repoRoot, "docs");
     const publicRoot = path.join(docsRoot, "public");
@@ -229,10 +232,10 @@ test("lintDocs: mixed hard errors and soft warnings are correctly classified", a
       const hardErrors = problems.filter(isHardError);
       const warnings = problems.filter((p) => !isHardError(p));
 
-      assert.equal(hardErrors.length, 2);
-      assert.equal(warnings.length, 1);
-      assert.equal(warnings[0].type, "invalid-screenshot");
-      assert.equal(warnings[0].detail, "centered loading state detected");
+      assert.equal(hardErrors.length, 3);
+      assert.equal(warnings.length, 0);
+      const invalid = problems.find((p) => p.type === "invalid-screenshot");
+      assert.equal(invalid.detail, "centered loading state detected");
     } finally {
       if (origEnv === undefined) {
         delete process.env.DOCS_LINT_USE_CAPTURE_REPORT;
@@ -254,7 +257,7 @@ test("lintDocs: capture report not found does not crash", async () => {
     const origEnv = process.env.DOCS_LINT_USE_CAPTURE_REPORT;
     process.env.DOCS_LINT_USE_CAPTURE_REPORT = "true";
     try {
-      // No capture report file exists — should not crash
+      // No capture report file exists, so this should not crash.
       const problems = await lintDocs({repoRoot, docsRoot, publicRoot});
       assert.deepEqual(problems, []);
     } finally {
@@ -299,8 +302,7 @@ test("lintDocs: multiple invalid-screenshot reasons from capture report", async 
     try {
       const problems = await lintDocs({repoRoot, docsRoot, publicRoot});
       assert.equal(problems.length, 2);
-      // Both should be soft warnings
-      assert.ok(problems.every((p) => !isHardError(p)));
+      assert.ok(problems.every((p) => isHardError(p)));
       assert.equal(problems[0].detail, "visible loaders present");
       assert.equal(problems[1].detail, "missing required text");
     } finally {

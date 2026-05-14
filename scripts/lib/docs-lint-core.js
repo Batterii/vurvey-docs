@@ -115,13 +115,12 @@ export function resolveScreenshotTarget({publicRoot, href}) {
  * optionally validate screenshot quality against a capture report.
  *
  * Returns an array of problem objects. Each problem has a `type` field:
- * - "missing-screenshot" — the referenced file does not exist (hard error)
- * - "broken-link" — an internal doc link does not resolve (hard error)
- * - "invalid-screenshot" — the file exists but the capture report flagged
- *   it as low quality (soft warning — the existing committed screenshot
- *   is still usable, but a fresh capture had issues)
+ * - "missing-screenshot": the referenced file does not exist (hard error)
+ * - "broken-link": an internal doc link does not resolve (hard error)
+ * - "invalid-screenshot": the file exists but the capture report flagged
+ *   it as low quality
  *
- * Callers can separate hard errors from soft warnings using `isHardError()`.
+ * Callers can classify problems with `isHardError()`.
  */
 export async function lintDocs({repoRoot, docsRoot, publicRoot}) {
   const mdFiles = await listMarkdownFiles(docsRoot);
@@ -214,11 +213,10 @@ export async function lintDocs({repoRoot, docsRoot, publicRoot}) {
 
 /**
  * Returns true if the problem is a hard error that should block CI.
- * "invalid-screenshot" problems are soft warnings — the screenshot file
- * exists on disk (committed previously) but the latest capture attempt
- * had a transient quality issue (loaders visible, text not loaded, etc.).
- * These should be logged but not fail the build.
+ * Any screenshot flagged by the latest capture report is a hard error.
+ * Committing or deploying a stale image after a failed fresh capture hides
+ * screenshot drift and can publish loading states.
  */
 export function isHardError(problem) {
-  return problem.type !== "invalid-screenshot";
+  return Boolean(problem);
 }
