@@ -4,9 +4,9 @@ Datasets are your AI's knowledge base. Upload research reports, survey exports, 
 
 ## Overview
 
-![Loaded Dataset Detail](/screenshots/datasets/06-dataset-with-documents.png)
+![Dataset Detail](/screenshots/datasets/04-dataset-detail.png)
 
-A loaded dataset shows processing stats, action buttons, search, and the file table in one place. Use this view to confirm files are ready, add more files, manage labels, and start conversations when processing is complete.
+A dataset detail page shows processing stats, action buttons, search, and the file table in one place. File rows appear when files have been added; empty datasets still show the same header, stats, and upload controls. Use this view to confirm files are ready, add more files, manage labels, and start conversations when processing is complete.
 
 ::: tip Why Use Datasets?
 Think of datasets as giving your AI agents specialized expertise. When you connect a dataset to an agent or conversation, the AI can draw on everything you've uploaded — product specs, brand tracking reports, interview transcripts, competitive intelligence — to give you more informed, accurate answers.
@@ -24,9 +24,7 @@ Access **Datasets** from the main sidebar. The section includes two tabs:
 
 ## Browsing Your Datasets
 
-![Loaded Dataset Files](/screenshots/datasets/04-dataset-detail.png)
-
-From **All Datasets**, open a dataset card to inspect its files and processing state. Inside a loaded dataset, each file row shows:
+From **All Datasets**, open a dataset card to inspect its files and processing state. Inside a dataset with files, each file row shows:
 
 - **Name** - the file name
 - **Type** - document, spreadsheet, presentation, video, or other supported media

@@ -217,41 +217,44 @@ If you're using the simplified single-page builder, you won't see the step-by-st
 
 ---
 
-### Step 1: Objective (Guided Builder)
+### Agent Credential Editor
 
-![Agent Builder - Objective](/screenshots/agents/05-builder-objective.png)
+![Agent Credential Editor](/screenshots/agents/05-builder-objective.png)
 
-This is where you choose what kind of agent to build and define its mission.
+The current edit surface opens the **Vurvey AI Agent Credential** editor. This is where you maintain the agent's profile and operating instructions.
 
 **What you'll do:**
-1. **Choose an agent type** — Select from Assistant, Consumer Persona, Product, or Visual Generator
-2. **Write a core mission** — Describe what this agent should accomplish
+1. **Set the name** - Use a clear label that teammates can recognize in the gallery and chat tools
+2. **Describe the agent's role** - Explain what this agent should accomplish and what context it should use
+3. **Tune the personality** - Set tone, point of view, and interaction style
+4. **Control guest access** - Use **Share with Guests** when the agent should be available externally
+5. **Save or cancel changes** - The editor keeps explicit action buttons at the bottom of the page
 
-Your core mission is the most important piece of guidance you'll give your agent. A well-written mission leads to much better results.
+The role description is the most important piece of guidance you'll give your agent. A well-written role leads to much better results.
 
-::: tip Writing a Strong Core Mission
+::: tip Writing a Strong Role Description
 Compare these two approaches:
 
 **Vague:** "Help with research"
 
-**Specific:** "Analyze consumer survey responses about sustainable packaging preferences, identify the top themes across age groups, and provide actionable recommendations for our product development team — including specific consumer quotes that support each finding."
+**Specific:** "Analyze consumer survey responses about sustainable packaging preferences, identify the top themes across age groups, and provide actionable recommendations for our product development team, including specific consumer quotes that support each finding."
 
 The specific version gives your agent clear context, scope, and expected outputs.
 :::
 
-**More mission examples by agent type:**
+**More role examples by agent type:**
 
-| Agent Type | Weak Mission | Strong Mission |
+| Agent Type | Weak Role | Strong Role |
 |-----------|-------------|----------------|
-| Assistant | "Analyze data" | "Review open-ended survey responses from our Q3 brand perception study, categorize sentiment by product line, and flag responses that mention competitor brands — present findings in a table format with supporting quotes" |
+| Assistant | "Analyze data" | "Review open-ended survey responses from our Q3 brand perception study, categorize sentiment by product line, and flag responses that mention competitor brands, then present findings in a table format with supporting quotes" |
 | Consumer Persona | "Be a young shopper" | "Represent a 22-year-old college student in Austin, TX who shops primarily through TikTok and Instagram recommendations, is budget-conscious but willing to splurge on skincare, and values brand transparency above all else" |
 | Product | "Know about our products" | "Serve as the expert on our 2026 Clean Beauty skincare line (12 SKUs), including ingredient lists, pricing, positioning vs. competitors like CeraVe and The Ordinary, and key clinical study results" |
 | Visual Generator | "Make images" | "Generate photorealistic product lifestyle images showing our new beverage line in modern kitchen settings, targeting a warm and inviting aesthetic consistent with our brand palette of earth tones and soft lighting" |
 
-::: warning Common Objective Mistakes
-- **Too broad**: "Know everything about beauty" — the agent can't be an expert in everything
-- **Too narrow**: "Answer questions about SKU #4421 pricing" — this is better as a dataset entry, not an entire agent mission
-- **Contradictory**: "Be both highly creative and strictly factual" — pick a primary orientation and add the secondary as a guideline
+::: warning Common Role Mistakes
+- **Too broad**: "Know everything about beauty" - the agent can't be an expert in everything
+- **Too narrow**: "Answer questions about SKU #4421 pricing" - this is better as a dataset entry, not an entire agent mission
+- **Contradictory**: "Be both highly creative and strictly factual" - pick a primary orientation and add the secondary as a guideline
 :::
 
 ---
@@ -526,7 +529,7 @@ Here are some examples of descriptions that produce great avatars:
 
 ### Step 6: Review (Guided Builder)
 
-![Agent Review Credential Card](/screenshots/agents/05-builder-objective.png)
+![Agent Review Credential Card](/screenshots/agents/10-builder-review.png)
 
 The final step brings everything together so you can review your agent's complete configuration before going live.
 

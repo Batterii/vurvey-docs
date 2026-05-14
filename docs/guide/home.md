@@ -55,7 +55,7 @@ Clicking **Agents** opens the current agent-picker modal:
 - it lists the published agents available to your workspace
 - it exposes agent-type filter chips and search
 - it highlights the currently active agent
-- it uses explicit **Cancel** and **Use selected** actions
+- it uses explicit **Cancel** and **Choose agent** actions
 
 #### The Population Persona Modal
 
