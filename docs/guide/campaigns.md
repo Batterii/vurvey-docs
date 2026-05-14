@@ -14,7 +14,7 @@ Campaigns go beyond standard surveys by capturing the emotions, expressions, and
 
 ## Navigation Tabs
 
-The Campaigns page has four tabs:
+The Campaigns page has up to four tabs. **Usage** is hidden from the Campaigns tab strip when `moveusagetoworkspacetab` is active.
 
 | Tab | Description |
 |-----|-------------|
@@ -928,6 +928,8 @@ Need quick feedback on three product concepts before a board meeting? Start with
 ![Usage Page](/screenshots/campaigns/04-usage.png)
 
 Track your workspace activity and credit consumption. The Usage tab shows your current credit balance, a credit activity chart over time, and detailed transaction history.
+
+When the `moveusagetoworkspacetab` feature flag is active, the Campaigns tab strip hides **Usage** and the route is reached from the workspace navigation instead.
 
 ### What Are Credits?
 

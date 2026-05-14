@@ -86,7 +86,7 @@ The following pages should exist. If any are missing, **create them** following 
 | Canvas & Image Studio | `docs/guide/canvas-and-image-studio.md` | `vurvey-web-manager/src/canvas/` |
 | Forecast | `docs/guide/forecast.md` | `vurvey-web-manager/src/forecast/` |
 | Rewards | `docs/guide/rewards.md` | `vurvey-web-manager/src/rewards/` |
-| Integrations | `docs/guide/integrations.md` | `vurvey-web-manager/src/integrations/`, `vurvey-web-manager/src/workspace-settings/containers/workspace-settings/integrations/`, `vurvey-web-manager/src/workspace-settings/containers/workspace-settings/general-settings/*-card/`, `vurvey-web-manager/src/modals/` |
+| Integrations | `docs/guide/integrations.md` | `vurvey-web-manager/src/integrations/`, `vurvey-web-manager/src/account/containers/account-page/`, `vurvey-web-manager/src/workspace-settings/containers/workspace-settings/general-settings/*-card/`, `vurvey-web-manager/src/modals/` |
 | Reels | `docs/guide/reels.md` | `vurvey-web-manager/src/reel/` |
 | Admin (Enterprise) | `docs/guide/admin.md` | `vurvey-web-manager/src/admin/` |
 | Capabilities | `docs/guide/capabilities.md` | `vurvey-web-manager/src/capabilities/`, `vurvey-web-manager/src/app-routes/capabilities-routes.tsx` |
@@ -429,7 +429,8 @@ When documentation is correct but code has a bug, create a structured bug report
 - `vurvey-web-manager/src/integrations/` or `vurvey-web-manager/src/workspace-settings/`
 
 **Verify:**
-- Routes: `/:workspaceId/settings/integrations`
+- Routes: `/:workspaceId/me/integrations`
+- Workspace Settings still renders an Integrations nav item, but current master does not mount `workspace/settings/integrations`
 - Composio integration framework
 - Tool categories (15 categories)
 - Auth methods (OAuth2, API key, Bearer token)

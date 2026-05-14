@@ -1,10 +1,9 @@
 # Settings
 
-The Settings area controls workspace-level configuration. In current `vurvey-web-manager` master, the visible Settings navigation contains **three** tabs when workspace integrations are enabled:
+The Settings area controls workspace-level configuration. In current `vurvey-web-manager` master, the mounted Settings routes support **two** working settings tabs:
 
 - **General settings**
 - **AI Models**
-- **Integrations**
 
 ![General Settings](/screenshots/settings/01-general-settings.png)
 
@@ -14,7 +13,8 @@ The Settings area controls workspace-level configuration. In current `vurvey-web
 |---|---|
 | **General settings** | Session timeout, workspace name, workspace avatar, current plan, and enabled integration cards |
 | **AI Models** | Searchable AI model catalog for the workspace |
-| **Integrations** | Enabled workspace integration cards, including Microsoft SharePoint and Tremendous when available |
+
+The Settings component still renders an **Integrations** navigation item, but `workspace/settings/integrations` is not mounted in the current route tree. Use the integration cards in General settings or **Personal Profile > Integrations** when the workspace has the integration hub enabled.
 
 An **API Management** route still exists in the codebase, but it is not part of the visible Settings tab strip in the current UI.
 
@@ -57,7 +57,7 @@ For first-time reward setup, the more reliable path is the standalone [Rewards](
 
 ### Microsoft SharePoint
 
-The Microsoft SharePoint card appears only when `sharepointEnabled` is enabled for the workspace. It can appear in General Settings and in the Settings > Integrations tab.
+The Microsoft SharePoint card appears in General Settings only when `sharepointEnabled` is enabled for the workspace.
 
 The card lets workspace admins configure a workspace-scoped SharePoint connection so files can be imported directly into datasets without downloading them locally first.
 
@@ -146,6 +146,7 @@ That means user-facing docs should not present it as a standard visible Settings
 
 - Use **General settings** for workspace identity and session policy
 - Use **AI Models** to understand which models the workspace exposes
-- Use **Integrations** or the SharePoint card in General Settings to manage Microsoft SharePoint when it is enabled
+- Use the SharePoint card in General Settings to manage Microsoft SharePoint when it is enabled
+- Use **Personal Profile > Integrations** for the broader integrations hub when `composioEnabled` is enabled
 - Use **Manage Users** for member administration, role changes, and ownership transfer
 - Use [Rewards](/guide/rewards) if you need to configure or operate Tremendous-backed incentives

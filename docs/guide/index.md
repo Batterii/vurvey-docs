@@ -17,13 +17,13 @@ Vurvey is built for market researchers, brand strategists, and insights professi
 
 ## Finding Your Way Around
 
-Once you log in, you'll land on the **Home** page, where you can start chatting with AI right away. The sidebar on the left is your main navigation and gives you access to every section of the platform.
+Once you log in, you'll land on the **Home** page, where you can start chatting with AI right away. The sidebar on the left is your main navigation for day-to-day work. Workspace-level and enterprise areas, such as Settings, Implementation, and Super Admin, are in the workspace dropdown.
 
 ![Vurvey Home Page](/screenshots/home/03-after-login.png)
 
 Here's what each section does:
 
-| Sidebar Item | What It's For |
+| Navigation Item | What It's For |
 |---|---|
 | **Home** | Your main workspace for AI-powered conversations. Ask questions, get analysis, and explore insights. *(Requires `chatbotEnabled`)* |
 | **Agents** | Browse, create, and customize the AI Agents that power your research conversations. *(Requires `chatbotEnabled`)* |
@@ -33,6 +33,7 @@ Here's what each section does:
 | **Forecast** | View predictive analytics and trend projections when Forecast is enabled for the workspace. |
 | **Workflow** | Build automated, multi-step research pipelines when Workflow is enabled for the workspace. *(Beta)* |
 | **Capabilities** | Deploy reusable AI systems from blueprints, monitor their workflows, and manage capability output. *(Requires autonomous capabilities)* |
+| **Implementation** | Enterprise setup area for taxonomy, system prompts, YAML agent creation, agent personalities, and Molds. *(Requires implementation access)* |
 
 ::: tip Quick Tip
 At the bottom of the sidebar, you'll find your profile, your current workspace name, and the option to switch between workspaces if you belong to more than one.

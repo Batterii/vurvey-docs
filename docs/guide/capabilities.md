@@ -23,7 +23,7 @@ The Capabilities home page is the main library for deployed and draft capabiliti
 | Area | What It Shows |
 |---|---|
 | Header | **Living intelligence, deployed** and the **+ New capability** button |
-| Capability cards | Capability name, objective, status, update time, schedule, and workflow count |
+| Capability cards | Capability name, optional description, **Configured** status badge, and relative update time |
 | Card menu | **Edit details** and **Delete** |
 | Empty state | **No capabilities yet** with **Browse blueprints** |
 
@@ -63,7 +63,7 @@ Open a capability card to manage the individual capability.
 
 The detail page shows:
 
-- Current status, such as **DRAFT**, **ACTIVE**, **PAUSED**, **BROKEN**, **ARCHIVED**, or **DELETED**
+- Current status, such as **DRAFT**, **ACTIVE**, **PAUSED**, or **ARCHIVED**
 - The capability objective
 - Schedule information
 - Pipeline phase timeline
@@ -101,14 +101,14 @@ Use **Open** on a workflow card to inspect that workflow in the capability-scope
 
 Capability workflow details are opened from a capability, not from the standalone Workflow builder. The page path follows this pattern:
 
-`/capabilities/:capabilitySlug/workflows/:workflowId`
+`/capabilities/:capabilitySlug/workflows/:orchestrationId`
 
 The page includes:
 
 - Breadcrumb back to the parent capability
 - Phase number and total phase count
 - Workflow name and role
-- **Edit workflow definition**, which opens the Workflow builder for that workflow
+- **Edit workflow definition**, which opens `/workflow/flows/:orchestrationId`
 - Last run timestamp, status, completion count, and average run duration
 - Next scheduled run
 - Schedule editor for head workflows that support scheduling
@@ -133,6 +133,16 @@ Advanced per-workflow schedule customization is not fully exposed yet.
 ## Object Types
 
 The **Object Types** route lists object definitions used by capabilities. These describe the structured objects that capability workflows can produce and pass between phases.
+
+## Object Libraries
+
+When the newer capability backend is enabled, Capabilities also mounts object-library routes for:
+
+- **Insights** at `/capabilities/insights`
+- **Concepts** at `/capabilities/concepts`
+- **Evaluations** at `/capabilities/evaluations`
+
+These pages show structured objects produced by capability workflows.
 
 ## Related Guides
 

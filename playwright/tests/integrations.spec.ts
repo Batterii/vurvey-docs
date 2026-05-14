@@ -13,8 +13,7 @@ test.describe('integrations.md: Documentation claim tests', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
   test.setTimeout(120_000);
 
-  // Route candidates — the integrations page may live at either path
-  const ROUTE_CANDIDATES = ['/settings/integrations', '/integrations'];
+  const ROUTE_CANDIDATES = ['/me/integrations'];
 
   /** Navigate to the integrations page, trying known route candidates. */
   async function gotoIntegrations(page: import('@playwright/test').Page): Promise<boolean> {
@@ -23,7 +22,7 @@ test.describe('integrations.md: Documentation claim tests', () => {
       await page.waitForTimeout(2_000);
 
       // Check if we landed on the integrations page (not redirected away)
-      const header = page.getByText(/third.party integrations/i).first();
+      const header = page.getByText(/integrations hub/i).first();
       const cards = page.locator('[class*="card" i], [class*="integration" i], [class*="tool" i]').first();
       const found =
         (await header.isVisible({ timeout: 5_000 }).catch(() => false)) ||
@@ -39,17 +38,16 @@ test.describe('integrations.md: Documentation claim tests', () => {
   });
 
   // =========================================================================
-  // Claim 1: Page header shows "Third-Party Integrations"
-  // Doc says: "the page header is Third-Party Integrations"
+  // Claim 1: Page header shows "Integrations Hub"
   // =========================================================================
-  test('page header shows "Third-Party Integrations"', async ({ page }) => {
+  test('page header shows "Integrations Hub"', async ({ page }) => {
     const found = await gotoIntegrations(page);
     if (!found) {
       test.skip(true, 'Integrations page not reachable — feature flag may be off');
       return;
     }
 
-    const header = page.getByText(/third.party integrations/i).first();
+    const header = page.getByText(/integrations hub/i).first();
     await expect(header).toBeVisible({ timeout: 15_000 });
   });
 

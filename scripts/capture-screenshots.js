@@ -593,8 +593,7 @@ async function hasVisibleSelectors(page, selectors = [], mode = 'any') {
   }
 }
 
-async function hasRenderableMainContent(page, containerSelector = null) {
-  const diagnostics = await getRenderDiagnostics(page, containerSelector);
+function diagnosticsHasRenderableMainContent(diagnostics) {
   const hasStructuredContent = diagnostics.structuredCount > 0;
   const iconOnly = diagnostics.centeredSpinnerCount > 0 && diagnostics.mainTextLength < 40 && !hasStructuredContent;
 
@@ -603,6 +602,11 @@ async function hasRenderableMainContent(page, containerSelector = null) {
     return false;
   }
   return hasStructuredContent || diagnostics.mainTextLength >= 80;
+}
+
+async function hasRenderableMainContent(page, containerSelector = null) {
+  const diagnostics = await getRenderDiagnostics(page, containerSelector);
+  return diagnosticsHasRenderableMainContent(diagnostics);
 }
 
 async function validateCaptureTarget(page, options = {}) {
@@ -655,7 +659,11 @@ async function validateCaptureTarget(page, options = {}) {
   if (!allowVisibleLoaders && diagnostics.visibleLoaderCount > 0) {
     return {ok: false, reason: 'visible loaders present', diagnostics};
   }
-  if (!allowCenteredSpinner && diagnostics.centeredSpinnerCount > 0) {
+  if (
+    !allowCenteredSpinner &&
+    diagnostics.centeredSpinnerCount > 0 &&
+    !diagnosticsHasRenderableMainContent(diagnostics)
+  ) {
     return {ok: false, reason: 'centered loading state detected', diagnostics};
   }
   if (typeof minMainTextLength === 'number' && diagnostics.mainTextLength < minMainTextLength) {
@@ -2339,29 +2347,7 @@ async function capturePeople(page) {
     }
   }
 
-  // Optional deep captures (best-effort): population charts, contact profile, segment builder, molds.
-  try {
-    // Population charts: open first population card/row.
-    for (const p of ['/people/populations', '/audience/populations']) {
-      const popUrl = getWorkspaceUrl(p);
-      if (!(await gotoWithRetry(page, popUrl, { label: 'people-populations' }))) continue;
-      const opened = await clickFirstVisible(page, ['[class*="card" i]', 'table tbody tr', '[role="row"]']);
-      if (!opened) continue;
-      await delay(TIMING.postClickDelay);
-      await waitForNetworkIdle(page);
-      await waitForLoaders(page);
-      await takeScreenshot(page, '02a-population-charts', 'people', {
-        routeIncludes: ['/people', '/audience'],
-        requiredTexts: ['Brand Relationship Orientation', 'Change Orientation'],
-        requiredTextMode: 'all',
-        minMainTextLength: 180,
-      });
-      break;
-    }
-  } catch (e) {
-    console.log(`  Could not capture population charts: ${e.message}`);
-  }
-
+  // Optional deep capture: contact profile.
   try {
     // Contact profile: click the name link in the first row on humans page.
     for (const p of ['/people/community', '/audience/community']) {
@@ -2369,7 +2355,7 @@ async function capturePeople(page) {
       if (!(await gotoWithRetry(page, humansUrl, { label: 'people-humans' }))) continue;
 
       if (!urlIncludesOneOf(page.url(), ['/community'])) {
-        console.log('  ⚠ Redirected away from humans page — skipping contact profile');
+        console.log('  ⚠ Redirected away from humans page, skipping contact profile');
         continue;
       }
 
@@ -2386,7 +2372,7 @@ async function capturePeople(page) {
         (await waitForBodyTextAny(page, ['Total responses', 'Video minutes', 'Summary'], 6000)) ||
         (await waitForContent(page, ['[role="dialog"]', '[class*="modal" i]'], 2000));
       if (!hasProfileContent) {
-        console.log('  ⚠ Click did not navigate to contact profile — may have opened context menu');
+        console.log('  ⚠ Click did not navigate to contact profile, may have opened context menu');
         sectionOk = false;
         recordSectionIssue('people', 'contact-profile-did-not-open', {url: page.url()});
         continue;
@@ -2409,149 +2395,6 @@ async function capturePeople(page) {
     console.log(`  Could not capture contact profile: ${e.message}`);
     sectionOk = false;
     recordSectionIssue('people', 'contact-profile-error', {detail: e.message, url: page.url()});
-  }
-
-  try {
-    // Segment builder: switch to Segments view first, then open create segment.
-    for (const p of ['/people/lists', '/audience/lists']) {
-      const listsUrl = getWorkspaceUrl(p);
-      if (!(await gotoWithRetry(page, listsUrl, { label: 'people-lists' }))) continue;
-
-      // Verify we're on the right page
-      if (!isOnExpectedRoute(page, 'people') && !isOnExpectedRoute(page, 'audience')) {
-        console.log('  ⚠ Redirected away from lists page — skipping segment builder');
-        continue;
-      }
-
-      const switchedToSegments =
-        ((await clickFirstVisible(page, ['[data-testid="view-select-dropdown"]'])) &&
-          (await clickFirstVisible(page, ['[data-testid="select-segments-option"]']))) ||
-        (await clickButtonByText(page, 'segments', 2500)) ||
-        (await clickFirstVisible(page, [
-          '[data-testid*="segment-tab"]',
-          '[class*="segmentTab" i]',
-          'button[aria-label*="segment" i]',
-        ]));
-      if (switchedToSegments) {
-        await delay(TIMING.postClickDelay);
-        await waitForLoaders(page);
-      }
-
-      // Now try to open the segment builder
-      const opened =
-        (await clickButtonByText(page, 'create segment', 2500)) ||
-        (await clickButtonByText(page, 'new segment', 2500));
-
-      if (!opened) {
-        // If no segment-specific button found, the "New" button in segments view should work
-        const newClicked = await clickButtonByText(page, 'new', 2500);
-        if (!newClicked) continue;
-      }
-
-      await delay(TIMING.postClickDelay);
-      await waitForNetworkIdle(page);
-      await waitForLoaders(page);
-
-      // Dismiss if we accidentally opened a "New List" dialog instead
-      const isListDialog = await page.evaluate(() => {
-        const dialogs = document.querySelectorAll('[role="dialog"], [class*="modal" i]');
-        return Array.from(dialogs).some((el) => {
-          const st = window.getComputedStyle(el);
-          if (st.display === 'none' || st.visibility === 'hidden' || st.opacity === '0') return false;
-          const text = (el.textContent || '').toLowerCase();
-          return text.includes('list name') && !text.includes('segment');
-        });
-      }).catch(() => false);
-
-      if (isListDialog) {
-        console.log('  ⚠ Opened "New List" dialog instead of Segment Builder — dismissing');
-        await dismissAnyModal(page);
-        await delay(300);
-        sectionOk = false;
-        recordSectionIssue('people', 'segment-builder-opened-new-list-dialog', {url: page.url()});
-        continue;
-      }
-
-      const segmentShot = await takeScreenshot(page, '04a-segment-builder', 'people', {
-        requiredTexts: ['New Segment', 'Segment Name', 'Add rule'],
-        requiredTextMode: 'all',
-        requireDialog: true,
-        containerSelector: '[role="dialog"], [class*="modal" i]',
-        minMainTextLength: 120,
-      });
-      if (!segmentShot) {
-        sectionOk = false;
-        recordSectionIssue('people', 'segment-builder-screenshot-failed', {url: page.url()});
-      }
-      break;
-    }
-  } catch (e) {
-    console.log(`  Could not capture segment builder: ${e.message}`);
-    sectionOk = false;
-    recordSectionIssue('people', 'segment-builder-error', {detail: e.message, url: page.url()});
-  }
-
-  try {
-    // Molds: enterprise-only, optional.
-    for (const p of ['/people/molds', '/audience/molds']) {
-      const moldsUrl = getWorkspaceUrl(p);
-      if (!(await gotoWithRetry(page, moldsUrl, { label: 'people-molds' }))) continue;
-      const hasMoldsText = await page.evaluate(() => (document.body?.innerText || '').toLowerCase().includes('mold'));
-      if (!hasMoldsText) continue;
-      await takeScreenshot(page, '06-molds', 'people');
-      const opened = await clickFirstVisible(page, ['table tbody tr', '[class*="card" i]']);
-      if (opened) {
-        await delay(TIMING.postClickDelay);
-        await waitForNetworkIdle(page);
-        await waitForLoaders(page);
-        await takeScreenshot(page, '06a-mold-details', 'people');
-      }
-      break;
-    }
-  } catch (e) {
-    console.log(`  Could not capture molds: ${e.message}`);
-  }
-
-  // Import flow: try to find and click import button on humans page
-  try {
-    for (const p of ['/people/community', '/audience/community']) {
-      const humansUrl = getWorkspaceUrl(p);
-      if (!(await gotoWithRetry(page, humansUrl, { label: 'people-import' }))) continue;
-      const importClicked =
-        (await clickButtonByText(page, 'import', 2500)) ||
-        (await clickButtonByText(page, 'add', 2500)) ||
-        (await clickFirstVisible(page, [
-          'button[aria-label*="import" i]',
-          '[data-testid*="import"]',
-        ]));
-      if (importClicked) {
-        await delay(TIMING.postClickDelay);
-        await waitForLoaders(page);
-        await takeScreenshot(page, '07-import-flow', 'people');
-        await page.keyboard.press('Escape').catch(() => {});
-        await delay(300);
-      }
-      break;
-    }
-  } catch (e) {
-    console.log(`  Could not capture import flow: ${e.message}`);
-  }
-
-  // Filter/Search UI on humans page
-  try {
-    for (const p of ['/people/community', '/audience/community']) {
-      const humansUrl = getWorkspaceUrl(p);
-      if (!(await gotoWithRetry(page, humansUrl, { label: 'people-filters' }))) continue;
-      const searchInput = await page.$('input[type="search"], input[placeholder*="search" i]');
-      if (searchInput) {
-        await searchInput.click();
-        await delay(TIMING.preScreenshotDelay);
-        await takeScreenshot(page, '08-people-search', 'people');
-      }
-      break;
-    }
-  } catch (e) {
-    console.log(`  Could not capture people search/filter: ${e.message}`);
   }
 
   return sectionOk;
@@ -3672,9 +3515,8 @@ async function captureRewards(page) {
 async function captureIntegrations(page) {
   console.log('\n Capturing Integrations...');
 
-  // Try /settings/integrations first, then /integrations
   let loaded = false;
-  for (const p of ['/settings/integrations', '/integrations']) {
+  for (const p of ['/me/integrations']) {
     const url = getWorkspaceUrl(p);
     if (await gotoWithRetry(page, url, { label: 'integrations' })) {
       loaded = true;
@@ -3691,9 +3533,8 @@ async function captureIntegrations(page) {
   ]);
 
   await takeScreenshot(page, '01-integrations-main', 'integrations', {
-    routeIncludes: ['/integrations'],
-    requiredTexts: ['Integrations', 'Connect'],
-    requiredTextMode: 'all',
+    routeIncludes: ['/me/integrations'],
+    requiredTexts: ['Integrations Hub'],
     minMainTextLength: 160,
   });
   return true;

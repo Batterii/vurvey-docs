@@ -232,7 +232,7 @@ The SharePoint import flow:
 The import result reports how many files were imported, skipped, or failed.
 
 ::: info Setup Required
-If the modal says the SharePoint connection is not configured, open Workspace Settings and save the Microsoft SharePoint connection first. Admins configure the Tenant ID, Application (Client) ID, Client Secret Value, and optional Site URL.
+If the modal says the SharePoint connection is not configured, open **Workspace Settings > General settings** and save the Microsoft SharePoint connection first. Admins configure the Tenant ID, Application (Client) ID, Client Secret Value, and optional Site URL.
 :::
 
 ::: warning SharePoint Limits

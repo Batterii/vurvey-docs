@@ -559,7 +559,7 @@
 | `/:workspaceId/workspace/settings/ai-models` | `AiModelsPage` | Browse AI models by category |
 | `/:workspaceId/workspace/settings/api-management` | `ApiManagementPage` (lazy) | Currently disabled |
 | `/:workspaceId/workspace/members` | `WorkspaceMembersPage` | Member management |
-| `/:workspaceId/settings/integrations` | `IntegrationManagementPage` | Tool integrations (Composio) |
+| `/:workspaceId/me/integrations` | `IntegrationManagementPage` | Integrations Hub, available from Personal Profile when `composioEnabled` is enabled |
 
 ### GraphQL Operations
 
@@ -928,14 +928,14 @@ The "Canvas" is the main AI chat interface (not a design canvas).
 - Permission: `tremendousSettings` required
 - Bulk selection across filters
 
-### Integrations (`/settings/integrations`)
+### Integrations (`/me/integrations`)
 - 15 categories of tools via Composio
 - Auth methods: OAUTH2, API_KEY, BEARER_TOKEN
 - Connection statuses: ACTIVE, ERROR, REVOKED, PENDING
 - Callback route: `/integrations/callback/composio`
 
 ### Admin (`/admin`) - Enterprise Only
-11 admin pages (all lazy-loaded):
+9 always-visible admin pages, plus Manage Agents 2.0 when `agentBuilderV2Active` is enabled:
 1. **Dashboard** - Embedded Metabase iframe
 2. **Brand Management** - Search/filter/bulk update brands
 3. **Campaign Templates** - CRUD with survey linking

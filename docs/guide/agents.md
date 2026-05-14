@@ -32,6 +32,8 @@ Agents are organized into collapsible sections by **Agent Type**:
 
 The four agent types you can create are: **Assistant**, **Consumer Persona**, **Product**, and **Visual Generator**. When creating an agent, you select its type, which determines both its capabilities and how it appears in the gallery.
 
+In workspaces with `enablenewagentnames` enabled, the UI aliases **Consumer Persona** to **Advocate** and **Product** to **Brand Companion**. Assistant and Visual Generator keep those labels.
+
 ::: tip Agent Type Organization
 The gallery organizes agents by their **type** (Assistant, Consumer Persona, Product, Visual Generator), not by functional category. Each type section is collapsible, making it easy to browse agents with similar capabilities.
 :::

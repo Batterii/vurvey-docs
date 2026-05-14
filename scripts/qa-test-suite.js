@@ -2007,11 +2007,7 @@ async function testRewards(page, workspaceId) {
 
 async function testIntegrations(page, workspaceId) {
   currentSection = "Integrations";
-  // Integrations may be under /settings/integrations or /integrations
-  let nav = await gotoWorkspaceRoute(page, workspaceId, "/settings/integrations");
-  if (!nav.ok) {
-    nav = await gotoWorkspaceRoute(page, workspaceId, "/integrations");
-  }
+  const nav = await gotoWorkspaceRoute(page, workspaceId, "/me/integrations");
   if (!nav.ok) {
     recordWarning("Integrations: Page loads", nav.error || "Could not navigate");
     return;
@@ -2020,7 +2016,7 @@ async function testIntegrations(page, workspaceId) {
     (await elementExists(page, "[class*='integration' i], [class*='connection' i], [class*='tool' i], table, [class*='card' i]", 8000)) ||
     (await pageTextIncludes(page, "integration")) ||
     (await pageTextIncludes(page, "connect"));
-  await recordTest("Integrations: Page loads", hasContent, hasContent ? "Integrations UI detected" : "No integrations UI detected", {selector: "route:/settings/integrations"});
+  await recordTest("Integrations: Page loads", hasContent, hasContent ? "Integrations UI detected" : "No integrations UI detected", {selector: "route:/me/integrations"});
 
   if (!config.quick && hasContent) {
     // Integration cards — verify connection items with tool names and status

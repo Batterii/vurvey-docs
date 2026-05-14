@@ -25,12 +25,11 @@ The People section has feature-dependent tabs across the top of the page:
 | **Populations** | Brand and Vurvey audience populations used for persona conversations, simulations, and research targeting |
 | **Simulations** | Concept simulation setup and results when simulations are enabled |
 | **Humans** | Real people who participate in your research campaigns |
-| **Molds** | Templates for creating consistent persona profiles when mold access is enabled |
 | **Lists & Segments** | Ways to organize your audiences into reusable groups |
 | **Properties** | Custom attributes you track about your audience |
 
 ::: info Access Note
-The **Simulations** and **Molds** tabs are access-controlled. Simulations require the simulations feature to be active. Molds require enterprise-manager/support-style access, and related feature flags can also affect availability.
+The **Simulations** tab appears only when the simulations feature is active. Molds are no longer mounted as a People tab in current `vurvey-web-manager` master. Legacy `/people/molds/*` URLs redirect to `/implementation/molds/*`; use **Implementation > Molds** when the workspace has implementation access and the `moldBuilder` feature flag enabled.
 :::
 
 ---
@@ -100,8 +99,6 @@ Click the three-dot menu on any card for the current population actions:
 ### Population Details
 
 Click any population card to see detailed analytics about that audience group.
-
-![Population Charts](/screenshots/people/02a-population-charts.png)
 
 The details page includes:
 
@@ -350,8 +347,6 @@ Create a list called "2026 Holiday Research Panel" for a seasonal campaign, or m
 
 Segments are dynamic groups that automatically update as contacts match your rules. Click **New Segment** to open the segment-builder modal.
 
-![Segment Builder](/screenshots/people/04a-segment-builder.png)
-
 **Building a segment:**
 
 1. Choose a **Property** to filter on (age, location, custom attributes, etc.)
@@ -596,15 +591,15 @@ When you delete a property, all values assigned to contacts are also removed. An
 
 ---
 
-## Molds (Enterprise)
+## Molds Moved to Implementation
 
 ::: warning Access-Controlled Feature
-Molds are not available in every workspace. In current master, access depends on the mold-related access path and feature configuration for your workspace.
+Molds are not a People tab in current master. The legacy People route redirects to the Implementation area, and access depends on implementation permissions plus the `moldBuilder` feature flag.
 :::
 
-![Molds](/screenshots/people/06-molds.png)
+Molds are reusable persona templates for consistent AI population generation. Design a mold once, defining demographic parameters, behavioral characteristics, and generation rules, then use it to create AI personas with consistent attributes.
 
-Molds are reusable persona templates for consistent AI population generation. Design a mold once — defining demographic parameters, behavioral characteristics, and generation rules — then use it to create unlimited AI personas with consistent attributes.
+Open them from **Implementation > Molds**, not from the People navigation.
 
 ### Mold Lifecycle
 
@@ -617,8 +612,6 @@ Molds are reusable persona templates for consistent AI population generation. De
 ### Mold Details
 
 Click any mold to open its configuration page.
-
-![Mold Details](/screenshots/people/06a-mold-details.png)
 
 From here you can edit the mold's name, description, category, status, and configuration. The system validates readiness before publishing — checking required fields, valid configuration, and demographic coverage thresholds.
 

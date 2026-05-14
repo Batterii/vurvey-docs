@@ -20,8 +20,6 @@ Always-visible pages:
 | **Manage Brands** | Brand administration |
 | **Global Campaign Templates** | Shared campaign templates |
 | **SSO Providers** | Single sign-on providers |
-| **Taxonomy Management** | Taxonomy and facet administration |
-| **System Prompts** | Platform prompt management |
 | **Manage Workspaces** | Workspace administration |
 | **Manage Vurvey employees** | Internal employee administration |
 | **Manage Agents** | Cross-workspace agent administration |
@@ -36,12 +34,13 @@ Conditional page:
 
 So the practical count is:
 
-- **11** always-visible pages
-- **12** when `Manage Agents 2.0` is enabled
+- **9** always-visible pages
+- **10** when `Manage Agents 2.0` is enabled
 
 ## Important Current-State Notes
 
-- Older docs that count 11 pages but list **Manage Agents 2.0** while omitting **Manage Credits Rates** are out of date
+- Taxonomy, system prompts, agent personalities, and Molds live under **Implementation**, not Super Admin
+- Older docs that list Implementation pages under Super Admin or omit **Manage Credits Rates** are out of date
 - The UI title is **Super Admin**
 - `Manage Agents 2.0` is feature-flag dependent
 

@@ -8,9 +8,9 @@ A practical cheat sheet for getting things done in Vurvey. Bookmark this page fo
 
 ## Navigation Guide
 
-Use the left sidebar to move between sections:
+Use the left sidebar and workspace dropdown to move between sections:
 
-| Sidebar Item | What You'll Find There |
+| Navigation Item | What You'll Find There |
 |---|---|
 | **Home** | Your AI chat interface for asking questions, analyzing data, and generating insights |
 | **Agents** | Your library of AI personas -- create, customize, and manage specialized AI team members |
@@ -20,6 +20,7 @@ Use the left sidebar to move between sections:
 | **Forecast** | Predictive analytics and trend projections based on your research data |
 | **Workflow** | Automated research pipelines -- build multi-step AI processes that run on their own *(Beta)* |
 | **Capabilities** | Blueprint-backed AI systems that package workflows, schedules, and structured outputs |
+| **Implementation** | Enterprise setup for taxonomy, system prompts, YAML agent creation, agent personalities, and Molds |
 
 ## Common Tasks at a Glance
 
@@ -50,6 +51,7 @@ Use the left sidebar to move between sections:
 | Set up an automated workflow | Workflow | Click **Create new workflow** and design your pipeline |
 | Schedule a recurring workflow | Workflow | Open a workflow and use **Schedule** when workflow scheduling is enabled |
 | Deploy a capability | Capabilities | Click **+ New capability** or browse blueprints, configure workflows, then activate |
+| Manage implementation setup | Workspace dropdown > Implementation | Use Taxonomy Management, System Prompts, YAML agent creation, Agent Personalities, or Molds when you have access |
 
 ### Sharing and Collaboration
 
@@ -81,8 +83,8 @@ Use the left sidebar to move between sections:
 | **Capability schedule** | Capability workflow detail | Daily, Hourly, Weekly, Monthly, and Custom schedule presets for head workflows |
 | **Workflow conversation menu** | Workflow > Conversations | **Rename**, **Copy**, **Export**, **Delete** |
 | **Share dialog** | Agents / Campaigns / Datasets / Workflows | **General Access**, person-level **Viewer/Editor**, and **Copy link** |
-| **SharePoint connection settings** | Settings > Integrations / General Settings | Tenant ID, Application (Client) ID, Client Secret Value, optional Site URL, **Test connection**, **Save connection** |
-| **Integration connect chooser** | Integrations | **OAuth (Login)**, **API Key**, **Bearer Token**, **Cancel** |
+| **SharePoint connection settings** | Workspace Settings > General settings | Tenant ID, Application (Client) ID, Client Secret Value, optional Site URL, **Test connection**, **Save connection** |
+| **Integration connect chooser** | Personal Profile > Integrations | **OAuth (Login)**, **API Key**, **Bearer Token**, **Cancel** |
 
 ### Finding Things
 
@@ -145,6 +147,8 @@ When you create a new agent, you'll walk through these steps:
 | **Product** | Product-specific analysis and expertise | Product expert for your new skincare line |
 | **Visual Generator** | Creating images and visual content | Mood board generator for brand refresh |
 
+When `enablenewagentnames` is enabled, the UI aliases **Consumer Persona** to **Advocate** and **Product** to **Brand Companion**. Assistant and Visual Generator keep those labels.
+
 ## AI Model Comparison
 
 | Model | Speed | Best For |
@@ -169,7 +173,8 @@ The People section uses feature-dependent tabs:
 | **Humans** | Individual contact records and participant profiles | Add contacts, view profiles |
 | **Lists & Segments** | Reusable audience groups for targeting | Create static lists or dynamic segments |
 | **Properties** | Custom attributes you track about contacts | Define properties, import via CSV |
-| **Molds** | Persona templates for consistent population generation when mold access is enabled | Create and manage templates |
+
+Molds are not a People tab in current master. Legacy `/people/molds/*` URLs redirect to `/implementation/molds/*`; use **Implementation > Molds** when implementation access and the `moldBuilder` flag are enabled.
 
 ## Question Types Quick Reference
 
@@ -228,9 +233,9 @@ After you upload a file, watch for these status indicators:
 | **DRAFT** | Capability is still being configured | Finish setup and activate when ready |
 | **ACTIVE** | Capability can run and produce output | Monitor dashboard and workflow runs |
 | **PAUSED** | Capability is temporarily stopped | Resume when it should run again |
-| **BROKEN** | Capability needs attention before normal use | Review the broken-state banner and workflow details |
 | **ARCHIVED** | Capability is preserved for reference | Restore or duplicate if more work is needed |
-| **DELETED** | Capability has been removed from active use | None |
+
+Broken capability conditions appear as a separate banner on the detail page, not as a `BROKEN` capability status in the current header component.
 
 ## Supported File Formats
 

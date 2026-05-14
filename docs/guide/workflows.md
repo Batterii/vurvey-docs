@@ -475,7 +475,7 @@ On the workflow list page, both **Delete Workflow** and **Duplicate Workflow** a
 
 Workflows that belong to a Capability can also be opened from the Capability detail page. That route uses:
 
-`/capabilities/:capabilitySlug/workflows/:workflowId`
+`/capabilities/:capabilitySlug/workflows/:orchestrationId`
 
 The capability-scoped page is for monitoring the workflow inside its capability pipeline. It shows the parent capability breadcrumb, phase number, workflow role, last run metrics, next scheduled run, and produced output types.
 

@@ -1,6 +1,8 @@
 # Integrations
 
-The Integrations page is the workspace connection manager for third-party services. In the current UI, integration management can include both workspace-native integrations, such as Microsoft SharePoint, and Composio-supported tool connections.
+The Integrations page is the workspace connection manager for third-party services. In current `vurvey-web-manager` master, open it from **Personal Profile > Integrations** at `/me/integrations` when the workspace has `composioEnabled` enabled.
+
+Workspace Settings still renders an Integrations nav item, but `workspace/settings/integrations` is not a mounted route in current master. Use General Settings integration cards for workspace settings, and use **Personal Profile > Integrations** for the broader integrations hub.
 
 ![Integrations page](/screenshots/integrations/01-integrations-main.png)
 

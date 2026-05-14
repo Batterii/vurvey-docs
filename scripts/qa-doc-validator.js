@@ -86,7 +86,7 @@ async function extractClaims(filePath) {
     }
 
     // Route references in inline code: `/:workspaceId/agents` or `/agents`
-    const routeRe = /`(\/(?::workspaceId\/)?(?:agents|audience|people|campaigns|datasets|workflow|workspace|settings|forecast|rewards|mentions|admin|integrations|canvas|survey|reel|me)(?:\/[a-z0-9\-_/.:]*)?)`/gi;
+    const routeRe = /`(\/(?::workspaceId\/)?(?:agents|audience|people|campaigns|datasets|workflow|workspace|settings|forecast|rewards|mentions|admin|integrations|implementation|canvas|survey|reel|me)(?:\/[a-z0-9\-_/.:]*)?)`/gi;
     for (const m of line.matchAll(routeRe)) {
       let route = m[1];
       // Normalize :workspaceId prefix away
@@ -277,7 +277,8 @@ async function main() {
     "settings.md": "/workspace/settings",
     "forecast.md": "/forecast",
     "rewards.md": "/rewards",
-    "integrations.md": "/settings/integrations",
+    "integrations.md": "/me/integrations",
+    "implementation.md": "/implementation",
     "reels.md": "/reel",
     "admin.md": "/admin",
     "canvas-and-image-studio.md": "/canvas",

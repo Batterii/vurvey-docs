@@ -62,6 +62,7 @@ export default defineConfig({
             { text: 'Rewards', link: '/guide/rewards' },
             { text: 'Integrations', link: '/guide/integrations' },
             { text: 'Reels', link: '/guide/reels' },
+            { text: 'Implementation', link: '/guide/implementation' },
             { text: 'Admin (Enterprise)', link: '/guide/admin' },
           ]
         },
