@@ -8,9 +8,9 @@ You are also responsible for improving documentation coverage and usefulness ove
 
 **DO NOT just report issues. You must FIX them.**
 
-- Documentation wrong? → Edit the markdown file directly
-- Code bug found? → Write a bug report to `bug-reports/` directory
-- Screenshot invalid? → Note it in validation report and continue (non-blocking)
+- Documentation wrong? Edit the markdown file directly
+- Code bug found? Write a bug report to `bug-reports/` directory
+- Screenshot invalid? Refresh or remove the bad screenshot before publishing
 
 ---
 
@@ -27,20 +27,22 @@ Use this as your **primary reference** when verifying documentation completeness
 
 ---
 
-## Phase 0: Screenshot Validation (NON-BLOCKING)
+## Phase 0: Screenshot Validation (BLOCKING FOR PUBLISHING)
 
 **Read every PNG in `docs/public/screenshots/` and verify each shows:**
 1. Authenticated app view (NOT "Welcome to Vurvey" landing pages)
 2. Correct section with sidebar navigation visible
-3. Loaded content (not spinners or empty states)
+3. Loaded content (not spinners, blank shells, or loading skeletons)
 4. No error messages
+5. Valid product empty states are allowed only when they show the real empty-state copy, controls, or table structure.
 
 **If ANY screenshot is INVALID:**
 1. Create `screenshot-validation-report.md` documenting the failures
-2. Mark affected documentation sections with `<!-- TODO: Update screenshot: [filename] -->`
-3. **CONTINUE** with documentation analysis - screenshot issues are tracked separately
+2. Re-run the screenshot capture for the affected section until it produces a loaded screenshot
+3. If the route or UI no longer exists, remove that screenshot reference from the docs and delete the stale PNG
+4. Do not mark published docs with `<!-- TODO: Update screenshot -->` for known invalid screenshots
 
-**Note:** Screenshot issues should NOT block documentation analysis. The screenshot capture process runs separately and may have transient failures (loading states, auth issues). Focus on verifying documentation accuracy against the codebase.
+**Note:** Continue documentation analysis after recording the problem, but final output is not publishable while any referenced screenshot is invalid. Loading, blank, or global-error screenshots must not be committed.
 
 ---
 
@@ -71,9 +73,9 @@ If you discover a meaningful feature area that does not have a guide page:
 2. Add it to the VitePress sidebar in `docs/.vitepress/config.js` (sidebar entries for Platform pages already exist)
 3. Link to it from related pages
 
-Screenshots are helpful but should not block docs improvements. If a screenshot does not exist yet:
+Screenshots are helpful, but missing screenshots must not create stale or broken docs. If a screenshot does not exist yet:
 
-- Reference the target screenshot with `?optional=1` and add a TODO comment indicating it should be captured, or
+- Reference the target screenshot with `?optional=1` only when the page is accurate without that image, or
 - Reuse the closest existing screenshot that still illustrates the feature.
 
 ### New Pages to Create (If Missing)
@@ -226,7 +228,7 @@ Action: Edit docs/guide/agents.md to change "Expert" to "Product"
 - Outdated lists (missing items or removed items)
 - Incorrect counts or statistics
 - Wrong navigation paths or menu items
-- Outdated screenshots (mark with `<!-- TODO: Update screenshot -->`)
+- Outdated screenshots (refresh the PNG or remove the stale reference before final output)
 
 **High-signal improvements (do these whenever you touch a page):**
 - Replace UI-architecture-only text with practical how-to steps and real examples.
@@ -570,7 +572,7 @@ When documentation is correct but code has a bug, create a structured bug report
 # Documentation Audit Summary
 
 **Date:** {date}
-**Status:** {PASS | PASS_WITH_FIXES | NEEDS_SCREENSHOTS | FAIL}
+**Status:** {PASS | PASS_WITH_FIXES | FAIL}
 
 ## Screenshot Validation
 
@@ -579,7 +581,7 @@ When documentation is correct but code has a bug, create a structured bug report
 | agents/01-list.png | PASS | - |
 | home/00-login-page.png | FAIL | Unauthenticated view |
 
-**Screenshot issues do not block documentation analysis. Screenshots are captured separately.**
+**Invalid referenced screenshots block publishing. Refresh them, remove the reference, or delete stale PNGs before the run can pass.**
 
 ## Documentation Fixes Applied
 
@@ -605,7 +607,7 @@ When documentation is correct but code has a bug, create a structured bug report
 ## Execution Order
 
 1. **Create `bug-reports/` directory** if it doesn't exist
-2. **Validate all screenshots** - Create validation report if issues found, then continue
+2. **Validate all screenshots** - Create validation report if issues found, then fix or remove invalid screenshots
 3. **Analyze each documentation area** in order (Phases 1, 1.5, 2, and 3)
 4. **For each discrepancy found:**
    - Classify as DOC_FIX, CODE_BUG, or UNCLEAR
