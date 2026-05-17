@@ -39,3 +39,29 @@ export function isRetryableValidationFailure(reason) {
   }
   return false;
 }
+
+export function diagnosticsHasRenderableMainContent(diagnostics = {}) {
+  const structuredCount = Number(diagnostics.structuredCount || 0);
+  const mainTextLength = Number(diagnostics.mainTextLength || 0);
+  const centeredSpinnerCount = Number(diagnostics.centeredSpinnerCount || 0);
+  const hasStructuredContent = structuredCount > 0;
+  const iconOnly = centeredSpinnerCount > 0 && mainTextLength < 40 && !hasStructuredContent;
+
+  if (iconOnly) return false;
+  if (centeredSpinnerCount > 0 && mainTextLength < 300 && structuredCount <= 4) {
+    return false;
+  }
+  return hasStructuredContent || mainTextLength >= 80;
+}
+
+export function isBlockingVisibleLoader(diagnostics = {}) {
+  return Number(diagnostics.visibleLoaderCount || 0) > 0 && !diagnosticsHasRenderableMainContent(diagnostics);
+}
+
+export function isBlockingCenteredSpinner(diagnostics = {}) {
+  const hasCenteredSpinner =
+    Number(diagnostics.animatedCenteredSpinnerCount || 0) > 0 ||
+    Number(diagnostics.centeredSpinnerCount || 0) > 0;
+
+  return hasCenteredSpinner && !diagnosticsHasRenderableMainContent(diagnostics);
+}

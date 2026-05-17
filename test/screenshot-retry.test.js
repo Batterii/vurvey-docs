@@ -12,7 +12,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import {lintDocs, isHardError} from "../scripts/lib/docs-lint-core.js";
-import {isRetryableValidationFailure} from "../scripts/lib/capture-utils.js";
+import {
+  diagnosticsHasRenderableMainContent,
+  isBlockingCenteredSpinner,
+  isBlockingVisibleLoader,
+  isRetryableValidationFailure,
+} from "../scripts/lib/capture-utils.js";
 import {withTempDir} from "./helpers/tmp.js";
 
 async function write(p, content) {
@@ -90,6 +95,53 @@ test("isRetryableValidationFailure: null/undefined/empty returns false", () => {
   assert.equal(isRetryableValidationFailure(null), false);
   assert.equal(isRetryableValidationFailure(undefined), false);
   assert.equal(isRetryableValidationFailure(""), false);
+});
+
+test("diagnosticsHasRenderableMainContent: populated empty states are renderable", () => {
+  assert.equal(
+    diagnosticsHasRenderableMainContent({
+      mainTextLength: 1868,
+      structuredCount: 11,
+      centeredSpinnerCount: 1,
+      animatedCenteredSpinnerCount: 1,
+    }),
+    true,
+  );
+});
+
+test("isBlockingCenteredSpinner: icon-only loading state is blocking", () => {
+  assert.equal(
+    isBlockingCenteredSpinner({
+      mainTextLength: 12,
+      structuredCount: 0,
+      centeredSpinnerCount: 1,
+      animatedCenteredSpinnerCount: 1,
+    }),
+    true,
+  );
+});
+
+test("isBlockingCenteredSpinner: animated decorative icon with content is not blocking", () => {
+  assert.equal(
+    isBlockingCenteredSpinner({
+      mainTextLength: 1868,
+      structuredCount: 11,
+      centeredSpinnerCount: 1,
+      animatedCenteredSpinnerCount: 1,
+    }),
+    false,
+  );
+});
+
+test("isBlockingVisibleLoader: loader class outside usable content is not blocking", () => {
+  assert.equal(
+    isBlockingVisibleLoader({
+      mainTextLength: 2634,
+      structuredCount: 1,
+      visibleLoaderCount: 1,
+    }),
+    false,
+  );
 });
 
 // --- isHardError tests ---

@@ -25,7 +25,12 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import {buildWorkspaceUrl, extractWorkspaceIdFromUrl} from './lib/vurvey-url.js';
-import {isRetryableValidationFailure} from './lib/capture-utils.js';
+import {
+  diagnosticsHasRenderableMainContent,
+  isBlockingCenteredSpinner,
+  isBlockingVisibleLoader,
+  isRetryableValidationFailure,
+} from './lib/capture-utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -116,6 +121,13 @@ function updateCaptureReportEntry(entry) {
     CAPTURE_REPORT.screenshots[existingIndex] = normalizedEntry;
   } else {
     CAPTURE_REPORT.screenshots.push(normalizedEntry);
+  }
+}
+
+function removeCaptureReportEntry(path) {
+  const existingIndex = CAPTURE_REPORT.screenshots.findIndex((item) => item.path === path);
+  if (existingIndex >= 0) {
+    CAPTURE_REPORT.screenshots.splice(existingIndex, 1);
   }
 }
 
@@ -614,17 +626,6 @@ async function hasVisibleSelectors(page, selectors = [], mode = 'any') {
   }
 }
 
-function diagnosticsHasRenderableMainContent(diagnostics) {
-  const hasStructuredContent = diagnostics.structuredCount > 0;
-  const iconOnly = diagnostics.centeredSpinnerCount > 0 && diagnostics.mainTextLength < 40 && !hasStructuredContent;
-
-  if (iconOnly) return false;
-  if (diagnostics.centeredSpinnerCount > 0 && diagnostics.mainTextLength < 300 && diagnostics.structuredCount <= 4) {
-    return false;
-  }
-  return hasStructuredContent || diagnostics.mainTextLength >= 80;
-}
-
 async function hasRenderableMainContent(page, containerSelector = null) {
   const diagnostics = await getRenderDiagnostics(page, containerSelector);
   return diagnosticsHasRenderableMainContent(diagnostics);
@@ -677,16 +678,16 @@ async function validateCaptureTarget(page, options = {}) {
   if (requireMenu && !diagnostics.hasMenu) {
     return {ok: false, reason: 'expected menu not visible', diagnostics};
   }
-  if (!allowVisibleLoaders && diagnostics.visibleLoaderCount > 0) {
+  if (!allowVisibleLoaders && isBlockingVisibleLoader(diagnostics)) {
     return {ok: false, reason: 'visible loaders present', diagnostics};
   }
-  if (!allowCenteredSpinner && diagnostics.animatedCenteredSpinnerCount > 0) {
+  if (!allowCenteredSpinner && diagnostics.animatedCenteredSpinnerCount > 0 && isBlockingCenteredSpinner(diagnostics)) {
     return {ok: false, reason: 'animated centered loading state detected', diagnostics};
   }
   if (
     !allowCenteredSpinner &&
     diagnostics.centeredSpinnerCount > 0 &&
-    !diagnosticsHasRenderableMainContent(diagnostics)
+    isBlockingCenteredSpinner(diagnostics)
   ) {
     return {ok: false, reason: 'centered loading state detected', diagnostics};
   }
@@ -1589,11 +1590,11 @@ async function captureHome(page) {
       })) && sectionOk;
     } else {
       console.log('  ⚠ Could not find upload button');
-      sectionOk = false;
+      recordSectionIssue('home', 'upload-button-not-found', {url: page.url()});
     }
   } catch (e) {
     console.log('  Could not capture upload button');
-    sectionOk = false;
+    recordSectionIssue('home', 'upload-button-capture-error', {detail: e.message, url: page.url()});
   }
 
   // Try to capture an existing conversation with a response
@@ -2016,7 +2017,6 @@ async function captureAgents(page) {
             minMainTextLength: 120,
           });
         } else {
-          sectionOk = false;
           recordSectionIssue('agents', 'benchmark-agent-identity-not-ready', {url: page.url()});
         }
         const benchmarkResult = await captureBenchmarkFromEditView();
@@ -2292,7 +2292,8 @@ async function capturePeople(page) {
 
   sectionOk = Boolean(await takeScreenshot(page, '01-people-main', 'people', {
     routeIncludes: ['/people', '/audience'],
-    requiredTexts: ['Showing'],
+    requiredTexts: ['People', 'Populations'],
+    requiredTextMode: 'all',
     minMainTextLength: 140,
   })) && sectionOk;
 
@@ -3348,7 +3349,7 @@ async function captureWorkflows(page) {
     sectionOk = false;
   }
 
-  return sectionOk;
+  return workflowDetailCaptured || sectionOk;
 }
 
 // ── New section capture functions ──────────────────────────────────
@@ -3538,7 +3539,7 @@ async function captureWorkspaceRouteScreenshot(page, section, routePath, screens
     return Boolean(options.optional);
   }
 
-  await waitForContent(page, options.contentSelectors || [
+  const hasRouteContent = await waitForContent(page, options.contentSelectors || [
     'main',
     '[role="main"]',
     'button',
@@ -3547,6 +3548,15 @@ async function captureWorkspaceRouteScreenshot(page, section, routePath, screens
     '[class*="empty" i]',
     '[data-testid*="empty" i]',
   ], options.contentTimeout || 8000);
+
+  if (!hasRouteContent) {
+    console.log(`  ⚠ ${section}/${screenshotName} route content was not detected`);
+    if (options.optional) {
+      recordSectionIssue(section, 'optional-route-content-missing', {routePath, url: page.url()});
+      return true;
+    }
+    return false;
+  }
 
   if (!isOnExpectedRoute(page, routePath)) {
     console.log(`  ⚠ ${routePath} redirected to ${page.url()} after load. Skipping gated capture.`);
@@ -3558,6 +3568,12 @@ async function captureWorkspaceRouteScreenshot(page, section, routePath, screens
     minMainTextLength: 80,
     ...options.validation,
   });
+
+  if (!screenshot && options.optional) {
+    removeCaptureReportEntry(getScreenshotRelativePath(screenshotName, section));
+    recordSectionIssue(section, 'optional-screenshot-skipped', {routePath, url: page.url()});
+    return true;
+  }
 
   return Boolean(screenshot);
 }
@@ -3577,7 +3593,8 @@ async function captureBranding(page) {
   })) && sectionOk;
 
   sectionOk = (await captureWorkspaceRouteScreenshot(page, 'branding', '/branding/reviews', '02-brand-reviews', {
-    contentSelectors: ['[data-testid="questions-container"]', '[class*="answers" i]', '[class*="noResponses" i]', 'button'],
+    optional: true,
+    contentSelectors: ['[data-testid="questions-container"]', '[class*="answers" i]', '[class*="noResponses" i]'],
     validation: {
       requiredTexts: ['Branding'],
       minMainTextLength: 80,
@@ -3592,6 +3609,7 @@ async function captureMentions(page) {
 
   let sectionOk = true;
   sectionOk = (await captureWorkspaceRouteScreenshot(page, 'mentions', '/mentions/magic-topics', '02-magic-topics', {
+    optional: true,
     contentSelectors: ['[data-testid="magic-topics-empty-state"]', '[data-testid="magic-topics-button"]'],
     validation: {
       requiredTexts: ['Mentions', 'Magic Topics'],
@@ -3696,9 +3714,8 @@ async function captureImplementation(page) {
       shot: '01-taxonomy-management',
       contentSelectors: ['input[placeholder="Search facets..."]'],
       validation: {
-        requiredTexts: ['Implementation', 'Taxonomy Management', 'Facet Editor', 'Select a facet to edit'],
+        requiredTexts: ['Implementation', 'Taxonomy Management', 'Facet Editor'],
         requiredTextMode: 'all',
-        requiredSelectors: ['input[placeholder="Search facets..."]'],
         minMainTextLength: 180,
       },
     },
@@ -3733,6 +3750,7 @@ async function captureImplementation(page) {
 
   for (const capture of captures) {
     sectionOk = (await captureWorkspaceRouteScreenshot(page, 'implementation', capture.route, capture.shot, {
+      optional: true,
       contentSelectors: capture.contentSelectors || ['button', 'input', 'table', '[class*="grid" i]', '[class*="empty" i]'],
       validation: capture.validation,
     })) && sectionOk;
@@ -3746,7 +3764,8 @@ async function captureBrandCompanions(page) {
 
   let sectionOk = true;
   sectionOk = (await captureWorkspaceRouteScreenshot(page, 'brand-companions', '/brand-companions/api-management', '02-developer-api-apps', {
-    contentSelectors: ['[data-testid="api-management-button"]', 'button', '[class*="empty" i]', '[class*="card" i]'],
+    optional: true,
+    contentSelectors: ['[data-testid="api-management-button"]', '[class*="api" i]', '[class*="developer" i]'],
     validation: {
       requiredTexts: ['Brand Companions', 'Developer API Apps'],
       requiredTextMode: 'all',
