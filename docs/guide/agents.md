@@ -365,19 +365,22 @@ Start with **Gemini Flash** for most agents — it's fast and handles the majori
 
 Enable specific capabilities for your agent:
 - **Smart Prompt** — Enhanced reasoning (recommended for all agents)
-- **Web Search** — Let the agent access current information from the web
-- **Image Generation** — Enable visual content creation (essential for Visual Generator agents)
+- **Web Search** — Let the agent access current information from the web (see [Canvas → Tools dropdown](/guide/canvas-and-image-studio#tools-dropdown) for the seven external tools the search can route to)
+- **Image Generation** — Enable visual content creation (essential for Visual Generator agents). Routes to the model selected in the **Images** dropdown (Nano Banana, OpenAI, Imagen, Stable Diffusion)
 - **Code Execution** — Run calculations and data analysis scripts
 - **Document Analysis** — Process uploaded files and documents
+- **Topic Graph Explorer** (`exploreTopicGraph`) — Lets the agent navigate a campaign's [Topic Graph](/guide/topic-graph) directly during chat with 5 graph operations (summary, theme_details, entity_search, neighborhood, path). Requires the workspace `topicGraphEnabled` flag.
+- **Workspace integration tools** — Composio-connected tools (Slack, Notion, Gmail, etc.) become callable by the agent when the user has the connection set up. See [Integrations → Composio](/guide/integrations#composio-per-user-tool-connections).
 
 **Tool recommendations by agent type:**
 
 | Agent Type | Recommended Tools | Why |
 |-----------|-------------------|-----|
-| Assistant | Smart Prompt, Web Search, Document Analysis | Needs broad capabilities for research and analysis |
+| Assistant | Smart Prompt, Web Search, Document Analysis, Topic Graph Explorer | Needs broad capabilities for research and analysis; Topic Graph helps with cross-question analysis on campaigns |
 | Consumer Persona | Smart Prompt | Keep it focused on persona responses; too many tools break immersion |
 | Product | Smart Prompt, Document Analysis | Needs to reference product docs; web search optional for competitor info |
 | Visual Generator | Smart Prompt, Image Generation | Image Generation is essential; add Web Search for reference inspiration |
+| Brand Companion | Smart Prompt, Document Analysis, Topic Graph Explorer (when relevant) | Public-facing embed; lean tool set to minimize attack surface — see [Brand Companions](/guide/brand-companions) |
 
 ::: warning Tool Interactions to Watch
 - Enabling **Web Search** on a Consumer Persona can cause the agent to cite web sources instead of answering "in character." Only enable it if you specifically want the persona to reference current events.
@@ -1034,9 +1037,28 @@ We recommend 1–3 focused datasets for best performance. Connecting more than 5
 
 ---
 
+## Where Agents fit in the broader platform
+
+Agents are foundational — they show up nearly everywhere. Here are the specific surfaces they power, with cross-links to the relevant guide:
+
+| Surface | What Agents do there |
+|---|---|
+| **Home / Canvas chat** | The conversation surface where Agents respond. See [Home](/guide/home). |
+| **`@mention` syntax** | Type `@AgentName` in any chat surface to explicitly route a message to one Agent. See [Mentions → @mention syntax](/guide/mentions#2-mention-syntax-in-chat). |
+| **Brand Companions** | An Agent flagged `is_brand_companion = true` becomes a publishable persona with a Public API app for embedding on your site. See [Brand Companions](/guide/brand-companions). |
+| **Workflow nodes** | Agents drive each step of a multi-step automation. See [Workflows](/guide/workflows). |
+| **Capabilities** | Capability blueprints bundle Agents + Workflows + schedules into reusable systems. See [Capabilities](/guide/capabilities). |
+| **Topic Graph Explorer** | Agents with the `exploreTopicGraph` capability can walk a campaign's [Topic Graph](/guide/topic-graph) during chat. |
+| **Campaigns (AI population)** | AI persona Agents can simulate populations for synthetic responses on campaigns. See [Campaigns](/guide/campaigns) and [People](/guide/people). |
+| **Capabilities Object Libraries** | Generate Insights / Concepts / Evaluations as structured outputs from agent-driven workflows. See [Capabilities → Object Libraries](/guide/capabilities#object-libraries-wave-3-capabilities-insights-concepts-evaluations). |
+| **Personalities / Molds** | Agents can inherit personality kits from `pm_mold` records. See [Implementation → Agent Personalities](/guide/implementation#create-agent-personalities-implementation-agent-personalities). |
+| **Workspace permissions** | Agents support the standard Share dialog (Viewer/Editor) — see [Permissions & Sharing](/guide/permissions-and-sharing). |
+
 ## Next Steps
 
 - [Start conversations with your agents](/guide/home) — Put your agents to work in chat
 - [Deploy agents in campaigns](/guide/campaigns) — Use agents in research surveys
 - [Add agents to workflows](/guide/workflows) — Automate agent tasks in multi-step pipelines
+- [Bind capabilities like exploreTopicGraph](/guide/topic-graph#the-topic-graph-explorer-chat-tool-agents-can-navigate-the-graph) — Give an Agent the ability to navigate a campaign's Topic Graph during chat
+- [Publish as a Brand Companion](/guide/brand-companions) — Make the Agent available as a public-facing embed
 - [Build knowledge with datasets](/guide/datasets) — Give your agents deeper expertise
