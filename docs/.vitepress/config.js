@@ -52,6 +52,7 @@ export default defineConfig({
             { text: 'Datasets', link: '/guide/datasets' },
             { text: 'Workflow (Beta)', link: '/guide/workflows' },
             { text: 'Capabilities', link: '/guide/capabilities' },
+            { text: 'Output Studio', link: '/guide/output-studio' },
           ]
         },
         {
