@@ -65,6 +65,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: 'Settings', link: '/guide/settings' },
+            { text: 'Workspace Members & Roles', link: '/guide/workspace-members' },
             { text: 'Credits & Usage', link: '/guide/credits-and-usage' },
             { text: 'AI Models', link: '/guide/ai-models' },
             { text: 'Canvas & Image Studio', link: '/guide/canvas-and-image-studio' },
