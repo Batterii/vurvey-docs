@@ -63,6 +63,7 @@ export default defineConfig({
             { text: 'Workflow Node Types', link: '/guide/workflow-nodes' },
             { text: 'Workflow Runs & Reports', link: '/guide/workflow-runs' },
             { text: 'Capabilities', link: '/guide/capabilities' },
+            { text: 'Object Type Definitions', link: '/guide/object-types' },
             { text: 'Output Studio', link: '/guide/output-studio' },
             { text: 'Prompt Form Canvas', link: '/guide/prompt-form-canvas' },
           ]
