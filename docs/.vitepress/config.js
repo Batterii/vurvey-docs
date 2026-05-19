@@ -56,6 +56,7 @@ export default defineConfig({
             { text: 'Concept Simulations', link: '/guide/concept-simulations' },
             { text: 'Campaigns', link: '/guide/campaigns' },
             { text: 'Topic Graph (Insights)', link: '/guide/topic-graph' },
+            { text: 'Topic Graph Explorer Tool', link: '/guide/topic-graph-tool' },
             { text: 'Datasets', link: '/guide/datasets' },
             { text: 'Workflow (Beta)', link: '/guide/workflows' },
             { text: 'Workflow Scheduling', link: '/guide/workflow-scheduling' },
