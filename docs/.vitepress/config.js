@@ -48,6 +48,7 @@ export default defineConfig({
             { text: 'Agents', link: '/guide/agents' },
             { text: 'People', link: '/guide/people' },
             { text: 'Campaigns', link: '/guide/campaigns' },
+            { text: 'Topic Graph (Insights)', link: '/guide/topic-graph' },
             { text: 'Datasets', link: '/guide/datasets' },
             { text: 'Workflow (Beta)', link: '/guide/workflows' },
             { text: 'Capabilities', link: '/guide/capabilities' },
