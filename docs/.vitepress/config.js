@@ -61,6 +61,7 @@ export default defineConfig({
             { text: 'Workflow (Beta)', link: '/guide/workflows' },
             { text: 'Workflow Scheduling', link: '/guide/workflow-scheduling' },
             { text: 'Workflow Node Types', link: '/guide/workflow-nodes' },
+            { text: 'Workflow Variables', link: '/guide/workflow-variables' },
             { text: 'Workflow Runs & Reports', link: '/guide/workflow-runs' },
             { text: 'Capabilities', link: '/guide/capabilities' },
             { text: 'Object Type Definitions', link: '/guide/object-types' },
