@@ -39,6 +39,7 @@ export default defineConfig({
             { text: 'Introduction', link: '/guide/' },
             { text: 'Logging In', link: '/guide/login' },
             { text: 'Account & Profile', link: '/guide/account' },
+            { text: 'Survey-Taking Experience', link: '/guide/survey-taking' },
           ]
         },
         {
