@@ -68,6 +68,7 @@ export default defineConfig({
             { text: 'Workspace Members & Roles', link: '/guide/workspace-members' },
             { text: 'Credits & Usage', link: '/guide/credits-and-usage' },
             { text: 'AI Models', link: '/guide/ai-models' },
+            { text: 'Appearance & Themes', link: '/guide/appearance-and-themes' },
             { text: 'Canvas & Image Studio', link: '/guide/canvas-and-image-studio' },
             { text: 'Branding', link: '/guide/branding' },
             { text: 'Brand Companions', link: '/guide/brand-companions' },
