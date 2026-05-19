@@ -41,6 +41,7 @@ export default defineConfig({
             { text: 'Account & Profile', link: '/guide/account' },
             { text: 'Survey-Taking Experience', link: '/guide/survey-taking' },
             { text: 'Mobile App', link: '/guide/mobile-app' },
+            { text: 'Responder Web App', link: '/guide/responder-app' },
           ]
         },
         {
