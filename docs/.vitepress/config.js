@@ -59,6 +59,7 @@ export default defineConfig({
             { text: 'Datasets', link: '/guide/datasets' },
             { text: 'Workflow (Beta)', link: '/guide/workflows' },
             { text: 'Workflow Scheduling', link: '/guide/workflow-scheduling' },
+            { text: 'Workflow Node Types', link: '/guide/workflow-nodes' },
             { text: 'Workflow Runs & Reports', link: '/guide/workflow-runs' },
             { text: 'Capabilities', link: '/guide/capabilities' },
             { text: 'Output Studio', link: '/guide/output-studio' },
