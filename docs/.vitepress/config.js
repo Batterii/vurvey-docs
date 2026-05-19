@@ -75,6 +75,7 @@ export default defineConfig({
           text: 'Reference',
           items: [
             { text: 'Quick Reference', link: '/guide/quick-reference' },
+            { text: 'Common Recipes', link: '/guide/recipes' },
             { text: "What's New", link: '/guide/whats-new' },
             { text: 'Platform Architecture', link: '/guide/architecture' },
             { text: 'Sources & Citations', link: '/guide/sources-and-citations' },
