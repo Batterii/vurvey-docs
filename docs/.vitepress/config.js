@@ -40,6 +40,7 @@ export default defineConfig({
             { text: 'Logging In', link: '/guide/login' },
             { text: 'Account & Profile', link: '/guide/account' },
             { text: 'Survey-Taking Experience', link: '/guide/survey-taking' },
+            { text: 'Mobile App', link: '/guide/mobile-app' },
           ]
         },
         {
