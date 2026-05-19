@@ -96,6 +96,7 @@ export default defineConfig({
             { text: 'Developer & API Reference', link: '/guide/developer-reference' },
             { text: 'Vurvey CLI', link: '/guide/cli' },
             { text: 'Cloud Functions Reference', link: '/guide/cloud-functions' },
+            { text: 'Retrieval Service (RAG)', link: '/guide/retrieval-service' },
             { text: 'Sources & Citations', link: '/guide/sources-and-citations' },
             { text: 'Permissions & Sharing', link: '/guide/permissions-and-sharing' },
             { text: 'About This Documentation', link: '/guide/automation-and-qa' },
