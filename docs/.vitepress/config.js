@@ -74,6 +74,7 @@ export default defineConfig({
           items: [
             { text: 'Settings', link: '/guide/settings' },
             { text: 'Workspace Members & Roles', link: '/guide/workspace-members' },
+            { text: 'File Labels', link: '/guide/file-labels' },
             { text: 'Credits & Usage', link: '/guide/credits-and-usage' },
             { text: 'AI Models', link: '/guide/ai-models' },
             { text: 'Appearance & Themes', link: '/guide/appearance-and-themes' },
