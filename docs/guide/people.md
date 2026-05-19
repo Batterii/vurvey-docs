@@ -781,9 +781,31 @@ During campaign setup, you can select an AI population as your target audience. 
 
 ---
 
+## Where People fit in the broader platform
+
+People sits at the audience layer underneath nearly every research surface. The cross-references below map each People-adjacent surface to its dedicated guide:
+
+| Surface | What People does there |
+|---|---|
+| **Campaigns → Audience tab** | Build campaign audiences from Populations, Lists, Segments, and Humans. Recruit-list flows pull from this data. See [Campaigns](/guide/campaigns). |
+| **Campaigns → AI Population simulation** | AI Populations let you simulate respondent personas on a draft campaign before launch — the Audience and Insights tabs reflect simulated answers identically to real ones. |
+| **Topic Graph** | PII Scrubber redacts respondent names, emails, and phones from extracted entities. The match is against your People records — see [Topic Graph → PII redaction](/guide/topic-graph#privacy-the-pii-redaction-pill). |
+| **Rewards** | Rewards payouts target campaign responses, which trace back to specific People records. Deleted People are hard-excluded from the Rewards page via `excludeDeletedUsers: true`. See [Rewards](/guide/rewards#the-responses-table). |
+| **@populations in chat** | When the Populations chip is enabled, you can chat AS a population persona. The persona conversation clears other sources/tools so the response comes entirely from that persona. See [Home → Population persona](/guide/home#the-population-persona-modal). |
+| **Personalities / Molds** | Implementation-managed personality kits inherited by Agents — separate from People's Population personas but conceptually related. See [Implementation → Agent Personalities](/guide/implementation#create-agent-personalities-implementation-agent-personalities). |
+| **Brand Companions → metrics** | Conversation metrics from public Brand Companion embeds tie back to People records when the respondent has signed in. See [Brand Companions → Metrics](/guide/brand-companions#brand-companion-metrics-page). |
+| **People deletion → cascade** | A deleted People record removes its email and identity. The Rewards table hides their responses; the Topic Graph still includes their content but anonymized; analytics typically anonymize rather than purge. See [Account & Profile → Delete account](/guide/account#delete-account-modal-what-actually-happens). |
+| **Settings → Guest mode** | `shouldUseGuestMode` reduces a user's surface; see [Account & Profile → guest mode](/guide/account#how-to-open-it) and [Permissions & Sharing → guest mode](/guide/permissions-and-sharing#guest-mode). |
+| **Permissions & Sharing** | People records are workspace-scoped. Audience visibility follows the standard workspace role model. See [Permissions & Sharing](/guide/permissions-and-sharing). |
+| **Properties** | Custom attributes on People records feed segment rules + persona configuration. |
+| **Super Admin → Manage Vurvey employees** | Internal Vurvey Labs staff are managed there, separate from customer People records. See [Super Admin → Manage Vurvey employees](/guide/admin#manage-vurvey-employees-admin-vurvey-employees). |
+
 ## Next Steps
 
 - [Launch a campaign targeting your audience](/guide/campaigns)
 - [Use AI agents to analyze research data](/guide/agents)
 - [Automate audience workflows](/guide/workflows)
 - [Upload data to datasets for AI analysis](/guide/datasets)
+- [Reward your respondents](/guide/rewards) — Tremendous payouts tied to People records
+- [Watch how PII redaction protects People in the Topic Graph](/guide/topic-graph#privacy-the-pii-redaction-pill)
+- [Manage internal Vurvey staff](/guide/admin#manage-vurvey-employees-admin-vurvey-employees) — _staff only_, separate from customer People records
