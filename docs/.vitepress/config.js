@@ -94,6 +94,7 @@ export default defineConfig({
             { text: 'Feature Flags Reference', link: '/guide/feature-flags' },
             { text: 'Platform Architecture', link: '/guide/architecture' },
             { text: 'Developer & API Reference', link: '/guide/developer-reference' },
+            { text: 'Cloud Functions Reference', link: '/guide/cloud-functions' },
             { text: 'Sources & Citations', link: '/guide/sources-and-citations' },
             { text: 'Permissions & Sharing', link: '/guide/permissions-and-sharing' },
             { text: 'About This Documentation', link: '/guide/automation-and-qa' },
