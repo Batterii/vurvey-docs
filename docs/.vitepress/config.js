@@ -79,6 +79,7 @@ export default defineConfig({
             { text: 'Glossary', link: '/guide/glossary' },
             { text: "What's New", link: '/guide/whats-new' },
             { text: 'Platform Architecture', link: '/guide/architecture' },
+            { text: 'Developer & API Reference', link: '/guide/developer-reference' },
             { text: 'Sources & Citations', link: '/guide/sources-and-citations' },
             { text: 'Permissions & Sharing', link: '/guide/permissions-and-sharing' },
             { text: 'About This Documentation', link: '/guide/automation-and-qa' },
