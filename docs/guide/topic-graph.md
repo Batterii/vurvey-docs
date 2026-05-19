@@ -1,8 +1,22 @@
+---
+title: Topic Graph (Insights)
+---
+
 # Topic Graph (Insights)
 
-The **Insights** tab on every campaign is a live, interactive map of the ideas people are talking about in your responses. As answers come in — whether typed, recorded on video, or simulated by an AI persona — the Topic Graph automatically pulls out the entities, concepts, feelings, and relationships that show up in the text and draws them as a visual network.
+The **Insights** tab on every campaign is a live, interactive map of the ideas people are talking about in your responses. As answers come in — whether typed, recorded on video, or simulated by an AI persona — the Topic Graph automatically pulls out the entities, concepts, feelings, and relationships that appear in the text and draws them as a visual network.
 
-Think of it as "what is this campaign *actually* about?" at a glance, with the ability to zoom into any topic or entity to see the raw participant quotes behind it.
+Think of it as _"what is this campaign actually about?"_ at a glance, with the ability to zoom into any topic or entity to see the participant quotes behind it.
+
+There are also AI-side capabilities most users don't realize: the graph is exposed to chat Agents as an explorable tool, so an Agent answering a question about your campaign can navigate the graph directly to ground its response.
+
+![Topic Graph canvas — themes, entities, relationships](/screenshots/topic-graph/01-graph.png?optional=1)
+![Entity drill-in drawer with source quotes](/screenshots/topic-graph/02-entity-detail.png?optional=1)
+![Workspace Topic Graph toggle in Settings → General](/screenshots/topic-graph/03-workspace-toggle.png?optional=1)
+![Topic Graph Explorer tool invoked from chat](/screenshots/topic-graph/04-explorer-tool.png?optional=1)
+![Synthetic type-grouping fallback when Louvain has no clusters](/screenshots/topic-graph/05-type-fallback.png?optional=1)
+
+---
 
 ## Who this is for
 
@@ -10,112 +24,333 @@ Think of it as "what is this campaign *actually* about?" at a glance, with the a
 - **Stakeholders** who want a visual summary of a study without going deep into individual answers.
 - **Marketing / product teams** spotting emergent themes they didn't explicitly ask about.
 - **Campaign authors** watching an active campaign fill in live during a launch or AI-population simulation.
+- **AI Agents** answering questions about the campaign — they can use the **Topic Graph Explorer** chat tool to walk the graph directly (see below).
 
-No manual tagging. No pre-built ontology decisions. The graph builds itself from whatever the respondents say.
+No manual tagging. No pre-built ontology decisions. The graph builds itself from whatever the respondents say, in whichever language they say it.
+
+---
 
 ## Where to find it
 
-Open any campaign. You'll see the tab bar across the top:
+Open any campaign. The Insights tab joins the standard tab bar:
 
 | Tab | When it lights up |
-|-----|-------------------|
-| Build | Always |
-| Configure | Always |
-| Audience | Always |
-| Launch | Always |
-| Results | Once responses start arriving |
-| Analyze | Once responses start arriving |
-| Summary | Once responses start arriving |
-| **Insights** | **Once the Topic Graph is enabled for your workspace (default: on)** |
+|---|---|
+| **Build** | Always |
+| **Configure** | Always |
+| **Audience** | Always |
+| **Launch** | Always |
+| **Results** | Once responses start arriving |
+| **Analyze** | Once responses start arriving |
+| **Summary** | Once responses start arriving |
+| **Insights** | Only when the Topic Graph is enabled for your workspace (default: on) |
 
 Click **Insights** to open the graph.
 
-## Turning the feature on or off for your workspace
+---
 
-Topic Graph is **on by default** for every workspace. An admin can turn it off if your team doesn't want to run the extra AI extraction for cost or privacy reasons.
+## Workspace gating: `topicGraphEnabled`
 
-1. Go to **Settings → General**
-2. Scroll to the **Topic Graph** toggle
-3. Flip it off to disable for the whole workspace, or leave on (default)
+Topic Graph is **on by default** for new workspaces. The toggle lives in **Settings → General Settings → Topic Graph** (see [Settings → Topic Graph Toggle](/guide/settings#4-topic-graph-toggle)).
 
-When the toggle is off, the Insights tab is hidden on every campaign in that workspace, and no entity-extraction work runs behind the scenes.
+Flipping the toggle:
+
+- **On → Off:** the Insights tab is hidden on every campaign in the workspace and the backend stops enqueuing entity-extraction jobs. Existing graph data is preserved on disk but not visible.
+- **Off → On:** the Insights tab returns; new answers from now on are extracted; **the historical backlog is NOT automatically extracted** — you can request a one-off backfill via support.
+
+The toggle uses an **optimistic update** with rollback on error (`SET_TOPIC_GRAPH_ENABLED` mutation; `WORKSPACE_TOPIC_GRAPH_FLAG` is refetched after success).
 
 ::: tip Why default to on?
-The graph earns its value the moment the first substantive response arrives. Making it opt-out means a new workspace gets the feature automatically and admins only need to think about it if they want to disable it for a specific reason.
+The graph earns its value the moment the first substantive response arrives. Making it opt-out means new workspaces get the feature automatically and admins only need to think about it when they want to disable it for cost or privacy reasons.
 :::
+
+::: warning Backend gate is independent of the UI tab
+Even when the UI tab is hidden, the chat-side **Topic Graph Explorer tool** still does the workspace gate check via `isTopicGraphEnabledForWorkspace`. Disabling the toggle takes the tool offline for chat too — agents in the workspace lose the ability to walk the graph until the flag is back on.
+:::
+
+---
 
 ## Reading the graph
 
 ### The canvas
 
-Each small pill is an **entity** — a person, product, feature, emotion, topic, organization, or any other concept the extractor found in a response. Pills are colored by type (Person = green, Product = blue, Feature = pink, and so on — see the legend on the right).
+| Visual element | Meaning |
+|---|---|
+| **Small pill** | An **entity** — a person, product, feature, emotion, topic, organization, brand, or any other concept the extractor found in a response. Colored by entity type from the per-campaign ontology (see below). |
+| **Line between pills** | A **relationship** edge (the underlying relationship type is `TOPIC_RELATED`). Heavier weight = the two entities co-occurred more often in responses. |
+| **Larger glowing circle** | A **theme** — a cluster of closely-related entities the system grouped via the GDS Louvain community-detection algorithm. A theme labeled "HydrationIngredients" with 12 members is telling you 12 entities tend to appear together in the same responses. |
 
-Lines between pills are **relationships** (`TOPIC_RELATED`). A thicker or more-frequent line means the two entities showed up together in responses more often.
+### Per-campaign Gemini-generated ontology
 
-Larger glowing circles are **themes** — clusters of closely-related entities that the system grouped using community detection. A theme labeled "HydrationIngredients" with 12 members is telling you that 12 entities all tend to appear together in the same responses.
+Each campaign has its own entity-type ontology, generated by Gemini once the first few responses arrive. The legend in the side panel reflects whatever types Gemini chose for _your_ campaign — Person, Organization, Product, Concept, Location, Event, Brand, Feature, Sentiment are common, but a campaign about a specific industry might surface niche types (e.g. _"AIApplication"_, _"DietaryRestriction"_, _"PackagingMaterial"_).
 
-### The side panel
+Older campaigns (created before per-campaign ontology shipped) fall back to a **9-type default ontology** (Person, Organization, Product, Concept, Location, Event, Brand, Feature, Sentiment) until their first campaign-specific ontology is generated.
 
-On the right you'll find:
+::: tip Case-insensitive type matching
+Gemini occasionally emits an entity type in a different case than the ontology stored it in (e.g. `BRAND` vs `Brand`). The UI's color lookup is case-insensitive to handle this. If a color renders as the fallback purple (`#7c3aed`), the type wasn't matched in the ontology at all — usually a transient extraction quirk that resolves on the next response.
+:::
 
-| Control | What it does |
-|---------|--------------|
-| **Search** | Type any entity or theme name. Matches stay fully visible and everything else dims down so the hit stands out. Clear the box to restore the full graph. |
-| **Min confidence** | Filter out extractions the AI wasn't sure about. Default 0.6 (range 0.50–0.95). Slide right to show only high-confidence entities. |
-| **Show edge labels** | Toggle relationship labels on or off. Edges are currently labeled `RELATED_TO` — we're working on surfacing the richer relationship types (`USES`, `CAUSES`, `MENTIONS_ALONGSIDE`) that the extractor already captures. |
-| **Reset layout** | Re-runs the physics simulation so nodes spread out from scratch. Useful after zooming or after a lot of new nodes have streamed in. |
-| **Counter** | Running total: `N themes · N entities · N edges`. The themes count is hidden when every cluster has only one member — which happens for graphs with few relationships, where the clustering step has nothing to group together. |
-| **Entity Types** | Color legend for the ontology the AI generated for this specific campaign. Campaigns created before the feature shipped use a 9-type default ontology (Person, Organization, Product, Concept, Location, Event, Brand, Feature, Sentiment) until their first campaign-specific ontology is generated. |
+### The side panel (Graph Control Panel)
+
+| Control | Behavior |
+|---|---|
+| **Search** | Type any entity or theme name. Matches stay fully visible; everything else dims. Clear to restore the full graph. |
+| **Min confidence** | Slider. Default `0.6`, range `0.50–0.95`. Filter out extractions the AI wasn't sure about — slide right to show only high-confidence entities. The initial GET_CAMPAIGN_GRAPH query is also called with `minConfidence: 0.6`. |
+| **Show edge labels** | Toggle relationship labels on/off. Edges currently render as `RELATED_TO`; richer types (`USES`, `CAUSES`, `MENTIONS_ALONGSIDE`) exist in the extractor and will surface as future work. |
+| **Reset layout** | Re-runs the physics simulation. Useful after zooming around or after a burst of new nodes streamed in. The reset broadcasts a `bumpLayoutReset` action through the campaign-graph store; layout state is persisted to localStorage under the `topic-graph-layout` prefix. |
+| **Counter** | Running total: `N themes · N entities · N edges`. Themes counter is hidden when every cluster has a single member (the Louvain step had nothing to group). |
+| **Entity Types** | Color legend for the per-campaign ontology (see above). |
+| **Zoom In / Zoom Out / Fit View** | Bottom-left buttons. Fit View is the fastest way back to the full graph after drilling in. |
+| **Minimap** | Bottom-right. Click a spot to jump there. |
+
+### Synthetic type-groupings (when Louvain has nothing to cluster)
+
+If a campaign has too few co-occurrences for Louvain to find meaningful communities, the UI falls back to grouping entities by **type** (Person, Product, Brand, etc.) instead of by theme. These groupings are encoded with a `type:` prefix in the `focusedThemeId` (e.g. `type:Product`).
+
+The control panel resolves the synthetic ID back to a readable label via the ontology, so you'll see _"Product"_ rather than _"type:product"_ in the focused-theme display. Real Louvain themes (no prefix) live alongside synthetic ones; both behave the same way visually.
 
 ### Interactions
 
 - **Click a theme** to enter it — the graph reshapes to show just the entities inside that cluster, plus any cross-cluster edges.
-- **Click an entity** to open the **drill-in drawer** on the right. You'll see the entity's name, type, how many mentions it has, any aliases, the theme it belongs to (when clustering has grouped it), and a list of the original participant quotes that produced it (newest-first, capped at 20). The entity name is highlighted inline in each quote.
+- **Click an entity** to open the **Entity Detail Drawer** on the right.
 - **Scroll wheel / trackpad** zooms in and out. **Click and drag the empty canvas** to pan.
-- **Zoom In / Zoom Out / Fit View** buttons in the bottom-left corner give you keyboard- and click-friendly alternatives to the scroll wheel. Fit View is the fastest way back to the full graph after you've drilled in.
-- **Minimap** in the bottom-right shows where your current viewport sits inside the full graph. Click a spot on the minimap to jump there.
 - **Click outside any node** to reset focus.
+
+### Entity Detail Drawer
+
+The drawer surfaces everything we know about one entity:
+
+| Field | Meaning |
+|---|---|
+| **Name** | Canonical entity name (the form chosen by the deduplicator). |
+| **Type** | The entity type from the per-campaign ontology, colored to match. |
+| **Mention count** | How many distinct answers reference this entity. |
+| **Confidence** | The extractor's confidence in the entity (the score the Min Confidence slider filters on). |
+| **Aliases** | Variant forms of the entity that the deduplicator merged into this canonical form. Both surface in search. |
+| **Theme / Theme label** | The theme this entity belongs to (when clustering grouped it). For synthetic type-groupings, the theme label is the entity type. |
+| **Sources** | The original participant quotes (newest-first, capped at 20). Each shows answerId, responseId, questionText, answerText, participantName (when consent permits), and createdAt. The entity name is **inline-highlighted** in each quote via `<mark>` tags, case-insensitive. |
 
 ### Privacy: the PII redaction pill
 
-If an entity looks like it could identify a real person (email addresses, phone numbers, matches to an actual respondent's name from the participant list), the graph renders it as `[redacted]` in red. The underlying quote is still there in the drawer so you can read context without surfacing identifying detail in the network view.
+If an entity looks like it could identify a real person (email addresses, phone numbers, matches to an actual respondent's name from the participant list), the graph renders it as `[redacted]` in red and the entity carries `isPii: true`.
+
+The underlying source quote is still there in the drawer so you can read context without surfacing identifying detail in the network view. The redaction happens server-side in `PiiScrubber.scan()` during extraction — once redacted, even direct GraphQL queries return the redacted form.
+
+---
 
 ## Live vs. finished campaigns
 
 The Insights tab works for both.
 
-**Open campaigns** (still accepting responses) show a pulsing **Live** indicator in the corner and the graph animates as new responses come in. Every incoming answer — whether from a real person submitting the survey, a mailing-list participant, or an AI-persona simulation you launched from the Audience tab — runs through the extractor within a few seconds and the resulting nodes stream onto the canvas in place without you having to reload.
+### Open campaigns (still accepting responses)
 
-**Closed campaigns** show a static graph reflecting everything that was ever extracted. Results are still interactive (search, drill-in, re-run layout), the view just stops updating.
+A pulsing **Live** indicator displays in the corner and the graph animates as new responses come in. Every incoming answer — real respondent, mailing-list participant, or AI-persona simulation — runs through the extractor within a few seconds and the resulting nodes stream onto the canvas via the `useGraphSubscription({campaignId})` GraphQL subscription.
+
+A **graph progress pill** in the top-right shows how many answers have been processed out of total answers, useful when watching a large simulation backfill or an in-flight launch.
+
+### Closed campaigns
+
+Static graph reflecting everything that was ever extracted. The view is still interactive (search, drill-in, re-run layout); just no live updates.
+
+---
 
 ## What the graph can (and can't) catch
 
 The extractor pulls signal from any text it can see:
 
-- **Long-text** typed answers — best case, most signal.
-- **Short-text** answers (even 10–20 characters) — works if there are recognizable proper nouns or branded concepts.
-- **Video answers** — the extractor reads the joined transcript, so you get the same quality as a typed response. Transcripts are pulled automatically from the video pipeline.
-- **Multiple-choice / rating / ranking** answers — not extracted. These are already structured — use the Results tab.
-- **File uploads** — not extracted.
+| Source | Extracted? | Notes |
+|---|---|---|
+| **Long-text typed answers** | ✓ | Best case — most signal per answer. |
+| **Short-text answers (10–20 chars)** | ✓ | Works for recognizable proper nouns or branded concepts; very short non-distinctive answers may not generate entities. |
+| **Video answers** | ✓ | The extractor reads the joined transcript pulled automatically from the video pipeline. Same quality as a typed response of the same content. |
+| **Multiple-choice / rating / ranking answers** | ✗ | Already structured — use the Results tab. |
+| **File uploads** | ✗ | Not extracted. |
 
 ::: tip Wait before deep-analyzing
-The per-answer extraction takes 5–30 seconds depending on response length. Themes are re-clustered in larger batches every minute. For a live AI-simulation of 100 personas, expect the full graph to settle within 2–3 minutes after the last response lands.
+Per-answer extraction takes **5–30 seconds** depending on response length. Themes are re-clustered in larger batches every minute via the GDS Louvain step. For a live AI-simulation of 100 personas, expect the full graph to settle within 2–3 minutes after the last response lands.
 :::
 
-## Common questions
+---
 
-**Is this the same as the Analyze tab?** No. Analyze is a structured question-by-question view with word clouds and aggregate sentiment. Insights is a cross-question network view of entities and how they relate. They complement each other — Analyze tells you what people said about question 4; Insights tells you which ideas keep recurring across every question.
+## Architecture (what's behind the magic)
 
-**Why is my graph empty on a campaign with 50 responses?** A few possibilities: (1) The campaign was launched before the Topic Graph feature shipped; the existing responses haven't been extracted yet. New responses on the same campaign will extract automatically, but the backlog stays empty until we run a one-off backfill — contact support. (2) Topic Graph was turned off in Workspace Settings before the responses arrived — turn it on and re-extract. (3) The responses are all multiple-choice with no free text. (4) The free-text answers are all very short (under 5 words each); the extractor skips them by design.
+A respondent answer becomes a node on the Insights tab through a multi-stage pipeline:
 
-**Can I download the graph?** Not yet. It's a read-only, live view for now. If you want to export the list of entities for downstream work, use the Analyze tab or Export Responses (.csv) from the Results tab.
+```
+Respondent → answer INSERTed → AnswerCreated event
+                                       ↓
+                           Pub/Sub (vurvey-events)
+                                       ↓
+              context-graph-event-hooks → enqueue light job
+                                       ↓
+       BullMQ vurvey:bull:light-cpu-queue (extractTopicGraphEntities)
+                                       ↓
+              processExtractTopicGraphEntitiesJob:
+                – load answer (+ transcript fallback for video)
+                – loadOntologyForSurvey()    ← per-campaign ontology
+                – entityExtractor.extractEntities(text, ontology)
+                    ↳ Gemini 3 Flash via Vertex, structured Zod output
+                – PiiScrubber.scan()
+                – EntityDeduplicator.mergeOrInsert() ← pgvector halfvec
+                – neo4jClient.upsertTopicRelationships(surveyId, edges)
+                – campaignGraphPublisher.publishEntityDeltas(...)
+                    ↳ 500ms-debounced fan-out
+                                       ↓
+        eventBus.publish({type: 'TopicGraphUpdated', surveyId, deltas})
+                                       ↓
+              GCP Pub/Sub vurvey-events → every pod's subscription
+                                       ↓
+        api pod re-emits onto local EventEmitter, broadcastIterator
+                                       ↓
+                  graphql-ws subscription → client store update
+```
 
-**How much does this cost in credits?** Extraction is included. There are no per-response credits for Topic Graph beyond the usual campaign launch costs.
+Key components:
 
-**Can I edit what the graph finds?** Not directly. The extraction is automatic per response. If a specific entity is mislabeled or misspelled, opening its drill-in drawer and reading the quotes will usually show you why (the responses themselves worded it that way). The dedup step merges near-duplicates (`Lotion` and `Moisturizer`) when they're semantically close, but it preserves aliases so both surface in search.
+| Layer | What it does |
+|---|---|
+| **Event hooks** (`context-graph-event-hooks.ts`) | Catches `AnswerCreated` events with a word-count + text-present gate before enqueueing extraction work. |
+| **Light-CPU worker** (`optimized-light-worker.ts`) | Pulls jobs from BullMQ and runs the extraction pipeline per answer. |
+| **Gemini 3 Flash via Vertex** | Generates structured entity output validated by Zod. Cheap and fast — the extraction loop runs frequently and per-answer. |
+| **PII Scrubber** | Redacts person names, emails, and phone numbers based on the respondent list. |
+| **EntityDeduplicator + pgvector halfvec** | Survey-scoped vector similarity merge for "Lotion" vs "Moisturizer" semantic dedup. Preserves aliases. |
+| **Neo4j** | Stores `TopicEntity`, `Theme`, and `TOPIC_RELATED` relationships. The graph database is what makes path-finding and neighborhood queries cheap. |
+| **GDS Louvain clustering** (`cluster-topic-graph.ts`) | Periodic batch job that runs community detection on the campaign's graph and writes Theme labels. |
+| **Campaign Graph Publisher** | 500ms-debounced delta broadcaster. Coalesces bursts of new entities into smooth UI updates. |
+| **GraphQL subscription** (graphql-ws) | Streams `TopicGraphUpdated` deltas to clients. |
 
-**Does it work across languages?** Yes — the extractor follows the language of the answer itself. A campaign with mixed English/Spanish responses will produce entities in whichever language each response was in.
+::: info Read the engineering deep-dive
+The full architecture doc lives in the API codebase at `vurvey-api/src/services/context-graph/docs/topic-graph-architecture.md`. The public version of this doc summarizes; the engineering doc has the per-component sequence diagrams, retry rationale, and Pub/Sub fan-out details.
+:::
 
-## Need help?
+---
 
-If the Insights tab doesn't load, the graph stays blank for a campaign that has answers, or you see a PII-redacted entity that you believe shouldn't be redacted, contact support at the usual channel — include the campaign ID from the URL and a screenshot.
+## The Topic Graph Explorer chat tool (Agents can navigate the graph)
+
+This is the under-discussed half of the Topic Graph feature. Whenever an Agent has access to the graph (workspace flag on + the agent's capabilities include the tool), Vurvey exposes a **`exploreTopicGraph`** tool through the Vercel AI SDK with **five operations**. The Agent picks the right operation based on the question; the tool returns both a short human-readable `summary` for the model to quote AND a structured `data` payload for follow-up operations.
+
+| Operation | What it returns | When the agent picks it |
+|---|---|---|
+| **`summary`** | Top themes, entity-type distribution, response count, top-mentioned entities, sentiment rollup. | Open-ended _"What are people talking about?"_ questions. |
+| **`theme_details`** | Entities and sample answers for one theme. Accepts a real Louvain theme id OR a synthetic `type:<name>` id (matching the UI fallback). | _"What's inside the HydrationIngredients theme?"_ or _"Show me everything about Products."_ |
+| **`entity_search`** | Name/alias `CONTAINS` search over the campaign's entities, with 1-hop neighborhoods pre-expanded. | _"Did anyone talk about retinol?"_ |
+| **`neighborhood`** | K-hop BFS from a single entity (k=1 default, max 2). | _"What's connected to 'Sephora' in this campaign?"_ |
+| **`path`** | Shortest `TOPIC_RELATED` path between two entities. | _"How are 'Vitamin C' and 'sensitive skin' related across responses?"_ |
+
+Every answer the tool surfaces gets emitted as an **`answer`-typed grounding entry**, so the chat pipeline's standard citation hydration attaches survey, question, and user metadata automatically. The Powered-by section of the chat response shows the campaign and answer source for each cited quote — see [Sources & Citations → Chat citations](/guide/sources-and-citations#part-2-chat-citations-powered-by-n-sources).
+
+### Read-only and survey-scoped
+
+All five operations are **read-only**. They refuse if the Neo4j driver is disconnected or if the campaign has no graph data. No agent can mutate the graph — extraction is the only write path, and it's only writeable by the worker.
+
+### When the tool is unavailable
+
+The chat tool loader runs `isTopicGraphEnabledForWorkspace(workspaceId)` before exposing the tool. If `topicGraphEnabled` is false (or the column doesn't exist yet on a freshly-deployed pod), the tool isn't even visible to the Agent. Disabled workspaces stay dark on both UI and chat surfaces.
+
+---
+
+## Constraints & limitations
+
+- **Workspace-gated.** `topicGraphEnabled` controls both the Insights tab and the chat tool. The flag has a 5-minute false-cache TTL (see [Settings → workspace flags](/guide/settings#workspace-flags-you-may-encounter)).
+- **Per-answer extraction takes 5–30 seconds.** Themes re-cluster in larger batches every minute.
+- **Backfills on historical responses require support intervention.** Flipping the toggle on doesn't retroactively extract.
+- **Min confidence floor is 0.5.** Below that the extractor's noise floor swamps signal.
+- **Edge labels currently render as `RELATED_TO`.** Richer relationship types exist in the extractor and will surface in future work.
+- **PII redaction is one-way.** Once redacted, the entity name is `[redacted]` everywhere — even if you believe the redaction was wrong, you can't unredact through the UI.
+- **No export today.** The Insights view is read-only and live; entity lists need to come from Analyze or Results CSV exports.
+- **Synthetic type-themes appear when Louvain has nothing to cluster.** This is normal for short or sparse campaigns. They behave the same as real themes.
+- **The `path` operation has no max-length cap explicit in the UI.** Very-long shortest paths (3–4 hops) often signal weak signal between the two entities; the agent may report "no meaningful path" in such cases.
+- **The 9-type default ontology** is only used until the per-campaign ontology is generated. Once Gemini has produced one, the campaign uses that one permanently.
+- **Color fallback** (`#7c3aed` purple) means the entity type isn't in the ontology — usually transient and self-correcting on the next extraction.
+
+---
+
+## Best practices
+
+- **Tune Min Confidence to taste.** 0.6 is a good starting point. Move to 0.75+ when you want only the most confident extractions; below 0.6 to see noise that may be useful in early-stage research.
+- **Start with Search before reading.** Type the entity or theme you expect to find first — the dim-out is much faster than scanning.
+- **Use the Explorer chat tool** for cross-question questions. The graph naturally bridges questions; chat queries that explicitly mention multiple entities almost always benefit from `path` or `neighborhood`.
+- **Watch the progress pill during simulations.** AI-population launches generate dozens of answers in seconds; the progress pill tells you when the graph has caught up.
+- **Don't over-read tiny graphs.** If your campaign has 20 responses, the Louvain clustering may not have enough signal — you'll see synthetic type-groupings instead of real themes. That's expected; just keep in mind the typology grouping isn't an "insight", it's a fallback.
+- **Treat PII redactions as load-bearing.** Don't try to unredact respondent names. Use the quote to understand context.
+- **Reset Layout when streaming is bursty.** Live updates can crowd nodes; a layout reset spreads them back out cleanly.
+- **For exports, use Analyze or Results.** The Insights view is for interactive scanning; the Analyze tab and Results CSV are for downstream work.
+
+---
+
+## FAQ
+
+#### Is this the same as the Analyze tab?
+No. **Analyze** is a structured, question-by-question view with word clouds and aggregate sentiment. **Insights** is a cross-question network view of entities and how they relate. They complement: Analyze tells you what people said about Question 4; Insights tells you which ideas keep recurring across every question.
+
+#### Why is my graph empty on a campaign with 50 responses?
+A few possibilities:
+1. The campaign was launched before Topic Graph shipped — existing responses haven't been extracted. New responses extract automatically, but the backlog stays empty until a one-off backfill (contact support).
+2. Topic Graph was off in Workspace Settings before the responses arrived — turn it on and request a backfill.
+3. The responses are all multiple-choice with no free text.
+4. The free-text answers are all very short (<5 words each) — extraction skips them by design.
+
+#### Can I download the graph?
+Not yet. It's a read-only, live view. For downstream work, use Analyze or Export Responses (CSV) from Results.
+
+#### How much does this cost in credits?
+Extraction is included in your normal campaign launch costs. There are no per-response credits beyond that.
+
+#### Can I edit what the graph finds?
+Not directly. Extraction is automatic per response. If a specific entity is mislabeled or misspelled, opening its drawer and reading the quotes usually shows you why (the responses worded it that way). The dedup step merges near-duplicates (Lotion + Moisturizer) but preserves aliases.
+
+#### Does it work across languages?
+Yes — extraction follows the language of the answer. A campaign with mixed English/Spanish responses produces entities in whichever language each response was in.
+
+#### What's "Louvain clustering"?
+A community-detection algorithm from graph theory. Vurvey uses Neo4j Graph Data Science's implementation to group entities that frequently appear together into themes. When Louvain finds nothing to group (sparse co-occurrence), the UI falls back to type-based grouping with a `type:` prefix.
+
+#### What does the synthetic `type:` prefix mean?
+A UI fallback when Louvain has no real themes to show. _`type:Product`_ means _"this 'theme' is really just all the Products in your campaign"_. Click into it like a real theme; it's still useful for browsing.
+
+#### Can my AI Agent use the Topic Graph?
+Yes — the `exploreTopicGraph` tool exposes 5 operations (summary, theme_details, entity_search, neighborhood, path) to any Agent that has the capability bound. Agents can navigate the graph to ground their answers in actual campaign data. See the section above and [Capabilities](/guide/capabilities).
+
+#### Why does my Insights tab take a moment to populate after I open it?
+The first GET_CAMPAIGN_GRAPH query fetches a snapshot; then the live subscription kicks in for deltas. The snapshot can take a few seconds on large campaigns. After that, updates are real-time.
+
+#### Are extracted entities visible across workspaces?
+No — entity data is workspace- and campaign-scoped. A workspace's graphs never bleed into another workspace.
+
+#### What's the difference between `confidence` and `mentionCount`?
+**Confidence** is the extractor's per-extraction certainty (0–1). **Mention count** is how many distinct answers reference the entity. A high-confidence entity with low mentions is a niche but reliable signal; a low-confidence entity with many mentions is probably noise being amplified by repetition.
+
+#### Why does an entity sometimes show in fallback purple?
+The entity's type wasn't matched against the per-campaign ontology (case-insensitive match failed). Usually transient — the next extraction settles it.
+
+---
+
+## Troubleshooting
+
+| Symptom | What to check |
+|---|---|
+| Insights tab missing on a campaign | Workspace `topicGraphEnabled` is off. Re-enable in Settings → General Settings. |
+| Graph stays empty on a fresh campaign | Need substantive free-text responses. Multiple-choice-only campaigns produce no graph. |
+| Graph empty on a campaign with many responses | Existed before the feature shipped or was disabled mid-campaign. Contact support for backfill. |
+| Live indicator pulses but no nodes appear | Extraction queue backed up — wait. If it doesn't catch up in ~10 min, contact support with the campaign ID. |
+| Min Confidence slider does nothing visible | Min confidence is already filtering out the entities below the chosen threshold. Try lowering it. |
+| Entities show as `[redacted]` that shouldn't be | PII scrubber matched a respondent name or contact info. To override, contact support with the entity ID and the campaign ID. |
+| All themes are `type:` prefixed | Louvain found no real clusters (sparse co-occurrence). Add more substantive responses, or accept the type-groupings as the working view. |
+| Reset Layout doesn't change anything | Layout state is persisted to localStorage. Click Reset, then drag a node — should snap back to physics-driven positions. |
+| Agents can't see the graph in chat | Either `topicGraphEnabled` is off, OR the Agent's capabilities don't include `exploreTopicGraph`. Open the Agent in Agent Builder. |
+| Two entities I expected to be one stayed separate | The deduplicator's pgvector similarity didn't merge them. The merge threshold is conservative to avoid false-positives. Aliases on the canonical entity are surfaced in search regardless. |
+| Color of a pill is "stuck" on purple | Type wasn't in the campaign ontology. Wait for the next extraction; usually self-corrects. |
+| Drawer shows stale quotes | Force a refresh — the drawer query is `cache-and-network` but very recent quotes may be a beat behind. |
+
+---
+
+## Related guides
+
+- [Campaigns](/guide/campaigns) — the parent surface where Insights lives
+- [Settings → Topic Graph Toggle](/guide/settings#4-topic-graph-toggle) — workspace-level on/off
+- [Agents](/guide/agents) — bind the `exploreTopicGraph` capability so Agents can navigate the graph in chat
+- [Capabilities](/guide/capabilities) — adjacent surface where structured Object Types (Insights, Concepts, Evaluations) are also called "insights" but are a different concept
+- [Sources & Citations → Chat citations](/guide/sources-and-citations#part-2-chat-citations-powered-by-n-sources) — how the Explorer tool's answer grounding surfaces
+- [Mentions → Magic Topics](/guide/mentions#1-3-magic-topics-tab) — a coming-soon adjacent surface for emerging themes in mentions
+- [Forecast](/guide/forecast) — another graph-style analysis surface (currently a UI prototype)
+- [People](/guide/people) — respondent identity used by the PII redaction step
