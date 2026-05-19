@@ -8,13 +8,13 @@ The **Canvas** is Vurvey's central chat workspace — the same surface described
 
 **Image Studio** is the dedicated image-editing experience: open it from a generated image inside chat for inline mask-and-prompt editing, or hit the standalone route `/{workspaceId}/image-studio` to drop into the full editor on its own. Under the hood it's powered by Google Veo 3.1 (for image → video) plus the workspace's configured image models.
 
-![Canvas chat toolbar — Agents / Populations / Sources / Images / Tools / Model](/screenshots/canvas/01-toolbar.png?optional=1)
-![Sources dropdown — Attach Datasets / Attach Campaigns / Turn on sources](/screenshots/canvas/02-sources-dropdown.png?optional=1)
-![Images dropdown — model picker](/screenshots/canvas/03-images-dropdown.png?optional=1)
-![Tools dropdown — Web Research / TikTok / Reddit / LinkedIn / YouTube / X / Instagram](/screenshots/canvas/04-tools-dropdown.png?optional=1)
-![Image Studio — full editor with mask, history rail, action toolbar](/screenshots/canvas/05-image-studio.png?optional=1)
-![Brush Size picker (16-160 px slider)](/screenshots/canvas/06-brush-size.png?optional=1)
-![Convert to Video panel — duration, aspect, samples, seed, enhance](/screenshots/canvas/07-convert-to-video.png?optional=1)
+> 📷 _Screenshot pending: Canvas chat toolbar — Agents / Populations / Sources / Images / Tools / Model_
+> 📷 _Screenshot pending: Sources dropdown — Attach Datasets / Attach Campaigns / Turn on sources_
+> 📷 _Screenshot pending: Images dropdown — model picker_
+> 📷 _Screenshot pending: Tools dropdown — Web Research / TikTok / Reddit / LinkedIn / YouTube / X / Instagram_
+> 📷 _Screenshot pending: Image Studio — full editor with mask, history rail, action toolbar_
+> 📷 _Screenshot pending: Brush Size picker (16-160 px slider)_
+> 📷 _Screenshot pending: Convert to Video panel — duration, aspect, samples, seed, enhance_
 
 ---
 

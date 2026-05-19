@@ -10,11 +10,11 @@ Think of it as _"what is this campaign actually about?"_ at a glance, with the a
 
 There are also AI-side capabilities most users don't realize: the graph is exposed to chat Agents as an explorable tool, so an Agent answering a question about your campaign can navigate the graph directly to ground its response.
 
-![Topic Graph canvas — themes, entities, relationships](/screenshots/topic-graph/01-graph.png?optional=1)
-![Entity drill-in drawer with source quotes](/screenshots/topic-graph/02-entity-detail.png?optional=1)
-![Workspace Topic Graph toggle in Settings → General](/screenshots/topic-graph/03-workspace-toggle.png?optional=1)
-![Topic Graph Explorer tool invoked from chat](/screenshots/topic-graph/04-explorer-tool.png?optional=1)
-![Synthetic type-grouping fallback when Louvain has no clusters](/screenshots/topic-graph/05-type-fallback.png?optional=1)
+> 📷 _Screenshot pending: Topic Graph canvas — themes, entities, relationships_
+> 📷 _Screenshot pending: Entity drill-in drawer with source quotes_
+> 📷 _Screenshot pending: Workspace Topic Graph toggle in Settings → General_
+> 📷 _Screenshot pending: Topic Graph Explorer tool invoked from chat_
+> 📷 _Screenshot pending: Synthetic type-grouping fallback when Louvain has no clusters_
 
 ---
 

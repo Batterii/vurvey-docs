@@ -13,12 +13,12 @@ Vurvey's job is _AI Powered by People_ — every claim an Agent makes should be 
 
 This page covers both, plus how you control **which sources are available** to an Agent in the first place.
 
-![Sources control in the canvas/home toolbar](/screenshots/sources-and-citations/01-sources-control.png?optional=1)
-![Sources modal — Campaigns / Datasets / All files tabs](/screenshots/sources-and-citations/02-sources-modal.png?optional=1)
-![Powered by N sources expanded in a chat response](/screenshots/sources-and-citations/03-powered-by.png?optional=1)
-![Inline citation superscript in a chat response](/screenshots/sources-and-citations/04-inline-citations.png?optional=1)
-![Evidence badge on a structured output element (closed)](/screenshots/sources-and-citations/05-evidence-badge.png?optional=1)
-![Evidence popover with quotes and source links](/screenshots/sources-and-citations/06-evidence-popover.png?optional=1)
+> 📷 _Screenshot pending: Sources control in the canvas/home toolbar_
+> 📷 _Screenshot pending: Sources modal — Campaigns / Datasets / All files tabs_
+> 📷 _Screenshot pending: Powered by N sources expanded in a chat response_
+> 📷 _Screenshot pending: Inline citation superscript in a chat response_
+> 📷 _Screenshot pending: Evidence badge on a structured output element (closed)_
+> 📷 _Screenshot pending: Evidence popover with quotes and source links_
 
 ---
 

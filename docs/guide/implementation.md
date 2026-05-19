@@ -8,13 +8,13 @@ title: Implementation
 
 It sits between [Settings](/guide/settings) (per-workspace, customer-facing) and [Super Admin](/guide/admin) (cross-platform Vurvey Labs work). Implementation is for **enterprise managers and implementation engineers** — the people doing setup work for an account before it goes live, or making platform-wide editorial changes that ripple into every customer workspace.
 
-![Implementation layout with sub-navigation](/screenshots/implementation/00-shell.png?optional=1)
-![Taxonomy Management — Facet Editor](/screenshots/implementation/01-taxonomy-management.png?optional=1)
-![System Prompts](/screenshots/implementation/02-system-prompts.png?optional=1)
-![Create agents from YAML](/screenshots/implementation/03-agents-yaml.png?optional=1)
-![Create Agent Personalities](/screenshots/implementation/04-agent-personalities.png?optional=1)
-![Molds list (feature-flagged)](/screenshots/implementation/05-molds-list.png?optional=1)
-![Mold Builder (feature-flagged)](/screenshots/implementation/06-mold-builder.png?optional=1)
+> 📷 _Screenshot pending: Implementation layout with sub-navigation_
+> 📷 _Screenshot pending: Taxonomy Management — Facet Editor_
+> 📷 _Screenshot pending: System Prompts_
+> 📷 _Screenshot pending: Create agents from YAML_
+> 📷 _Screenshot pending: Create Agent Personalities_
+> 📷 _Screenshot pending: Molds list (feature-flagged)_
+> 📷 _Screenshot pending: Mold Builder (feature-flagged)_
 
 ::: warning Internal-only feature
 Like Super Admin, Implementation is for Vurvey Labs staff and a small set of enterprise customer-success roles. It is not part of a customer's day-to-day workspace experience. If you're a workspace admin looking for member/billing/integration controls, go to [Settings](/guide/settings). If you're looking for cross-workspace administration (brands, templates, SSO), go to [Super Admin](/guide/admin).

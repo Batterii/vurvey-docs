@@ -90,7 +90,7 @@ If you want to run the same pipeline locally (without waiting for the nightly cr
 | `npm run test:qa:analyze` | Classifies QA failures |
 | `npm run lint:docs` | Fast link + screenshot-reference validation (also runs on pre-commit) |
 | `npm run audit:screenshots` | Finds orphan and missing screenshot references |
-| `npm run docs:dev` | Local VitePress dev server at <http://localhost:5173/vurvey-docs/> |
+| `npm run docs:dev` | Local VitePress dev server at `http://localhost:5173/vurvey-docs/` |
 | `npm run docs:build` | Production build → `docs/.vitepress/dist/` |
 | `npm run docs:preview` | Preview the production build locally |
 | `npm run test:pw` | Playwright tests against the docs site |
@@ -113,7 +113,7 @@ Always use `/screenshots/...`, **never** `/vurvey-docs/screenshots/...`. VitePre
 When a doc references a screenshot that hasn't been captured yet (common during a code-grounded rewrite), append `?optional=1` to the path:
 
 ```markdown
-![Coming soon](/screenshots/section/future-feature.png?optional=1)
+> 📷 _Screenshot pending: Coming soon_
 ```
 
 This tells the docs-lint script to skip the "missing screenshot" error. The image will fill in automatically once the screenshot pipeline captures it. As of the most recent doc rewrites (May 2026), most screenshot references are `?optional=1` while the screenshot capture script catches up to the new doc structure.

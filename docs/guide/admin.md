@@ -8,16 +8,16 @@ title: Super Admin (Enterprise)
 
 > The page is labelled **Super Admin** in the UI; the URLs and codepaths use `admin`. Both names refer to the same thing.
 
-![Super Admin landing (Metabase dashboard iframe)](/screenshots/admin/01-metabase-dashboard.png?optional=1)
-![Manage Vurvey Employees](/screenshots/admin/02-manage-employees.png?optional=1)
-![Update Employee Role modal](/screenshots/admin/03-update-employee-role-modal.png?optional=1)
-![Manage Workspaces](/screenshots/admin/04-manage-workspaces.png?optional=1)
-![Manage Brands](/screenshots/admin/05-manage-brands.png?optional=1)
-![Global Campaign Templates](/screenshots/admin/06-campaign-templates.png?optional=1)
-![SSO Providers](/screenshots/admin/07-sso-providers.png?optional=1)
-![Manage Agents (with Agent Actions modal)](/screenshots/admin/08-manage-agents.png?optional=1)
-![Manage Credits Rates](/screenshots/admin/09-credits-rates.png?optional=1)
-![Manage Agents 2.0 (feature-flagged)](/screenshots/admin/10-manage-agents-v2.png?optional=1)
+> 📷 _Screenshot pending: Super Admin landing (Metabase dashboard iframe)_
+> 📷 _Screenshot pending: Manage Vurvey Employees_
+> 📷 _Screenshot pending: Update Employee Role modal_
+> 📷 _Screenshot pending: Manage Workspaces_
+> 📷 _Screenshot pending: Manage Brands_
+> 📷 _Screenshot pending: Global Campaign Templates_
+> 📷 _Screenshot pending: SSO Providers_
+> 📷 _Screenshot pending: Manage Agents (with Agent Actions modal)_
+> 📷 _Screenshot pending: Manage Credits Rates_
+> 📷 _Screenshot pending: Manage Agents 2.0 (feature-flagged)_
 
 ::: warning Internal-only feature
 Super Admin is reserved for Vurvey Labs staff and a small set of enterprise support roles. It is not part of the customer-facing product experience. If you are a workspace admin and stumbled onto this doc looking for normal admin tasks (members, billing, integrations), go to [Settings](/guide/settings) instead.

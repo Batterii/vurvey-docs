@@ -8,11 +8,11 @@ title: Branding
 
 The page header is **Branding**. The route group is `/branding/*` with three sub-pages: **Brand Settings**, **Reviews**, and **Questions**.
 
-![Brand Settings — banner, logo, identity, colors](/screenshots/branding/01-brand-settings.png?optional=1)
-![Brand Reviews list (shared with Mentions)](/screenshots/branding/02-brand-reviews.png?optional=1)
-![Brand Questions editor](/screenshots/branding/03-brand-questions.png?optional=1)
-![Brand Companion Themes — Material 3 color generator](/screenshots/branding/04-companion-themes.png?optional=1)
-![Theme From Image picker](/screenshots/branding/05-theme-from-image.png?optional=1)
+> 📷 _Screenshot pending: Brand Settings — banner, logo, identity, colors_
+> 📷 _Screenshot pending: Brand Reviews list (shared with Mentions)_
+> 📷 _Screenshot pending: Brand Questions editor_
+> 📷 _Screenshot pending: Brand Companion Themes — Material 3 color generator_
+> 📷 _Screenshot pending: Theme From Image picker_
 
 ---
 

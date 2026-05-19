@@ -9,12 +9,12 @@ The **Rewards** page is where you pay out incentive money to people who complete
 This page is _not_ a generic workspace expense ledger. Every reward you send is tied to a specific **campaign response** by a specific **respondent**. Workspace-level Tremendous configuration (API key, default campaign, default funding source) is reached from this page too.
 
 ![Rewards page with table and bulk-action toolbar](/screenshots/rewards/01-rewards-main.png)
-![Tremendous Integrate modal — Step 1 (API key)](/screenshots/rewards/02-integrate-step-1.png?optional=1)
-![Tremendous Integrate modal — Step 2 (campaign + funding)](/screenshots/rewards/03-integrate-step-2.png?optional=1)
-![Send Reward modal — defaults path](/screenshots/rewards/04-send-reward-defaults.png?optional=1)
-![Send Reward modal — Choose payment source toggle](/screenshots/rewards/05-send-reward-choose.png?optional=1)
-![Send Reward modal — Sending… progress state](/screenshots/rewards/06-send-reward-sending.png?optional=1)
-![Disconnect Tremendous? confirmation modal](/screenshots/rewards/07-disconnect-confirm.png?optional=1)
+> 📷 _Screenshot pending: Tremendous Integrate modal — Step 1 (API key)_
+> 📷 _Screenshot pending: Tremendous Integrate modal — Step 2 (campaign + funding)_
+> 📷 _Screenshot pending: Send Reward modal — defaults path_
+> 📷 _Screenshot pending: Send Reward modal — Choose payment source toggle_
+> 📷 _Screenshot pending: Send Reward modal — Sending… progress state_
+> 📷 _Screenshot pending: Disconnect Tremendous? confirmation modal_
 
 ---
 

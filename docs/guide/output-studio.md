@@ -12,10 +12,10 @@ Output Studio is what produces the **Evidence-badged dashboards** documented in 
 Output Studio is gated by `outputStudioEnabled` (a workspace flag). The hook `useIsOutputStudioEnabled()` reads this flag and bounces direct-URL access back to the standard Flow Builder when off. This is a soak-rollout flag (Phase 6E) — most workspaces don't have it yet. Ask your CSM about availability.
 :::
 
-![Output Studio shell — preview pane, history, chat, publish flow](/screenshots/output-studio/01-studio.png?optional=1)
-![Element library — 24+ component types](/screenshots/output-studio/02-elements.png?optional=1)
-![Publish modal](/screenshots/output-studio/03-publish.png?optional=1)
-![Per-history Output Studio view](/screenshots/output-studio/04-history-view.png?optional=1)
+> 📷 _Screenshot pending: Output Studio shell — preview pane, history, chat, publish flow_
+> 📷 _Screenshot pending: Element library — 24+ component types_
+> 📷 _Screenshot pending: Publish modal_
+> 📷 _Screenshot pending: Per-history Output Studio view_
 
 ---
 

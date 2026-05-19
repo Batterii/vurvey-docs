@@ -13,12 +13,12 @@ Vurvey has **two completely separate web applications**, and they have different
 
 Both authenticate users via **Firebase Auth**, but the available providers, the URL routes, and the post-login destination differ significantly. This page covers both.
 
-![Vurvey Manager login (Google / Email)](/screenshots/login/01-manager-initial.png?optional=1)
-![Vurvey Responder login (Google / Microsoft / Apple / Email / SSO)](/screenshots/login/02-responder-initial.png?optional=1)
-![Email entry step](/screenshots/login/03-email-step.png?optional=1)
-![Password step](/screenshots/login/04-password-step.png?optional=1)
-![Verify Email screen (responder sign-up)](/screenshots/login/05-verify-email.png?optional=1)
-![Recover password](/screenshots/login/06-recover-password.png?optional=1)
+> 📷 _Screenshot pending: Vurvey Manager login (Google / Email)_
+> 📷 _Screenshot pending: Vurvey Responder login (Google / Microsoft / Apple / Email / SSO)_
+> 📷 _Screenshot pending: Email entry step_
+> 📷 _Screenshot pending: Password step_
+> 📷 _Screenshot pending: Verify Email screen (responder sign-up)_
+> 📷 _Screenshot pending: Recover password_
 
 ::: tip Which app are you logging into?
 If you're a researcher, admin, or anyone managing campaigns and agents in Vurvey, you're using the **Manager** app. If you're answering a survey or recording a video response, you're using the **Responder** app. The URL is the giveaway — Manager URLs include the workspace subdomain (e.g. `acme.vurvey.dev`), and Responder URLs are typically the campaign / survey deep-link.

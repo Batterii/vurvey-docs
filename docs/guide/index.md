@@ -121,7 +121,7 @@ Packaged research systems — workflows + schedules + dashboards + object types 
 
 ### Topic Graph (Insights)
 
-![Topic Graph view](/screenshots/topic-graph/01-graph.png?optional=1)
+> 📷 _Screenshot pending: Topic Graph view_
 
 Live, interactive map of ideas in a campaign — entities, concepts, feelings, and relationships visualized as a graph. The Insights tab on every campaign when the workspace toggle is on. → [Topic Graph](/guide/topic-graph)
 

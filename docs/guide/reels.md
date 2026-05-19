@@ -8,13 +8,13 @@ title: Reels
 
 In current `vurvey-web-manager` master, the main reel-management surface is **Campaigns → Magic Reels**, and the editor is the dedicated `/reel/:reelId` page. The "Magic" in the name nods to an auto-reel generation path powered by a Google Cloud Function (`sensemake-creator-reel`) that uses the Sensemake API to extract highlight-worthy moments from video transcripts — but most reels are still built by hand in the editor.
 
-![Magic Reels list — Name / Length / Status / Last updated](/screenshots/reels/01-magic-reels-list.png?optional=1)
-![Add Reel modal — Name + optional Description](/screenshots/reels/02-add-reel.png?optional=1)
-![Reel Editor — top action bar, preview, clip list](/screenshots/reels/03-reel-editor.png?optional=1)
-![Add Video menu — Upload / Search / Library](/screenshots/reels/04-add-video.png?optional=1)
-![Video Search modal](/screenshots/reels/05-video-search.png?optional=1)
-![Clip Editor — transcript vs slider modes](/screenshots/reels/06-clip-editor.png?optional=1)
-![Share Link side panel — copyable URL + display mode + password](/screenshots/reels/07-share-panel.png?optional=1)
+> 📷 _Screenshot pending: Magic Reels list — Name / Length / Status / Last updated_
+> 📷 _Screenshot pending: Add Reel modal — Name + optional Description_
+> 📷 _Screenshot pending: Reel Editor — top action bar, preview, clip list_
+> 📷 _Screenshot pending: Add Video menu — Upload / Search / Library_
+> 📷 _Screenshot pending: Video Search modal_
+> 📷 _Screenshot pending: Clip Editor — transcript vs slider modes_
+> 📷 _Screenshot pending: Share Link side panel — copyable URL + display mode + password_
 
 ---
 

@@ -14,12 +14,12 @@ A blue **Demo data preview** banner appears on every Forecast page making this e
 Ticket [VU-5480](https://vurvey.atlassian.net/browse/VU-5480) added this banner specifically to prevent confusion during enterprise demos on the Batterii workspace.
 :::
 
-![Forecast main view with inputs, chart, and AI analysis](/screenshots/forecast/01-forecast-main.png?optional=1)
-![Demo Data Preview banner](/screenshots/forecast/02-demo-data-banner.png?optional=1)
-![Select Models to Compare modal](/screenshots/forecast/03-select-models-modal.png?optional=1)
-![Discovery Engine — Predefined mode](/screenshots/forecast/04-discover-predefined.png?optional=1)
-![Discovery Engine — Upload mode](/screenshots/forecast/05-discover-upload.png?optional=1)
-![Model Validation view](/screenshots/forecast/06-model-validation.png?optional=1)
+> 📷 _Screenshot pending: Forecast main view with inputs, chart, and AI analysis_
+> 📷 _Screenshot pending: Demo Data Preview banner_
+> 📷 _Screenshot pending: Select Models to Compare modal_
+> 📷 _Screenshot pending: Discovery Engine — Predefined mode_
+> 📷 _Screenshot pending: Discovery Engine — Upload mode_
+> 📷 _Screenshot pending: Model Validation view_
 
 ---
 

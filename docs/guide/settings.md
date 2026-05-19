@@ -8,16 +8,16 @@ The Settings area is the workspace's self-service control surface — identity, 
 
 This page is **out of date in older revisions** — the Settings shell now exposes **five** sub-navigation tabs (not two) and General Settings has grown an Integrations section, a Topic Graph toggle, an Enforce SSO option, and an Appearance Settings panel. The rewrite below is current to `master`.
 
-![General Settings — Session, Identity, Plan, Integrations](/screenshots/settings/01-general-settings.png?optional=1)
-![Force logout modal (session timeout)](/screenshots/settings/02-force-logout-modal.png?optional=1)
-![AI Models page](/screenshots/settings/03-ai-models.png?optional=1)
-![Brand Templates page (conditional)](/screenshots/settings/04-brand-templates.png?optional=1)
-![Developer API Apps page](/screenshots/settings/05-api-apps.png?optional=1)
-![SharePoint card (conditional)](/screenshots/settings/06-sharepoint-card.png?optional=1)
-![Synthesio card (conditional)](/screenshots/settings/07-synthesio-card.png?optional=1)
-![Tremendous card (conditional)](/screenshots/settings/08-tremendous-card.png?optional=1)
-![Topic Graph workspace toggle](/screenshots/settings/09-topic-graph-toggle.png?optional=1)
-![Enforce SSO option (conditional)](/screenshots/settings/10-enforce-sso.png?optional=1)
+> 📷 _Screenshot pending: General Settings — Session, Identity, Plan, Integrations_
+> 📷 _Screenshot pending: Force logout modal (session timeout)_
+> 📷 _Screenshot pending: AI Models page_
+> 📷 _Screenshot pending: Brand Templates page (conditional)_
+> 📷 _Screenshot pending: Developer API Apps page_
+> 📷 _Screenshot pending: SharePoint card (conditional)_
+> 📷 _Screenshot pending: Synthesio card (conditional)_
+> 📷 _Screenshot pending: Tremendous card (conditional)_
+> 📷 _Screenshot pending: Topic Graph workspace toggle_
+> 📷 _Screenshot pending: Enforce SSO option (conditional)_
 
 ---
 

@@ -11,11 +11,11 @@ Vurvey's authorization model has **two layers**:
 
 Understanding the boundary between the two is the difference between "I can't open this dataset" (per-resource sharing) and "I can't see the Admin tab" (workspace role).
 
-![Share dialog — General Access dropdown](/screenshots/permissions/01-share-dialog.png?optional=1)
-![Share dialog — invite a member](/screenshots/permissions/02-invite-member.png?optional=1)
-![Share dialog — restricted access state](/screenshots/permissions/03-restricted-access.png?optional=1)
-![Share dialog — wide access (viewer)](/screenshots/permissions/04-wide-access-viewer.png?optional=1)
-![No permission view](/screenshots/permissions/05-no-permission.png?optional=1)
+> 📷 _Screenshot pending: Share dialog — General Access dropdown_
+> 📷 _Screenshot pending: Share dialog — invite a member_
+> 📷 _Screenshot pending: Share dialog — restricted access state_
+> 📷 _Screenshot pending: Share dialog — wide access (viewer)_
+> 📷 _Screenshot pending: No permission view_
 
 ---
 

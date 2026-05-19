@@ -8,12 +8,12 @@ The **Personal Profile** area is where every signed-in Vurvey user manages their
 
 The header on the page reads **Personal Profile** (not "Account"). The route group is `/me/*`. The browser tab title is **Vurvey - Personal Profile**.
 
-![Personal Profile — General Settings](/screenshots/account/01-personal-profile.png?optional=1)
-![Edit Picture modal](/screenshots/account/02-edit-picture-modal.png?optional=1)
-![Personal Information form](/screenshots/account/03-personal-information.png?optional=1)
-![Integrations tab (Composio-enabled workspaces)](/screenshots/account/04-integrations.png?optional=1)
-![Terms of Service tab](/screenshots/account/05-tos.png?optional=1)
-![Delete Account confirmation modal](/screenshots/account/06-delete-confirm.png?optional=1)
+> 📷 _Screenshot pending: Personal Profile — General Settings_
+> 📷 _Screenshot pending: Edit Picture modal_
+> 📷 _Screenshot pending: Personal Information form_
+> 📷 _Screenshot pending: Integrations tab (Composio-enabled workspaces)_
+> 📷 _Screenshot pending: Terms of Service tab_
+> 📷 _Screenshot pending: Delete Account confirmation modal_
 
 ---
 

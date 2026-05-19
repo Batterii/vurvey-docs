@@ -15,12 +15,12 @@ Both surfaces render on the same page so users have a unified hub, but they have
 
 Separately, there are **integration cards inside General Settings** for three workspace-flag-gated services (Tremendous, Synthesio, SharePoint). Those are documented in [Settings](/guide/settings#7-integrations-section-conditional) and are _not_ part of the integration hub on this page.
 
-![Integration hub — Composio tools grid](/screenshots/integrations/01-integrations-main.png?optional=1)
-![Connection-list item for Slack with Connect dropdown](/screenshots/integrations/02-connection-item.png?optional=1)
-![Auth scheme chooser (OAuth / API Key / Bearer Token)](/screenshots/integrations/03-auth-chooser.png?optional=1)
-![Workspace integration card](/screenshots/integrations/04-workspace-integration.png?optional=1)
-![Structured Research Import wizard](/screenshots/integrations/05-research-import.png?optional=1)
-![Composio callback toast — successful connect](/screenshots/integrations/06-callback-success.png?optional=1)
+> 📷 _Screenshot pending: Integration hub — Composio tools grid_
+> 📷 _Screenshot pending: Connection-list item for Slack with Connect dropdown_
+> 📷 _Screenshot pending: Auth scheme chooser (OAuth / API Key / Bearer Token)_
+> 📷 _Screenshot pending: Workspace integration card_
+> 📷 _Screenshot pending: Structured Research Import wizard_
+> 📷 _Screenshot pending: Composio callback toast — successful connect_
 
 ---
 

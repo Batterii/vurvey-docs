@@ -14,8 +14,8 @@ title: Mentions
 
 This page walks through each of the three in detail, then covers cross-feature behavior, constraints, best practices, and the FAQs we get most often.
 
-![All Mentions tab in the workspace](/screenshots/mentions/01-all-mentions.png?optional=1)
-![Magic Topics tab (coming soon empty state)](/screenshots/mentions/02-magic-topics.png?optional=1)
+> 📷 _Screenshot pending: All Mentions tab in the workspace_
+> 📷 _Screenshot pending: Magic Topics tab (coming soon empty state)_
 
 ---
 

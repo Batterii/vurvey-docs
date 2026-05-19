@@ -17,13 +17,13 @@ Capabilities is **doubly flag-gated**:
 All three flags are workspace-scoped, all three are flipped by Vurvey staff (no Settings UI), and the documentation below assumes Wave 3 is on unless noted.
 :::
 
-![Capabilities home — library of deployed capabilities](/screenshots/capabilities/01-capabilities-main.png?optional=1)
-![Blueprint library — pre-built capability patterns](/screenshots/capabilities/02-blueprints.png?optional=1)
-![Object Types library](/screenshots/capabilities/03-object-types.png?optional=1)
-![Insights Library (Wave 3)](/screenshots/capabilities/04-insights-library.png?optional=1)
-![Blueprint preview — "You give it", "You get", pipeline diagram](/screenshots/capabilities/05-blueprint-preview.png?optional=1)
-![Capability detail — pipeline timeline + Dashboard / Workflows tabs](/screenshots/capabilities/06-capability-detail.png?optional=1)
-![Capability workflow detail — last run, next run, schedule editor](/screenshots/capabilities/07-workflow-detail.png?optional=1)
+> 📷 _Screenshot pending: Capabilities home — library of deployed capabilities_
+> 📷 _Screenshot pending: Blueprint library — pre-built capability patterns_
+> 📷 _Screenshot pending: Object Types library_
+> 📷 _Screenshot pending: Insights Library (Wave 3)_
+> 📷 _Screenshot pending: Blueprint preview — "You give it", "You get", pipeline diagram_
+> 📷 _Screenshot pending: Capability detail — pipeline timeline + Dashboard / Workflows tabs_
+> 📷 _Screenshot pending: Capability workflow detail — last run, next run, schedule editor_
 
 ---
 

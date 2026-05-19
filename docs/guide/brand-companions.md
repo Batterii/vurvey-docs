@@ -8,11 +8,11 @@ title: Brand Companions
 
 Functionally, a Brand Companion is a regular [Agent](/guide/agents) with a few extra fields toggled on at the database level: `is_brand_companion = true`, optionally `brand_companion_metrics_enabled = true`, and a linked **Public-type Workspace API App** that carries the credentials and the allowed-domain list. Everything you see on the Brand Companions page is a UI over those fields.
 
-![Brand Companions grid with companion cards](/screenshots/brand-companions/01-grid.png?optional=1)
-![Manage API App modal — empty state](/screenshots/brand-companions/03-manage-api-empty.png?optional=1)
-![Manage API App modal — credentials and domains](/screenshots/brand-companions/04-manage-api-credentials.png?optional=1)
-![Brand Companion metrics — completion rate chart](/screenshots/brand-companions/05-metrics.png?optional=1)
-![Developer API Apps page (separate `/api-apps` route)](/screenshots/brand-companions/02-developer-api-apps.png?optional=1)
+> 📷 _Screenshot pending: Brand Companions grid with companion cards_
+> 📷 _Screenshot pending: Manage API App modal — empty state_
+> 📷 _Screenshot pending: Manage API App modal — credentials and domains_
+> 📷 _Screenshot pending: Brand Companion metrics — completion rate chart_
+> 📷 _Screenshot pending: Developer API Apps page (separate `/api-apps` route)_
 
 ::: warning Admin-only feature
 The entire Brand Companions area is gated by the `isAdminRole` check. Non-admin users hitting any `/brand-companions/*` URL are silently redirected to the workspace home. If you should have access but the page bounces you, ask a Workspace Owner to confirm your role under **Workspace Settings → Members**. See [Permissions & Sharing](/guide/permissions-and-sharing).
