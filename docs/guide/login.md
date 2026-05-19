@@ -1,205 +1,295 @@
+---
+title: Logging In
+---
+
 # Logging In
 
-This guide walks you through signing in to Vurvey so you can get started with your research.
+Vurvey has **two completely separate web applications**, and they have different login experiences:
 
-## Opening Vurvey
+| App | URL pattern | Who uses it | Code |
+|---|---|---|---|
+| **Vurvey Manager** | `app.vurvey.dev`, `staging.vurvey.dev`, your workspace subdomain | Researchers, workspace admins, Vurvey Labs staff | `vurvey-web-manager` |
+| **Vurvey Responder** | The survey URL your respondent receives | Survey-takers, community members | `vurvey-web-responder` |
 
-To access Vurvey, open your web browser and go to the Vurvey URL provided by your organization. You'll see the Vurvey welcome screen with your sign-in options.
+Both authenticate users via **Firebase Auth**, but the available providers, the URL routes, and the post-login destination differ significantly. This page covers both.
 
-![Vurvey Login Page](/screenshots/home/00-login-page.png)
+![Vurvey Manager login (Google / Email)](/screenshots/login/01-manager-initial.png?optional=1)
+![Vurvey Responder login (Google / Microsoft / Apple / Email / SSO)](/screenshots/login/02-responder-initial.png?optional=1)
+![Email entry step](/screenshots/login/03-email-step.png?optional=1)
+![Password step](/screenshots/login/04-password-step.png?optional=1)
+![Verify Email screen (responder sign-up)](/screenshots/login/05-verify-email.png?optional=1)
+![Recover password](/screenshots/login/06-recover-password.png?optional=1)
 
-::: tip Supported Browsers
-Vurvey works best in modern browsers: Google Chrome (recommended), Microsoft Edge, Mozilla Firefox, and Safari. For the best experience — especially with video recording and playback — use the latest version of Chrome.
+::: tip Which app are you logging into?
+If you're a researcher, admin, or anyone managing campaigns and agents in Vurvey, you're using the **Manager** app. If you're answering a survey or recording a video response, you're using the **Responder** app. The URL is the giveaway — Manager URLs include the workspace subdomain (e.g. `acme.vurvey.dev`), and Responder URLs are typically the campaign / survey deep-link.
 :::
 
-## Sign-In Options
+---
 
-Vurvey offers three ways to sign in, depending on how your organization has configured access:
+## Vurvey Manager login (researchers, admins)
 
-| Option | When to Use |
+### Sign-in options
+
+Two primary methods on the initial screen:
+
+| Method | Provider | When |
+|---|---|---|
+| **Sign in with Google** | Google OAuth via Firebase | Workspaces using Google Workspace identities. One-click after picking the Google account. |
+| **Sign in with email** | Firebase email/password | Vurvey-specific accounts with a custom email + password. |
+
+A **third option appears conditionally**: if your account requires SSO (e.g. your domain is configured with an SSO provider in [Super Admin → SSO Providers](/guide/admin#sso-providers-admin-sso-providers)), the app may redirect you to `/login?reason=sso-required`, which forces the **SignInLoginStep** with `ssoRequired = true` rendered first. From there, you enter your email and get redirected to your IdP (Okta, Azure AD, etc.).
+
+### The state machine
+
+The Manager login is driven by a `SignUpModal` reducer with these states:
+
+| State | Renders | What you see |
+|---|---|---|
+| `Initial` | InitialStep (or SignInLoginStep with `ssoRequired` if the URL says so) | Google + Email buttons; T&Cs / Privacy Policy links on the Vurvey subdomain |
+| `Email` | SignInLoginStep | Email input + "Next" button |
+| `Password` | SignInPasswordStep | Password input + "Log In" button + "Trouble signing in?" link |
+| `RecoverPassword` | RecoverPasswordStep | Email input to send a reset link |
+| `CheckYourEmail` | CheckYourEmailStep | Confirmation that the reset email was sent |
+| _(default)_ | SignUpStep | New-account sign-up flow |
+
+Transitions happen via dispatched actions on the reducer; URL params can pre-set state (e.g. `?reason=sso-required`).
+
+::: tip On-subdomain branding
+The `isOnVurveySubdomain` flag controls whether Terms & Conditions and Privacy Policy links render on the Initial screen. The check is satisfied when the host matches a Vurvey-owned subdomain (`*.vurvey.dev`, `*.vurvey.ai`). Embedded surfaces (e.g. workspace-custom domains during white-labeling) skip the bottom section.
+:::
+
+### Forgot password (Manager)
+
+1. Click **Sign in with email**.
+2. Type your email, click **Next**.
+3. On the password screen, click **Trouble signing in?**.
+4. Enter your email on the Recover Password screen and submit.
+5. You'll see the Check Your Email screen.
+6. Open the email from Vurvey and follow the reset link (token is single-use, expires after a window).
+7. Set a new password and return to login.
+
+If you don't receive the email, check spam first. Then ask a Workspace Owner to confirm your email matches the one used to invite you — typos in invitations break reset emails too.
+
+---
+
+## Vurvey Responder login (survey-takers)
+
+The Responder app has a **five-provider** sign-in surface (versus the Manager's two). The provider menu is intentionally wide because respondents come from anywhere on the open web.
+
+### Sign-in options (Initial / Sign-up entry)
+
+The Initial screen on the Responder app shows five buttons in this order:
+
+| Button | Provider | Use when |
+|---|---|---|
+| **Sign up with Google** | Google OAuth | Personal Gmail or Google Workspace |
+| **Sign up with Microsoft** | Microsoft OAuth | Outlook.com or Microsoft 365 |
+| **Sign up with Apple** | Sign in with Apple | iCloud-anchored identity (iPhone users especially) |
+| **Sign up with email** | Firebase email/password | Manual sign-up with any email + a password |
+| **Sign up with SSO** | Workspace SSO | Branded community memberships with enterprise SSO |
+
+Below the buttons:
+
+- **"Already have an account? Login here"** link → routes to `/login/choose-method` (the existing-account flow described below). Preserves the URL search string so the survey context survives.
+- Vurvey's Terms & Conditions and Privacy Policy links.
+
+The Initial screen also shows a hero image and the marketing phrase: _"It's like private TikTok directly with brands."_
+
+### Choose Login Method (existing accounts)
+
+When a respondent who already has an account hits the "Login here" link or lands at `/login/choose-method`, they see the same five providers in **login** orientation (button labels say _"Log in with X"_ instead of _"Sign up with X"_). The header above the buttons reads **Log in**.
+
+The email button passes `?isLogin=true` so the next step renders the existing-account login UI, not the sign-up form.
+
+### Responder route tree
+
+The full responder login tree, all under `/login/*`:
+
+| Route | Container | Purpose |
+|---|---|---|
+| `/` (root) | Initial | Sign-up entry. Includes "Login here" link to choose-method. |
+| `/login/choose-login-method` | ChooseLoginMethod | Existing-account log-in chooser (same 5 providers). |
+| `/login/email` | Email | Type your email; the app calls `fetchSignInMethodsForEmail` to figure out which provider you used. |
+| `/login/password` | Password | Type your password. Handles Firebase `auth/wrong-password` and `auth/too-many-requests`. |
+| `/login/check-email` | CheckEmail | Confirmation that an email link was sent (sign-up or recover). |
+| `/login/verify-email` | VerifyEmail | Sign-up post-create screen. Polls every 3 seconds for `user.emailVerified`; on verify, fires analytics events and reloads. |
+| `/login/recover-password` | RecoverPassword | Send a password reset email. |
+| `/login/create` | Create | Set name / password during sign-up. |
+| `/login/redirect` | Redirect | Post-login handoff page; routes the user back to their survey or the appropriate post-login destination. |
+
+### Smart email-step routing
+
+After you type your email on `/login/email`, the responder app calls **`fetchSignInMethodsForEmail(auth, email)`** (Firebase SDK) and routes you intelligently:
+
+| `signInMethods[]` returned | What the UI does |
 |---|---|
-| **Sign in with Google** | If your organization uses Google Workspace, this is the fastest way in. Just click and select your Google account. |
-| **Sign in with email** | Use this if you have a Vurvey-specific email and password. |
-| **Sign in with SSO** | If your company uses enterprise single sign-on (such as Okta or Azure AD), select this option and follow your company's login flow. |
+| Includes `password` | Routes to `/login/password` for the password step |
+| First entry is `google.com` | Toast: _"You already have an account. Please log in with Google."_ — bounces to `/login` |
+| First entry is `microsoft.com` | Toast: _"You already have an account. Please log in with Microsoft."_ — bounces to `/login` |
+| Apple-anchored identity | Similar toast routing to Apple |
+| Empty array | New account — proceed to the sign-up flow |
 
-::: tip Which option should I choose?
-If you're not sure which sign-in method to use, check with your team or workspace administrator. Most organizations will have a preferred method already set up for you.
-:::
+This is why typing an email registered to Google and then entering a password doesn't "just work" — Firebase knows which provider your account is linked to, and the UI redirects you to the right one.
 
-## Signing In with Google
+### Linking providers
 
-If your organization uses Google Workspace:
+If you signed up with email + password but later want to also use Google (or Microsoft, etc.), the password step has a **`connectNewProvider`** helper. It calls `linkWithCredential(user, firebaseCredentials)` to attach the new provider to your existing Firebase user. After linking, the redirect target is `/${surveyId}${location.search}` — i.e. back to the survey you were trying to take.
 
-1. Click **Sign in with Google** on the welcome screen
-2. Select your Google account from the popup (or enter your Google email if prompted)
-3. If this is your first time, you may be asked to grant Vurvey permission to access your basic profile information
-4. You'll be signed in automatically and taken to your workspace
+### Survey context preservation
 
-::: tip Multiple Google Accounts
-If you're signed into multiple Google accounts in your browser, make sure you select the one associated with your Vurvey workspace. Using a personal Gmail account when your organization expects your work email can cause access issues.
-:::
+The single most important UX consideration on the responder side: **the user came from a survey link**, and they need to land back there after login.
 
-## Signing In with Email
+The app stores `surveyId` in `localStorage` on initial landing, then uses it post-login to redirect to `/${surveyId}{location.search}`. The `location.search` carries any campaign-specific URL params (like the response-link token), so the deep link survives the auth detour.
 
-If you're using email and password to sign in:
+### Verify Email loop
 
-1. Click **Sign in with email** on the welcome screen
+After email sign-up, the responder app shows a **VerifyEmail** screen with copy: _"Please check your email and verify your account."_ Then it sets a 3-second polling interval:
 
-![Email Sign-In Form](/screenshots/home/00b-email-login-clicked.png)
+```ts
+const interval = setInterval(() => {
+  user.reload().then(() => {
+    if (user.emailVerified) {
+      clearInterval(interval);
+      sendAnalyticsEvent("complete_registration", SIGNUP_METHODS.EMAIL);
+      sendAnalyticsEvent("login", SIGNUP_METHODS.EMAIL);
+      updateToast({type: "success", description: "Your email has been verified. Thank you for signing up!"});
+      window.location.reload();
+    }
+  });
+}, 3000);
+```
 
-2. Enter the **email address** associated with your Vurvey account
-3. Click **Next**
-4. Enter your **password**
-5. Click **Log In**
+When you click the verification link in the email, the next 3-second tick picks it up automatically — no manual refresh required. Two Google Analytics events fire on verify: `complete_registration` and `login`, both tagged with `SIGNUP_METHODS.EMAIL`.
 
-### Forgot Your Password?
+A **Resend verification email** button is available if the first one didn't arrive.
 
-If you can't remember your password:
+---
 
-1. Click **Sign in with email**
-2. Enter your email address and click **Next**
-3. On the password screen, click the **Trouble signing in?** link
-4. Follow the instructions to reset your password — you'll receive an email with a reset link
-5. Create a new password and sign in
+## Browser requirements (both apps)
 
-::: warning Check Your Spam Folder
-If you don't receive the password reset email within a few minutes, check your spam or junk folder. If it's not there, ask your workspace administrator to verify your email address is correct.
-:::
-
-## Signing In with SSO
-
-If your organization uses enterprise single sign-on:
-
-1. Click **Sign in with SSO** on the welcome screen
-2. Enter your company email address or SSO identifier
-3. You'll be redirected to your company's identity provider (Okta, Azure AD, etc.)
-4. Complete the authentication process using your corporate credentials
-5. You'll be redirected back to Vurvey and signed in
-
-::: tip SSO Configuration
-SSO is set up by your organization's IT team. If you encounter errors during SSO login, contact your IT department — the issue is likely on the identity provider side, not within Vurvey.
-:::
-
-## What You'll See After Signing In
-
-Once you've signed in successfully, you'll land on the **Home** page — your main workspace for AI-powered conversations. From here, you can start chatting with an AI Agent right away, or use the sidebar to navigate to any section of the platform.
-
-![Vurvey Home Page After Login](/screenshots/home/03-after-login.png)
-
-The left sidebar gives you quick access to the sections enabled for your workspace. **People** and **Campaigns** are always visible. **Home**, **Agents**, and **Datasets** require `chatbotEnabled` to be true for the workspace. Feature-flagged areas such as Forecast or Workflow appear when enabled. You'll also see your workspace name and your profile at the bottom.
-
-## Choosing a Workspace
-
-If you belong to more than one workspace — for example, if you work across different brands, teams, or client accounts — you may see a workspace selection screen after signing in.
-
-### Workspace Selection
-
-- Each workspace is a completely separate environment with its own agents, campaigns, datasets, and team members
-- Click on the workspace you want to enter
-- You can switch workspaces at any time using the workspace selector at the bottom of the left sidebar
-
-::: tip Workspace Organization
-Most organizations use workspaces to separate different brands, business units, or client accounts. If you're not sure which workspace to use, ask your administrator. You can always switch later.
-:::
-
-### Switching Workspaces
-
-To switch between workspaces while you're working:
-
-1. Look at the **bottom of the left sidebar** — you'll see your current workspace name
-2. Click on the workspace name to open the workspace picker
-3. Select the workspace you want to switch to
-4. The page will refresh with the new workspace's content
-
-::: warning Workspace Data Is Separate
-Each workspace has its own agents, campaigns, datasets, people, and conversations. Work you do in one workspace is not visible in another. Make sure you're in the correct workspace before starting your research.
-:::
-
-## First-Time Setup
-
-If this is your first time logging into Vurvey, here are a few things to do:
-
-### 1. Explore the Home Page
-Start by typing a question in the chat box. Try something simple like "What can you help me with?" to see how the AI responds.
-
-### 2. Check Your Profile
-Click your avatar or name at the bottom of the sidebar to view and update your profile information.
-
-### 3. Browse Available Agents
-Navigate to the **Agents** section in the sidebar to see which AI agents are available in your workspace. Your team may have already created agents tailored to your research needs.
-
-### 4. Review Shared Resources
-Check **Campaigns**, **Datasets**, and **Workflows** to see what your team has already set up. You may find existing research you can build on.
-
-## Browser Requirements
-
-| Feature | Minimum Requirement |
+| Feature | Minimum requirement |
 |---|---|
 | **Browser** | Chrome 90+, Edge 90+, Firefox 88+, Safari 14+ |
-| **JavaScript** | Must be enabled |
-| **Cookies** | Must be enabled (for authentication) |
-| **Camera/Microphone** | Required for video recording in campaigns |
-| **Pop-ups** | Allow pop-ups from Vurvey domain (for Google Sign-In and SSO) |
+| **JavaScript** | Required (Firebase Auth uses it for OAuth flows) |
+| **Cookies** | Required (session persistence) |
+| **Camera/Microphone** | Required for video recording in campaigns (responder side) |
+| **Pop-ups** | Allow on the Vurvey domain — OAuth providers (Google/Microsoft/Apple) often use popups for consent |
+| **Local Storage** | Required (responder uses it for `surveyId` continuity) |
 
-::: tip For Best Performance
-- Use Google Chrome for the most consistent experience
-- Keep your browser updated to the latest version
-- Disable browser extensions that block cookies or JavaScript on the Vurvey domain
-- Allow notifications if you want to receive alerts about campaign responses or workflow completions
+::: tip Pop-up blockers and OAuth
+The Google/Microsoft/Apple OAuth flows use windowed pop-ups on desktop browsers. If your browser blocks them, the flow appears to "do nothing" — the popup never opens. Whitelist the Vurvey domain.
 :::
 
-## Mobile Access
+---
 
-Vurvey's web interface is accessible from mobile browsers, but the full experience is optimized for desktop and laptop screens. For the best experience:
+## Constraints & limitations
 
-- Use a desktop or laptop for building agents, creating campaigns, and designing workflows
-- Mobile browsers work well for reviewing results, chatting with agents, and monitoring campaign progress
-- Campaign respondents (the people answering your surveys) use the dedicated Vurvey mobile app, available on iOS and Android
+- **Manager has 2 providers, Responder has 5.** Don't promise Microsoft or Apple sign-in for the Manager app — only Google and Email are wired up there. SSO appears in the Manager only when redirected with `?reason=sso-required`.
+- **The two apps share Firebase but have separate user records contexts.** A respondent who created their Vurvey account answering surveys cannot use that same account to log into the Manager app for a different organization without being invited there explicitly.
+- **Pop-up-based OAuth fails silently** when pop-ups are blocked. The user clicks the button, nothing happens, and there's no in-page error — just a console message.
+- **`fetchSignInMethodsForEmail`** is the routing source-of-truth. If your account is linked to Google but you try to enter a password, you'll be told to use Google. There's no "use any method" override.
+- **Firebase rate-limiting kicks in after too many wrong passwords.** `auth/too-many-requests` locks the account temporarily — only resetting the password restores access. Refreshing or trying another browser doesn't help.
+- **Reset emails can land in spam** for some corporate filters. Check spam, then add the sender to the safe list.
+- **The `surveyId` localStorage continuity is responder-only.** Manager users always land on Home post-login.
+- **VerifyEmail polling stops on page navigation.** If you click away to check your email in another tab and come back to the Verify Email tab, the polling already restarted via React mount. Fine.
+- **The Initial step's T&C section only renders on Vurvey-owned subdomains.** White-labeled sign-in (custom domains) intentionally hides the branding.
+
+---
+
+## Best practices
+
+- **For workspace admins**: encourage users to set up Google Workspace SSO instead of password accounts. Less password hygiene, better revocation story when someone leaves.
+- **For community managers**: encourage respondents to use the same provider they originally signed up with. Linking providers afterwards is possible but adds friction.
+- **For onboarding new respondents**: design the survey landing page with the assumption that the user will land back at the same URL after login. Test with a fresh browser to catch broken survey-context links.
+- **For password-only accounts**: rotate passwords every few months and enable 2FA at the email provider level. Firebase doesn't do 2FA itself, but your email provider does.
+- **For SSO setup**: configure SSO via [Super Admin → SSO Providers](/guide/admin#sso-providers-admin-sso-providers) AND map the SSO domain so the `?reason=sso-required` redirect kicks in for users with that email domain.
+- **For browser issues**: keep Chrome updated and use a clean profile when troubleshooting OAuth flows. Extension interference is the most common cause of pop-up failures.
+
+---
+
+## FAQ
+
+#### Why doesn't the Manager app offer Microsoft or Apple sign-in?
+The Manager app's intended audience is researchers and admins, typically inside Google Workspace organizations. Microsoft/Apple were added on the Responder side because survey respondents come from anywhere on the open web. If you need Microsoft for your team's Manager logins, talk to your CSM — typically a Microsoft-anchored team uses SSO via Azure AD instead, which the Manager does support.
+
+#### What's `fetchSignInMethodsForEmail` doing on the email step?
+It asks Firebase what auth methods exist for the email you typed. If the answer is "this email is linked to Google", the UI tells you to use Google instead of asking for a password it can't verify. This prevents the confusing "wrong password" loop on accounts that never had a password.
+
+#### Why am I getting `auth/too-many-requests`?
+Firebase rate-limits failed password attempts. After several wrong passwords in a short window, the account is **temporarily** locked. The lock clears once you reset your password — refreshing the page or trying another browser will not help (the lock is on the Firebase account, not your browser).
+
+#### Why does my browser say "popup blocked" when I click Sign in with Google?
+Your browser's popup blocker. Add the Vurvey domain to your allow-list, or temporarily disable the blocker.
+
+#### What if I want to switch from email to Google later?
+You can. Sign in with your existing email+password account first. Then trigger an OAuth flow (the password step will call `linkWithCredential` to attach the OAuth provider to your existing user). Future logins can use either method.
+
+#### Why does the Verify Email page sometimes work without me refreshing?
+The page polls every 3 seconds for `user.emailVerified`. When you click the link in your email, the next tick picks up the change and auto-reloads the app. You don't need to come back to the tab manually — but going back is fine, the polling resumes on mount.
+
+#### Why is my survey context lost after login?
+Either you cleared localStorage (the `surveyId` is stored there), or you navigated away from the survey URL before logging in. Re-open the survey link and try again — the URL stores the survey ID, and the login flow restores it from there.
+
+#### How do I sign in if SSO is required but I'm not in the corporate network?
+Most SSO providers (Okta, Azure AD, Google Workspace) work outside the corporate network, but may require MFA. Check that you can authenticate to your IdP standalone (open Okta directly, sign in there) — if that works, Vurvey's SSO should too. If your IdP requires a VPN, you'll need to be on the VPN.
+
+#### Why does the Vurvey URL change after I sign in?
+The Responder app redirects to `/${surveyId}`. The Manager app redirects to the workspace home. The URL change reflects the post-login destination.
+
+#### Can I be signed in to multiple workspaces simultaneously?
+Yes. The workspace selector at the bottom of the left sidebar switches active workspace. Your auth session is workspace-agnostic; only the active workspace context changes.
+
+#### What happens if I sign in to the wrong workspace?
+Switch workspaces using the selector at the bottom of the sidebar. No need to log out; your auth carries between workspaces you belong to.
+
+#### Will my browser remember me?
+Yes, by default — Firebase persists the session via cookies. If you check "remember me" (when offered) or just don't sign out, you stay logged in until the session expires (controlled by workspace `forceLogout` / `forceLogoutPeriodMin` settings; see [Settings → Session Timeout](/guide/settings#1-session-timeout)).
+
+#### Why does signing out of Google also sign me out of Vurvey?
+Because Vurvey's Google sign-in uses Google as the identity provider — when your Google session ends, the OAuth token Vurvey holds becomes invalid. Refreshing should re-authenticate if you're still signed into Google; otherwise sign back in to Google first.
+
+#### Is there a difference between staging and production logins?
+Same flow, different Firebase project and URL (`staging.vurvey.dev` vs `app.vurvey.dev`). Accounts on staging are NOT the same as accounts on production — staging is a separate identity pool for testing.
+
+#### What if I get "No workspace found"?
+You weren't invited to a workspace yet. Ask your administrator to send an invitation. If you _were_ invited but still see this, try signing out and back in — the workspace list refreshes on auth.
+
+---
 
 ## Troubleshooting
 
-### Can't sign in?
+| Symptom | What to check |
+|---|---|
+| Click Sign in with Google → nothing happens | Pop-up blocker. Whitelist the Vurvey domain. |
+| "auth/wrong-password" error | Caps Lock, recently-changed password, or you used Google/Apple originally and never set a password. |
+| "auth/too-many-requests" | Account is rate-limited. Only a password reset clears it; refreshing won't. |
+| Reset email never arrives | Spam folder, then check that the email matches the one on file. If still missing, your IT may block Vurvey's sending domain — ask them to allow it. |
+| Login worked but page is blank | Possible workspace-loading error. Refresh; if persistent, switch workspaces (sidebar) — your default workspace may be in a bad state. |
+| Survey URL took me to login and now I'm on Home | The `surveyId` localStorage was wiped (private browsing, cache clear). Re-open the original survey URL. |
+| "You already have an account. Please log in with Google" | Firebase has you linked to Google. Click the Google button instead of using email. To consolidate, sign in with Google, then link email via your profile (advanced). |
+| Verify Email page loops without verifying | The verification link in the email may be stale. Resend the email; click the new link. |
+| Microsoft / Apple buttons missing | You're on the Manager app — those providers are responder-only. Use Google or Email. |
+| SSO redirects me but I can't authenticate | Most common: corporate SSO requires VPN, or your account is disabled at the IdP. Confirm IdP login works standalone first. |
+| Pop-up worked but no provider selection appeared | Multiple windows opened in different orders. Close them and retry. Firefox occasionally orphans the OAuth window. |
+| "Trouble signing in?" link missing | You're on the email step, not the password step. Type a valid email and click Next first. |
+| Different login screen than expected | Confirm you're at the right URL — `app.vurvey.dev` (Manager) vs your responder URL. The two flows look noticeably different. |
 
-- Double-check that you're entering the correct email address
-- Make sure Caps Lock is off when typing your password
-- Look for the **Trouble signing in?** link on the password screen to reset your password
-- Clear your browser's cache and cookies, then try again
-- Try using an incognito/private browsing window
-- If you're still having trouble, reach out to your workspace administrator for help
+---
 
-### SSO not working?
+## Mobile access
 
-- Make sure you're selecting the correct SSO provider for your organization
-- Try clearing your browser's cache and cookies, then sign in again
-- Check with your IT department to confirm your SSO access is configured
-- Ensure your corporate account is active and not locked out
-- Try a different browser to rule out extension conflicts
+The Manager app's web interface works on mobile but is **optimized for desktop**. Building agents, designing workflows, and configuring campaigns are awkward on a phone screen — use a laptop for those.
 
-### Google Sign-In not working?
+The Responder side is mobile-first by design — community respondents typically record video answers from a phone. The dedicated Vurvey mobile app (iOS / Android) provides a richer recording experience but the web responder works fine for most flows.
 
-- Make sure pop-ups are allowed for the Vurvey domain
-- Check that you're selecting the correct Google account (work vs. personal)
-- Try signing out of all Google accounts and signing in fresh
-- Disable browser extensions that might interfere with the Google sign-in popup
-- If your organization recently migrated to Google Workspace, your admin may need to update Vurvey's Google integration
+---
 
-### Page loads but nothing happens after sign-in?
+## Related guides
 
-- Your session may have expired — refresh the page and try again
-- Check your internet connection
-- Try clearing your browser cache
-- If the issue persists, try a different browser
-
-### "No workspace found" or similar error?
-
-- You may not have been invited to any workspace yet — ask your administrator to send you an invitation
-- If you were recently added, try signing out and back in
-- Make sure you're using the same email address that was used to invite you
-
-## Next Steps
-
-Now that you're signed in, here's where to go next:
-
-- [Explore the Home chat interface](/guide/home) — Start a conversation with an AI Agent
-- [Browse your Agents](/guide/agents) — See what AI Agents are available in your workspace
-- [Check out the Quick Reference](/guide/quick-reference) — A cheat sheet for common tasks
+- [Account & Profile](/guide/account) — where to manage your profile after signing in
+- [Settings → Session Timeout](/guide/settings#1-session-timeout) — workspace-wide session policy
+- [Super Admin → SSO Providers](/guide/admin#sso-providers-admin-sso-providers) — where SSO providers are configured
+- [Permissions & Sharing](/guide/permissions-and-sharing) — workspace roles and per-resource sharing once you're in
+- [Home](/guide/home) — where the Manager app lands you post-login
+- [Settings → Enforce SSO](/guide/settings#5-enforce-sso-conditional) — workspace option to require SSO for all members
+- [Campaigns](/guide/campaigns) — what respondents end up doing after the Responder login
