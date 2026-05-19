@@ -46,6 +46,7 @@ export default defineConfig({
           text: 'Features',
           items: [
             { text: 'Home', link: '/guide/home' },
+            { text: 'Conversations', link: '/guide/conversations' },
             { text: 'Agents', link: '/guide/agents' },
             { text: 'People', link: '/guide/people' },
             { text: 'General Populations', link: '/guide/general-populations' },
