@@ -880,9 +880,31 @@ Delete the schedule and recreate it later when you're ready to resume. There's n
 Workflow runs consume AI processing resources. Check your workspace plan for any limits on the number of workflow runs per month. Hourly schedules use significantly more resources than weekly ones.
 :::
 
+## Where Workflows fit in the broader platform
+
+Workflows compose into Capabilities and consume nearly every other Vurvey resource. The cross-references below map each Workflow-adjacent surface to its dedicated guide:
+
+| Surface | What Workflows do there |
+|---|---|
+| **Capabilities** | A Capability is built FROM one or more Workflows wired in phases, with a schedule on the head Workflow. Downstream Workflows fire when upstream completes. See [Capabilities → Capability detail page](/guide/capabilities#capability-detail-page-capabilities-slug). |
+| **Capability-scoped Workflow Detail** | The same Workflow opened from inside its Capability gets phase numbering, parent breadcrumb, schedule editor (head workflows only), and output type chips. See [Capabilities → Workflow Detail](/guide/capabilities#capability-workflow-detail-capabilities-slug-workflows-orchestrationid). |
+| **Agents** | Workflows are driven by Agents at each chat step. An Agent's capabilities and datasets determine what the step can do. See [Agents](/guide/agents). |
+| **`@mention` in workflow chat nodes** | The `@` mention syntax routes a message to a specific Agent within a workflow's chat node. See [Mentions → @mention](/guide/mentions#2-mention-syntax-in-chat). |
+| **`exploreTopicGraph` from workflow chat** | An Agent invoked in a workflow chat step can navigate a campaign's Topic Graph if it has the capability bound. See [Topic Graph → Explorer chat tool](/guide/topic-graph#the-topic-graph-explorer-chat-tool-agents-can-navigate-the-graph). |
+| **Composio per-user connections** | Workflow Agent Task cards use `use-composio-connections.ts` to let a node pick a tool. See [Integrations → Composio](/guide/integrations#composio-per-user-tool-connections). |
+| **Workspace Enterprise integrations** | Custom workspace connectors (admin-managed) can feed sync data that Workflows consume. See [Integrations → Workspace Enterprise](/guide/integrations#workspace-enterprise-integrations). |
+| **Datasets / Campaigns** | Workflows commonly read from Datasets and Campaigns as input sources. See [Datasets](/guide/datasets), [Campaigns](/guide/campaigns). |
+| **Structured Output Evidence badges** | Workflows that emit a structured OutputSpec attach per-element Evidence badges to dashboard renders. See [Sources & Citations → Structured Output Evidence](/guide/sources-and-citations#part-3-structured-output-evidence-badges-workflow-outputs-dashboards). |
+| **Capability Object Libraries** | Workflow outputs of `Insight` / `Concept` / `Evaluation` types appear in the workspace's Object Libraries. See [Capabilities → Object Libraries](/guide/capabilities#object-libraries-wave-3-capabilities-insights-concepts-evaluations). |
+| **Sharing** | Workflows support the standard Share dialog (Viewer/Editor). See [Permissions & Sharing](/guide/permissions-and-sharing). |
+| **System Prompts library** | Workflow chat steps can reference workspace-managed prompts by `code`. See [Implementation → System Prompts](/guide/implementation#system-prompts-implementation-system-prompts). |
+
 ## Next Steps
 
-- [Create agents to power your workflows](/guide/agents)
+- [Create agents to power your workflows](/guide/agents) — bind capabilities like `exploreTopicGraph` for graph-aware steps
 - [Prepare datasets for workflow processing](/guide/datasets)
 - [Set up campaigns for workflow automation](/guide/campaigns)
 - [Use the chat interface for ad-hoc research](/guide/home)
+- [Package workflows into a reusable Capability](/guide/capabilities) — schedule once, run forever
+- [Define structured OutputSpecs](/guide/capabilities#object-types-capabilities-object-types) — emit Insight / Concept / Evaluation objects from your workflows
+- [Connect Composio tools](/guide/integrations) — let workflow steps act through Slack, Notion, GitHub, etc.
