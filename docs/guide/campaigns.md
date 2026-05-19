@@ -133,6 +133,7 @@ Once you open a campaign, the top navigation bar provides these tabs:
 | **Results** | View per-question responses with charts, video playback, and transcripts |
 | **Analyze** | Tabular response data with sorting, filtering, and export options |
 | **Summary** | AI-generated insights summary with key findings and themes |
+| **Insights** | Live interactive **Topic Graph** — entities, themes, and relationships extracted from every response. Requires the workspace `topicGraphEnabled` flag (default on). See [Topic Graph](/guide/topic-graph). |
 
 <!-- Screenshot placeholder: 06-build-questions.png will be captured by automated screenshots -->
 
@@ -1336,6 +1337,25 @@ If a respondent reports technical difficulties:
 
 ---
 
+## Where Campaigns fit in the broader platform
+
+Campaigns are one of the most-connected resources in Vurvey. The cross-references below map each Campaign-adjacent surface to its dedicated guide:
+
+| Surface | What it does with a Campaign |
+|---|---|
+| **Insights tab** (`Topic Graph`) | Live interactive map of entities, themes, and relationships extracted from every response. The whole campaign worth of free-text answers becomes a navigable network. See [Topic Graph (Insights)](/guide/topic-graph). |
+| **`exploreTopicGraph` chat tool** | Agents with this capability bound can navigate a campaign's Topic Graph during chat — five operations from `summary` to `path`-finding. See [Topic Graph → Explorer chat tool](/guide/topic-graph#the-topic-graph-explorer-chat-tool-agents-can-navigate-the-graph). |
+| **Home / Canvas chat** | Attach a Campaign as a source via the toolbar's **Sources** control. The AI grounds answers in the campaign's responses with citations. See [Home → Sources](/guide/home#sources). |
+| **Magic Reels** | Build highlight videos from individual response moments. Auto-reel pipeline via the `sensemake-creator-reel` GCF — see [Reels](/guide/reels). |
+| **Branding → Reviews / Mentions → All Mentions** | The brand feedback survey is itself a campaign; reviewing responses creates Reel-eligible clips. See [Branding → Reviews](/guide/branding#reviews-branding-reviews). |
+| **Rewards** | Issue Tremendous payouts tied to campaign responses. The Rewards page lists responses across all campaigns. See [Rewards](/guide/rewards). |
+| **Workflows** | Workflows can be triggered by campaign events or read campaign responses as input data. See [Workflows](/guide/workflows). |
+| **Capabilities** | A Capability blueprint that watches campaigns can produce ongoing Insights / Concepts / Evaluations as the campaign collects data. See [Capabilities](/guide/capabilities). |
+| **Datasets** | Campaign responses can also be exported and re-imported as Dataset content for cross-campaign analysis. See [Datasets](/guide/datasets). |
+| **Permissions** | Campaigns support the standard Share dialog (Viewer/Editor). See [Permissions & Sharing](/guide/permissions-and-sharing). |
+| **People (AI Population)** | Generate synthetic AI-population responses on a draft campaign before launch. See [People](/guide/people). |
+| **Super Admin → Manage Surveys/Campaigns** | Cross-workspace campaign administration (Vurvey staff). See [Super Admin](/guide/admin#manage-surveys-campaigns-admin-surveys). |
+
 ## Next Steps
 
 - [Build AI agents to analyze campaign results](/guide/agents)
@@ -1343,3 +1363,6 @@ If a respondent reports technical difficulties:
 - [Upload campaign data to datasets](/guide/datasets)
 - [Automate research workflows](/guide/workflows)
 - [Chat with AI about your findings](/guide/home)
+- [Explore the Topic Graph on the Insights tab](/guide/topic-graph) — live entity-and-theme network from every response
+- [Reward respondents with Tremendous payouts](/guide/rewards)
+- [Turn highlight moments into Reels](/guide/reels)
