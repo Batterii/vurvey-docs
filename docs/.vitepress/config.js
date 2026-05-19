@@ -54,6 +54,7 @@ export default defineConfig({
             { text: 'Topic Graph (Insights)', link: '/guide/topic-graph' },
             { text: 'Datasets', link: '/guide/datasets' },
             { text: 'Workflow (Beta)', link: '/guide/workflows' },
+            { text: 'Workflow Runs & Reports', link: '/guide/workflow-runs' },
             { text: 'Capabilities', link: '/guide/capabilities' },
             { text: 'Output Studio', link: '/guide/output-studio' },
             { text: 'Prompt Form Canvas', link: '/guide/prompt-form-canvas' },
