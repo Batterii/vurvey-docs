@@ -4,297 +4,321 @@ title: Canvas & Image Studio
 
 # Canvas & Image Studio
 
-The **Canvas** is Vurvey's central chat workspace — the same surface described on the [Home](/guide/home) page where you work with Agents, attach Sources, run web Tools, generate images, and explore agentic AI flows in a conversation.
+Welcome to the comprehensive, premium guide for Vurvey's **Canvas** and **Image Studio** surfaces. This document provides an exhaustive reference of all interactive features, toolbars, modal controls, and backend pipelines—including features behind feature flags like the Google Veo 3.1 video generator.
 
-**Image Studio** is the dedicated image-editing experience: open it from a generated image inside chat for inline mask-and-prompt editing, or hit the standalone route `/{workspaceId}/image-studio` to drop into the full editor on its own. Under the hood it's powered by Google Veo 3.1 (for image → video) plus the workspace's configured image models.
-
-> 📷 _Screenshot pending: Canvas chat toolbar — Agents / Populations / Sources / Images / Tools / Model_
-> 📷 _Screenshot pending: Sources dropdown — Attach Datasets / Attach Campaigns / Turn on sources_
-> 📷 _Screenshot pending: Images dropdown — model picker_
-> 📷 _Screenshot pending: Tools dropdown — Web Research / TikTok / Reddit / LinkedIn / YouTube / X / Instagram_
-> 📷 _Screenshot pending: Image Studio — full editor with mask, history rail, action toolbar_
-> 📷 _Screenshot pending: Brush Size picker (16-160 px slider)_
-> 📷 _Screenshot pending: Convert to Video panel — duration, aspect, samples, seed, enhance_
+* **The Canvas:** Vurvey's central chat workspace — the same surface described on the [Home](/guide/home) page where you work with Agents, attach Sources, run web Tools, generate images, and explore agentic AI flows in a conversation.
+* **Image Studio:** A dedicated, full-featured graphics and video workstation specifically optimized for precision image editing, masking, upscaling, enhancement, and AI-powered video conversion. You can open it inline from any generated image inside chat, or hit the standalone route `/{workspaceId}/image-studio` to drop into the full editor on its own. Under the hood it's powered by Google Veo 3.1 (for image → video) plus the workspace's configured image models.
 
 ---
 
-## Canvas
+## Overview
 
-The Canvas page is the workspace's chat hub.
-
-### Gating
-
-- **`workspace.chatbotEnabled` must be true** for the Canvas/Home chat to load. Without it, navigating here redirects to **Campaigns**.
-- **In guest mode**, if no Brand Companions are published, the page shows: _"No Brand Companions are currently available"_.
-
-### Chat toolbar
-
-A mix of labeled chips and icon-only controls above the input. Visibility depends on workspace feature flags.
-
-| Control | Label vs icon | When it's visible |
-|---|---|---|
-| **Agents** | Labeled chip | Always (lets you pick which persona is answering). |
-| **Populations** | Optional chip | Only when the Populations feature flag is enabled for the workspace. |
-| **Sources** | Icon-only dropdown | Always — for attaching workspace data to the conversation. |
-| **Images** | Icon-only dropdown | Always — image-model picker + on/off toggle. |
-| **Tools** | Icon-only dropdown | Always — external research tools toggle. |
-| **Model selector** | Optional icon-only | Only when the workspace's model-override feature flag is on. |
-
-### Sources dropdown
-
-Tooltip: **Select Datasets and/or Campaigns**.
-
-Quick actions:
-
-- **Attach Datasets** — opens the full Sources modal on the Datasets tab.
-- **Attach Campaigns** — opens it on the Campaigns tab.
-- **Turn on sources / Turn off sources** — toggles whether the currently attached sources are sent in the conversation context for the next message.
-
-The **full Sources modal** has three top-level tabs (Campaigns, Datasets, All files) plus drill-in pages for question-level and dataset-media selection. The conversation's source state can carry a mix of campaigns, individual questions, datasets, individual files, videos, and audios — see [Sources & Citations](/guide/sources-and-citations#part-1-choosing-sources-the-input-side) for the full breakdown.
-
-### Images dropdown
-
-The image-model picker. Currently surfaces these options (all subject to workspace provisioning):
-
-| Option | Provider |
-|---|---|
-| **Nano Banana** | Internal (small/fast image model) |
-| **OpenAI** | DALL-E family |
-| **Google Imagen** | Google's image generator |
-| **Stable Diffusion** | Open-source SD family |
-
-The bottom option of the dropdown is a **Turn on / Turn off image generation** toggle. With image generation off, the model picker has no effect — the Agent answers in text only.
-
-### Tools dropdown
-
-Web and social-research tools. Currently surfaces:
-
-- **Web Research** (general web search)
-- **TikTok** (TikTok content search)
-- **Reddit** (subreddit / thread search)
-- **LinkedIn** (post / profile / company search)
-- **YouTube** (video / channel search)
-- **X / Twitter** (post search)
-- **Instagram** (post / profile search)
-
-Older references to Google Trends, Google Maps, or Amazon as standard Home-toolbar tools are not accurate for current master. If a customer asks about those specifically, refer them to the current list above.
-
-### Other interactions on Canvas
-
-| Action | What it does |
-|---|---|
-| **Type `/` in the composer** | Opens a contextual quick-pick popup for tools and image options. |
-| **Upload button** | Opens the shared **Upload Files** modal, then the **Create new dataset** modal for the uploaded content. |
-| **Agents chip** | Opens the published-agent picker with filter chips, search, and a **Choose agent** commit button. |
-| **Populations chip** (when enabled) | Opens the population → persona chooser with search and drill-in. |
-| **@-mention in composer** | Opens the InsertMention popup (see [Mentions → @mention syntax](/guide/mentions#2-mention-syntax-in-chat)). |
-| **More dropdown on a response** | Per-message menu with delete-confirmation dialog and other per-message actions. |
-| **Conversation title/menu** | Opens **Rename conversation** and **Export conversation history to file** dialogs. |
+Vurvey separates creative and conversational workflows into two major collaborative spaces:
+1. **The Canvas:** An interactive, conversational chat workspace where users collaborate with AI Agents, apply Research Tools, attach Grounding Sources, and generate high-fidelity media.
+2. **Image Studio:** A dedicated, standalone or context-driven workspace specifically optimized for precision image editing, masking, upscaling, enhancement, and AI-powered video conversion.
 
 ---
 
-## Image Studio
+## 1. The Interactive Canvas
 
-A dedicated, full-featured image editor for refining AI-generated or uploaded images and (since Veo 3.1) turning them into short videos.
+The Canvas is the heart of Vurvey's collaborative experience. It acts as a unified command center, bringing together personas, datasets, campaigns, and external web APIs.
 
-### How to reach it
+![Canvas Chat Interface](/screenshots/canvas-and-image-studio/01-chat-interface-annotated.png?optional=1)
 
-Two entry points:
+### Access Controls, Gating & Redirection Rules
 
-| Path | When |
-|---|---|
-| **`/{workspaceId}/image-studio`** (standalone) | Direct URL access. Lazy-loaded via React `lazy()` from `app.tsx` so the editor bundle isn't shipped to users who never open it. Can be loaded with a query param carrying an image URL. |
-| **From chat-generated or uploaded images** | A button on the image hover/menu opens it inline. The Studio's state is wired to the parent chat context so changes can save back. |
+Access to the Canvas is strictly governed by workspace-level feature flags and roles:
+* **The Redirection Rule (`workspace.chatbotEnabled`):** The `workspace.chatbotEnabled` setting must be toggled **ON** in your workspace settings for the Canvas/Home chat to load. If it is toggled **OFF**, any attempt to access the Canvas route will automatically redirect the user to the **Campaigns** gallery page.
+* **Guest Access Mode:** When guest users access the Canvas, the application searches for published agent personas. If no published personas are active for the workspace, the page displays a fallback message:
+  ```text
+  No Brand Companions are currently available.
+  ```
+
+### Chat Composer Interactions
+* **The Composer Input:** Standard text area optimized for prompts. Supports auto-expanding heights up to five lines before introducing a scrollbar.
+* **Slash Command Helper:** Typing `/` in the composer input immediately opens an interactive popup showing shortcuts for attached tools and image generator triggers.
+* **Response Actions:** Every assistant reply features an inline **More** dropdown offering:
+  * **Delete message:** Triggers a modal: *"Are you sure you want to delete this message? This action cannot be undone."*
+  * **Rename conversation:** Modifies the current session title.
+  * **Export history:** Generates a downloadable `.json` file of the conversation's prompt-and-response payload.
+
+---
+
+## 2. Comprehensive Chat Toolbar
+
+Positioned directly above the chat composer, the toolbar is a mix of labeled chips and icon-only selectors. Below is the definitive list of active toolbar components, their control types, visibility rules, and dropdown/modal interactions.
+
+| Component | Control Type | When Visible / Feature Flag | Dropdown / Modal Interactions & Behavior |
+| :--- | :--- | :--- | :--- |
+| **Agents** | Labeled Chip | Always Visible | Opens the published-agent selector. Includes filter chips (Categories, Personas), search, and explicit **Select Persona** confirmation. |
+| **Populations** | Labeled Chip | `populationsEnabled` | Opens the segment chooser with search filters, population card drill-down, and a **Choose Population** action. |
+| **Sources** | Icon Dropdown | Always Visible | Tooltip reads: *Select Datasets and/or Campaigns*. Triggers the grounding sources panel. |
+| **Images** | Icon Dropdown | Always Visible | Dropdown listing specific image generation engines and an active toggle to enable/disable image generation. |
+| **Tools** | Icon Dropdown | Always Visible | Dropdown of social and web scraping tools for search-grounded queries. |
+| **Model Selector** | Icon Dropdown | `modelSelectorEnabled` | Allows selection of the underlying Large Language Model (e.g. Gemini 1.5 Pro, Gemini 1.5 Flash). |
+
+---
+
+### The Sources Selection Modal
+
+Grounding your conversation is vital for generating highly accurate, non-hallucinated answers. The **Sources** dropdown provides several immediate quick actions:
+* **Attach Datasets:** Immediately mounts selected document folders (opens the full Sources modal on the Datasets tab).
+* **Attach Campaigns:** Mounts past research survey results (opens the full Sources modal on the Campaigns tab).
+* **Turn On/Off Sources:** A fast toggle to suspend or resume grounding context.
+
+Clicking **Manage Sources** opens the full-screen modal dashboard:
+
+![Manage Sources Modal](/screenshots/canvas-and-image-studio/02-sources-modal-overview.png?optional=1)
+
+Within the modal, three primary tabs divide your content:
+1. **Campaigns:** Lists all active and closed workspace surveys. Drilling into a campaign allows you to select specific questions, extracting only the relevant respondent quotes rather than the entire campaign dataset.
+2. **Datasets:** Displays structured training sets.
+3. **All Files:** A flat view of all individual media assets (PDFs, text files, audios, and videos) uploaded to the workspace.
+
+> [!NOTE]
+> Conversations carry a unified grounding state. This means a single chat thread can simultaneously parse survey responses, textual PDFs, and audio recordings, even if you configure them across different sub-modal tabs.
+
+---
+
+### Active Image Generation Engines
+
+The **Images** dropdown allows you to choose which engine processes image generation prompts triggered in the chat:
+* **Nano Banana:** Internal (small, fast image generation model perfect for quick concepts and rapid prototyping).
+* **OpenAI:** DALL-E family (optimized for high-fidelity illustrations, detailed design prompts, and modern cartoon elements).
+* **Google Imagen:** Google's image generator (best for high-fidelity photorealistic scenes, text rendering, and professional product staging).
+* **Stable Diffusion:** Open-source SD family (recommended for diverse artistic styles, line art, and flexible aspect ratios).
+
+*The bottom option of the dropdown is a **Turn on / Turn off image generation** toggle. With image generation off, the model picker has no effect — the Agent answers in text only.*
+
+---
+
+### Research Tools Selection
+
+The **Tools** dropdown includes live scrapers and lookup widgets that the assistant can invoke mid-conversation to fetch external public information:
+* **Web Research (Google Search):** Real-time web browsing to ground responses in recent events.
+* **TikTok / Instagram / YouTube:** Scrapes video metrics, captions, and trending hashtags for video-centric analysis.
+* **Reddit / LinkedIn / X (Twitter):** Inspects user threads, discussions, and professional network updates.
+
+> [!WARNING]
+> Prior documentation referenced Google Trends, Google Maps, and Amazon search connectors. These are deprecated and are **not** present in current versions of Vurvey's main application.
+
+---
+
+## 3. The Image Studio Editor
+
+Image Studio is Vurvey's specialized graphics workstation, available as a modal popup from any chat-generated image card or as a standalone route (`/image-studio`).
+
+![Image Studio Workspace](/screenshots/canvas-and-image-studio/03-image-studio-editor.png?optional=1)
+
+### How to Access It
+
+Image Studio offers two primary entry points:
+* **Standalone Route (`/{workspaceId}/image-studio`):** Direct URL access. It is lazy-loaded via React `lazy()` from `app.tsx` so the editor bundle isn't shipped to users who never open it. Can be loaded with a query param carrying an image URL.
+* **In-Context Flow:** A button on the image hover/menu opens it inline. The Studio's state is wired to the parent chat context so changes can save back.
 
 Both entry points use the same component wrapped in `ImageHistoryContextProvider` (mounted at app-level in `app.tsx`), so the history rail tracks edits across the entire session.
 
-### Layout
+### Workspace Layout
 
-- **Top navigation bar** — Exit, Reset to Original, Download, optional Save.
-- **Left history rail** — every version of the image as you edit, plus video entries from Convert to Video.
-- **Main editor area** — mask/selection canvas, prompt input, action buttons.
+The interface is structured into three highly focused panels:
+* **Left-Side History Rail:** Keeps an active timeline of all changes, generations, and upscale iterations. Users can click any thumbnail to revert or switch back and forth.
+* **Main Canvas Editor:** The central editing panel housing the image and masking canvas.
+* **Top Navigation Bar:** Includes persistent controls:
+  * **Exit Image Studio:** Closes the editor and returns to the parent surface (chat or empty editor). Disabled while an AI update is in flight. Warns user if there are unsaved edits: *"You have unsaved changes. Are you sure you want to exit?"*
+  * **Reset to Original:** Discards all mask and prompt history, returning to the source file. Visible only when (a) `originalSrc` exists, (b) the current entry isn't already the original, AND (c) the original is still in history. **Keyboard shortcut: `Alt+R`**. Disabled while updating.
+  * **Download:** Downloads the current frame as a high-resolution PNG file via an anchor-element click. Opens in a new tab as fallback.
+  * **Save / Apply:** (Visible when opened in-context) Saves the changes back to the active chat session or dataset card. Calls `saveImage` from `AiActionsContext` to commit the edit back to the parent. Disabled while updating or when the current entry equals the original (nothing changed).
 
-### Top navigation bar
+---
 
-| Control | Behavior |
-|---|---|
-| **Exit Image Studio** (← chevron) | Clears the working image and returns to the parent surface (chat or empty editor). Disabled while an AI update is in flight. |
-| **Reset to Original** | Restores the original-source image. Visible only when (a) `originalSrc` exists, (b) the current entry isn't already the original, AND (c) the original is still in history. **Keyboard shortcut: `Alt+R`**. Disabled while updating. |
-| **Download** | Saves the current image as `image.png` to your local downloads via an anchor-element click. Opens in a new tab as fallback. |
-| **Save** (optional) | Only when Studio is being used inside another flow (e.g. opened from a chat message). Calls `saveImage` from `AiActionsContext` to commit the edit back to the parent. Disabled while updating or when the current entry equals the original (nothing changed). |
+### Underlying Technical Contexts
 
-### Editor controls
+The Image Studio editor is composed around five core React contexts:
+* `ImageHistoryContext`: Carries `clearImage`, `history[]`, current `imageSrc`, `originalSrc`, `setImageSrc`.
+* `AiActionsContext`: Carries `isUpdatingImage`, `saveImage`, action handlers.
+* `ImageElementContext`: The DOM `<img>` `element` ref used for download/snapshot.
+* `CanvasContext`: Drawing `lines`, `getMask` (mask extraction), Konva `stageRef`, `setLines`.
+* `EditorSettingsContext`: `brushMode` (draw/erase), `setBrushMode`, `brushSize`, `setBrushSize`.
 
-The editor is composed around five React contexts:
+---
 
-| Context | What it carries |
-|---|---|
-| `ImageHistoryContext` | `clearImage`, `history[]`, current `imageSrc`, `originalSrc`, `setImageSrc` |
-| `AiActionsContext` | `isUpdatingImage`, `saveImage`, action handlers |
-| `ImageElementContext` | The DOM `<img>` `element` ref used for download/snapshot |
-| `CanvasContext` | Drawing `lines`, `getMask` (mask extraction), Konva `stageRef`, `setLines` |
-| `EditorSettingsContext` | `brushMode` (draw/erase), `setBrushMode`, `brushSize`, `setBrushSize` |
+### Precision Brush Tools & Selection
 
-### Brush modes & selection
+The core of masked image editing lies in the brush toolbar at the bottom of the editor canvas:
+* **Select (Brush Mode: `draw`, ➕ Pencil):** Paints a semi-transparent colored mask over areas you want to modify, replace, or add elements to. Uses `PencilPlusIcon`.
+* **Un-select (Brush Mode: `erase`, ➖ Pencil):** Acts as an eraser, subtracting from your painted mask. Uses `PencilMinusIcon`. Uses a `destination-out` composite operation to clear mask pixels.
+* **Brush Size Picker:** Opens an interactive popover with a slider to adjust brush diameters from **16px** (for fine detail masking) to **160px** (for quick background selection) with a **1px** step size. Tooltip: *"Adjust the size of your brush"*.
+* **Reset Selection:** Fully clears the current mask canvas.
 
-- **Select** (`draw` mode, ➕ Pencil) — paint areas you want to change.
-- **Un-select** (`erase` mode, ➖ Pencil) — remove paint from your current selection.
-- **Reset selection** (↺ Reset) — clear all masked areas.
+---
 
-### Brush Size Picker
+### Image Editing Actions
 
-A popup attached to the brush controls. Renders a `Slider` with:
+The action bar houses quick one-click AI operations alongside prompt-based modifications. Tooltip and placeholder text adapt to the active mode:
 
-| Property | Value |
-|---|---|
-| **Min** | 16 px |
-| **Max** | 160 px |
-| **Step** | 1 px |
-| **Initial label** | Current size in pixels (e.g. _"32px"_) |
-| **Tooltip** | _"Adjust the size of your brush"_ |
-| **Position** | Top, arrow-anchored to the trigger |
+| Action | Tooltip Text | Placeholder when Active | Behavior / Details |
+| :--- | :--- | :--- | :--- |
+| **Select** | *"Select 'Select' to paint areas where you want to add something new"* | *"Describe what you want to add in the selected area (e.g. 'a red balloon', 'a small dog')"* | Left brush selector |
+| **Un-select** | *"Select 'Un-select' to remove parts of your selection"* | *"Describe what should replace the selected area (e.g. 'clear blue sky', 'green grass')"* | Right eraser brush |
+| **Enhance** | *"Enhance the image with creative AI (adds details, improves textures)"* | *"Enhancing image with creative AI - no prompt needed"* | Uses Recraft AI to analyze your image, upscale local textures, and correct lighting. No prompt required. |
+| **Upscale** | *"Upscale the image resolution with crisp quality"* | *"Upscaling image resolution - no prompt needed"* | Performs high-density super-resolution scaling, producing a crisp, clean HD image. |
+| **Remove** | *"Remove the selected area from the image"* | *"No prompt needed - just click Remove to erase the selected area"* | Completely erases the selected mask area and seamlessly blends the background (automatically passes empty string prompt to inpainting). |
 
-### Action buttons
+---
 
-The action toolbar below the canvas. Tooltip and placeholder text adapt to the active mode (a nice usability detail to highlight when training new users):
+### What Image Studio Does NOT Do
 
-| Action | Tooltip text | Placeholder when active |
-|---|---|---|
-| **Select** | _"Select 'Select' to paint areas where you want to add something new"_ | _"Describe what you want to add in the selected area (e.g. 'a red balloon', 'a small dog')"_ |
-| **Un-select** | _"Select 'Un-select' to remove parts of your selection"_ | _"Describe what should replace the selected area (e.g. 'clear blue sky', 'green grass')"_ |
-| **Reset selection** | _"Reset your selection completely"_ | (default) _"Describe what you want to change..."_ |
-| **Enhance** | _"Enhance the image with creative AI (adds details, improves textures)"_ | _"Enhancing image with creative AI - no prompt needed"_ |
-| **Upscale** | _"Upscale the image resolution with crisp quality"_ | _"Upscaling image resolution - no prompt needed"_ |
-| **Remove** | _"Remove the selected area from the image"_ | _"No prompt needed - just click Remove to erase the selected area"_ |
-| **Convert to Video** | _"Convert the image to video using Google Veo 3.1 AI"_ | _"Describe the video you want to create (e.g. 'camera slowly zooms in', 'gentle wind blowing through the scene')"_ |
-| **Send (prompt change)** | (uses the default tooltip flow) | (default) _"Describe what you want to change (e.g. 'make the sky purple', 'add a mountain in the background')"_ |
+To prevent workflow confusion, keep these structural limitations in mind:
+* **No vector editing:** It is strictly a raster-image editor with mask-based prompt operations.
+* **No layers:** Each generation creates a new history entry; there is no Photoshop-style layer stack.
+* **No simultaneous undo/redo:** Versioning is controlled exclusively via the history rail (click-to-revert).
+* **No multi-image montages:** It edits one working image at a time.
+* **No persistent storage:** Image history does not persist beyond the current session unless you explicitly **Save** or **Download**.
 
-### Convert to Video panel
+---
 
-The Convert-to-Video flow uses **Google Veo 3.1 AI** (named explicitly in the action's tooltip). Its config panel exposes these controls:
+## 4. Convert to Video (Google Veo 3.1)
 
-| Control | Default | Range / Options |
-|---|---|---|
-| **Video prompt** | (empty) | Free-text description of the desired video |
-| **Duration** | **8 seconds** | **4**, **6**, or **8** seconds |
-| **Aspect ratio** | **Landscape (16:9)** | **Landscape (16:9)** or **Portrait (9:16)** — the `VideoAspectRatio` enum |
-| **Sample count** | **1 video** | **1–4** videos generated in one batch |
-| **Negative prompt** | (empty) | Text describing what should NOT appear (subjects, styles, artifacts) |
-| **Seed** | (undefined → random) | Numeric. Use the same seed for reproducible results given the same prompt |
-| **Enhance prompt** | **On** | Checkbox. When on, Gemini refines the prompt before sending it to Veo |
-| **Person generation** | _Allow Adults_ | **Allow Adults** or **No People/Faces** — safety control |
+If the workspace feature flag `videoConversionEnabled` is turned **ON**, a dedicated **Convert to Video** button appears in the toolbar. Clicking this action opens the Veo 3.1 configuration panel below the canvas:
+
+![Convert to Video Panel](/screenshots/canvas-and-image-studio/04-convert-to-video-veo.png?optional=1)
+
+### Video Generation Controls
+
+The panel provides detailed configuration parameters to guide the Veo 3.1 motion model:
+
+| Control | Default | Range / Options | Description |
+| :--- | :--- | :--- | :--- |
+| **Video Prompt** | (empty) | Free-text prompt | A descriptive text box defining the camera movement or physics of the scene. *Example: "A slow, cinematic camera pan to the right, showing soft cinematic lighting."* |
+| **Duration** | **8 seconds** | **4**, **6**, or **8** seconds | Dropdown selector with specific preset video lengths. |
+| **Aspect Ratio** | **Landscape (16:9)** | **Landscape (16:9)** or **Portrait (9:16)** | Configures the video output dimensions via the `VideoAspectRatio` enum. |
+| **Sample Count** | **1 video** | **1–4** videos | A granular slider to request multiple video alternatives in a single run. |
+| **Person Generation** | *Allow Adults* | **Allow Adults** or **No People/Faces** | Protects safety standards and content requirements. *No People/Faces* blocks any human generation. |
+| **Negative Prompt** | (empty) | Free-text (optional) | Define elements you want the motion model to completely avoid (e.g. *"jittery movement, fast transitions"*). |
+| **Seed** | (undefined) | `0` to `4294967295` | Input a manual integer to ensure deterministic, reproducible motion outputs. |
+| **Enhance Prompt** | **On** | Toggle checkbox | When enabled, your video prompt is pre-processed and optimized using **Gemini Flash** to enrich detail and cinematic vocabulary. |
 
 On generation, the request goes to Veo via the backend service. Generated videos appear in the **history rail** alongside image entries — switch between them with the same selector.
 
-::: tip Sample count is a generation multiplier
-Setting Sample count to 4 generates four distinct videos from the same prompt with different sampling — useful for picking the best take. Each counts as a separate generation.
-:::
-
-### Image history rail
-
-The left rail tracks every version of the image (and video) you've worked on in this session. Click any entry to swap the editor to that version. The history is per-session — closing and reopening Image Studio starts a fresh history (the original-source image is the first entry, current is highlighted).
-
-### Unsaved changes handler
-
-A confirmation dialog renders when you try to navigate away from Image Studio with unsaved edits, asking whether to discard. The behavior is wrapped in the `unsaved-changes-handler` component and is wired to the browser's `beforeunload`-style guardrails for both in-app navigation and tab close.
-
-### What Image Studio does NOT do
-
-- **No vector editing.** It's a raster-image editor with mask-based prompt operations.
-- **No layers.** Each generation creates a new history entry; there's no Photoshop-style layer stack.
-- **No simultaneous undo/redo.** Versioning is via the history rail (click-to-revert).
-- **No multi-image montages.** One working image at a time.
-- **No persistent storage** beyond the current session unless you Save (when used inside chat) or Download.
+> [!TIP]
+> **Sample count is a generation multiplier:** Setting Sample count to 4 generates four distinct videos from the same prompt with different sampling — useful for picking the best take. Each counts as a separate generation.
 
 ---
 
-## Constraints & limitations
+## 5. Behind the Hood: Technical Architecture
 
-- **Chat is gated by `workspace.chatbotEnabled`.** Without it, Canvas redirects to Campaigns.
-- **Image Studio route is workspace-scoped** (`/{workspaceId}/image-studio`).
-- **Image Studio is lazy-loaded.** First open in a session has a brief load delay; subsequent opens are instant.
-- **Brush size: 16–160 px.** Below 16 is too small to mask usefully; above 160 covers most images entirely.
-- **Convert to Video produces 4 / 6 / 8 second clips only.** No custom durations.
-- **Aspect ratios: 16:9 or 9:16.** No 1:1, 4:3, or 21:9 today.
-- **Sample count maxes at 4.** Larger batches require separate generations.
-- **Seed must be numeric.** No string seeds.
-- **Reset to Original is conditional.** Only available when the original is still in history and isn't the current view.
-- **No simultaneous prompts.** While a generation is in flight, all action buttons are disabled.
-- **Save button only appears when Studio is opened from chat.** Standalone-route users always use Download.
-- **History is session-scoped.** Closing the tab loses uncommitted history.
-- **External tool quality varies.** Web Research and the social tools depend on third-party APIs with their own rate limits and result quality.
-- **Image-model availability depends on workspace provisioning.** Not every workspace has all four models — talk to your CSM about model curation.
+Understanding the underlying communication between Vurvey's web client and the `vurvey-api` backend is essential for optimizing prompt performance.
 
----
+```mermaid
+graph TD
+    A[User Submits Image Edit] --> B{Is there a painted mask?}
+    B -- NO --> C[replicate.run: IMAGE_STUDIO_MODEL_ID]
+    B -- YES --> D[ImageGeneratorService: editImage]
+    C --> E[Image-to-Image Generation]
+    D --> F[Masked Inpainting Generation]
+    E --> G[Update History Rail]
+    F --> G[Update History Rail]
+```
 
-## Best practices
+### Prompt-Based Image Editing Logic
 
-- **Pick the right model for the job.** Nano Banana is fastest, OpenAI is best for cohesive scenes, Imagen excels at photorealism, Stable Diffusion is most controllable with prompt engineering.
-- **Use the tool-aware placeholders as a guide.** They're written to nudge you to the right prompt style for each action — _"a red balloon"_ for Select-add is different from _"clear blue sky"_ for Un-select-replace.
-- **Mask precisely.** Spend an extra 10 seconds with the brush; the AI follows your mask boundaries closely.
-- **Enhance and Upscale don't need prompts.** Saves keystrokes; the placeholder will tell you.
-- **For video, start with a low sample count.** Generate 1, see if the style works, then run a 4-sample batch when you're happy with the direction.
-- **Keep the seed if a generation looked promising but needed tweaks.** Same seed + adjusted prompt is your friend.
-- **Use Negative Prompt to suppress common artifacts.** _"distorted faces, extra limbs, blurry"_ as a starter.
-- **Download a working version before Convert to Video** if you're attached to the current image — video conversion creates a separate history entry and the image stays editable.
-- **Tools are stronger together.** Combine Sources (workspace data) with Web Research (external context) for the richest grounded answers.
-- **Use `/` in chat for quick tool toggling.** Faster than the toolbar.
+When you write an edit instruction and click send, the backend checks for mask data:
+1. **No Mask Detected (Image-to-Image):** The API routes the request to Replicate using the `IMAGE_STUDIO_MODEL_ID` model. It passes the complete image as a reference (`baseImage`) along with your prompt to recreate the entire image matching the desired description.
+2. **Mask Detected (Inpainting):** If a mask is painted, the system runs `ImageGeneratorService.editImage()`. The mask acts as a transparency gate: the unmasked regions remain 100% frozen, while the masked region is cleared and replaced using your prompt.
 
 ---
 
-## FAQ
+## Best Practices
+
+* **Pick the right model for the job:** Nano Banana is fastest, OpenAI is best for cohesive scenes, Imagen excels at photorealism, Stable Diffusion is most controllable with prompt engineering.
+* **Use the tool-aware placeholders as a guide:** They're written to nudge you to the right prompt style for each action — *"a red balloon"* for Select-add is different from *"clear blue sky"* for Un-select-replace.
+* **Mask precisely:** Spend an extra 10 seconds with the brush; the AI follows your mask boundaries closely.
+* **For Perfect Inpainting:** When using prompt-based edits, paint slightly wider than the subject you want to add or change. This gives the model enough pixels to naturally blend shadows and lighting.
+* **Enhance and Upscale don't need prompts:** Saves keystrokes; the placeholder will tell you.
+* **For video, start with a low sample count:** Generate 1, see if the style works, then run a 4-sample batch when you're happy with the direction.
+* **Deterministic Motion:** If you find a camera motion you love using **Convert to Video**, copy the generation's **Seed** from the history rail and lock it into the configuration panel for your next run (same seed + adjusted prompt is your friend).
+* **Use Negative Prompt to suppress common artifacts:** Use *"distorted faces, extra limbs, blurry"* as a starter.
+* **Download a working version before Convert to Video:** If you're attached to the current image, download it first — video conversion creates a separate history entry and the image stays editable.
+* **Grounding Efficiency:** When working on the Canvas, do not attach every workspace campaign. Attach only the specific campaign related to your query, and drill down to select the exact questions if possible. This prevents token bloat and produces highly concise citations.
+* **Tools are stronger together:** Combine Sources (workspace data) with Web Research (external context) for the richest grounded answers.
+* **Use `/` in chat for quick tool toggling:** Faster than the toolbar.
+
+---
+
+## Constraints & Limitations
+
+* **Chat is gated by `workspace.chatbotEnabled`:** Without it, Canvas redirects to Campaigns.
+* **Image Studio route is workspace-scoped** (`/{workspaceId}/image-studio`).
+* **Image Studio is lazy-loaded:** First open in a session has a brief load delay; subsequent opens are instant.
+* **Brush size: 16–160 px:** Below 16px is too small to mask usefully; above 160px covers most images entirely.
+* **Upload Constraints:** Supported image formats are **PNG and JPG** (max 10MB). Supported video formats for collections and reels are **MOV, MP4, MPEG4, and AVI**.
+* **Convert to Video produces 4 / 6 / 8 second clips only:** No custom durations.
+* **Aspect ratios: 16:9 or 9:16:** No 1:1, 4:3, or 21:9 today.
+* **Sample count maxes at 4:** Larger batches require separate generations.
+* **Seed must be numeric:** No string seeds. Seeds must be integer values between `0` and `4294967295`.
+* **Reset to Original is conditional:** Only available when the original is still in history and isn't the current view.
+* **No simultaneous prompts:** While a generation is in flight, all action buttons are disabled.
+* **Save button only appears when Studio is opened from chat:** Standalone-route users always use Download.
+* **History is session-scoped:** Closing the tab loses uncommitted history.
+* **External tool quality varies:** Web Research and the social tools depend on third-party APIs with their own rate limits and result quality.
+* **Image-model availability depends on workspace provisioning:** Not every workspace has all four models — talk to your CSM about model curation.
+
+---
+
+## Frequently Asked Questions (FAQ)
 
 #### Where do I find Image Studio if there's no obvious nav entry?
-Direct URL: `/{workspaceId}/image-studio`. Or open it from any AI-generated or uploaded image in chat. There's no top-level nav link by design — it's reached contextually.
+**A:** Direct URL: `/{workspaceId}/image-studio`. Or open it from any AI-generated or uploaded image in chat. There's no top-level nav link by design — it's reached contextually.
 
 #### Why is Reset to Original sometimes greyed out?
-Three conditions must hold: the workspace remembers the original (`originalSrc` exists), the current entry isn't already the original, and the original is still in the history rail. If any fails, the button is disabled. The Alt+R keyboard shortcut is also gated on the same conditions.
+**A:** Three conditions must hold: the workspace remembers the original (`originalSrc` exists), the current entry isn't already the original, and the original is still in the history rail. If any fails, the button is disabled. The Alt+R keyboard shortcut is also gated on the same conditions.
 
 #### What model does Convert to Video use?
-**Google Veo 3.1.** The action's tooltip says so explicitly. Other video generators may be added over time.
+**A:** **Google Veo 3.1.** The action's tooltip says so explicitly. Other video generators may be added over time.
 
 #### Why does Enhance Prompt default to on?
-Gemini's prompt-refinement step generally produces better Veo outputs than raw user prompts, especially short ones. Turning it off is appropriate when you've already engineered a precise prompt and want literal interpretation.
+**A:** Gemini's prompt-refinement step generally produces better Veo outputs than raw user prompts, especially short ones. Turning it off is appropriate when you've already engineered a precise prompt and want literal interpretation.
 
 #### What does "Person generation: Allow Adults" do?
-Veo's safety filter. _Allow Adults_ permits adult human subjects but blocks content involving children. _No People/Faces_ blocks any human subject. Choose based on your campaign's content policy.
+**A:** Veo's safety filter. *Allow Adults* permits adult human subjects but blocks content involving children. *No People/Faces* blocks any human subject. Choose based on your campaign's content policy.
 
 #### Why are there only 4/6/8 second durations?
-Veo 3.1's video length options today. Longer durations would be a different model. Stitching multiple 8-second clips is the workaround for longer videos.
+**A:** Veo 3.1's video length options today. Longer durations would be a different model. Stitching multiple 8-second clips is the workaround for longer videos.
 
 #### Can I have multiple sample videos at the same seed?
-Yes. Set Sample count to 4 and a Seed — Veo will produce 4 variations based on the same seed differing only in stochastic post-sampling. Useful for A/B testing micro-variations.
+**A:** Yes. Set Sample count to 4 and a Seed — Veo will produce 4 variations based on the same seed differing only in stochastic post-sampling. Useful for A/B testing micro-variations.
 
 #### Does the history rail persist across sessions?
-No. History is per-session — closing the tab loses uncommitted history. Use Download to keep important versions, or Save (when in-chat) to commit back to the conversation.
+**A:** No. History is per-session — closing the tab loses uncommitted history. Use Download to keep important versions, or Save (when in-chat) to commit back to the conversation.
 
 #### Why doesn't `/` (slash) work as a tool shortcut on every keyboard?
-Some browsers consume `/` for Quick Find. The chat composer captures it before the browser does, so it should work in Chrome/Edge/Firefox. If Quick Find opens instead, your browser has stolen focus — click into the composer first.
+**A:** Some browsers consume `/` for Quick Find. The chat composer captures it before the browser does, so it should work in Chrome/Edge/Firefox. If Quick Find opens instead, your browser has stolen focus — click into the composer first.
 
 #### Are Tools real-time?
-They proxy to external services (search, Reddit, etc.). Results are fresh, but rate limits on those services apply.
+**A:** They proxy to external services (search, Reddit, etc.). Results are fresh, but rate limits on those services apply.
 
 #### What's the difference between Tools and Sources?
-- **Sources** are **internal workspace data** — campaigns, datasets, files you've uploaded.
-- **Tools** are **external research surfaces** — open web, social networks, etc.
+**A:**
+* **Sources** are **internal workspace data** — campaigns, datasets, files you've uploaded.
+* **Tools** are **external research surfaces** — open web, social networks, etc.
 
 An agent can use both in the same response.
 
 #### Why doesn't my Image button do anything in chat?
-Either image generation is toggled off (use the dropdown's bottom option to enable), or the workspace doesn't have any image models provisioned. Talk to your CSM if the latter.
+**A:** Either image generation is toggled off (use the dropdown's bottom option to enable), or the workspace doesn't have any image models provisioned. Talk to your CSM if the latter.
 
 #### Can I edit a video in Image Studio after I create it?
-No — Image Studio's edit tools (mask, prompt, enhance, upscale, remove) apply only to images. Videos are terminal entries in history. To iterate, generate again from the original image.
+**A:** No — Image Studio's edit tools (mask, prompt, enhance, upscale, remove) apply only to images. Videos are terminal entries in history. To iterate, generate again from the original image.
 
 #### Why does my mask not select what I expect?
-Brush size and stroke timing matter. Increase brush size with the picker, drag in continuous strokes rather than dots. The mask is what's _painted_, not what's hovered.
+**A:** Brush size and stroke timing matter. Increase brush size with the picker, drag in continuous strokes rather than dots. The mask is what's *painted*, not what's hovered.
 
 ---
 
 ## Troubleshooting
 
-| Symptom | What to check |
-|---|---|
+| Symptom | What to Check |
+| :--- | :--- |
 | Canvas redirects me to Campaigns | `workspace.chatbotEnabled` is false. Talk to a Workspace Owner. |
 | No agents in the Agents picker | Workspace has no published agents. Create one in [Agents](/guide/agents). |
 | Sources dropdown shows tabs but no items | The workspace has no datasets/campaigns yet. |
@@ -305,7 +329,7 @@ Brush size and stroke timing matter. Increase brush size with the picker, drag i
 | Alt+R does nothing | Reset to Original is disabled (see above) or another extension consumed the shortcut. |
 | Brush size won't go below 16px | By design — minimum brush size is 16px. |
 | Convert to Video panel hidden | Action not selected. Click Convert to Video first; the config panel appears below the canvas. |
-| Video generation says "blocked" | Person generation set to _No People/Faces_ but your prompt suggests human subjects, or the safety filter flagged something else. Adjust prompt or relax setting (within policy). |
+| Video generation says "blocked" | Person generation set to *No People/Faces* but your prompt suggests human subjects, or the safety filter flagged something else. Adjust prompt or relax setting (within policy). |
 | Sample-count slider above 4 stops responding | Cap is 4; the slider clamps. |
 | History rail empty after refreshing | Sessions don't persist history. Use Save (in-chat flow) or Download to keep things. |
 | Save button missing | You're on the standalone route — Save is only available when Studio is opened from another flow. Use Download. |
@@ -313,14 +337,14 @@ Brush size and stroke timing matter. Increase brush size with the picker, drag i
 
 ---
 
-## Related guides
+## Related Guides
 
-- [Home](/guide/home) — same chat surface in its primary use as the workspace home
-- [Agents](/guide/agents) — the personas behind the Agents chip
-- [Sources & Citations](/guide/sources-and-citations) — how attached sources are cited in responses
-- [Datasets](/guide/datasets) — the data behind "Attach Datasets"
-- [Campaigns](/guide/campaigns) — the data behind "Attach Campaigns"
-- [Mentions](/guide/mentions#2-mention-syntax-in-chat) — `@mention` an Agent inside the composer
-- [Brand Companions](/guide/brand-companions) — what guest-mode users see in place of Canvas
-- [People](/guide/people) — Populations chip (when feature-flagged)
-- [Capabilities](/guide/capabilities) — agentic surfaces that compose with chat
+* [Home & Chat Overview](/guide/home) — Getting started with the conversation sidebar and canvas sessions.
+* [Agents](/guide/agents) — The personas behind the Agents chip.
+* [Sources & Citations](/guide/sources-and-citations) — How attached sources are cited in responses.
+* [Datasets](/guide/datasets) — The data behind "Attach Datasets".
+* [Campaigns & Magic Reels](/guide/campaigns) — Harnessing respondent feedback and creating highlight reels.
+* [Mentions](/guide/mentions#2-mention-syntax-in-chat) — `@mention` an Agent inside the composer.
+* [Brand Companions](/guide/brand-companions) — What guest-mode users see in place of Canvas.
+* [People](/guide/people) — Populations chip (when feature-flagged).
+* [Capabilities](/guide/capabilities) — Agentic surfaces that compose with chat.
