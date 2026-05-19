@@ -723,9 +723,32 @@ There is no bulk download feature. You can download individual files from the fi
 Yes. If you delete a file that was referenced in a conversation, the AI will no longer be able to cite or retrieve content from that file. The conversation itself remains, but future questions about that content won't have the file to draw from.
 :::
 
+## Where Datasets fit in the broader platform
+
+Datasets are referenced by nearly every other surface that needs grounded answers. The cross-references below map each Dataset-adjacent surface to its dedicated guide:
+
+| Surface | What Datasets do there |
+|---|---|
+| **Home / Canvas chat** | Click the **Sources** control to attach Datasets to a conversation. The Agent then grounds responses in the dataset's content with citations. See [Home → Sources](/guide/home#sources). |
+| **Sources & Citations** | Dataset files become typed grounding entries (`Dataset file`, `Dataset video`, `Dataset audio`) in the **Powered by N sources** section. See [Sources & Citations → Source types](/guide/sources-and-citations#source-types-in-the-grounding-section). |
+| **Agents** | Datasets bind to an Agent's configuration so it always has the relevant knowledge available. See [Agents → Datasets](/guide/agents#datasets). |
+| **Workflows** | Workflow nodes can read from Datasets as input sources for multi-step automation. See [Workflows](/guide/workflows). |
+| **Capabilities** | Capability blueprints often produce structured outputs (Insights/Concepts/Evaluations) that get persisted alongside the source Dataset content. See [Capabilities → Object Types](/guide/capabilities#object-types-capabilities-object-types). |
+| **Brand Companions** | A Brand Companion Agent can have Datasets bound; the public embed grounds answers in those Datasets. See [Brand Companions](/guide/brand-companions). |
+| **Mentions → Synthesio** | The Synthesio integration ingests external brand mentions into a workspace Dataset (`"Synthesio Mentions"`) that any Agent can search. See [Mentions → Synthesio social-listening mentions](/guide/mentions#3-synthesio-social-listening-mentions). |
+| **Integrations → SharePoint** | SharePoint Connect lets admins import files directly into a Dataset without local downloads. See [Settings → SharePoint Card](/guide/settings#sharepoint-card). |
+| **Integrations → Composio / Workspace Enterprise** | Structured Research Imports drop external CSV / JSON data into Datasets. See [Integrations → Structured Research Import](/guide/integrations#structured-research-import). |
+| **Reels → Media Library** | Reel sources can come from Dataset-attached videos and audios. See [Reels → Media Library](/guide/reels#media-library-modal). |
+| **Permissions** | Datasets support the standard Share dialog (Viewer/Editor) AND use the `alias` field in the modal title (not `name`). See [Permissions & Sharing](/guide/permissions-and-sharing). |
+| **People → Audience uploads** | Respondent contact lists can be imported as Dataset-like CSVs through the People surface. See [People](/guide/people). |
+| **Settings → Topic Graph** | Dataset content does NOT feed the Topic Graph today — Topic Graph is campaign-response-scoped. To bring dataset content into the same surface, attach it as a source in chat. See [Topic Graph](/guide/topic-graph). |
+
 ## Next Steps
 
 - [Use datasets with AI agents](/guide/agents) for context-aware conversations
 - [Reference datasets in chat](/guide/home) using the Sources button in the toolbar
 - [Connect datasets to campaigns](/guide/campaigns) for research analysis
 - [Automate dataset analysis with workflows](/guide/workflows)
+- [Connect SharePoint](/guide/settings#sharepoint-card) — import files directly into Datasets
+- [Use Structured Research Imports](/guide/integrations#structured-research-import) — bring CSV/JSON data in via workspace integrations
+- [Understand grounding citations](/guide/sources-and-citations) — Dataset content becomes traceable claims in every Agent response
