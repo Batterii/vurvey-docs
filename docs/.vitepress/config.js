@@ -84,6 +84,7 @@ export default defineConfig({
             { text: 'Common Recipes', link: '/guide/recipes' },
             { text: 'Glossary', link: '/guide/glossary' },
             { text: "What's New", link: '/guide/whats-new' },
+            { text: 'Feature Flags Reference', link: '/guide/feature-flags' },
             { text: 'Platform Architecture', link: '/guide/architecture' },
             { text: 'Developer & API Reference', link: '/guide/developer-reference' },
             { text: 'Sources & Citations', link: '/guide/sources-and-citations' },
