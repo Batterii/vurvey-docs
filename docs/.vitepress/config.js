@@ -65,6 +65,7 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: 'Settings', link: '/guide/settings' },
+            { text: 'Credits & Usage', link: '/guide/credits-and-usage' },
             { text: 'Canvas & Image Studio', link: '/guide/canvas-and-image-studio' },
             { text: 'Branding', link: '/guide/branding' },
             { text: 'Brand Companions', link: '/guide/brand-companions' },
