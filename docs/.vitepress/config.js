@@ -75,6 +75,7 @@ export default defineConfig({
           text: 'Reference',
           items: [
             { text: 'Quick Reference', link: '/guide/quick-reference' },
+            { text: "What's New", link: '/guide/whats-new' },
             { text: 'Sources & Citations', link: '/guide/sources-and-citations' },
             { text: 'Permissions & Sharing', link: '/guide/permissions-and-sharing' },
             { text: 'About This Documentation', link: '/guide/automation-and-qa' },
