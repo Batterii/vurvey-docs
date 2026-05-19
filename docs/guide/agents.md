@@ -635,6 +635,72 @@ If you're building your first few agents, stick with the **Guided Builder** — 
 
 ---
 
+## Promoting an Agent to a Brand Companion
+
+Some Agents are designed for internal use; others get published as **Brand Companions** — embedded on customer-facing websites where real customers chat with them. This is a deliberate promotion path, not an automatic state.
+
+### The two flags that matter
+
+Brand Companion status is controlled by two independent boolean fields on the `ai_personas` table (introduced in vurvey-api migration `20260414170725_add-brand-companion-to-ai-personas.ts`):
+
+| Field | What it does | When to enable |
+|---|---|---|
+| **`is_brand_companion`** | Promotes the Agent into the Brand Companions grid (`/brand-companions/agents`) and allows a Public-type Workspace API App to be linked to it. | Always — required for any Brand Companion. |
+| **`brand_companion_metrics_enabled`** | Opts the Agent into nightly conversation-rollup jobs that populate the metrics page (`ConversationCompletionRateBetaV1` chart). | Recommended when you launch — toggling on later loses insight into the early period. |
+
+The fields are independent on purpose. `is_brand_companion` is cheap; `brand_companion_metrics_enabled` runs nightly jobs that get expensive at scale, so it's opt-in per-persona.
+
+### How to promote an Agent
+
+1. Open the Agent in [Agent Builder](#creating-an-agent).
+2. Toggle the **Brand Companion** flag in the Agent settings (sets `is_brand_companion = true`).
+3. (Recommended) Toggle **Enable conversation metrics** at the same time (sets `brand_companion_metrics_enabled = true`).
+4. Save the Agent.
+
+The Agent now appears on **Brand Companions → Brand Companions Grid** (`/brand-companions/agents`). From there, follow the publishing flow documented in [Brand Companions → End-to-end shipping](/guide/brand-companions#end-to-end-shipping-a-brand-companion-to-your-site):
+
+- Create the Public-type API App via **Manage API Key**
+- Add allowed domains to the allowlist
+- Hand the Client ID to your front-end engineer
+- Embed on the customer-facing site
+
+### What changes when an Agent becomes a Brand Companion
+
+| Aspect | Internal Agent | Brand Companion |
+|---|---|---|
+| Where it appears | Agents page library | Agents page + Brand Companions grid |
+| API access | None / via workspace tokens | Public-type Workspace API App linked to it |
+| Conversation surface | Inside Vurvey (Home, Canvas, Workflows) | Embedded publicly + inside Vurvey |
+| Audience scope | Workspace members | Anyone who can hit your embedded site |
+| Metrics | Standard logs | Nightly conversation-rollup chart (when metrics enabled) |
+| Tooling recommendations | Wide — Web Search, Code Execution, Document Analysis | Lean — minimize attack surface for public exposure |
+| Prompt-engineering guidance | Standard | Tighten with refusal policies, topic guardrails, prompt-injection defense |
+
+### Considerations for public exposure
+
+When an Agent goes public, adversarial input becomes far more likely than for internal Agents. Best practices specific to Brand Companions:
+
+- **Lock the system prompt** — add explicit guardrails: _"You will not discuss topics outside of {brand category}. Politely decline off-topic questions."_
+- **Restrict tools deliberately** — Web Search exposed publicly can become a free general-purpose web search for your customers. Disable it if it's not core to the embed's value.
+- **Disable Image Generation unless intentional** — publicly-callable image generation can become a credit drain through abuse.
+- **Bind only public-safe Datasets** — don't attach datasets containing internal pricing, unreleased product info, or PII.
+- **Test adversarial prompts** before launch — try common prompt-injection patterns ("ignore your previous instructions...") and refine the system prompt to refuse them.
+- **Treat the Client ID like a CSP value** — list only the exact origins you serve from in the allowed-domains allowlist.
+
+### Reverting a Brand Companion
+
+To demote: toggle `is_brand_companion` off. The Agent leaves the Brand Companions grid; the Public API App (if any) needs to be separately deleted from the Brand Companion card's Manage API Key flow. Deleting the API App breaks any live embed immediately — see [Brand Companions → Constraints](/guide/brand-companions#constraints-limitations) for credential-rotation caveats.
+
+### Cross-references
+
+- [Brand Companions](/guide/brand-companions) — the full management surface for Brand Companions
+- [Brand Companions → API App types](/guide/brand-companions#api-app-types-public-vs-developer) — Public vs Developer app types
+- [Brand Companions → Metrics](/guide/brand-companions#brand-companion-metrics-page) — what the metrics tab shows
+- [Branding → Brand Companion Themes](/guide/branding#brand-companion-themes-vurvey-staff-only) — Material 3 theme generation for the embed UI
+- [Common Recipes → Build a Brand Companion](/guide/recipes#recipe-2-build-a-brand-companion-and-publish-it-to-your-site) — step-by-step end-to-end recipe
+
+---
+
 ## Advanced Agent Configuration
 
 ### Prompt Engineering for Agent Missions
