@@ -55,6 +55,7 @@ export default defineConfig({
             { text: 'Workflow (Beta)', link: '/guide/workflows' },
             { text: 'Capabilities', link: '/guide/capabilities' },
             { text: 'Output Studio', link: '/guide/output-studio' },
+            { text: 'Prompt Form Canvas', link: '/guide/prompt-form-canvas' },
           ]
         },
         {
