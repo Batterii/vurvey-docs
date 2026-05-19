@@ -31,6 +31,18 @@ Click the **Agents** button to choose which AI persona answers your questions. E
 
 You can also mention an agent by name mid-conversation by typing **@** followed by their name — for example, `@MarketAnalyst, what patterns do you see in this data?`
 
+The mention picker:
+
+- Filters by **prefix match** (case-insensitive). `@Da` finds "Data Analyst" but `@Analyst` does not.
+- Navigates with **↑/↓**, inserts with **Enter** or click.
+- Supports **multi-word names** (e.g. `@Data Analyst` with flexible whitespace).
+- Has **word-boundary safety**: `support@vurvey.com` does NOT trigger an `@vurvey` mention.
+- Inserts a styled chip in the composer; **hovering** the chip shows the AgentCard popup.
+
+When you send the message, the server's `personaManager` parses the chip and routes the message to that specific Agent — even when the conversation's default Agent is different. Only the **first `@mention`** in a message is used for routing; subsequent mentions render as chips but don't change routing.
+
+For the full @mention behavior including server-side `findPersonaByName` logic, the multi-word remark plugin, and edge cases, see [Mentions → @mention syntax in chat](/guide/mentions#2-mention-syntax-in-chat).
+
 ::: tip Multi-Agent Conversations
 Use exactly one `@AgentName` per message. Each user message returns one agent response.
 :::
@@ -295,18 +307,45 @@ Each AI response includes several helpful features:
 
 ### Citations
 
-When a response has grounding data, the UI can show a **Powered by** section below the message and a **Citations** toggle in the response actions. Click the citations button to show or hide inline references within the response text.
+When a response has grounding data, the UI can show a **Powered by N sources** section below the message and a **Citations** toggle in the response actions. Click the citations button to show or hide inline `⁽ⁿ⁾` superscript references within the response text.
 
 #### How Citations Work
 
-- **Numbered references** appear inline in the response text as superscript citations
+- **Numbered references** appear inline as superscript citations
 - Click any reference number to jump to the source detail
-- The grounded-source UI shows the attached source entries and links back to the underlying item
+- The grounded-source UI shows the attached source entries (campaign answers, dataset files, web sources) and links back to the underlying item
+- The `Powered by N sources` label is itself clickable — it expands/collapses the full source list with a chevron indicator
+- Sources can stream in slightly behind the response text — a `Powered by...` / `Loading sources...` placeholder appears during the wait
+- **Tool-call display name aliasing**: when the agent invokes the workspace retrieval tool, the tool-call appears as **Search Knowledge Base** rather than the raw internal tool name
 - Use citations to verify the AI's claims against your original data
+
+#### Backend tolerance
+
+The chat citation pipeline is intentionally tolerant of imperfect upstream data. If the message returned `grounding_support`, the app uses it directly; if only `grounding` exists, the backend synthesizes a basic citation structure; if neither is present, the message renders without a Powered-by section — no error, no warning. Absence of citations is not a failure, just a less-grounded answer.
+
+For the full citation architecture, the dual chat / structured-output pipelines, the `safeHttpUrl` security allowlist for LLM-generated URLs, and the difference between chat **`Powered by`** sections and dashboard **Evidence badges**, see [Sources & Citations](/guide/sources-and-citations).
 
 ::: tip Verifying AI Responses
 Always check citations when the AI makes specific statistical claims or quotes from your data. Citations help you confirm accuracy and give you the exact source to reference in your own reports.
 :::
+
+### Topic Graph integration (when enabled)
+
+If your workspace has `topicGraphEnabled` on AND the active Agent's capability bindings include `exploreTopicGraph`, the Agent can navigate your **Topic Graph** directly during chat. This is in addition to attaching campaigns as sources — the Topic Graph tool lets the Agent walk the entity-relationship network rather than reading raw campaign responses.
+
+The tool exposes five graph operations to the Agent (it picks based on your question):
+
+| Operation | Use when |
+|---|---|
+| **`summary`** | _"What are people talking about?"_ — returns top themes, entity-type distribution, top-mentioned entities. |
+| **`theme_details`** | _"What's inside the HydrationIngredients theme?"_ — entities + sample answers for one theme. |
+| **`entity_search`** | _"Did anyone talk about retinol?"_ — name/alias CONTAINS search with 1-hop neighborhoods. |
+| **`neighborhood`** | _"What's connected to Sephora in this campaign?"_ — k-hop BFS from one entity. |
+| **`path`** | _"How are Vitamin C and sensitive skin related?"_ — shortest path between two entities. |
+
+Each result the tool surfaces gets emitted as an `answer`-typed grounding entry, so the Agent's response includes a **Powered by N sources** section just like other grounded answers — citations trace back to specific respondent quotes via the standard chat-citations pipeline.
+
+See [Topic Graph (Insights)](/guide/topic-graph#the-topic-graph-explorer-chat-tool-agents-can-navigate-the-graph) for the full operation reference, and [Capabilities](/guide/capabilities) for binding the capability to your Agents.
 
 ### Response Actions
 
@@ -659,7 +698,26 @@ Use one `@mention` per message and ask each agent in separate turns. Then ask on
 |----------|--------|
 | **Enter** | Send your message |
 | **Shift + Enter** | Add a new line without sending |
-| **@** + agent name | Mention an agent in your message |
+| **`@`** + agent name | Open the mention picker, then ↑/↓ + Enter to insert |
+| **`/`** | Open the contextual quick-pick popup for tools and image options |
+
+## Where to go deeper
+
+The Home page connects to almost every other part of Vurvey. For deeper detail on the surfaces referenced above:
+
+- **[Agents](/guide/agents)** — create the personas that drive the conversation; bind capabilities like `exploreTopicGraph` to give them new tools
+- **[Mentions → @mention syntax](/guide/mentions#2-mention-syntax-in-chat)** — the full mention behavior including server-side routing
+- **[Sources & Citations](/guide/sources-and-citations)** — the dual chat / structured-output attribution pipelines and the LLM-URL safety allowlist
+- **[Topic Graph](/guide/topic-graph)** — the Insights tab on campaigns plus the `exploreTopicGraph` chat tool
+- **[Capabilities](/guide/capabilities)** — packaged research systems built on Workflows + structured outputs
+- **[Canvas & Image Studio](/guide/canvas-and-image-studio)** — the chat surface in depth, the Google Veo 3.1 video conversion flow
+- **[Datasets](/guide/datasets)** — upload, organize, and share the files Agents draw on
+- **[Campaigns](/guide/campaigns)** — the survey responses that ground answers about real consumer data
+- **[Workflows](/guide/workflows)** — automate the recurring conversations you have here
+- **[Brand Companions](/guide/brand-companions)** — same chat surface, embedded publicly on your own site
+- **[Permissions & Sharing](/guide/permissions-and-sharing)** — who can see, edit, and share each resource you attach
+- **[Settings → AI Models](/guide/settings#ai-models-settings-ai-models)** — which models your workspace has provisioned
+- **[Integrations](/guide/integrations)** — Composio and Workspace Enterprise connections that surface as Agent tools
 
 ## Next Steps
 
@@ -667,3 +725,4 @@ Use one `@mention` per message and ask each agent in separate turns. Then ask on
 - [Upload Datasets](/guide/datasets) to give agents your proprietary knowledge
 - [Launch a Campaign](/guide/campaigns) to collect primary research data
 - [Build Workflows](/guide/workflows) to automate recurring analysis
+- [Deploy Capabilities](/guide/capabilities) to package those Workflows into reusable research systems
